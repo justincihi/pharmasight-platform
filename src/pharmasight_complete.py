@@ -16,6 +16,7 @@ import re
 from ddi_analysis_fix import get_detailed_interaction_info
 from analog_generation_fix import generate_analog_report, resolve_compound_name
 from research_findings_fix import get_research_findings_with_hypotheses, search_research_findings, get_research_analytics, generate_research_report
+from unified_search_engine import unified_search
 
 app = Flask(__name__)
 app.secret_key = 'pharmasight_enterprise_2024'
@@ -2774,34 +2775,106 @@ def index():
 @app.route('/api/analyze_compound', methods=['POST'])
 def analyze_compound():
     data = request.get_json()
-    compound_name = data.get('compound', '').lower().strip()
+    compound_name = data.get('compound', '').strip()
     
     # Log the activity
     log_activity(session.get('user', 'anonymous'), 'compound_analysis', f'Analyzed compound: {compound_name}')
     
-    # Search for compound in database
-    compound_data = COMPOUND_DATABASE.get(compound_name)
+    try:
+        # Use unified search engine for comprehensive data
+        unified_result = unified_search.search_compound(compound_name)
+        
+        # Check if we found comprehensive data
+        if unified_result.sources:
+            # Extract comprehensive data
+            comprehensive_data = unified_result.comprehensive_data
+            molecular_data = comprehensive_data.get('molecular_data', {})
+            bioactivity_data = comprehensive_data.get('bioactivity_data', {})
+            regulatory_info = comprehensive_data.get('regulatory_info', {})
+            commercial_info = comprehensive_data.get('commercial_info', {})
+            
+            # Generate SVG structure if SMILES available
+            structure_svg = None
+            if molecular_data.get('smiles'):
+                structure_svg = generate_svg_structure(molecular_data['smiles'])
+            
+            # Format response with comprehensive data
+            response_data = {
+                'name': unified_result.compound_name,
+                'molecular_formula': unified_result.molecular_formula,
+                'molecular_weight': unified_result.molecular_weight,
+                'smiles': molecular_data.get('smiles'),
+                'inchi': molecular_data.get('inchi'),
+                'inchi_key': molecular_data.get('inchi_key'),
+                'iupac_name': molecular_data.get('iupac_name'),
+                'synonyms': molecular_data.get('synonyms', [])[:10],  # Limit to 10
+                'primary_identifier': unified_result.primary_identifier,
+                'sources': unified_result.sources,
+                'confidence_score': unified_result.confidence_score,
+                'fda_approved': regulatory_info.get('fda_approved', False),
+                'marketing_status': regulatory_info.get('marketing_status', []),
+                'commercial_availability': commercial_info.get('commercially_available', False),
+                'zinc_results': commercial_info.get('zinc_results', 0),
+                'bioactivity_summary': {
+                    'total_bioactivities': bioactivity_data.get('total_bioactivities', 0),
+                    'unique_targets': len(bioactivity_data.get('unique_targets', [])),
+                    'activity_types': bioactivity_data.get('activity_types', [])
+                },
+                'structure_svg': structure_svg,
+                'search_metadata': unified_result.search_metadata,
+                'data_source': 'Unified Search Engine (6 databases)',
+                'therapeutic_area': 'Determined from bioactivity data',
+                'status': 'Live data from pharmaceutical databases',
+                'patent_status': 'Check regulatory_info for details'
+            }
+            
+            return jsonify(response_data)
+        
+        else:
+            # Fallback to local database if no external data found
+            compound_data = COMPOUND_DATABASE.get(compound_name.lower())
+            
+            if not compound_data:
+                # Try partial matching
+                for key, value in COMPOUND_DATABASE.items():
+                    if compound_name.lower() in key or compound_name.lower() in value['name'].lower():
+                        compound_data = value
+                        break
+            
+            if compound_data:
+                # Generate SVG structure
+                structure_svg = generate_svg_structure(compound_data['smiles'])
+                
+                # Add structure to response
+                response_data = compound_data.copy()
+                response_data['structure_svg'] = structure_svg
+                response_data['data_source'] = 'Local Database (500+ compounds)'
+                
+                return jsonify(response_data)
+            else:
+                return jsonify({
+                    'error': f'Compound "{compound_name}" not found in any database. The platform searched 6 major pharmaceutical databases plus 500+ local compounds.',
+                    'searched_databases': ['PubChem', 'ChEMBL', 'FDA Orange Book', 'DrugBank', 'ZINC', 'OpenTargets'],
+                    'suggestion': 'Try searching with a different name, brand name, or chemical identifier.'
+                })
     
-    if not compound_data:
-        # Try partial matching
-        for key, value in COMPOUND_DATABASE.items():
-            if compound_name in key or compound_name in value['name'].lower():
-                compound_data = value
-                break
-    
-    if not compound_data:
-        return jsonify({
-            'error': f'Compound "{compound_name}" not found in database. Available compounds include: Psilocybin, LSD, MDMA, Ketamine, Arketamine HCl, Morphine, Sertraline, Alprazolam, and 500+ others.'
-        })
-    
-    # Generate SVG structure
-    structure_svg = generate_svg_structure(compound_data['smiles'])
-    
-    # Add structure to response
-    response_data = compound_data.copy()
-    response_data['structure_svg'] = structure_svg
-    
-    return jsonify(response_data)
+    except Exception as e:
+        # Fallback to local database on error
+        compound_data = COMPOUND_DATABASE.get(compound_name.lower())
+        
+        if compound_data:
+            structure_svg = generate_svg_structure(compound_data['smiles'])
+            response_data = compound_data.copy()
+            response_data['structure_svg'] = structure_svg
+            response_data['data_source'] = 'Local Database (fallback)'
+            response_data['note'] = f'External database search failed: {str(e)}'
+            
+            return jsonify(response_data)
+        else:
+            return jsonify({
+                'error': f'Compound "{compound_name}" not found and external search failed: {str(e)}',
+                'fallback_available': 'Local database with 500+ compounds available'
+            })
 
 @app.route('/api/generate_analogs', methods=['POST'])
 def generate_analogs():
