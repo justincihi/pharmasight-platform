@@ -966,10 +966,12 @@ def index():
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             min-height: 100vh;
-            color: #ffffff;
+            color: #1a202c;
+            font-size: 16px;
+            line-height: 1.6;
         }
         
         .container {
@@ -981,10 +983,12 @@ def index():
         .header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
         
         .logo {
@@ -1010,40 +1014,45 @@ def index():
         }
         
         .logo-text {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(45deg, #00d4ff, #ffffff);
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #2563eb, #1e40af);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -0.02em;
         }
         
         .trademark {
             font-size: 1rem;
             vertical-align: super;
-            color: #00d4ff;
+            color: #2563eb;
+            font-weight: 600;
         }
         
         .subtitle {
-            font-size: 1.1rem;
-            color: #e2e8f0;
-            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-top: 15px;
+            font-weight: 500;
         }
         
         .login-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
             margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         }
         
         .login-title {
             text-align: center;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #00d4ff;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #1e40af;
+            font-weight: 700;
         }
         
         .login-form {
@@ -1057,49 +1066,59 @@ def index():
         
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: #e2e8f0;
+            color: #374151;
+            font-size: 15px;
         }
         
         .form-group input {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
+            padding: 14px 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #1f2937;
             font-size: 16px;
             transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         .form-group input:focus {
             outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            transform: translateY(-1px);
         }
         
         .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: #9ca3af;
         }
         
         .login-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(45deg, #00d4ff, #5a67d8);
+            padding: 16px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             color: white;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            position: relative;
+            overflow: hidden;
         }
         
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
         }
         
         .dashboard {
@@ -1118,66 +1137,84 @@ def index():
         }
         
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
             text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
         
         .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: #00d4ff;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #2563eb;
+            background: rgba(255, 255, 255, 1);
         }
         
         .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #00d4ff;
-            margin-bottom: 10px;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #2563eb;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .stat-label {
             font-size: 1.1rem;
-            color: #e2e8f0;
+            color: #64748b;
+            font-weight: 600;
         }
         
         .tabs {
             display: flex;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 5px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 8px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
         
         .tab {
             flex: 1;
-            padding: 15px 20px;
+            padding: 16px 24px;
             text-align: center;
-            border-radius: 10px;
+            border-radius: 14px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 600;
+            color: #64748b;
+            font-size: 15px;
         }
         
         .tab.active {
-            background: linear-gradient(45deg, #00d4ff, #5a67d8);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .tab:hover:not(.active) {
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
         }
         
         .tab-content {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            min-height: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 35px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            min-height: 450px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
         
         .tab-panel {
@@ -1196,50 +1233,60 @@ def index():
         }
         
         .btn {
-            padding: 12px 24px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
         
         .btn-primary {
-            background: linear-gradient(45deg, #00d4ff, #5a67d8);
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
-            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
         }
         
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
         }
         
         .results-section {
-            margin-top: 20px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 25px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
         
         .error-message {
-            color: #ff6b6b;
-            background: rgba(255, 107, 107, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 107, 107, 0.3);
-            margin-top: 15px;
+            color: #dc2626;
+            background: rgba(220, 38, 38, 0.1);
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            margin-top: 18px;
+            font-weight: 600;
         }
         
         .success-message {
-            color: #51cf66;
-            background: rgba(81, 207, 102, 0.1);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(81, 207, 102, 0.3);
-            margin-top: 15px;
+            color: #059669;
+            background: rgba(5, 150, 105, 0.1);
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            margin-top: 18px;
+            font-weight: 600;
         }
         
         .modal {
@@ -1255,19 +1302,21 @@ def index():
         }
         
         .modal-content {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: rgba(255, 255, 255, 0.98);
             margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
+            padding: 40px;
+            border-radius: 20px;
             width: 80%;
             max-width: 800px;
             max-height: 80vh;
             overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
         }
         
         .close {
-            color: #aaa;
+            color: #64748b;
             float: right;
             font-size: 28px;
             font-weight: bold;
@@ -1276,7 +1325,7 @@ def index():
         }
         
         .close:hover {
-            color: #00d4ff;
+            color: #2563eb;
         }
         
         .compound-info {
@@ -1287,34 +1336,36 @@ def index():
         }
         
         .info-section {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(248, 250, 252, 0.8);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         
         .info-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #00d4ff;
-            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 18px;
         }
         
         .info-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
         }
         
         .info-label {
             font-weight: 600;
-            color: #e2e8f0;
+            color: #374151;
         }
         
         .info-value {
-            color: #ffffff;
+            color: #1f2937;
+            font-weight: 600;
         }
         
         .enterprise-tools {
@@ -1324,38 +1375,41 @@ def index():
         }
         
         .tool-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
         
         .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-color: #00d4ff;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: #2563eb;
+            background: rgba(255, 255, 255, 1);
         }
         
         .tool-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: #00d4ff;
+            font-size: 2.8rem;
+            margin-bottom: 18px;
+            color: #2563eb;
         }
         
         .tool-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #ffffff;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1f2937;
         }
         
         .tool-description {
-            color: #e2e8f0;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            color: #64748b;
+            margin-bottom: 24px;
+            line-height: 1.6;
+            font-weight: 500;
         }
         
         .pkpd-section {
@@ -1435,7 +1489,329 @@ def index():
         
         .meta-value {
             font-weight: 600;
-            color: #ffffff;
+            color: #1f2937;
+        }
+        
+        /* Advanced Animations and Visual Effects */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 40px rgba(37, 99, 235, 0.6);
+            }
+        }
+        
+        /* Enhanced Border Designs */
+        .animated-border {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .animated-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .animated-border:hover::before {
+            left: 100%;
+        }
+        
+        .gradient-border {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 2px;
+            border-radius: 20px;
+        }
+        
+        .gradient-border-inner {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            padding: 30px;
+        }
+        
+        /* Floating Elements */
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Shimmer Effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        /* Pulse Animation for Important Elements */
+        .pulse-glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        /* Staggered Animation for Cards */
+        .stat-card:nth-child(1) { animation: fadeInUp 0.6s ease-out 0.1s both; }
+        .stat-card:nth-child(2) { animation: fadeInUp 0.6s ease-out 0.2s both; }
+        .stat-card:nth-child(3) { animation: fadeInUp 0.6s ease-out 0.3s both; }
+        .stat-card:nth-child(4) { animation: fadeInUp 0.6s ease-out 0.4s both; }
+        
+        /* Tab Animation */
+        .tab {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transition: width 0.3s ease;
+        }
+        
+        .tab.active::after {
+            width: 100%;
+        }
+        
+        /* Enhanced Button Effects */
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Morphing Shapes */
+        .morphing-bg {
+            background: linear-gradient(-45deg, #f8fafc, #e2e8f0, #cbd5e1, #94a3b8);
+            background-size: 400% 400%;
+            animation: morphing 15s ease infinite;
+        }
+        
+        @keyframes morphing {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Glass Morphism Effect */
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        /* Particle Effect Background */
+        .particle-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(29, 78, 216, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(30, 64, 175, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        /* Enhanced Hover States */
+        .enhanced-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .enhanced-hover:hover {
+            transform: translateY(-4px) scale(1.02);
+            filter: brightness(1.1);
+        }
+        
+        /* Loading Animation */
+        .loading-dots {
+            display: inline-block;
+        }
+        
+        .loading-dots::after {
+            content: '';
+            animation: loading-dots 1.5s infinite;
+        }
+        
+        @keyframes loading-dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        /* Hero Background Images */
+        .hero-bg {
+            background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(226, 232, 240, 0.95)),
+                        url('lab_research.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .research-bg {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9)),
+                        url('researcher_lab.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            position: relative;
+        }
+        
+        .molecular-accent {
+            background: url('molecular_viz.png') no-repeat;
+            background-size: contain;
+            background-position: top right;
+            opacity: 0.1;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+        }
+        
+        /* Enhanced Visual Elements */
+        .visual-enhancement {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .visual-enhancement::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Icon Enhancements */
+        .enhanced-icon {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.3));
+        }
+        
+        /* Professional Card Layouts */
+        .professional-card {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .professional-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #1d4ed8, #1e40af);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        /* Data Visualization Enhancements */
+        .data-viz-container {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            position: relative;
+        }
+        
+        .data-viz-container::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 60px;
+            height: 60px;
+            background: url('molecular_viz.png') no-repeat;
+            background-size: contain;
+            opacity: 0.2;
         }
         
         @media (max-width: 768px) {
@@ -1463,45 +1839,48 @@ def index():
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="container hero-bg particle-bg">
+        <div class="header professional-card visual-enhancement">
+            <div class="molecular-accent"></div>
             <div class="logo">
-                <div class="logo-icon">Φ</div>
+                <div class="logo-icon floating pulse-glow enhanced-icon">Φ</div>
                 <div class="logo-text">PharmaSight<span class="trademark">™</span></div>
             </div>
             <div class="subtitle">Advanced AI-Powered Pharmaceutical Research & Development</div>
         </div>
         
-        <div class="login-section" id="loginSection">
-            <div class="login-title">🔐 Secure Access Portal</div>
-            <div class="login-form">
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" value="ImplicateOrder25" required>
+        <div class="login-section gradient-border glass-morphism" id="loginSection">
+            <div class="gradient-border-inner">
+                <div class="login-title">🔐 Secure Access Portal</div>
+                <div class="login-form">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" value="ImplicateOrder25" required class="enhanced-hover">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" value="ExplicateOrder26" required class="enhanced-hover">
+                    </div>
+                    <button class="login-btn animated-border" onclick="login()">Login to Enterprise Platform</button>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" value="ExplicateOrder26" required>
-                </div>
-                <button class="login-btn" onclick="login()">Login to Enterprise Platform</button>
             </div>
         </div>
         
         <div class="dashboard" id="dashboard">
             <div class="stats-grid">
-                <div class="stat-card" onclick="showCompounds()">
+                <div class="stat-card enhanced-hover" onclick="showCompounds()">
                     <div class="stat-number">500+</div>
                     <div class="stat-label">Active Compounds</div>
                 </div>
-                <div class="stat-card" onclick="showProjects()">
+                <div class="stat-card enhanced-hover" onclick="showProjects()">
                     <div class="stat-number">4</div>
                     <div class="stat-label">Research Projects</div>
                 </div>
-                <div class="stat-card" onclick="showPatents()">
+                <div class="stat-card enhanced-hover" onclick="showPatents()">
                     <div class="stat-number">3</div>
                     <div class="stat-label">Patents Filed</div>
                 </div>
-                <div class="stat-card" onclick="showDiscoveries()">
+                <div class="stat-card enhanced-hover" onclick="showDiscoveries()">
                     <div class="stat-number">156</div>
                     <div class="stat-label">AI Discoveries</div>
                 </div>
@@ -1515,49 +1894,50 @@ def index():
                 <div class="tab" onclick="showTab('enterprise-tools')">Enterprise Tools</div>
             </div>
             
-            <div class="tab-content">
+            <div class="tab-content professional-card research-bg">
+                <div class="molecular-accent"></div>
                 <div class="tab-panel active" id="compound-analysis">
-                    <h3>🧬 AI-Powered Compound Analysis</h3>
+                    <h3><span class="enhanced-icon">🧬</span> AI-Powered Compound Analysis</h3>
                     <p>Enter Compound Name or SMILES:</p>
                     <div class="form-row">
-                        <input type="text" id="compoundInput" placeholder="e.g., Psilocybin, Arketamine HCl, MDMA, Sertraline" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
-                        <button class="btn btn-primary" onclick="analyzeCompound()">Analyze Compound</button>
+                        <input type="text" id="compoundInput" placeholder="e.g., Psilocybin, Arketamine HCl, MDMA, Sertraline" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                        <button class="btn btn-primary animated-border" onclick="analyzeCompound()">Analyze Compound</button>
                     </div>
-                    <div id="analysisResults"></div>
+                    <div id="analysisResults" class="data-viz-container"></div>
                 </div>
                 
                 <div class="tab-panel" id="analog-generation">
-                    <h3>⚗️ Analog Generation & Patent Analysis</h3>
+                    <h3><span class="enhanced-icon">⚗️</span> Analog Generation & Patent Analysis</h3>
                     <p>Parent Compound:</p>
                     <div class="form-row">
-                        <input type="text" id="parentCompound" placeholder="e.g., Psilocybin, Ketamine, MDMA" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
-                        <select id="targetProperties" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
+                        <input type="text" id="parentCompound" placeholder="e.g., Psilocybin, Ketamine, MDMA" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                        <select id="targetProperties" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
                             <option value="all">All Properties</option>
                             <option value="patent-free">Patent-Free Only</option>
                             <option value="high-similarity">High Similarity (>0.9)</option>
                             <option value="drug-like">Drug-Like Only</option>
                         </select>
                     </div>
-                    <button class="btn btn-primary" onclick="generateAnalogs()">Generate Analogs</button>
-                    <div id="analogResults"></div>
+                    <button class="btn btn-primary animated-border" onclick="generateAnalogs()">Generate Analogs</button>
+                    <div id="analogResults" class="data-viz-container"></div>
                 </div>
                 
                 <div class="tab-panel" id="research-findings">
-                    <h3>📚 Research Findings & Hypotheses</h3>
-                    <button class="btn btn-primary" onclick="loadResearchFindings()">Load Latest Findings</button>
-                    <div id="findingsResults"></div>
+                    <h3><span class="enhanced-icon">📚</span> Research Findings & Hypotheses</h3>
+                    <button class="btn btn-primary animated-border" onclick="loadResearchFindings()">Load Latest Findings</button>
+                    <div id="findingsResults" class="data-viz-container"></div>
                 </div>
-                
+                    
                 <div class="tab-panel" id="pkpd-analysis">
-                    <h3>💊 PKPD & Drug-Drug Interaction Analysis</h3>
+                    <h3><span class="enhanced-icon">💊</span> PKPD & Drug-Drug Interaction Analysis</h3>
                     <p>Enter medications for interaction analysis:</p>
                     <div class="form-row">
-                        <input type="text" id="medication1" placeholder="First medication" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
-                        <input type="text" id="medication2" placeholder="Second medication" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
+                        <input type="text" id="medication1" placeholder="First medication" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                        <input type="text" id="medication2" placeholder="Second medication" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
                     </div>
                     <div class="form-row">
-                        <input type="text" id="medication3" placeholder="Third medication (optional)" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
-                        <select id="patientAge" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white;">
+                        <input type="text" id="medication3" placeholder="Third medication (optional)" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                        <select id="patientAge" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
                             <option value="">Select Age Group</option>
                             <option value="18-30">18-30 years</option>
                             <option value="31-50">31-50 years</option>
@@ -1566,54 +1946,55 @@ def index():
                         </select>
                     </div>
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; margin-bottom: 10px; color: #e2e8f0;">Patient Conditions:</label>
+                        <label style="display: block; margin-bottom: 10px; color: #374151; font-weight: 600;">Patient Conditions:</label>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                            <label style="display: flex; align-items: center; gap: 8px; color: #e2e8f0;">
+                            <label style="display: flex; align-items: center; gap: 8px; color: #374151;">
                                 <input type="checkbox" id="liverDisease"> Liver Disease
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; color: #e2e8f0;">
+                            <label style="display: flex; align-items: center; gap: 8px; color: #374151;">
                                 <input type="checkbox" id="kidneyDisease"> Kidney Disease
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; color: #e2e8f0;">
+                            <label style="display: flex; align-items: center; gap: 8px; color: #374151;">
                                 <input type="checkbox" id="heartDisease"> Heart Disease
                             </label>
-                            <label style="display: flex; align-items: center; gap: 8px; color: #e2e8f0;">
+                            <label style="display: flex; align-items: center; gap: 8px; color: #374151;">
                                 <input type="checkbox" id="respiratoryDisease"> Respiratory Disease
                             </label>
                         </div>
                     </div>
-                    <button class="btn btn-primary" onclick="analyzePKPD()">Analyze Drug Interactions</button>
-                    <div id="pkpdResults"></div>
+                    <button class="btn btn-primary animated-border" onclick="analyzePKPD()">Analyze Drug Interactions</button>
+                    <div id="pkpdResults" class="data-viz-container"></div>
                 </div>
                 
                 <div class="tab-panel" id="enterprise-tools">
-                    <h3>🏢 Enterprise Tools</h3>
+                    <h3><span class="enhanced-icon">🏢</span> Enterprise Tools</h3>
                     <div class="enterprise-tools">
-                        <div class="tool-card">
-                            <div class="tool-icon">📋</div>
+                        <div class="tool-card enhanced-hover professional-card">
+                            <div class="tool-icon enhanced-icon">📋</div>
                             <div class="tool-title">Audit Log</div>
                             <div class="tool-description">View comprehensive activity logs</div>
-                            <button class="btn btn-primary" onclick="viewAuditLog()">View Audit Log</button>
+                            <button class="btn btn-primary animated-border" onclick="viewAuditLog()">View Audit Log</button>
                         </div>
-                        <div class="tool-card">
-                            <div class="tool-icon">🧪</div>
+                        <div class="tool-card enhanced-hover professional-card">
+                            <div class="tool-icon enhanced-icon">🧪</div>
                             <div class="tool-title">Retrosynthesis</div>
                             <div class="tool-description">AI-powered synthetic route planning</div>
-                            <button class="btn btn-primary" onclick="planSynthesis()">Plan Synthesis</button>
+                            <button class="btn btn-primary animated-border" onclick="planSynthesis()">Plan Synthesis</button>
                         </div>
-                        <div class="tool-card">
-                            <div class="tool-icon">📊</div>
+                        <div class="tool-card enhanced-hover professional-card">
+                            <div class="tool-icon enhanced-icon">📊</div>
                             <div class="tool-title">Analytics Dashboard</div>
                             <div class="tool-description">Advanced research analytics</div>
-                            <button class="btn btn-primary" onclick="viewAnalytics()">View Analytics</button>
+                            <button class="btn btn-primary animated-border" onclick="viewAnalytics()">View Analytics</button>
                         </div>
-                        <div class="tool-card">
-                            <div class="tool-icon">🔬</div>
+                        <div class="tool-card enhanced-hover professional-card">
+                            <div class="tool-icon enhanced-icon">🔬</div>
                             <div class="tool-title">Clinical Trial Design</div>
                             <div class="tool-description">AI-assisted trial protocol generation</div>
-                            <button class="btn btn-primary" onclick="designTrial()">Design Trial</button>
+                            <button class="btn btn-primary animated-border" onclick="designTrial()">Design Trial</button>
                         </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
