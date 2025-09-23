@@ -17,6 +17,10 @@ from ddi_analysis_fix import get_detailed_interaction_info
 from analog_generation_fix import generate_analog_report, resolve_compound_name
 from research_findings_fix import get_research_findings_with_hypotheses, search_research_findings, get_research_analytics, generate_research_report
 from unified_search_engine import unified_search
+from admin_research_api import get_admin_research_blueprint
+from discovery_logging_api import get_discovery_logging_blueprint
+from enhanced_display_api import get_enhanced_display_blueprint
+from confidence_doi_api import get_confidence_doi_blueprint
 
 app = Flask(__name__)
 app.secret_key = 'pharmasight_enterprise_2024'
@@ -3066,6 +3070,12 @@ def health_check():
         'database': 'connected',
         'features': 'all_operational'
     })
+
+# Register admin research blueprint
+app.register_blueprint(get_admin_research_blueprint())
+app.register_blueprint(get_discovery_logging_blueprint())
+app.register_blueprint(get_enhanced_display_blueprint())
+app.register_blueprint(get_confidence_doi_blueprint())
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5008, debug=False)
