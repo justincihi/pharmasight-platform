@@ -2785,9 +2785,9 @@ def analyze_compound():
         unified_result = unified_search.search_compound(compound_name)
         
         # Check if we found comprehensive data
-        if unified_result.sources:
-            # Extract comprehensive data
-            comprehensive_data = unified_result.comprehensive_data
+        if unified_result and hasattr(unified_result, 'sources') and unified_result.sources:
+            # Extract comprehensive data safely
+            comprehensive_data = getattr(unified_result, 'comprehensive_data', {})
             molecular_data = comprehensive_data.get('molecular_data', {})
             bioactivity_data = comprehensive_data.get('bioactivity_data', {})
             regulatory_info = comprehensive_data.get('regulatory_info', {})
@@ -2795,33 +2795,53 @@ def analyze_compound():
             
             # Generate SVG structure if SMILES available
             structure_svg = None
-            if molecular_data.get('smiles'):
-                structure_svg = generate_svg_structure(molecular_data['smiles'])
+            smiles = molecular_data.get('smiles')
+            if smiles and isinstance(smiles, str):
+                try:
+                    structure_svg = generate_svg_structure(smiles)
+                except:
+                    structure_svg = None
+            
+            # Safely extract data with type checking
+            def safe_get(obj, key, default=None):
+                try:
+                    value = obj.get(key, default) if isinstance(obj, dict) else default
+                    # Ensure JSON serializable
+                    if isinstance(value, (str, int, float, bool, type(None))):
+                        return value
+                    elif isinstance(value, (list, tuple)):
+                        return list(value)[:10]  # Limit lists
+                    elif isinstance(value, dict):
+                        return dict(value)
+                    else:
+                        return str(value)
+                except:
+                    return default
             
             # Format response with comprehensive data
             response_data = {
-                'name': unified_result.compound_name,
-                'molecular_formula': unified_result.molecular_formula,
-                'molecular_weight': unified_result.molecular_weight,
-                'smiles': molecular_data.get('smiles'),
-                'inchi': molecular_data.get('inchi'),
-                'inchi_key': molecular_data.get('inchi_key'),
-                'iupac_name': molecular_data.get('iupac_name'),
-                'synonyms': molecular_data.get('synonyms', [])[:10],  # Limit to 10
-                'primary_identifier': unified_result.primary_identifier,
-                'sources': unified_result.sources,
-                'confidence_score': unified_result.confidence_score,
-                'fda_approved': regulatory_info.get('fda_approved', False),
-                'marketing_status': regulatory_info.get('marketing_status', []),
-                'commercial_availability': commercial_info.get('commercially_available', False),
-                'zinc_results': commercial_info.get('zinc_results', 0),
+                'name': safe_get({'compound_name': getattr(unified_result, 'compound_name', compound_name)}, 'compound_name', compound_name),
+                'molecular_formula': safe_get({'molecular_formula': getattr(unified_result, 'molecular_formula', None)}, 'molecular_formula', 'Unknown'),
+                'molecular_weight': safe_get({'molecular_weight': getattr(unified_result, 'molecular_weight', None)}, 'molecular_weight', 0),
+                'smiles': safe_get(molecular_data, 'smiles', 'Not available'),
+                'inchi': safe_get(molecular_data, 'inchi', 'Not available'),
+                'inchi_key': safe_get(molecular_data, 'inchi_key', 'Not available'),
+                'iupac_name': safe_get(molecular_data, 'iupac_name', 'Not available'),
+                'synonyms': safe_get(molecular_data, 'synonyms', []),
+                'primary_identifier': safe_get({'primary_identifier': getattr(unified_result, 'primary_identifier', None)}, 'primary_identifier', 'Unknown'),
+                'sources': safe_get({'sources': getattr(unified_result, 'sources', [])}, 'sources', []),
+                'confidence_score': safe_get({'confidence_score': getattr(unified_result, 'confidence_score', 0)}, 'confidence_score', 0),
+                'fda_approved': safe_get(regulatory_info, 'fda_approved', False),
+                'marketing_status': safe_get(regulatory_info, 'marketing_status', []),
+                'commercial_availability': safe_get(commercial_info, 'commercially_available', False),
+                'zinc_results': safe_get(commercial_info, 'zinc_results', 0),
                 'bioactivity_summary': {
-                    'total_bioactivities': bioactivity_data.get('total_bioactivities', 0),
-                    'unique_targets': len(bioactivity_data.get('unique_targets', [])),
-                    'activity_types': bioactivity_data.get('activity_types', [])
+                    'total_bioactivities': safe_get(bioactivity_data, 'total_bioactivities', 0),
+                    'unique_targets': len(safe_get(bioactivity_data, 'unique_targets', [])),
+                    'activity_types': safe_get(bioactivity_data, 'activity_types', [])
                 },
                 'structure_svg': structure_svg,
-                'search_metadata': unified_result.search_metadata,
+                'search_metadata': safe_get({'search_metadata': getattr(unified_result, 'search_metadata', {})}, 'search_metadata', {}),
                 'data_source': 'Unified Search Engine (6 databases)',
                 'therapeutic_area': 'Determined from bioactivity data',
                 'status': 'Live data from pharmaceutical databases',
@@ -2843,7 +2863,10 @@ def analyze_compound():
             
             if compound_data:
                 # Generate SVG structure
-                structure_svg = generate_svg_structure(compound_data['smiles'])
+                try:
+                    structure_svg = generate_svg_structure(compound_data['smiles'])
+                except:
+                    structure_svg = None
                 
                 # Add structure to response
                 response_data = compound_data.copy()
@@ -2859,11 +2882,20 @@ def analyze_compound():
                 })
     
     except Exception as e:
+        # Enhanced error logging
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error in analyze_compound: {error_details}")
+        
         # Fallback to local database on error
         compound_data = COMPOUND_DATABASE.get(compound_name.lower())
         
         if compound_data:
-            structure_svg = generate_svg_structure(compound_data['smiles'])
+            try:
+                structure_svg = generate_svg_structure(compound_data['smiles'])
+            except:
+                structure_svg = None
+                
             response_data = compound_data.copy()
             response_data['structure_svg'] = structure_svg
             response_data['data_source'] = 'Local Database (fallback)'
@@ -2873,7 +2905,8 @@ def analyze_compound():
         else:
             return jsonify({
                 'error': f'Compound "{compound_name}" not found and external search failed: {str(e)}',
-                'fallback_available': 'Local database with 500+ compounds available'
+                'fallback_available': 'Local database with 500+ compounds available',
+                'error_type': 'search_failure'
             })
 
 @app.route('/api/generate_analogs', methods=['POST'])
