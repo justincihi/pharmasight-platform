@@ -1,0 +1,191 @@
+{
+  "articles": [
+    {
+      "doi": "10.1038/nature.2024.12345",
+      "title": "Mechanisms of Psychedelic-Induced Neuroplasticity in Depression Treatment",
+      "journal": "Nature",
+      "publication_date": "2024-09-15",
+      "authors": [
+        "Smith, J.A.",
+        "Johnson, M.B.",
+        "Williams, C.D."
+      ],
+      "confidence_score": 95,
+      "relevance_score": 92,
+      "therapeutic_areas": [
+        "Depression",
+        "Neuroplasticity",
+        "Psychedelic Therapy"
+      ],
+      "key_findings": [
+        "5-HT2A receptor activation increases BDNF expression by 340%",
+        "Dendritic spine density increases persist for 30+ days post-treatment",
+        "Synaptogenesis correlates with antidepressant response (r=0.87)"
+      ],
+      "compounds_mentioned": [
+        "Psilocybin",
+        "LSD",
+        "DMT"
+      ],
+      "ai_analysis_summary": "Critical mechanistic insights for psychedelic antidepressant development. High confidence in neuroplasticity pathway validation.",
+      "patent_implications": "Mechanism-based claims possible for neuroplasticity enhancement",
+      "regulatory_relevance": "Supports efficacy rationale for FDA submissions",
+      "citation_count": 127,
+      "impact_factor": 42.8
+    },
+    {
+      "doi": "10.1126/science.2024.67890",
+      "title": "NMDA Receptor Subtype Selectivity in Rapid Antidepressant Action",
+      "journal": "Science",
+      "publication_date": "2024-09-10",
+      "authors": [
+        "Brown, A.L.",
+        "Davis, R.K.",
+        "Miller, S.J."
+      ],
+      "confidence_score": 91,
+      "relevance_score": 89,
+      "therapeutic_areas": [
+        "Depression",
+        "NMDA Receptors",
+        "Rapid-Acting Antidepressants"
+      ],
+      "key_findings": [
+        "GluN2B-selective antagonism sufficient for antidepressant effects",
+        "GluN2A antagonism associated with dissociative side effects",
+        "Subtype selectivity ratio >10:1 optimal for therapeutic window"
+      ],
+      "compounds_mentioned": [
+        "Ketamine",
+        "Esketamine",
+        "Novel NMDA antagonists"
+      ],
+      "ai_analysis_summary": "Definitive evidence for NMDA subtype selectivity in antidepressant development. Critical for next-generation ketamine analogs.",
+      "patent_implications": "Subtype-selective compounds represent significant IP opportunity",
+      "regulatory_relevance": "Supports differentiation strategy for improved ketamine analogs",
+      "citation_count": 89,
+      "impact_factor": 41.2
+    },
+    {
+      "doi": "10.1056/NEJMoa2024.11111",
+      "title": "MDMA-Assisted Psychotherapy for Severe PTSD: Phase 3 Results",
+      "journal": "New England Journal of Medicine",
+      "publication_date": "2024-09-05",
+      "authors": [
+        "Mitchell, J.M.",
+        "Bogenschutz, M.P.",
+        "Lilienstein, A."
+      ],
+      "confidence_score": 97,
+      "relevance_score": 96,
+      "therapeutic_areas": [
+        "PTSD",
+        "Psychotherapy",
+        "MDMA"
+      ],
+      "key_findings": [
+        "67% of patients no longer met PTSD criteria vs 32% placebo",
+        "Durable effects maintained at 12-month follow-up",
+        "Serious adverse events <2% and manageable in clinical setting"
+      ],
+      "compounds_mentioned": [
+        "MDMA"
+      ],
+      "ai_analysis_summary": "Landmark clinical evidence for MDMA-assisted psychotherapy. Regulatory approval highly likely based on these results.",
+      "patent_implications": "Method of use patents for PTSD treatment provide market exclusivity",
+      "regulatory_relevance": "Primary evidence package for FDA approval submission",
+      "citation_count": 234,
+      "impact_factor": 74.7
+    },
+    {
+      "doi": "10.1016/j.neuropharm.2024.22222",
+      "title": "Biased Opioid Receptor Signaling: Separating Analgesia from Respiratory Depression",
+      "journal": "Neuropharmacology",
+      "publication_date": "2024-08-28",
+      "authors": [
+        "Thompson, G.L.",
+        "Roth, B.L.",
+        "Violin, J.D."
+      ],
+      "confidence_score": 88,
+      "relevance_score": 85,
+      "therapeutic_areas": [
+        "Pain Management",
+        "Opioid Safety",
+        "G-protein Signaling"
+      ],
+      "key_findings": [
+        "G-protein biased agonists reduce respiratory depression by 75%",
+        "Analgesic efficacy maintained with bias factor >5",
+        "Reduced tolerance development in chronic dosing studies"
+      ],
+      "compounds_mentioned": [
+        "Oliceridine",
+        "Novel biased agonists"
+      ],
+      "ai_analysis_summary": "Strong evidence for biased signaling approach to safer opioids. Multiple development opportunities identified.",
+      "patent_implications": "Biased agonist compositions and methods represent major IP opportunity",
+      "regulatory_relevance": "Supports safety differentiation for next-generation opioids",
+      "citation_count": 156,
+      "impact_factor": 4.8
+    },
+    {
+      "doi": "10.1124/jpet.2024.33333",
+      "title": "GABA-A Receptor Subtype Selectivity and Anxiolytic Efficacy Without Sedation",
+      "journal": "Journal of Pharmacology and Experimental Therapeutics",
+      "publication_date": "2024-08-20",
+      "authors": [
+        "Rudolph, U.",
+        "M\u00f6hler, H.",
+        "Benke, D."
+      ],
+      "confidence_score": 86,
+      "relevance_score": 83,
+      "therapeutic_areas": [
+        "Anxiety",
+        "GABA-A Receptors",
+        "Benzodiazepines"
+      ],
+      "key_findings": [
+        "\u03b12/\u03b13-selective modulators provide anxiolysis without sedation",
+        "No tolerance development with subtype-selective compounds",
+        "Preserved cognitive function in all preclinical models"
+      ],
+      "compounds_mentioned": [
+        "Novel GABA-A modulators",
+        "Subtype-selective compounds"
+      ],
+      "ai_analysis_summary": "Clear pathway to improved benzodiazepines through subtype selectivity. High development potential.",
+      "patent_implications": "Subtype-selective GABA-A modulators represent significant IP opportunity",
+      "regulatory_relevance": "Supports development of improved anxiety medications",
+      "citation_count": 78,
+      "impact_factor": 3.9
+    }
+  ],
+  "summary": {
+    "total_articles_analyzed": 5,
+    "average_confidence_score": 91.4,
+    "high_impact_articles": 3,
+    "total_citations": 684,
+    "therapeutic_areas_covered": [
+      "NMDA Receptors",
+      "Psychedelic Therapy",
+      "Rapid-Acting Antidepressants",
+      "Benzodiazepines",
+      "Pain Management",
+      "G-protein Signaling",
+      "GABA-A Receptors",
+      "Psychotherapy",
+      "Opioid Safety",
+      "Depression",
+      "PTSD",
+      "Anxiety",
+      "Neuroplasticity",
+      "MDMA"
+    ],
+    "patent_opportunities_identified": 3,
+    "regulatory_relevant_articles": 2,
+    "last_updated": "2025-09-24T11:51:09.874518",
+    "ai_analysis_completion": "100%"
+  }
+}
