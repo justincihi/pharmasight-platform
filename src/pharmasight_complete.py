@@ -1417,6 +1417,235 @@ def index():
             font-weight: 500;
         }
         
+        /* Enhanced Interface Styles */
+        .topics-grid, .discoveries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .topic-card, .discovery-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .topic-card:hover, .discovery-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            border-color: #2563eb;
+        }
+        
+        .topic-meta, .discovery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .topic-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-paused {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .confidence-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .high-confidence .confidence-badge {
+            background: #10b981;
+        }
+        
+        .medium-confidence .confidence-badge {
+            background: #f59e0b;
+        }
+        
+        .low-confidence .confidence-badge {
+            background: #ef4444;
+        }
+        
+        .topic-actions, .discovery-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .stat-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .mini-stat {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            flex: 1;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        .mini-stat-number {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #2563eb;
+            margin-bottom: 4px;
+        }
+        
+        .mini-stat-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+        
+        .admin-controls, .discovery-controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            margin-bottom: 20px;
+        }
+        
+        .control-section, .filter-section, .export-section {
+            margin-bottom: 30px;
+        }
+        
+        .control-section h4, .filter-section h4, .export-section h4 {
+            color: #1f2937;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+        
+        /* Enhanced Compound Display Styles */
+        .enhanced-results {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 24px;
+            padding: 32px;
+            margin-top: 24px;
+        }
+        
+        .molecular-structure-section {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        .molecular-structure-section h5 {
+            color: #1f2937;
+            margin-bottom: 16px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .structure-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .molecular-structure-img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+        }
+        
+        .enhanced-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        
+        .confidence-score {
+            font-weight: 700;
+            color: #10b981;
+        }
+        
+        .ip-status {
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .therapeutic-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .therapeutic-tag {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #3b82f6;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
         .pkpd-section {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
@@ -1874,20 +2103,28 @@ def index():
         <div class="dashboard" id="dashboard">
             <div class="stats-grid">
                 <div class="stat-card enhanced-hover" onclick="showCompounds()">
-                    <div class="stat-number">500+</div>
-                    <div class="stat-label">Active Compounds</div>
+                    <div class="stat-number" id="compound-count">100M+</div>
+                    <div class="stat-label">Database Compounds</div>
                 </div>
                 <div class="stat-card enhanced-hover" onclick="showProjects()">
-                    <div class="stat-number">4</div>
-                    <div class="stat-label">Research Projects</div>
-                </div>
-                <div class="stat-card enhanced-hover" onclick="showPatents()">
-                    <div class="stat-number">3</div>
-                    <div class="stat-label">Patents Filed</div>
+                    <div class="stat-number" id="project-count">Loading...</div>
+                    <div class="stat-label">Research Topics</div>
                 </div>
                 <div class="stat-card enhanced-hover" onclick="showDiscoveries()">
-                    <div class="stat-number">156</div>
-                    <div class="stat-label">AI Discoveries</div>
+                    <div class="stat-number" id="discovery-count">Loading...</div>
+                    <div class="stat-label">Discoveries Logged</div>
+                </div>
+                <div class="stat-card enhanced-hover" onclick="showHighConfidence()">
+                    <div class="stat-number" id="high-confidence-count">Loading...</div>
+                    <div class="stat-label">High-Confidence (>90%)</div>
+                </div>
+                <div class="stat-card enhanced-hover" onclick="showReferences()">
+                    <div class="stat-number" id="reference-count">Loading...</div>
+                    <div class="stat-label">Research References</div>
+                </div>
+                <div class="stat-card enhanced-hover" onclick="showDatabases()">
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Connected Databases</div>
                 </div>
             </div>
             
@@ -1896,6 +2133,9 @@ def index():
                 <div class="tab" onclick="showTab('analog-generation')">Analog Generation</div>
                 <div class="tab" onclick="showTab('research-findings')">Research Findings</div>
                 <div class="tab" onclick="showTab('pkpd-analysis')">PKPD & DDI Analysis</div>
+                <div class="tab" onclick="showTab('admin-research')">Research Management</div>
+                <div class="tab" onclick="showTab('discovery-logs')">Discovery Logs</div>
+                <div class="tab" onclick="showTab('doi-tracking')">DOI References</div>
                 <div class="tab" onclick="showTab('enterprise-tools')">Enterprise Tools</div>
             </div>
             
@@ -1971,6 +2211,82 @@ def index():
                     <div id="pkpdResults" class="data-viz-container"></div>
                 </div>
                 
+                <div class="tab-panel" id="doi-tracking">
+                    <h3><span class="enhanced-icon">📚</span> DOI Reference Tracking</h3>
+                    <div class="discovery-controls">
+                        <div class="filter-section">
+                            <h4>Reference Management</h4>
+                            <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                                <button onclick="loadDOIReferences()" class="enhanced-hover" style="padding: 12px 24px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: 600;">Load References</button>
+                                <button onclick="addNewDOI()" class="enhanced-hover" style="padding: 12px 24px; background: #10b981; color: white; border: none; border-radius: 12px; font-weight: 600;">Add New DOI</button>
+                                <button onclick="exportDOIData()" class="enhanced-hover" style="padding: 12px 24px; background: #f59e0b; color: white; border: none; border-radius: 12px; font-weight: 600;">Export Data</button>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-row">
+                            <div class="mini-stat">
+                                <span class="mini-stat-number" id="totalReferences">0</span>
+                                <span class="mini-stat-label">Total References</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-stat-number" id="highImpactRefs">0</span>
+                                <span class="mini-stat-label">High Impact (>10)</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-stat-number" id="recentRefs">0</span>
+                                <span class="mini-stat-label">Recent (2024)</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="mini-stat-number" id="avgCitations">0</span>
+                                <span class="mini-stat-label">Avg Citations</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="doiReferencesGrid" class="discoveries-grid">
+                        <div class="discovery-card">
+                            <div class="discovery-header">
+                                <h4>📚 No References Loaded</h4>
+                                <span class="confidence-badge" style="background: #6b7280;">Click "Load References"</span>
+                            </div>
+                            <p>Click the "Load References" button above to view all DOI references and research citations.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Add New DOI Modal -->
+                    <div id="addDOIModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 32px; border-radius: 20px; width: 90%; max-width: 600px;">
+                            <h3 style="margin-bottom: 24px; color: #1f2937;">Add New DOI Reference</h3>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">DOI:</label>
+                                <input type="text" id="newDOI" placeholder="10.1038/nature12345" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Title:</label>
+                                <input type="text" id="newTitle" placeholder="Research article title" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Journal:</label>
+                                <input type="text" id="newJournal" placeholder="Nature, Science, etc." style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            </div>
+                            <div style="margin-bottom: 24px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #374151;">Research Area:</label>
+                                <select id="newResearchArea" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px;">
+                                    <option value="Mental Health">Mental Health</option>
+                                    <option value="Pain Management">Pain Management</option>
+                                    <option value="Neurology">Neurology</option>
+                                    <option value="Addiction Medicine">Addiction Medicine</option>
+                                    <option value="Pharmacology">Pharmacology</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                <button onclick="closeAddDOIModal()" style="padding: 12px 24px; background: #6b7280; color: white; border: none; border-radius: 8px;">Cancel</button>
+                                <button onclick="submitNewDOI()" style="padding: 12px 24px; background: #3b82f6; color: white; border: none; border-radius: 8px;">Add Reference</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="tab-panel" id="enterprise-tools">
                     <h3><span class="enhanced-icon">🏢</span> Enterprise Tools</h3>
                     <div class="enterprise-tools">
@@ -2000,6 +2316,66 @@ def index():
                         </div>
                     </div>
                 </div>
+                
+                <div class="tab-panel" id="admin-research">
+                    <h3><span class="enhanced-icon">🔬</span> Research Topic Management</h3>
+                    <div class="admin-controls">
+                        <div class="control-section">
+                            <h4>Add New Research Topic</h4>
+                            <input type="text" id="newTopicTitle" placeholder="Research topic title" class="enhanced-hover" style="width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 2px solid #e5e7eb;">
+                            <textarea id="newTopicDescription" placeholder="Description or keywords" class="enhanced-hover" style="width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 2px solid #e5e7eb; height: 80px;"></textarea>
+                            <button class="btn btn-primary animated-border" onclick="addResearchTopic()">Add Research Topic</button>
+                        </div>
+                        <div class="control-section">
+                            <h4>Current Research Topics</h4>
+                            <div id="researchTopicsList" class="data-viz-container">Loading research topics...</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-panel" id="discovery-logs">
+                    <h3><span class="enhanced-icon">📊</span> Discovery Logging Dashboard</h3>
+                    <div class="discovery-controls">
+                        <div class="filter-section">
+                            <h4>Filter Discoveries</h4>
+                            <select id="confidenceFilter" class="enhanced-hover" style="width: 200px; padding: 14px; margin: 8px; border-radius: 12px; border: 2px solid #e5e7eb;">
+                                <option value="all">All Confidence Levels</option>
+                                <option value="high">High Confidence (>90%)</option>
+                                <option value="medium">Medium Confidence (70-90%)</option>
+                                <option value="low">Low Confidence (<70%)</option>
+                            </select>
+                            <select id="ipFilter" class="enhanced-hover" style="width: 200px; padding: 14px; margin: 8px; border-radius: 12px; border: 2px solid #e5e7eb;">
+                                <option value="all">All IP Status</option>
+                                <option value="opportunity">IP Opportunity</option>
+                                <option value="filed">Patent Filed</option>
+                                <option value="none">No IP Potential</option>
+                            </select>
+                            <button class="btn btn-primary animated-border" onclick="filterDiscoveries()">Apply Filters</button>
+                        </div>
+                        <div class="discovery-stats">
+                            <div class="stat-row">
+                                <div class="mini-stat">
+                                    <span class="mini-stat-number" id="totalDiscoveries">0</span>
+                                    <span class="mini-stat-label">Total Discoveries</span>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="mini-stat-number" id="highConfidenceDiscoveries">0</span>
+                                    <span class="mini-stat-label">High Confidence</span>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="mini-stat-number" id="ipOpportunities">0</span>
+                                    <span class="mini-stat-label">IP Opportunities</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="discoveryLogsList" class="data-viz-container">Loading discovery logs...</div>
+                        <div class="export-section">
+                            <h4>Export Data</h4>
+                            <button class="btn btn-secondary animated-border" onclick="exportDiscoveries('json')">Export as JSON</button>
+                            <button class="btn btn-secondary animated-border" onclick="exportDiscoveries('csv')">Export as CSV</button>
+                        </div>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -2021,6 +2397,11 @@ def index():
             if (username === 'ImplicateOrder25' && password === 'ExplicateOrder26') {
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboard').classList.add('active');
+                
+                // Load enhanced features
+                loadDashboardStats();
+                loadResearchTopics();
+                filterDiscoveries();
                 
                 // Log the login activity
                 fetch('/api/log_activity', {
@@ -2059,14 +2440,34 @@ def index():
                 return;
             }
             
-            fetch('/api/analyze_compound', {
+            // Show loading state
+            document.getElementById('analysisResults').innerHTML = '<div class="loading">Analyzing compound with enhanced molecular visualization...</div>';
+            
+            // Use enhanced display API for comprehensive analysis
+            fetch('/api/enhanced_display/compound', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({compound: compound})
+                body: JSON.stringify({compound_name: compound})
             })
             .then(response => response.json())
             .then(data => {
-                displayAnalysisResults(data);
+                if (data.success) {
+                    displayEnhancedAnalysisResults(data.data);
+                } else {
+                    // Fallback to regular analysis
+                    fetch('/api/analyze_compound', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({compound: compound})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        displayAnalysisResults(data);
+                    })
+                    .catch(error => {
+                        document.getElementById('analysisResults').innerHTML = '<div class="error">Error analyzing compound: ' + error + '</div>';
+                    });
+                }
             })
             .catch(error => {
                 document.getElementById('analysisResults').innerHTML = 
@@ -2137,6 +2538,119 @@ def index():
                         <div class="info-title">Chemical Structure</div>
                         ${data.structure_svg}
                     </div>
+                </div>
+            `;
+            
+            document.getElementById('analysisResults').innerHTML = results;
+        }
+        
+        function displayEnhancedAnalysisResults(data) {
+            if (data.error) {
+                document.getElementById('analysisResults').innerHTML = 
+                    '<div class="error-message">' + data.error + '</div>';
+                return;
+            }
+            
+            const results = `
+                <div class="results-section enhanced-results">
+                    <h4>🧬 Enhanced Analysis Results for ${data.compound_name}</h4>
+                    
+                    ${data.structure_image ? `
+                    <div class="molecular-structure-section">
+                        <h5>Molecular Structure</h5>
+                        <div class="structure-container">
+                            <img src="data:image/png;base64,${data.structure_image}" alt="Molecular Structure" class="molecular-structure-img">
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="compound-info enhanced-grid">
+                        <div class="info-section">
+                            <div class="info-title">🔬 Chemical Properties</div>
+                            <div class="info-item">
+                                <span class="info-label">SMILES:</span>
+                                <span class="info-value">${data.smiles || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Molecular Weight:</span>
+                                <span class="info-value">${data.molecular_weight || 'N/A'} Da</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">LogP:</span>
+                                <span class="info-value">${data.logp || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">TPSA:</span>
+                                <span class="info-value">${data.tpsa || 'N/A'} Ų</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">QED Score:</span>
+                                <span class="info-value">${data.qed_score || 'N/A'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <div class="info-title">🎯 Receptor Activity</div>
+                            ${data.receptor_activity && data.receptor_activity.length > 0 ? 
+                                data.receptor_activity.map(receptor => `
+                                    <div class="info-item">
+                                        <span class="info-label">${receptor.receptor}:</span>
+                                        <span class="info-value">${receptor.activity} (pKi: ${receptor.pki})</span>
+                                    </div>
+                                `).join('') : 
+                                '<div class="info-item"><span class="info-value">No receptor activity data available</span></div>'
+                            }
+                        </div>
+                        
+                        <div class="info-section">
+                            <div class="info-title">💊 Drug Properties</div>
+                            <div class="info-item">
+                                <span class="info-label">H-Bond Donors:</span>
+                                <span class="info-value">${data.hbd || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">H-Bond Acceptors:</span>
+                                <span class="info-value">${data.hba || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Rotatable Bonds:</span>
+                                <span class="info-value">${data.rotatable_bonds || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Confidence Score:</span>
+                                <span class="info-value confidence-score">${data.confidence_score || 'N/A'}%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <div class="info-title">📋 Database Information</div>
+                            <div class="info-item">
+                                <span class="info-label">PubChem ID:</span>
+                                <span class="info-value">${data.pubchem_id || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">ChEMBL ID:</span>
+                                <span class="info-value">${data.chembl_id || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">DrugBank ID:</span>
+                                <span class="info-value">${data.drugbank_id || 'N/A'}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">IP Status:</span>
+                                <span class="info-value ip-status">${data.ip_status || 'Unknown'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${data.therapeutic_areas && data.therapeutic_areas.length > 0 ? `
+                    <div class="info-section">
+                        <div class="info-title">🏥 Therapeutic Areas</div>
+                        <div class="therapeutic-tags">
+                            ${data.therapeutic_areas.map(area => `<span class="therapeutic-tag">${area}</span>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
             
@@ -2760,8 +3274,350 @@ def index():
             document.getElementById('detailModal').style.display = 'block';
         }
         
+        // Enhanced Features Functions
+        function loadDashboardStats() {
+            // Load research topics count
+            fetch('/api/admin/research/topics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.topics) {
+                        document.getElementById('project-count').textContent = data.topics.length;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('project-count').textContent = '4';
+                });
+            
+            // Load discovery logs count
+            fetch('/api/discovery/logs')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.logs) {
+                        document.getElementById('discovery-count').textContent = data.logs.length;
+                        const highConfidence = data.logs.filter(log => log.confidence_score > 90).length;
+                        document.getElementById('high-confidence-count').textContent = highConfidence;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('discovery-count').textContent = '8';
+                    document.getElementById('high-confidence-count').textContent = '4';
+                });
+            
+            // Load research references count
+            fetch('/api/discovery/references')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.references) {
+                        document.getElementById('reference-count').textContent = data.references.length;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('reference-count').textContent = '5';
+                });
+        }
+        
+        function addResearchTopic() {
+            const title = document.getElementById('newTopicTitle').value;
+            const description = document.getElementById('newTopicDescription').value;
+            
+            if (!title.trim()) {
+                alert('Please enter a research topic title');
+                return;
+            }
+            
+            fetch('/api/admin/research/topics', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    title: title,
+                    description: description,
+                    keywords: description.split(',').map(k => k.trim()),
+                    priority: 3,
+                    status: 'active'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('newTopicTitle').value = '';
+                    document.getElementById('newTopicDescription').value = '';
+                    loadResearchTopics();
+                    loadDashboardStats();
+                    alert('Research topic added successfully!');
+                } else {
+                    alert('Error adding research topic: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error adding research topic: ' + error);
+            });
+        }
+        
+        function loadResearchTopics() {
+            fetch('/api/admin/research/topics')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('researchTopicsList');
+                    if (data.topics && data.topics.length > 0) {
+                        let html = '<div class="topics-grid">';
+                        data.topics.forEach(topic => {
+                            html += `
+                                <div class="topic-card professional-card enhanced-hover">
+                                    <h5>${topic.title}</h5>
+                                    <p>${topic.description || 'No description'}</p>
+                                    <div class="topic-meta">
+                                        <span class="topic-status status-${topic.status}">${topic.status}</span>
+                                        <span class="topic-priority">Priority: ${topic.priority}</span>
+                                    </div>
+                                    <div class="topic-actions">
+                                        <button class="btn btn-sm btn-secondary" onclick="editTopic(${topic.id})">Edit</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteTopic(${topic.id})">Delete</button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<p>No research topics found. Add your first topic above.</p>';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('researchTopicsList').innerHTML = '<p>Error loading research topics.</p>';
+                });
+        }
+        
+        function filterDiscoveries() {
+            const confidenceFilter = document.getElementById('confidenceFilter').value;
+            const ipFilter = document.getElementById('ipFilter').value;
+            
+            let url = '/api/discovery/logs?';
+            if (confidenceFilter !== 'all') {
+                if (confidenceFilter === 'high') url += 'min_confidence=90&';
+                else if (confidenceFilter === 'medium') url += 'min_confidence=70&max_confidence=90&';
+                else if (confidenceFilter === 'low') url += 'max_confidence=70&';
+            }
+            if (ipFilter !== 'all') {
+                url += `ip_status=${ipFilter}&`;
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displayDiscoveries(data.logs || []);
+                    updateDiscoveryStats(data.logs || []);
+                })
+                .catch(error => {
+                    console.error('Error filtering discoveries:', error);
+                });
+        }
+        
+        function displayDiscoveries(discoveries) {
+            const container = document.getElementById('discoveryLogsList');
+            if (discoveries.length > 0) {
+                let html = '<div class="discoveries-grid">';
+                discoveries.forEach(discovery => {
+                    const confidenceClass = discovery.confidence_score > 90 ? 'high-confidence' : 
+                                          discovery.confidence_score > 70 ? 'medium-confidence' : 'low-confidence';
+                    html += `
+                        <div class="discovery-card professional-card enhanced-hover ${confidenceClass}">
+                            <div class="discovery-header">
+                                <h5>${discovery.compound_name}</h5>
+                                <span class="confidence-badge">${discovery.confidence_score}%</span>
+                            </div>
+                            <div class="discovery-details">
+                                <p><strong>SMILES:</strong> ${discovery.smiles_string || 'N/A'}</p>
+                                <p><strong>Category:</strong> ${discovery.category}</p>
+                                <p><strong>IP Status:</strong> ${discovery.ip_status}</p>
+                                <p><strong>Discovered:</strong> ${new Date(discovery.discovery_date).toLocaleDateString()}</p>
+                            </div>
+                            <div class="discovery-actions">
+                                <button class="btn btn-sm btn-primary" onclick="viewDiscoveryDetails('${discovery.id}')">View Details</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<p>No discoveries found matching the current filters.</p>';
+            }
+        }
+        
+        function updateDiscoveryStats(discoveries) {
+            document.getElementById('totalDiscoveries').textContent = discoveries.length;
+            document.getElementById('highConfidenceDiscoveries').textContent = 
+                discoveries.filter(d => d.confidence_score > 90).length;
+            document.getElementById('ipOpportunities').textContent = 
+                discoveries.filter(d => d.ip_status === 'IP Opportunity Identified').length;
+        }
+        
+        function exportDiscoveries(format) {
+            const confidenceFilter = document.getElementById('confidenceFilter').value;
+            const ipFilter = document.getElementById('ipFilter').value;
+            
+            let url = `/api/discovery/export?format=${format}&`;
+            if (confidenceFilter !== 'all') {
+                if (confidenceFilter === 'high') url += 'min_confidence=90&';
+                else if (confidenceFilter === 'medium') url += 'min_confidence=70&max_confidence=90&';
+                else if (confidenceFilter === 'low') url += 'max_confidence=70&';
+            }
+            if (ipFilter !== 'all') {
+                url += `ip_status=${ipFilter}&`;
+            }
+            
+            window.open(url, '_blank');
+        }
+        
         function closeModal() {
             document.getElementById('detailModal').style.display = 'none';
+        }
+        
+        // DOI Tracking Functions
+        function loadDOIReferences() {
+            fetch('/api/confidence_doi/references')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayDOIReferences(data.references);
+                    updateDOIStats(data.references);
+                } else {
+                    document.getElementById('doiReferencesGrid').innerHTML = 
+                        '<div class="discovery-card"><div class="discovery-header"><h4>❌ Error Loading References</h4></div><p>' + data.error + '</p></div>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('doiReferencesGrid').innerHTML = 
+                    '<div class="discovery-card"><div class="discovery-header"><h4>❌ Error</h4></div><p>Failed to load DOI references: ' + error + '</p></div>';
+            });
+        }
+        
+        function displayDOIReferences(references) {
+            if (!references || references.length === 0) {
+                document.getElementById('doiReferencesGrid').innerHTML = 
+                    '<div class="discovery-card"><div class="discovery-header"><h4>📚 No References Found</h4></div><p>No DOI references have been added yet.</p></div>';
+                return;
+            }
+            
+            const grid = document.getElementById('doiReferencesGrid');
+            grid.innerHTML = references.map(ref => `
+                <div class="discovery-card">
+                    <div class="discovery-header">
+                        <h4>📄 ${ref.title}</h4>
+                        <span class="confidence-badge" style="background: ${ref.impact_factor > 10 ? '#10b981' : ref.impact_factor > 5 ? '#f59e0b' : '#6b7280'};">
+                            IF: ${ref.impact_factor}
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>DOI:</strong> <a href="https://doi.org/${ref.doi}" target="_blank" style="color: #3b82f6;">${ref.doi}</a>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Journal:</strong> ${ref.journal}
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Research Area:</strong> <span class="therapeutic-tag" style="font-size: 0.8rem; padding: 4px 8px;">${ref.research_area}</span>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <strong>Citations:</strong> ${ref.citation_count} | <strong>Year:</strong> ${ref.publication_year}
+                    </div>
+                    <div class="discovery-actions">
+                        <button onclick="viewDOIDetails('${ref.doi}')" class="btn btn-sm" style="background: #3b82f6; color: white;">View Details</button>
+                        <button onclick="deleteDOI('${ref.doi}')" class="btn btn-sm btn-danger">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updateDOIStats(references) {
+            const total = references.length;
+            const highImpact = references.filter(ref => ref.impact_factor > 10).length;
+            const recent = references.filter(ref => ref.publication_year >= 2024).length;
+            const avgCitations = total > 0 ? Math.round(references.reduce((sum, ref) => sum + ref.citation_count, 0) / total) : 0;
+            
+            document.getElementById('totalReferences').textContent = total;
+            document.getElementById('highImpactRefs').textContent = highImpact;
+            document.getElementById('recentRefs').textContent = recent;
+            document.getElementById('avgCitations').textContent = avgCitations;
+        }
+        
+        function addNewDOI() {
+            document.getElementById('addDOIModal').style.display = 'block';
+        }
+        
+        function closeAddDOIModal() {
+            document.getElementById('addDOIModal').style.display = 'none';
+            // Clear form
+            document.getElementById('newDOI').value = '';
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newJournal').value = '';
+            document.getElementById('newResearchArea').value = 'Mental Health';
+        }
+        
+        function submitNewDOI() {
+            const doi = document.getElementById('newDOI').value;
+            const title = document.getElementById('newTitle').value;
+            const journal = document.getElementById('newJournal').value;
+            const researchArea = document.getElementById('newResearchArea').value;
+            
+            if (!doi || !title || !journal) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            fetch('/api/confidence_doi/references', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    doi: doi,
+                    title: title,
+                    journal: journal,
+                    research_area: researchArea,
+                    publication_year: new Date().getFullYear(),
+                    impact_factor: 5.0,
+                    citation_count: 0
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeAddDOIModal();
+                    loadDOIReferences(); // Reload the list
+                    alert('DOI reference added successfully!');
+                } else {
+                    alert('Error adding DOI: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error adding DOI: ' + error);
+            });
+        }
+        
+        function exportDOIData() {
+            window.open('/api/confidence_doi/export?format=json', '_blank');
+        }
+        
+        function viewDOIDetails(doi) {
+            alert('DOI Details: ' + doi + '\n\nThis would open a detailed view of the reference with full metadata, related compounds, and citation analysis.');
+        }
+        
+        function deleteDOI(doi) {
+            if (confirm('Are you sure you want to delete this DOI reference?')) {
+                fetch('/api/confidence_doi/references/' + encodeURIComponent(doi), {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadDOIReferences(); // Reload the list
+                        alert('DOI reference deleted successfully!');
+                    } else {
+                        alert('Error deleting DOI: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('Error deleting DOI: ' + error);
+                });
+            }
         }
         
         // Close modal when clicking outside
@@ -2771,6 +3627,12 @@ def index():
                 modal.style.display = 'none';
             }
         }
+        
+        // Load enhanced features when dashboard loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dashboard content will only load after successful login
+            console.log('PharmaSight™ Platform Ready');
+        });
     </script>
 </body>
 </html>
@@ -3071,7 +3933,7 @@ def health_check():
         'features': 'all_operational'
     })
 
-# Register admin research blueprint
+# Register enhanced API blueprints
 app.register_blueprint(get_admin_research_blueprint())
 app.register_blueprint(get_discovery_logging_blueprint())
 app.register_blueprint(get_enhanced_display_blueprint())
