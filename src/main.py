@@ -888,11 +888,11 @@ def dashboard():
         }
         
         function autonomousSearch(topic) {
-            alert(`🔍 Starting autonomous search for: ${topic}\\n\\nSearching pharmaceutical databases...\\nAnalyzing research papers...\\nIdentifying high-confidence compounds...`);
+            alert('🔍 Starting autonomous search for: ' + topic + '\\n\\nSearching pharmaceutical databases...\\nAnalyzing research papers...\\nIdentifying high-confidence compounds...');
         }
         
         function discoverCompounds(category) {
-            alert(`🧪 Discovering compounds in category: ${category}\\n\\nGenerating 15 analogs...\\nRanking by IP opportunity and confidence...\\nShowing top 3 results with >90% confidence...`);
+            alert('🧪 Discovering compounds in category: ' + category + '\\n\\nGenerating 15 analogs...\\nRanking by IP opportunity and confidence...\\nShowing top 3 results with >90% confidence...');
         }
         
         function loadNewResearch() {
