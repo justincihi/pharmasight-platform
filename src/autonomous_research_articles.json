@@ -168,24 +168,24 @@
     "high_impact_articles": 3,
     "total_citations": 684,
     "therapeutic_areas_covered": [
-      "MDMA",
-      "Anxiety",
-      "Neuroplasticity",
-      "Psychotherapy",
-      "G-protein Signaling",
-      "Benzodiazepines",
+      "NMDA Receptors",
       "Psychedelic Therapy",
+      "Rapid-Acting Antidepressants",
+      "Benzodiazepines",
+      "Pain Management",
+      "G-protein Signaling",
       "GABA-A Receptors",
+      "Psychotherapy",
+      "Opioid Safety",
       "Depression",
       "PTSD",
-      "Pain Management",
-      "Opioid Safety",
-      "Rapid-Acting Antidepressants",
-      "NMDA Receptors"
+      "Anxiety",
+      "Neuroplasticity",
+      "MDMA"
     ],
     "patent_opportunities_identified": 3,
     "regulatory_relevant_articles": 2,
-    "last_updated": "2025-09-24T09:50:15.847557",
+    "last_updated": "2025-09-24T11:51:09.874518",
     "ai_analysis_completion": "100%"
   }
 }
