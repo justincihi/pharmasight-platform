@@ -1,0 +1,42 @@
+# Conda environment file for PharmaSight Platform
+#
+# To create the environment:
+#   conda env create -f environment.yml
+#
+# To activate the environment:
+#   conda activate pharmasight
+#
+# To update the environment:
+#   conda env update -f environment.yml --prune
+
+name: pharmasight
+channels:
+  - conda-forge
+dependencies:
+  # Python
+  - python=3.11
+
+  # RDKit and chemistry libraries
+  - rdkit>=2025.09.1
+
+  # Scientific computing
+  - numpy>=2.3
+  - pandas>=2.3
+  - matplotlib>=3.10
+
+  # Molecular visualization
+  - pillow>=11.3
+  - reportlab>=4.4
+  - pycairo>=1.28
+
+  # Additional dependencies for RDKit
+  - cairo>=1.18
+  - boost>=1.86
+
+  # Optional: Jupyter for interactive work
+  # - jupyter
+  # - ipywidgets
+
+  # Optional: Additional chemistry tools
+  # - openbabel
+  # - py3dmol
