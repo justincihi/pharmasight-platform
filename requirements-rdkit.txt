@@ -1,0 +1,38 @@
+# RDKit Requirements for PharmaSight Platform
+#
+# Note: RDKit is best installed via conda due to C++ dependencies:
+#   conda install -c conda-forge rdkit
+#
+# For pip installation (may require system dependencies):
+#   pip install rdkit
+#
+# This file lists additional Python dependencies for the RDKit modules
+
+# Core dependencies (if not using conda environment)
+# rdkit>=2023.9.1  # Install via conda recommended
+
+# Web framework
+flask>=3.0.0,<3.1.0
+flask-cors>=4.0.0
+
+# Scientific computing (included with RDKit conda install)
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Image handling
+pillow>=10.0.0
+
+# Optional: For advanced features
+# py3Dmol>=2.0.0  # 3D molecular visualization
+# matplotlib>=3.7.0  # Additional plotting
+# scipy>=1.11.0  # Scientific computing
+
+# Development dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.0.0
+flake8>=6.0.0
+
+# Documentation
+# sphinx>=7.0.0
+# sphinx-rtd-theme>=1.3.0
