@@ -1,4 +1,28 @@
+# Core Web Framework
 Flask==3.1.1
 gunicorn==21.2.0
 flask-cors==4.0.0
+
+# Chemistry and Molecular Modeling
+rdkit==2025.9.1
+
+# Machine Learning and Scientific Computing
+scikit-learn==1.7.2
+scipy==1.16.2
+numpy==2.3.3
+
+# Molecular Docking
+vina==1.2.7
+
+# Data Processing and Export
+pandas==2.3.2
+openpyxl==3.1.5
+reportlab==4.4.4
+
+# HTTP Requests for External APIs
+requests==2.32.3
+
+# Optional: Additional ML/AI capabilities
+# torch  # Uncomment if deep learning models are needed
+# tensorflow  # Uncomment if TensorFlow models are needed
 

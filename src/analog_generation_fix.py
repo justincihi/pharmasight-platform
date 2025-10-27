@@ -347,6 +347,17 @@ BRAND_NAME_MAPPING = {
 }
 
 def resolve_compound_name(compound_name):
-    """Resolve brand names to generic names."""
+    """Resolve brand names to generic names and return structured data."""
     name_lower = compound_name.lower().strip()
-    return BRAND_NAME_MAPPING.get(name_lower, compound_name)
+    resolved_name = BRAND_NAME_MAPPING.get(name_lower, compound_name)
+    
+    # Check if we have data for this compound
+    has_data = resolved_name.lower() in ANALOG_GENERATION_DATABASE
+    
+    return {
+        "original_name": compound_name,
+        "resolved_name": resolved_name,
+        "is_brand_name": name_lower in BRAND_NAME_MAPPING,
+        "has_analog_data": has_data,
+        "source": "brand_name_mapping" if name_lower in BRAND_NAME_MAPPING else "direct"
+    }

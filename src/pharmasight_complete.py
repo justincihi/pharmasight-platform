@@ -4,13 +4,14 @@ PharmaSight™ - Enterprise Drug Discovery Platform
 Complete implementation with all requested features
 """
 
-from flask import Flask, render_template_string, request, jsonify, session
+from flask import Flask, render_template_string, request, jsonify, session, send_file
 from flask_cors import CORS
 import json
 import datetime
 import hashlib
 import random
 import re
+from io import BytesIO
 
 # Import custom modules
 from ddi_analysis_fix import get_detailed_interaction_info
@@ -755,7 +756,7 @@ def analyze_pkpd_interaction(compounds, patient_data):
     }
 
 def get_detailed_interaction_info(comp1, comp2):
-    """Calculate interaction risk between two compounds"""
+    """Calculate interaction risk between two compounds and return detailed info"""
     # Simplified interaction risk calculation
     risk_factors = {
         ("sertraline", "tramadol"): 85,  # Serotonin syndrome risk
@@ -765,13 +766,43 @@ def get_detailed_interaction_info(comp1, comp2):
         ("ketamine", "alprazolam"): 75,  # CNS depression
         ("mdma", "sertraline"): 95,  # Serotonin syndrome
         ("psilocybin", "fluoxetine"): 65,  # Reduced efficacy
+        ("psilocybin", "sertraline"): 70,  # Reduced efficacy
         ("aripiprazole", "fluoxetine"): 45,  # CYP2D6 interaction
     }
     
     key1 = (comp1.lower(), comp2.lower())
     key2 = (comp2.lower(), comp1.lower())
     
-    return risk_factors.get(key1, risk_factors.get(key2, 25))
+    risk_score = risk_factors.get(key1, risk_factors.get(key2, 25))
+    
+    # Get mechanism and other details
+    mechanism = get_interaction_mechanism(comp1, comp2)
+    
+    # Determine risk level category
+    if risk_score >= 80:
+        risk_level = "High"
+        recommendation = "Contraindicated or requires close monitoring"
+        dosage_adjustment = "Consider alternative medications"
+    elif risk_score >= 50:
+        risk_level = "Moderate"
+        recommendation = "Monitor closely for adverse effects"
+        dosage_adjustment = "May require dose adjustment"
+    else:
+        risk_level = "Low"
+        recommendation = "Generally safe combination"
+        dosage_adjustment = "No adjustment typically needed"
+    
+    # Determine synergy
+    synergy = "Additive" if risk_score > 40 else "Minimal"
+    
+    return {
+        "risk_level": risk_level,
+        "risk_score": risk_score,
+        "mechanism": mechanism,
+        "synergy": synergy,
+        "recommendation": recommendation,
+        "dosage_adjustment": dosage_adjustment
+    }
 
 def get_interaction_mechanism(comp1, comp2):
     """Get mechanism of drug interaction"""
@@ -2009,6 +2040,21 @@ def index():
     </div>
     
     <script>
+        // Ensure DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('PharmaSight™ Platform Initialized');
+            
+            // Attach event listener to login button as backup
+            const loginBtn = document.querySelector('.login-btn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    login();
+                });
+                console.log('Login button event listener attached');
+            }
+        });
+        
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -2813,7 +2859,13 @@ def generate_analogs():
     log_activity(session.get('user', 'anonymous'), 'analog_generation', f'Generated analogs for: {parent_compound}')
     
     # Resolve brand names to generic names
-    resolved_compound = resolve_compound_name(parent_compound)
+    resolved_data = resolve_compound_name(parent_compound)
+    
+    # Extract the resolved compound name (resolve_compound_name now returns a dict)
+    if isinstance(resolved_data, dict):
+        resolved_compound = resolved_data.get('resolved_name', parent_compound)
+    else:
+        resolved_compound = resolved_data
     
     # Generate comprehensive analog report
     result = generate_analog_report(resolved_compound, target_properties)
@@ -2951,6 +3003,141 @@ def log_activity_endpoint():
     log_entry = log_activity(session.get('user', 'admin'), action, details)
     
     return jsonify({'status': 'logged', 'entry': log_entry})
+
+@app.route('/api/export/<data_type>/<format_type>', methods=['POST'])
+def export_data_endpoint(data_type, format_type):
+    """Export data in various formats (CSV, Excel, PDF)"""
+    from data_export import export_data
+    
+    data = request.get_json()
+    filename = data.get('filename')
+    
+    try:
+        output, mimetype, final_filename = export_data(
+            data.get('data', {}),
+            format_type=format_type,
+            data_type=data_type,
+            filename=filename
+        )
+        
+        # Log the export activity
+        log_activity(
+            session.get('user', 'admin'),
+            'data_export',
+            f'Exported {data_type} as {format_type}'
+        )
+        
+        return send_file(
+            BytesIO(output) if isinstance(output, bytes) else BytesIO(output.encode()),
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=final_filename
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/export/compound/<compound_name>/<format_type>', methods=['GET'])
+def export_compound_endpoint(compound_name, format_type):
+    """Export specific compound data"""
+    from data_export import export_data
+    
+    # Get compound data from COMPOUND_DATABASE
+    compound_key = compound_name.lower().replace(' ', '_').replace('-', '_')
+    compound_data = COMPOUND_DATABASE.get(compound_key)
+    
+    if not compound_data:
+        return jsonify({'error': 'Compound not found'}), 404
+    
+    try:
+        output, mimetype, filename = export_data(
+            compound_data,
+            format_type=format_type,
+            data_type='compound',
+            filename=f"{compound_name}_report.{format_type}"
+        )
+        
+        log_activity(
+            session.get('user', 'admin'),
+            'compound_export',
+            f'Exported {compound_name} as {format_type}'
+        )
+        
+        return send_file(
+            BytesIO(output) if isinstance(output, bytes) else BytesIO(output.encode()),
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/export/research_findings/<format_type>', methods=['GET'])
+def export_research_findings_endpoint(format_type):
+    """Export all research findings"""
+    from data_export import export_data
+    from research_findings_fix import get_research_findings_with_hypotheses
+    
+    findings = get_research_findings_with_hypotheses()
+    
+    try:
+        output, mimetype, filename = export_data(
+            findings,
+            format_type=format_type,
+            data_type='research_findings',
+            filename=f"research_findings_{datetime.datetime.now().strftime('%Y%m%d')}.{format_type}"
+        )
+        
+        log_activity(
+            session.get('user', 'admin'),
+            'research_export',
+            f'Exported {len(findings)} research findings as {format_type}'
+        )
+        
+        return send_file(
+            BytesIO(output) if isinstance(output, bytes) else BytesIO(output.encode()),
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/export/analytics/<format_type>', methods=['GET'])
+def export_analytics_endpoint(format_type):
+    """Export analytics dashboard data"""
+    from data_export import export_data
+    
+    analytics_data = {
+        'compounds_analyzed': 1247,
+        'analogs_generated': 3891,
+        'patents_identified': 156,
+        'hit_rate': 23.4,
+        'patent_success': 87.5,
+        'time_saved': 2340
+    }
+    
+    try:
+        output, mimetype, filename = export_data(
+            analytics_data,
+            format_type=format_type,
+            data_type='analytics',
+            filename=f"analytics_report_{datetime.datetime.now().strftime('%Y%m%d')}.{format_type}"
+        )
+        
+        log_activity(
+            session.get('user', 'admin'),
+            'analytics_export',
+            f'Exported analytics as {format_type}'
+        )
+        
+        return send_file(
+            BytesIO(output) if isinstance(output, bytes) else BytesIO(output.encode()),
+            mimetype=mimetype,
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/health')
 def health_check():

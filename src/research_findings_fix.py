@@ -217,8 +217,15 @@ class HypothesisGenerator:
             ][:random.randint(2, 4)]
         }
 
-def get_research_findings_with_hypotheses():
-    """Get research findings with generated hypotheses."""
+def get_research_findings_with_hypotheses(compound_name=None):
+    """Get research findings with generated hypotheses.
+    
+    Args:
+        compound_name: Optional compound name to filter findings
+    
+    Returns:
+        List of research findings, optionally filtered by compound name
+    """
     findings = ENHANCED_RESEARCH_FINDINGS.copy()
     
     # Add generated hypotheses
@@ -242,6 +249,16 @@ def get_research_findings_with_hypotheses():
             "funding_source": "Internal R&D",
             "hypothesis_data": hypothesis
         })
+    
+    # Filter by compound name if provided
+    if compound_name:
+        compound_lower = compound_name.lower().strip()
+        findings = [
+            f for f in findings 
+            if compound_lower in f.get('compound', '').lower() or 
+               compound_lower in f.get('title', '').lower() or
+               compound_lower in f.get('description', '').lower()
+        ]
     
     return findings
 
