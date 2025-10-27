@@ -3148,6 +3148,51 @@ def health_check():
         'features': 'all_operational'
     })
 
+@app.route('/chemical_viewer')
+def chemical_viewer():
+    """Serve the enhanced chemical data viewer"""
+    with open('src/enhanced_ui_components.html', 'r') as f:
+        return f.read()
+
+@app.route('/api/get_all_chemical_data')
+def get_all_chemical_data_endpoint():
+    """API endpoint to get all chemical data with formulas and SMILES"""
+    from chemical_data_viewer import get_all_chemical_data
+    return jsonify(get_all_chemical_data())
+
+@app.route('/api/generate_real_analogs', methods=['POST'])
+def generate_real_analogs_endpoint():
+    """Generate real molecular analogs using RDKit"""
+    from chemical_data_viewer import generate_real_analogs_with_rdkit
+    data = request.get_json()
+    parent_smiles = data.get('parent_smiles', '')
+    num_analogs = data.get('num_analogs', 15)
+    
+    result = generate_real_analogs_with_rdkit(parent_smiles, num_analogs)
+    
+    # Log the activity
+    log_activity(
+        session.get('user', 'autonomous'),
+        'rdkit_analog_generation',
+        f'Generated {result.get("total_generated", 0)} real analogs, {result.get("high_value_count", 0)} high-value'
+    )
+    
+    return jsonify(result)
+
+@app.route('/api/search_compounds', methods=['POST'])
+def search_compounds_endpoint():
+    """Search compounds by properties"""
+    from chemical_data_viewer import search_compounds_by_properties
+    data = request.get_json()
+    
+    results = search_compounds_by_properties(
+        min_similarity=data.get('min_similarity', 0.8),
+        patent_free_only=data.get('patent_free_only', False),
+        therapeutic_area=data.get('therapeutic_area', None)
+    )
+    
+    return jsonify({'compounds': results, 'count': len(results)})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5008, debug=False)
 

@@ -6,6 +6,7 @@ modules = ["python-3.11"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["cairo", "catch2", "comic-neue", "coordgenlibs", "eigen", "freetype", "glibcLocales", "inchi", "libxcrypt", "maeparser", "pkg-config", "rapidjson", "xsimd"]
 
 [deployment]
 run = ["sh", "-c", "python app.py"]
@@ -18,3 +19,34 @@ PORT = "5000"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 46727
+externalPort = 3000
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "PharmaSight Platform"
+
+[[workflows.workflow]]
+name = "PharmaSight Platform"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[agent]
+expertMode = true
