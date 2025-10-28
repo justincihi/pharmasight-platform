@@ -9,7 +9,7 @@ import os
 from datetime import datetime, timedelta
 import sqlite3
 import random
-from typing import Dict, List
+from typing import Dict, List, Optional
 import hashlib
 
 class DailyDiscoveryEngine:

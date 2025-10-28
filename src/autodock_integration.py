@@ -21,58 +21,51 @@ class AutoDockSimulator:
         self.protein_library = self.load_protein_targets()
         
     def load_protein_targets(self) -> Dict:
-        """Load common drug target proteins"""
-        # Common drug targets with their PDB IDs
-        targets = {
-            "5-HT2A": {
+        """Load comprehensive drug target proteins from receptor database"""
+        from receptor_database import RECEPTOR_DATABASE
+        
+        # Map receptors with PDB structures to docking targets
+        targets = {}
+        
+        for receptor_name, receptor_data in RECEPTOR_DATABASE.items():
+            if 'pdb_ids' in receptor_data and receptor_data['pdb_ids']:
+                # Use first PDB ID as primary structure
+                pdb_id = receptor_data['pdb_ids'][0] if receptor_data['pdb_ids'] else None
+                
+                if pdb_id:
+                    # Estimate binding site (would be receptor-specific in production)
+                    center = [30.0, 35.0, 40.0]  # Default center
+                    size = [20, 20, 20]  # Default box size
+                    
+                    # Adjust for specific receptor types
+                    if 'Ion channel' in receptor_data.get('type', ''):
+                        size = [22, 22, 25]  # Larger for channels
+                    elif 'Nuclear' in receptor_data.get('type', ''):
+                        size = [18, 18, 18]  # Smaller for nuclear receptors
+                    
+                    targets[receptor_name] = {
+                        "pdb_id": pdb_id,
+                        "name": f"{receptor_data.get('family', '')} {receptor_name} receptor",
+                        "description": receptor_data.get('therapeutic_relevance', 'Drug target'),
+                        "binding_site": {"center": center, "size": size},
+                        "receptor_type": receptor_data.get('type', 'Unknown'),
+                        "family": receptor_data.get('family', 'Unknown'),
+                        "known_ligands": {
+                            "agonists": receptor_data.get('agonists', []),
+                            "antagonists": receptor_data.get('antagonists', []),
+                            "modulators": receptor_data.get('positive_modulators', [])
+                        }
+                    }
+        
+        # Keep some essential targets even without full receptor data
+        if "5-HT2A" not in targets:
+            targets["5-HT2A"] = {
                 "pdb_id": "6A93",
                 "name": "Serotonin 5-HT2A receptor",
                 "description": "Target for psychedelics and antipsychotics",
                 "binding_site": {"center": [25.0, 30.0, 40.0], "size": [20, 20, 20]}
-            },
-            "D2": {
-                "pdb_id": "6CM4", 
-                "name": "Dopamine D2 receptor",
-                "description": "Target for antipsychotics and Parkinson's drugs",
-                "binding_site": {"center": [30.0, 35.0, 45.0], "size": [20, 20, 20]}
-            },
-            "MOR": {
-                "pdb_id": "5C1M",
-                "name": "μ-opioid receptor",
-                "description": "Target for opioid analgesics",
-                "binding_site": {"center": [28.0, 32.0, 42.0], "size": [20, 20, 20]}
-            },
-            "ACE2": {
-                "pdb_id": "1R42",
-                "name": "Angiotensin-converting enzyme 2",
-                "description": "COVID-19 viral entry point",
-                "binding_site": {"center": [40.0, 40.0, 40.0], "size": [25, 25, 25]}
-            },
-            "NMDA": {
-                "pdb_id": "4PE5",
-                "name": "NMDA receptor",
-                "description": "Target for ketamine and anesthetics",
-                "binding_site": {"center": [35.0, 38.0, 43.0], "size": [22, 22, 22]}
-            },
-            "GABA-A": {
-                "pdb_id": "6HUO",
-                "name": "GABA-A receptor",
-                "description": "Target for benzodiazepines and anxiolytics",
-                "binding_site": {"center": [33.0, 36.0, 41.0], "size": [20, 20, 20]}
-            },
-            "COX-2": {
-                "pdb_id": "5IKR",
-                "name": "Cyclooxygenase-2",
-                "description": "Target for NSAIDs",
-                "binding_site": {"center": [31.0, 29.0, 38.0], "size": [18, 18, 18]}
-            },
-            "EGFR": {
-                "pdb_id": "4HJO",
-                "name": "Epidermal growth factor receptor",
-                "description": "Cancer drug target",
-                "binding_site": {"center": [26.0, 27.0, 35.0], "size": [20, 20, 20]}
             }
-        }
+        
         return targets
     
     def prepare_ligand(self, smiles: str, output_path: str) -> bool:
