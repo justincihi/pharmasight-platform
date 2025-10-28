@@ -22,7 +22,7 @@ class AutoDockSimulator:
         
     def load_protein_targets(self) -> Dict:
         """Load comprehensive drug target proteins from receptor database"""
-        from receptor_database import RECEPTOR_DATABASE
+        from src.receptor_database import RECEPTOR_DATABASE
         
         # Map receptors with PDB structures to docking targets
         targets = {}

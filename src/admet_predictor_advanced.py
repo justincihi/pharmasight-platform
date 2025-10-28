@@ -66,7 +66,7 @@ class ADMETPredictor:
             "molar_refractivity": Crippen.MolMR(mol),
             "formal_charge": Chem.rdmolops.GetFormalCharge(mol),
             "num_rings": Descriptors.RingCount(mol),
-            "fraction_sp3": Descriptors.FractionCsp3(mol)
+            "fraction_sp3": Descriptors.FractionCSP3(mol)
         }
     
     def predict_absorption(self, mol, descriptors: Dict) -> Dict:
