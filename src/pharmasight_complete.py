@@ -3193,6 +3193,209 @@ def search_compounds_endpoint():
     
     return jsonify({'compounds': results, 'count': len(results)})
 
+# ========== NEW ADVANCED FEATURES ==========
+
+@app.route('/api/3d_viewer/<smiles>')
+def molecular_3d_viewer(smiles):
+    """Generate 3D molecular visualization"""
+    from molecular_3d_viewer import Molecular3DViewer
+    viewer = Molecular3DViewer()
+    html = viewer.create_3d_viewer_html(smiles, compound_name=request.args.get('name', 'Compound'))
+    return html
+
+@app.route('/api/autodock/simulate', methods=['POST'])
+def autodock_simulation():
+    """Run molecular docking simulation"""
+    from autodock_integration import AutoDockSimulator
+    data = request.get_json()
+    
+    simulator = AutoDockSimulator()
+    result = simulator.simulate_docking(
+        smiles=data.get('smiles'),
+        target_name=data.get('target', '5-HT2A')
+    )
+    
+    log_activity(
+        session.get('user', 'anonymous'),
+        'molecular_docking',
+        f'Docked compound to {data.get("target")} with affinity {result.get("binding_affinity")} kcal/mol'
+    )
+    
+    return jsonify(result)
+
+@app.route('/api/autodock/virtual_screening', methods=['POST'])
+def virtual_screening():
+    """Virtual screening against multiple targets"""
+    from autodock_integration import AutoDockSimulator
+    data = request.get_json()
+    
+    simulator = AutoDockSimulator()
+    results = simulator.virtual_screening(
+        smiles_list=data.get('smiles_list', []),
+        target_names=data.get('targets')
+    )
+    
+    return jsonify(results)
+
+@app.route('/api/admet/predict', methods=['POST'])
+def predict_admet():
+    """Predict ADMET properties"""
+    from admet_predictor_advanced import ADMETPredictor
+    data = request.get_json()
+    
+    predictor = ADMETPredictor()
+    predictions = predictor.predict_all_properties(data.get('smiles'))
+    
+    log_activity(
+        session.get('user', 'anonymous'),
+        'admet_prediction',
+        f'ADMET score: {predictions.get("overall_score")}'
+    )
+    
+    return jsonify(predictions)
+
+@app.route('/api/retrosynthesis/analyze', methods=['POST'])
+def analyze_retrosynthesis():
+    """Analyze retrosynthetic routes"""
+    from retrosynthesis_analyzer import RetrosynthesisAnalyzer
+    data = request.get_json()
+    
+    analyzer = RetrosynthesisAnalyzer()
+    analysis = analyzer.analyze_synthesis(data.get('smiles'))
+    
+    return jsonify(analysis)
+
+@app.route('/api/patent/generate', methods=['POST'])
+def generate_patent():
+    """Generate patent application case file"""
+    from patent_case_generator import PatentCaseGenerator
+    data = request.get_json()
+    
+    generator = PatentCaseGenerator()
+    patent_case = generator.generate_patent_case(
+        compound_data=data.get('compound_data'),
+        discovery_data=data.get('discovery_data')
+    )
+    
+    log_activity(
+        session.get('user', 'anonymous'),
+        'patent_generation',
+        f'Generated patent case {patent_case.get("application_id")}'
+    )
+    
+    return jsonify(patent_case)
+
+@app.route('/api/daily_report/generate')
+def generate_daily_report():
+    """Generate daily discovery report"""
+    from daily_discovery_engine import DailyDiscoveryEngine
+    
+    engine = DailyDiscoveryEngine()
+    report = engine.generate_daily_report()
+    
+    log_activity(
+        session.get('user', 'autonomous'),
+        'daily_report',
+        f'Generated report with {report["summary"]["total_discoveries"]} discoveries'
+    )
+    
+    return jsonify(report)
+
+@app.route('/api/daily_report/history')
+def get_report_history():
+    """Get historical discovery reports"""
+    from daily_discovery_engine import DailyDiscoveryEngine
+    
+    days = request.args.get('days', 30, type=int)
+    engine = DailyDiscoveryEngine()
+    reports = engine.get_historical_reports(days)
+    
+    return jsonify({'reports': reports, 'count': len(reports)})
+
+@app.route('/api/database/import/<source>')
+def import_compounds_from_source(source):
+    """Import compounds from external database"""
+    from massive_compound_database import MassiveCompoundDatabase
+    
+    db = MassiveCompoundDatabase()
+    
+    if source == 'pubchem':
+        db.import_from_pubchem_bulk(limit=1000)
+    elif source == 'chembl':
+        db.import_from_chembl(limit=500)
+    elif source == 'curated':
+        db.import_drug_focused_set()
+    else:
+        return jsonify({'error': 'Unknown source'}), 400
+    
+    stats = db.get_statistics()
+    db.close()
+    
+    return jsonify({
+        'source': source,
+        'imported': True,
+        'statistics': stats
+    })
+
+@app.route('/api/database/search', methods=['POST'])
+def search_database():
+    """Search massive compound database"""
+    from massive_compound_database import MassiveCompoundDatabase
+    
+    data = request.get_json()
+    db = MassiveCompoundDatabase()
+    
+    results = db.search_compounds(
+        query=data.get('query'),
+        filters=data.get('filters', {})
+    )
+    
+    stats = db.get_statistics()
+    db.close()
+    
+    return jsonify({
+        'results': results,
+        'count': len(results),
+        'database_stats': stats
+    })
+
+@app.route('/api/database/statistics')
+def get_database_statistics():
+    """Get database statistics"""
+    from massive_compound_database import MassiveCompoundDatabase
+    
+    db = MassiveCompoundDatabase()
+    stats = db.get_statistics()
+    db.close()
+    
+    return jsonify(stats)
+
+@app.route('/api/external/pubchem/<name>')
+def search_pubchem(name):
+    """Search PubChem database"""
+    from external_database_apis import PubChemAPI
+    
+    api = PubChemAPI()
+    result = api.search_compound(name)
+    
+    if result:
+        return jsonify(result)
+    else:
+        return jsonify({'error': 'Compound not found'}), 404
+
+@app.route('/api/external/chembl/<name>')
+def search_chembl(name):
+    """Search ChEMBL database"""
+    from external_database_apis import ChEMBLAPI
+    
+    api = ChEMBLAPI()
+    result = api.search_compound(name)
+    
+    if result:
+        return jsonify(result)
+    else:
+        return jsonify({'error': 'Compound not found'}), 404
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5008, debug=False)
 
