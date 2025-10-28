@@ -2270,8 +2270,12 @@ def index():
                         <div class="info-title">Chemical Structure</div>
                         ${data.structure_svg}
                     </div>
+                    <div id="receptorProfileSection" style="margin-top: 20px;"></div>
                 </div>
             `;
+            
+            // Load receptor profile automatically
+            loadReceptorProfileForCompound(data.name);
             
             document.getElementById('analysisResults').innerHTML = results;
         }
@@ -2353,8 +2357,12 @@ def index():
                         <div style="margin-top: 15px;">
                             ${analog.structure_svg}
                         </div>
+                        <div id="analogReceptorProfile_${index}" style="margin-top: 15px;"></div>
                     </div>
                 `;
+                
+                // Load receptor profile for this analog
+                loadReceptorProfileForAnalog(analog.name, index);
             });
             
             resultsHtml += '</div>';
@@ -2930,6 +2938,130 @@ def index():
             } catch (error) {
                 alert('Error loading receptor profile: ' + error.message);
             }
+        }
+        
+        // Helper function to load receptor profile for compound analysis
+        async function loadReceptorProfileForCompound(compoundName) {
+            try {
+                const response = await fetch(`/api/receptor_profile/${encodeURIComponent(compoundName)}`);
+                const data = await response.json();
+                
+                if (data.success && data.profile.interactions && data.profile.interactions.length > 0) {
+                    displayReceptorProfileInSection(data.profile, 'receptorProfileSection');
+                }
+            } catch (error) {
+                console.log('No receptor profile available for ' + compoundName);
+            }
+        }
+        
+        // Helper function to load receptor profile for analog generation
+        async function loadReceptorProfileForAnalog(analogName, index) {
+            try {
+                const response = await fetch(`/api/receptor_profile/${encodeURIComponent(analogName)}`);
+                const data = await response.json();
+                
+                if (data.success && data.profile.interactions && data.profile.interactions.length > 0) {
+                    displayReceptorSelectivityForAnalog(data.profile, `analogReceptorProfile_${index}`, analogName);
+                }
+            } catch (error) {
+                console.log('No receptor profile available for ' + analogName);
+            }
+        }
+        
+        // Display receptor selectivity for analog (compact view)
+        function displayReceptorSelectivityForAnalog(profile, sectionId, analogName) {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+            
+            // Calculate selectivity metrics
+            const primary = profile.interactions.filter(i => i.binding_affinity_ki_nm < 100);
+            const selectivityScore = primary.length > 0 ? Math.round((1 / primary.length) * 100) : 0;
+            
+            let html = `
+                <div style="padding: 12px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong style="color: #1e40af;">🎯 Receptor Selectivity</strong>
+                        <span style="background: #3b82f6; color: white; padding: 2px 10px; border-radius: 4px; font-size: 12px;">Score: ${selectivityScore}</span>
+                    </div>
+            `;
+            
+            if (primary.length > 0) {
+                html += `<div style="font-size: 13px; color: #475569;">`;
+                html += `<strong>Primary Targets (${primary.length}):</strong> `;
+                
+                const targetList = primary.slice(0, 3).map(i => 
+                    `${i.receptor_subtype} (${i.binding_affinity_ki_nm.toFixed(1)} nM)`
+                ).join(', ');
+                
+                html += targetList;
+                if (primary.length > 3) {
+                    html += ` +${primary.length - 3} more`;
+                }
+                html += `</div>`;
+            } else {
+                html += `<div style="font-size: 13px; color: #64748b;">No high-affinity targets predicted</div>`;
+            }
+            
+            html += `
+                    <div style="margin-top: 10px; text-align: right;">
+                        <button class="btn btn-secondary" onclick="showTab('receptor-profiling'); document.getElementById('receptorCompoundInput').value='${analogName}'; loadReceptorProfile();" style="padding: 4px 12px; font-size: 12px;">
+                            View Full Profile
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            section.innerHTML = html;
+        }
+        
+        // Display receptor profile in a specific section (for compound analysis integration)
+        function displayReceptorProfileInSection(profile, sectionId) {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+            
+            let html = `
+                <div class="info-section">
+                    <div class="info-title">Receptor Binding Profile</div>
+                    <p style="margin-bottom: 15px;"><strong>Total Interactions:</strong> ${profile.total_interactions}</p>
+            `;
+            
+            if (profile.interactions && profile.interactions.length > 0) {
+                // Show top 3 primary targets
+                const primary = profile.interactions.filter(i => i.binding_affinity_ki_nm < 100).slice(0, 3);
+                
+                if (primary.length > 0) {
+                    html += `<div style="display: grid; gap: 10px;">`;
+                    
+                    primary.forEach(interaction => {
+                        html += `
+                            <div style="padding: 12px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 8px; border-left: 4px solid #10b981;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <strong>${interaction.receptor_family} - ${interaction.receptor_subtype}</strong>
+                                    <span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">Ki: ${interaction.binding_affinity_ki_nm.toFixed(2)} nM</span>
+                                </div>
+                                <div style="margin-top: 8px; font-size: 14px; color: #6b7280;">
+                                    ${interaction.modulation_type}${interaction.efficacy_percent ? ` (${interaction.efficacy_percent.toFixed(1)}% efficacy)` : ''} | ${interaction.signaling_bias}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`;
+                    
+                    if (profile.total_interactions > 3) {
+                        html += `
+                            <div style="margin-top: 15px; text-align: center;">
+                                <button class="btn btn-secondary" onclick="showTab('receptor-profiling'); document.getElementById('receptorCompoundInput').value='${profile.compound_name}'; loadReceptorProfile();" style="padding: 8px 16px; font-size: 14px;">
+                                    View Full Receptor Profile (${profile.total_interactions} interactions)
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            html += `</div>`;
+            section.innerHTML = html;
         }
         
         function displayReceptorProfile(profile) {
