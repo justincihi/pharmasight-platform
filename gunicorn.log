@@ -258,3 +258,31 @@ gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
 10.178.162.1 - - [28/Oct/2025:03:24:07 -0400] "GET /api/receptor_profile/MDAI HTTP/1.1" 404 47 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
 10.178.162.1 - - [28/Oct/2025:03:24:07 -0400] "GET /api/receptor_profile/6-APB HTTP/1.1" 404 47 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
 10.178.162.1 - - [28/Oct/2025:03:24:07 -0400] "GET /api/receptor_profile/MDA HTTP/1.1" 404 47 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+[2025-10-28 15:19:02 -0400] [10960] [CRITICAL] WORKER TIMEOUT (pid:12888)
+[2025-10-28 15:19:03 -0400] [12888] [INFO] Worker exiting (pid: 12888)
+[2025-10-28 15:19:03 -0400] [10960] [ERROR] Worker (pid:12888) exited with code 1
+[2025-10-28 15:19:03 -0400] [10960] [ERROR] Worker (pid:12888) exited with code 1.
+[2025-10-28 15:19:03 -0400] [13563] [INFO] Booting worker with pid: 13563
+[2025-10-28 15:24:50 -0400] [12889] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-28 15:24:50 -0400] [12889] [INFO] Worker exiting (pid: 12889)
+[2025-10-28 15:24:50 -0400] [13563] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-28 15:24:50 -0400] [13563] [INFO] Worker exiting (pid: 13563)
+[2025-10-28 15:24:50 -0400] [14231] [INFO] Booting worker with pid: 14231
+[2025-10-28 15:24:50 -0400] [14232] [INFO] Booting worker with pid: 14232
+127.0.0.1 - - [28/Oct/2025:15:25:09 -0400] "GET /api/receptor_profile/MDA HTTP/1.1" 500 32 "-" "curl/7.81.0"
+[2025-10-28 15:25:49 -0400] [14231] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-28 15:25:49 -0400] [14231] [INFO] Worker exiting (pid: 14231)
+[2025-10-28 15:25:49 -0400] [14279] [INFO] Booting worker with pid: 14279
+[2025-10-28 15:25:49 -0400] [14232] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-28 15:25:49 -0400] [14232] [INFO] Worker exiting (pid: 14232)
+[2025-10-28 15:25:49 -0400] [14280] [INFO] Booting worker with pid: 14280
+127.0.0.1 - - [28/Oct/2025:15:27:11 -0400] "GET /api/receptor_profile/MDA HTTP/1.1" 200 1246 "-" "curl/7.81.0"
+10.226.61.1 - - [28/Oct/2025:15:27:31 -0400] "GET / HTTP/1.1" 200 102402 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+10.226.61.1 - - [28/Oct/2025:15:27:31 -0400] "GET /lab_research.jpg HTTP/1.1" 404 207 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+10.226.61.1 - - [28/Oct/2025:15:27:31 -0400] "GET /molecular_viz.png HTTP/1.1" 404 207 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+10.226.61.1 - - [28/Oct/2025:15:27:42 -0400] "POST /api/log_activity HTTP/1.1" 200 201 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+10.226.61.1 - - [28/Oct/2025:15:27:42 -0400] "GET /molecular_viz.png HTTP/1.1" 404 207 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+10.226.61.1 - - [28/Oct/2025:15:28:26 -0400] "POST /api/generate_analogs HTTP/1.1" 200 1256 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+10.226.61.1 - - [28/Oct/2025:15:28:26 -0400] "GET /api/receptor_profile/6-APB HTTP/1.1" 200 1058 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+10.226.61.1 - - [28/Oct/2025:15:28:26 -0400] "GET /api/receptor_profile/MDAI HTTP/1.1" 200 860 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+10.226.61.1 - - [28/Oct/2025:15:28:26 -0400] "GET /api/receptor_profile/MDA HTTP/1.1" 200 1246 "https://5000-i6c9eu5jppkbillasx8mx-b53205c1.manusvm.computer/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"

@@ -3708,16 +3708,61 @@ def get_receptor_profile(compound_name):
     """Get receptor binding profile for a compound"""
     try:
         from receptor_pharmacology import ReceptorProfile, ModulationType, SignalingBias
+        from analog_receptor_profiles import get_analog_receptor_profile
         
-        # Check if compound exists in database
+        # First check if we have detailed receptor profile data for this compound
+        analog_profile = get_analog_receptor_profile(compound_name)
+        
+        if analog_profile:
+            # Use the detailed analog receptor profile data
+            profile = ReceptorProfile(analog_profile['compound_name'])
+            
+            # Map modulation type strings to enum
+            mod_type_map = {
+                'Full Agonist': ModulationType.FULL_AGONIST,
+                'Partial Agonist': ModulationType.PARTIAL_AGONIST,
+                'Full Antagonist': ModulationType.FULL_ANTAGONIST,
+                'Partial Antagonist': ModulationType.PARTIAL_ANTAGONIST,
+                'Inverse Agonist': ModulationType.INVERSE_AGONIST,
+                'Positive Allosteric Modulator (PAM)': ModulationType.POSITIVE_ALLOSTERIC_MODULATOR,
+                'Negative Allosteric Modulator (NAM)': ModulationType.NEGATIVE_ALLOSTERIC_MODULATOR,
+                'Silent Allosteric Modulator (SAM)': ModulationType.SILENT_ALLOSTERIC_MODULATOR
+            }
+            
+            # Map signaling bias strings to enum
+            bias_map = {
+                'G-Protein Biased': SignalingBias.G_PROTEIN_BIASED,
+                'β-Arrestin Biased': SignalingBias.BETA_ARRESTIN_BIASED,
+                'Balanced (No Bias)': SignalingBias.BALANCED,
+                'Unknown': SignalingBias.UNKNOWN
+            }
+            
+            for interaction in analog_profile['interactions']:
+                mod_type = mod_type_map.get(interaction['modulation_type'], ModulationType.FULL_AGONIST)
+                bias = bias_map.get(interaction['signaling_bias'], SignalingBias.UNKNOWN)
+                
+                profile.add_interaction(
+                    interaction['receptor_family'],
+                    interaction['receptor_subtype'],
+                    mod_type,
+                    interaction['binding_affinity_ki_nm'],
+                    interaction['efficacy_percent'],
+                    bias
+                )
+            
+            return jsonify({
+                'success': True,
+                'profile': profile.get_profile()
+            })
+        
+        # Fallback to compound database if no detailed profile
         compound_key = compound_name.lower().replace(' ', '_').replace('-', '_')
         compound = COMPOUND_DATABASE.get(compound_key)
         
         if not compound:
             return jsonify({'success': False, 'error': 'Compound not found'}), 404
         
-        # Create receptor profile (this would normally come from database)
-        # For now, using the receptor_binding data from compound database
+        # Create receptor profile from compound database
         profile = ReceptorProfile(compound['name'])
         
         # Convert receptor_binding to profile format
