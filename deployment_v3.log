@@ -1,0 +1,89 @@
+nohup: ignoring input
+[2025-10-27 07:15:43 -0400] [5860] [INFO] Starting gunicorn 23.0.0
+[2025-10-27 07:15:43 -0400] [5860] [INFO] Listening at: http://0.0.0.0:5000 (5860)
+[2025-10-27 07:15:43 -0400] [5860] [INFO] Using worker: sync
+[2025-10-27 07:15:43 -0400] [5861] [INFO] Booting worker with pid: 5861
+[2025-10-27 07:15:43 -0400] [5862] [INFO] Booting worker with pid: 5862
+[2025-10-27 07:15:51,456] ERROR in app: Exception on /api/export/compound/Psilocybin/pdf [GET]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 3043, in export_compound_endpoint
+    from comprehensive_compound_database import COMPREHENSIVE_COMPOUND_DATABASE
+ModuleNotFoundError: No module named 'comprehensive_compound_database'
+[2025-10-27 07:16:52 -0400] [5862] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:16:52 -0400] [5862] [INFO] Worker exiting (pid: 5862)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:16:52 -0400] [5932] [INFO] Booting worker with pid: 5932
+[2025-10-27 07:16:53 -0400] [5861] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:16:53 -0400] [5861] [INFO] Worker exiting (pid: 5861)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:16:53 -0400] [5934] [INFO] Booting worker with pid: 5934
+[2025-10-27 07:17:38 -0400] [5934] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:17:38 -0400] [5934] [INFO] Worker exiting (pid: 5934)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:17:38 -0400] [5982] [INFO] Booting worker with pid: 5982
+[2025-10-27 07:17:38 -0400] [5932] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:17:38 -0400] [5932] [INFO] Worker exiting (pid: 5932)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:17:39 -0400] [5984] [INFO] Booting worker with pid: 5984
+[2025-10-27 07:17:45 -0400] [5984] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:17:45 -0400] [5984] [INFO] Worker exiting (pid: 5984)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:17:45 -0400] [5992] [INFO] Booting worker with pid: 5992
+[2025-10-27 07:17:45 -0400] [5982] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:17:45 -0400] [5982] [INFO] Worker exiting (pid: 5982)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:17:45 -0400] [5994] [INFO] Booting worker with pid: 5994
+[2025-10-27 14:36:02 -0400] [5860] [CRITICAL] WORKER TIMEOUT (pid:5992)
+[2025-10-27 14:36:02 -0400] [5992] [INFO] Worker exiting (pid: 5992)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 14:36:03 -0400] [5860] [ERROR] Worker (pid:5992) exited with code 1
+[2025-10-27 14:36:03 -0400] [5860] [ERROR] Worker (pid:5992) exited with code 1.
+[2025-10-27 14:36:03 -0400] [6538] [INFO] Booting worker with pid: 6538
+[2025-10-27 14:56:58 -0400] [6538] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/analog_generation_fix.py modified
+[2025-10-27 14:56:58 -0400] [6538] [INFO] Worker exiting (pid: 6538)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 14:56:58 -0400] [7907] [INFO] Booting worker with pid: 7907
+[2025-10-27 14:56:59 -0400] [5994] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/analog_generation_fix.py modified
+[2025-10-27 14:56:59 -0400] [5994] [INFO] Worker exiting (pid: 5994)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 14:56:59 -0400] [7909] [INFO] Booting worker with pid: 7909
+[2025-10-27 15:40:25 -0400] [5860] [CRITICAL] WORKER TIMEOUT (pid:7909)
+[2025-10-27 15:40:26 -0400] [7909] [INFO] Worker exiting (pid: 7909)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 15:40:26 -0400] [5860] [ERROR] Worker (pid:7909) exited with code 1
+[2025-10-27 15:40:26 -0400] [5860] [ERROR] Worker (pid:7909) exited with code 1.
+[2025-10-27 15:40:26 -0400] [8613] [INFO] Booting worker with pid: 8613
+[2025-10-28 01:24:13 -0400] [5860] [CRITICAL] WORKER TIMEOUT (pid:7907)
+[2025-10-28 01:24:13 -0400] [7907] [INFO] Worker exiting (pid: 7907)
+✅ Successfully imported pharmasight_complete app
+[2025-10-28 01:24:15 -0400] [5860] [ERROR] Worker (pid:7907) exited with code 1
+[2025-10-28 01:24:15 -0400] [5860] [ERROR] Worker (pid:7907) exited with code 1.
+[2025-10-28 01:24:15 -0400] [9906] [INFO] Booting worker with pid: 9906
+[2025-10-28 02:08:19 -0400] [5860] [CRITICAL] WORKER TIMEOUT (pid:8613)
+[2025-10-28 02:08:20 -0400] [8613] [INFO] Worker exiting (pid: 8613)
+✅ Successfully imported pharmasight_complete app
+[2025-10-28 02:08:20 -0400] [5860] [ERROR] Worker (pid:8613) was sent SIGKILL! Perhaps out of memory?
+[2025-10-28 02:08:21 -0400] [10830] [INFO] Booting worker with pid: 10830
+[2025-10-28 02:09:20 -0400] [10830] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-28 02:09:20 -0400] [10830] [INFO] Worker exiting (pid: 10830)
+✅ Successfully imported pharmasight_complete app
+[2025-10-28 02:09:20 -0400] [10938] [INFO] Booting worker with pid: 10938
+[2025-10-28 02:09:21 -0400] [9906] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-28 02:09:21 -0400] [9906] [INFO] Worker exiting (pid: 9906)
+✅ Successfully imported pharmasight_complete app
+[2025-10-28 02:09:21 -0400] [10940] [INFO] Booting worker with pid: 10940

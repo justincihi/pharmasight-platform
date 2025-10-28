@@ -1923,6 +1923,7 @@ def index():
                 <div class="tab" onclick="showTab('research-findings')">Research Findings</div>
                 <div class="tab" onclick="showTab('pkpd-analysis')">PKPD & DDI Analysis</div>
                 <div class="tab" onclick="showTab('enterprise-tools')">Enterprise Tools</div>
+                <div class="tab" onclick="showTab('receptor-profiling')">Receptor Profiling</div>
             </div>
             
             <div class="tab-content professional-card research-bg">
@@ -2024,6 +2025,97 @@ def index():
                             <div class="tool-description">AI-assisted trial protocol generation</div>
                             <button class="btn btn-primary animated-border" onclick="designTrial()">Design Trial</button>
                         </div>
+                    </div>
+                </div>
+                
+                <div class="tab-panel" id="receptor-profiling">
+                    <h3><span class="enhanced-icon">🎯</span> Receptor Pharmacology Profiling</h3>
+                    <p>Comprehensive receptor targeting analysis with 70+ receptor subtypes</p>
+                    
+                    <div class="form-row">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Compound Name:</label>
+                        <input type="text" id="receptorCompoundInput" placeholder="e.g., Psilocybin, Ketamine, MDMA" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                    </div>
+                    
+                    <div class="form-row" style="margin-top: 20px;">
+                        <button class="btn btn-primary animated-border" onclick="loadReceptorProfile()">Load Receptor Profile</button>
+                        <button class="btn btn-secondary animated-border" onclick="showReceptorBuilder()">Build Custom Profile</button>
+                    </div>
+                    
+                    <div id="receptorProfileResults" class="data-viz-container"></div>
+                    
+                    <!-- Custom Receptor Profile Builder -->
+                    <div id="receptorBuilder" style="display: none; margin-top: 30px;" class="professional-card">
+                        <h4 style="margin-bottom: 20px;">Custom Receptor Profile Builder</h4>
+                        
+                        <div class="form-row">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Receptor Family:</label>
+                            <select id="receptorFamily" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;" onchange="loadReceptorSubtypes()">
+                                <option value="">Select Receptor Family...</option>
+                                <option value="serotonin">Serotonin Receptors (11 subtypes)</option>
+                                <option value="dopamine">Dopamine Receptors (5 subtypes)</option>
+                                <option value="gaba">GABA Receptors (7 subtypes)</option>
+                                <option value="glutamate">Glutamate Receptors (13 subtypes)</option>
+                                <option value="opioid">Opioid Receptors (4 subtypes)</option>
+                                <option value="cannabinoid">Cannabinoid Receptors (2 subtypes)</option>
+                                <option value="adrenergic">Adrenergic Receptors (9 subtypes)</option>
+                                <option value="muscarinic">Muscarinic Receptors (5 subtypes)</option>
+                                <option value="nicotinic">Nicotinic Receptors (3 subtypes)</option>
+                                <option value="orexin">Orexin Receptors (2 subtypes)</option>
+                                <option value="mtor">mTOR Pathway (2 complexes)</option>
+                                <option value="histamine">Histamine Receptors (4 subtypes)</option>
+                                <option value="sigma">Sigma Receptors (2 subtypes)</option>
+                                <option value="taar">TAAR (1 subtype)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Receptor Subtype:</label>
+                            <select id="receptorSubtype" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                                <option value="">Select receptor family first...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Modulation Type:</label>
+                            <select id="modulationType" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                                <option value="FULL_AGONIST">Full Agonist</option>
+                                <option value="PARTIAL_AGONIST">Partial Agonist</option>
+                                <option value="FULL_ANTAGONIST">Full Antagonist</option>
+                                <option value="PARTIAL_ANTAGONIST">Partial Antagonist</option>
+                                <option value="INVERSE_AGONIST">Inverse Agonist</option>
+                                <option value="POSITIVE_ALLOSTERIC_MODULATOR">Positive Allosteric Modulator (PAM)</option>
+                                <option value="NEGATIVE_ALLOSTERIC_MODULATOR">Negative Allosteric Modulator (NAM)</option>
+                                <option value="SILENT_ALLOSTERIC_MODULATOR">Silent Allosteric Modulator (SAM)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Signaling Bias:</label>
+                            <select id="signalingBias" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                                <option value="G_PROTEIN_BIASED">G-Protein Biased</option>
+                                <option value="BETA_ARRESTIN_BIASED">β-Arrestin Biased</option>
+                                <option value="BALANCED">Balanced (No Bias)</option>
+                                <option value="UNKNOWN">Unknown</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Binding Affinity (Ki in nM):</label>
+                            <input type="number" id="bindingAffinity" placeholder="e.g., 5.2" step="0.1" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                        </div>
+                        
+                        <div class="form-row">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Efficacy (%):</label>
+                            <input type="number" id="efficacy" placeholder="e.g., 85" min="0" max="100" class="enhanced-hover" style="width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;">
+                        </div>
+                        
+                        <div class="form-row">
+                            <button class="btn btn-primary animated-border" onclick="addReceptorInteraction()">Add Interaction</button>
+                            <button class="btn btn-secondary animated-border" onclick="saveReceptorProfile()">Save Profile</button>
+                        </div>
+                        
+                        <div id="customProfileDisplay" style="margin-top: 20px;"></div>
                     </div>
                 </div>
                 </div>
@@ -2812,6 +2904,254 @@ def index():
                 modal.style.display = 'none';
             }
         }
+        
+        // ============================================
+        // RECEPTOR PROFILING FUNCTIONS
+        // ============================================
+        
+        let currentReceptorProfile = [];
+        
+        async function loadReceptorProfile() {
+            const compoundName = document.getElementById('receptorCompoundInput').value;
+            if (!compoundName) {
+                alert('Please enter a compound name');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/receptor_profile/${encodeURIComponent(compoundName)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayReceptorProfile(data.profile);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error loading receptor profile: ' + error.message);
+            }
+        }
+        
+        function displayReceptorProfile(profile) {
+            const resultsDiv = document.getElementById('receptorProfileResults');
+            
+            let html = `
+                <div class="professional-card" style="margin-top: 20px;">
+                    <h4 style="color: #00d4ff; margin-bottom: 20px;">Receptor Binding Profile: ${profile.compound_name}</h4>
+                    <p style="margin-bottom: 20px;"><strong>Total Interactions:</strong> ${profile.total_interactions}</p>
+            `;
+            
+            if (profile.interactions && profile.interactions.length > 0) {
+                // Separate primary and off-targets
+                const primary = profile.interactions.filter(i => i.binding_affinity_ki_nm < 100);
+                const offTarget = profile.interactions.filter(i => i.binding_affinity_ki_nm >= 100);
+                
+                if (primary.length > 0) {
+                    html += `
+                        <h5 style="color: #10b981; margin-top: 20px; margin-bottom: 15px;">Primary Targets (Ki < 100 nM)</h5>
+                        <div style="display: grid; gap: 15px;">
+                    `;
+                    
+                    primary.forEach(interaction => {
+                        html += `
+                            <div class="info-section" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: 4px solid #10b981;">
+                                <div class="info-item">
+                                    <span class="info-label">Receptor:</span>
+                                    <span class="info-value">${interaction.receptor_family} - ${interaction.receptor_subtype}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Modulation:</span>
+                                    <span class="info-value">${interaction.modulation_type}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Binding Affinity (Ki):</span>
+                                    <span class="info-value">${interaction.binding_affinity_ki_nm.toFixed(2)} nM</span>
+                                </div>
+                                ${interaction.efficacy_percent ? `
+                                <div class="info-item">
+                                    <span class="info-label">Efficacy:</span>
+                                    <span class="info-value">${interaction.efficacy_percent.toFixed(1)}%</span>
+                                </div>
+                                ` : ''}
+                                <div class="info-item">
+                                    <span class="info-label">Signaling Bias:</span>
+                                    <span class="info-value">${interaction.signaling_bias}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`;
+                }
+                
+                if (offTarget.length > 0) {
+                    html += `
+                        <h5 style="color: #f59e0b; margin-top: 20px; margin-bottom: 15px;">Off-Target Interactions (Ki ≥ 100 nM)</h5>
+                        <div style="display: grid; gap: 15px;">
+                    `;
+                    
+                    offTarget.forEach(interaction => {
+                        html += `
+                            <div class="info-section" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #f59e0b;">
+                                <div class="info-item">
+                                    <span class="info-label">Receptor:</span>
+                                    <span class="info-value">${interaction.receptor_family} - ${interaction.receptor_subtype}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Binding Affinity (Ki):</span>
+                                    <span class="info-value">${interaction.binding_affinity_ki_nm.toFixed(2)} nM</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`;
+                }
+            } else {
+                html += `<p style="color: #6b7280;">No receptor interactions found for this compound.</p>`;
+            }
+            
+            html += `</div>`;
+            resultsDiv.innerHTML = html;
+        }
+        
+        function showReceptorBuilder() {
+            const builder = document.getElementById('receptorBuilder');
+            builder.style.display = builder.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        async function loadReceptorSubtypes() {
+            const family = document.getElementById('receptorFamily').value;
+            const subtypeSelect = document.getElementById('receptorSubtype');
+            
+            if (!family) {
+                subtypeSelect.innerHTML = '<option value="">Select receptor family first...</option>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/receptors/${family}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.subtypes) {
+                    subtypeSelect.innerHTML = '<option value="">Select subtype...</option>';
+                    
+                    Object.keys(data.data.subtypes).forEach(subtype => {
+                        const option = document.createElement('option');
+                        option.value = subtype;
+                        option.textContent = data.data.subtypes[subtype].full_name || subtype;
+                        subtypeSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading subtypes:', error);
+                alert('Error loading receptor subtypes');
+            }
+        }
+        
+        function addReceptorInteraction() {
+            const family = document.getElementById('receptorFamily').value;
+            const subtype = document.getElementById('receptorSubtype').value;
+            const modulationType = document.getElementById('modulationType').value;
+            const signalingBias = document.getElementById('signalingBias').value;
+            const bindingAffinity = parseFloat(document.getElementById('bindingAffinity').value);
+            const efficacy = parseFloat(document.getElementById('efficacy').value);
+            
+            if (!family || !subtype || !bindingAffinity) {
+                alert('Please fill in all required fields (family, subtype, binding affinity)');
+                return;
+            }
+            
+            const interaction = {
+                receptor_family: family,
+                receptor_subtype: subtype,
+                modulation_type: modulationType,
+                signaling_bias: signalingBias,
+                binding_affinity_ki_nm: bindingAffinity,
+                efficacy_percent: efficacy || null,
+                notes: ''
+            };
+            
+            currentReceptorProfile.push(interaction);
+            updateCustomProfileDisplay();
+            
+            // Clear inputs
+            document.getElementById('bindingAffinity').value = '';
+            document.getElementById('efficacy').value = '';
+        }
+        
+        function updateCustomProfileDisplay() {
+            const displayDiv = document.getElementById('customProfileDisplay');
+            
+            if (currentReceptorProfile.length === 0) {
+                displayDiv.innerHTML = '';
+                return;
+            }
+            
+            let html = `
+                <div class="professional-card" style="background: #f9fafb;">
+                    <h5 style="margin-bottom: 15px;">Current Profile (${currentReceptorProfile.length} interactions)</h5>
+                    <div style="display: grid; gap: 10px;">
+            `;
+            
+            currentReceptorProfile.forEach((interaction, index) => {
+                html += `
+                    <div style="padding: 10px; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <strong>${interaction.receptor_family} - ${interaction.receptor_subtype}</strong><br>
+                        Ki: ${interaction.binding_affinity_ki_nm} nM | ${interaction.modulation_type}
+                        <button onclick="removeReceptorInteraction(${index})" style="float: right; background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Remove</button>
+                    </div>
+                `;
+            });
+            
+            html += `</div></div>`;
+            displayDiv.innerHTML = html;
+        }
+        
+        function removeReceptorInteraction(index) {
+            currentReceptorProfile.splice(index, 1);
+            updateCustomProfileDisplay();
+        }
+        
+        async function saveReceptorProfile() {
+            const compoundName = document.getElementById('receptorCompoundInput').value;
+            
+            if (!compoundName) {
+                alert('Please enter a compound name first');
+                return;
+            }
+            
+            if (currentReceptorProfile.length === 0) {
+                alert('Please add at least one receptor interaction');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/receptor_profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        compound_name: compoundName,
+                        interactions: currentReceptorProfile
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Receptor profile saved successfully!');
+                    displayReceptorProfile(data.profile);
+                    currentReceptorProfile = [];
+                    updateCustomProfileDisplay();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error saving receptor profile: ' + error.message);
+            }
+        }
     </script>
 </body>
 </html>
@@ -3138,6 +3478,234 @@ def export_analytics_endpoint(format_type):
         )
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# ============================================
+# RECEPTOR PHARMACOLOGY API ENDPOINTS
+# ============================================
+
+@app.route('/api/receptors', methods=['GET'])
+def get_all_receptors():
+    """Get all receptor families and subtypes"""
+    try:
+        from receptor_pharmacology import get_receptor_database
+        db = get_receptor_database()
+        receptors = db.get_all_receptors()
+        
+        # Format for frontend
+        formatted = {}
+        for family_key, family_data in receptors.items():
+            formatted[family_key] = {
+                'name': family_data['name'],
+                'subtypes': list(family_data['subtypes'].keys()),
+                'count': len(family_data['subtypes'])
+            }
+        
+        return jsonify({
+            'success': True,
+            'receptor_families': formatted,
+            'total_families': len(formatted),
+            'total_subtypes': sum(f['count'] for f in formatted.values())
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/receptors/<family>', methods=['GET'])
+def get_receptor_family(family):
+    """Get specific receptor family details"""
+    try:
+        from receptor_pharmacology import get_receptor_database
+        db = get_receptor_database()
+        family_data = db.get_receptor_family(family)
+        
+        if not family_data:
+            return jsonify({'success': False, 'error': 'Receptor family not found'}), 404
+        
+        return jsonify({
+            'success': True,
+            'family': family,
+            'data': family_data
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/receptors/<family>/<subtype>', methods=['GET'])
+def get_receptor_subtype(family, subtype):
+    """Get specific receptor subtype details"""
+    try:
+        from receptor_pharmacology import get_receptor_database
+        db = get_receptor_database()
+        subtype_data = db.get_receptor_subtype(family, subtype)
+        
+        if not subtype_data:
+            return jsonify({'success': False, 'error': 'Receptor subtype not found'}), 404
+        
+        return jsonify({
+            'success': True,
+            'family': family,
+            'subtype': subtype,
+            'data': subtype_data
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/receptors/search', methods=['POST'])
+def search_receptors():
+    """Search receptors by query"""
+    try:
+        from receptor_pharmacology import get_receptor_database
+        data = request.get_json()
+        query = data.get('query', '')
+        
+        if not query:
+            return jsonify({'success': False, 'error': 'Query required'}), 400
+        
+        db = get_receptor_database()
+        results = db.search_receptors(query)
+        
+        return jsonify({
+            'success': True,
+            'query': query,
+            'results': results,
+            'count': len(results)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/receptor_profile/<compound_name>', methods=['GET'])
+def get_receptor_profile(compound_name):
+    """Get receptor binding profile for a compound"""
+    try:
+        from receptor_pharmacology import ReceptorProfile, ModulationType, SignalingBias
+        
+        # Check if compound exists in database
+        compound_key = compound_name.lower().replace(' ', '_').replace('-', '_')
+        compound = COMPOUND_DATABASE.get(compound_key)
+        
+        if not compound:
+            return jsonify({'success': False, 'error': 'Compound not found'}), 404
+        
+        # Create receptor profile (this would normally come from database)
+        # For now, using the receptor_binding data from compound database
+        profile = ReceptorProfile(compound['name'])
+        
+        # Convert receptor_binding to profile format
+        receptor_binding = compound.get('receptor_binding', {})
+        
+        # Map common receptor names to our system
+        receptor_map = {
+            '5-HT2A': ('serotonin', '5-HT2A'),
+            '5-HT2C': ('serotonin', '5-HT2C'),
+            '5-HT1A': ('serotonin', '5-HT1A'),
+            'D2': ('dopamine', 'D2'),
+            'SERT': ('serotonin', '5-HT transporter'),
+            'NET': ('adrenergic', 'norepinephrine transporter'),
+            'DAT': ('dopamine', 'dopamine transporter'),
+        }
+        
+        for receptor_name, affinity in receptor_binding.items():
+            if receptor_name in receptor_map:
+                family, subtype = receptor_map[receptor_name]
+                # Estimate Ki from affinity percentage (higher affinity = lower Ki)
+                ki = 100 / max(affinity, 1)  # Rough approximation
+                
+                # Determine modulation type based on compound
+                if 'psilocybin' in compound_name.lower() or 'lsd' in compound_name.lower():
+                    mod_type = ModulationType.PARTIAL_AGONIST
+                    efficacy = affinity * 0.8
+                else:
+                    mod_type = ModulationType.FULL_AGONIST
+                    efficacy = affinity
+                
+                profile.add_interaction(
+                    family, subtype, mod_type,
+                    ki, efficacy,
+                    SignalingBias.G_PROTEIN_BIASED if affinity > 80 else SignalingBias.BALANCED
+                )
+        
+        return jsonify({
+            'success': True,
+            'profile': profile.get_profile()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/receptor_profile', methods=['POST'])
+def create_receptor_profile():
+    """Create or update receptor binding profile"""
+    try:
+        from receptor_pharmacology import ReceptorProfile, ModulationType, SignalingBias
+        data = request.get_json()
+        
+        compound_name = data.get('compound_name')
+        interactions = data.get('interactions', [])
+        
+        if not compound_name:
+            return jsonify({'success': False, 'error': 'Compound name required'}), 400
+        
+        profile = ReceptorProfile(compound_name)
+        
+        for interaction in interactions:
+            # Parse modulation type
+            mod_type_str = interaction.get('modulation_type', 'FULL_AGONIST')
+            mod_type = ModulationType[mod_type_str]
+            
+            # Parse signaling bias
+            bias_str = interaction.get('signaling_bias', 'UNKNOWN')
+            bias = SignalingBias[bias_str]
+            
+            profile.add_interaction(
+                receptor_family=interaction.get('receptor_family'),
+                receptor_subtype=interaction.get('receptor_subtype'),
+                modulation_type=mod_type,
+                binding_affinity=interaction.get('binding_affinity_ki_nm'),
+                efficacy=interaction.get('efficacy_percent'),
+                signaling_bias=bias,
+                notes=interaction.get('notes', '')
+            )
+        
+        return jsonify({
+            'success': True,
+            'profile': profile.get_profile(),
+            'json_export': profile.export_to_json()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/modulation_types', methods=['GET'])
+def get_modulation_types():
+    """Get all available modulation types"""
+    try:
+        from receptor_pharmacology import ModulationType
+        
+        types = [{
+            'value': mod_type.name,
+            'label': mod_type.value
+        } for mod_type in ModulationType]
+        
+        return jsonify({
+            'success': True,
+            'modulation_types': types
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/signaling_bias_types', methods=['GET'])
+def get_signaling_bias_types():
+    """Get all available signaling bias types"""
+    try:
+        from receptor_pharmacology import SignalingBias
+        
+        types = [{
+            'value': bias_type.name,
+            'label': bias_type.value
+        } for bias_type in SignalingBias]
+        
+        return jsonify({
+            'success': True,
+            'signaling_bias_types': types
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/health')
 def health_check():
