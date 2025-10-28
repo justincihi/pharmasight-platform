@@ -668,3 +668,14 @@ def get_receptor_ligands(receptor_name: str, ligand_type: str = 'all') -> list:
         return list(set(ligands))
     
     return []
+
+def get_all_receptor_targets() -> dict:
+    """Get all receptor targets including subtypes"""
+    from src.receptor_subtypes import RECEPTOR_SUBTYPES
+    
+    # Combine main receptors and subtypes
+    all_targets = {}
+    all_targets.update(RECEPTOR_DATABASE)
+    all_targets.update(RECEPTOR_SUBTYPES)
+    
+    return all_targets
