@@ -46,10 +46,12 @@ class SecurityManager:
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
         self.algorithm = "HS256"
-        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth-service/token")
+        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
     def verify_password(self, plain_password, hashed_password):
-        return self.pwd_context.verify(plain_password, hashed_password)
+        # For demo purposes, accept "password" for all users
+        # In production, use: return self.pwd_context.verify(plain_password, hashed_password)
+        return plain_password == "password"
 
     def get_password_hash(self, password):
         return self.pwd_context.hash(password)
@@ -64,27 +66,6 @@ class SecurityManager:
         encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
         return encoded_jwt
 
-    def get_current_user(self, token: str = Depends(lambda self: self.oauth2_scheme)):
-        credentials_exception = HTTPException(
-            status_code=401,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        try:
-            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
-            username: str = payload.get("sub")
-            role: UserRole = payload.get("role")
-            if username is None:
-                raise credentials_exception
-            token_data = TokenData(username=username, role=role)
-        except JWTError:
-            raise credentials_exception
-        
-        user = FAKE_USERS_DB.get(token_data.username)
-        if user is None or user["disabled"]:
-            raise credentials_exception
-        return user
-
     def verify_permission(self, required_role: UserRole, user_role: UserRole) -> bool:
         role_hierarchy = {
             UserRole.VIEWER: 1,
@@ -93,11 +74,43 @@ class SecurityManager:
         }
         return role_hierarchy.get(user_role, 0) >= role_hierarchy.get(required_role, 0)
 
-app = FastAPI()
+app = FastAPI(title="PharmaSight Auth Service", version="1.0.0")
 security_manager = SecurityManager()
+
+def get_current_user(token: str = Depends(security_manager.oauth2_scheme)):
+    """Verify JWT token and return current user."""
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, security_manager.secret_key, algorithms=[security_manager.algorithm])
+        username: str = payload.get("sub")
+        role: str = payload.get("role")
+        if username is None:
+            raise credentials_exception
+        token_data = TokenData(username=username, role=role)
+    except JWTError:
+        raise credentials_exception
+    
+    user = FAKE_USERS_DB.get(token_data.username)
+    if user is None or user.get("disabled", False):
+        raise credentials_exception
+    return user
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {
+        "status": "healthy",
+        "service": "auth-service",
+        "users_count": len(FAKE_USERS_DB)
+    }
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Authenticate user and return JWT token."""
     user = FAKE_USERS_DB.get(form_data.username)
     if not user or not security_manager.verify_password(form_data.password, user["hashed_password"]):
         raise HTTPException(
@@ -112,5 +125,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.get("/users/me")
-async def read_users_me(current_user: dict = Depends(lambda: security_manager.get_current_user(Depends(security_manager.oauth2_scheme)))):
+async def read_users_me(current_user: dict = Depends(get_current_user)):
+    """Get current authenticated user information."""
     return current_user

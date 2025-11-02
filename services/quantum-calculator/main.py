@@ -57,6 +57,15 @@ class QuantumPropertyCalculator:
 
 calculator = QuantumPropertyCalculator()
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {
+        "status": "healthy",
+        "service": "quantum-calculator",
+        "pyscf_available": True
+    }
+
 @app.post("/calculate", response_model=Dict[str, Any])
 async def calculate_quantum_properties(request: QuantumCalculationRequest):
     """

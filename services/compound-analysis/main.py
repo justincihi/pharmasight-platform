@@ -105,6 +105,23 @@ def generate_svg_structure(smiles: str) -> str:
     
     return drawer.GetDrawingText()
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    try:
+        # Test Redis connection
+        redis_client.ping()
+        redis_status = "connected"
+    except Exception as e:
+        redis_status = f"error: {str(e)}"
+    
+    return {
+        "status": "healthy",
+        "service": "compound-analysis",
+        "rdkit_version": Chem.rdBase.rdkitVersion,
+        "redis": redis_status
+    }
+
 @app.post("/analyze", response_model=Dict[str, Any])
 async def analyze_compound(request: CompoundAnalysisRequest):
     """Analyzes a chemical compound and returns its properties."""

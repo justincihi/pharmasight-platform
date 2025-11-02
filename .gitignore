@@ -3,3 +3,37 @@ __pycache__/
 demo_output/
 test_output/
 *.zip
+
+# Environment and secrets
+.env
+*.pem
+*.key
+secrets/
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Logs
+*.log
+logs/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/

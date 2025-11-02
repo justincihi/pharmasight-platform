@@ -48,6 +48,15 @@ def calculate_similarity(smiles1: str, smiles2: str) -> float:
     
     return DataStructs.TanimotoSimilarity(fp1, fp2)
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {
+        "status": "healthy",
+        "service": "analog-generation",
+        "rdkit_version": Chem.rdBase.rdkitVersion
+    }
+
 @app.post("/generate", response_model=Dict)
 async def generate_analogs(request: AnalogRequest):
     """Generates analogs for a given parent compound."""
