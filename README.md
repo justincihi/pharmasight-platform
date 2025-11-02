@@ -25,40 +25,91 @@ The architecture consists of the following services:
 
 ### Prerequisites
 
-- Docker
-- Docker Compose
+- Docker (version 20.10+)
+- Docker Compose (version 1.29+)
+- Python 3.11+ (for running tests)
 
-### Running the Platform
+### Quick Start
 
-1. **Build and Start Services:**
-   From the root of the project directory, run the following command to build the Docker images and start all the services in detached mode:
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/justincihi/pharmasight-platform.git
+   cd pharmasight-platform
+   ```
+
+2. **Configure Environment (Optional):**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your preferred settings
+   ```
+
+3. **Build and Start Services:**
+   From the root of the project directory, run:
 
    ```bash
    docker-compose up --build -d
    ```
-
-2. **Accessing the Platform:**
-   Once all services are running, the main API Gateway will be accessible at `http://localhost:8080`.
-
-3. **Viewing Logs:**
-   To view the logs for all running services, use:
-
+   
+   Or use the Makefile:
    ```bash
-   docker-compose logs -f
+   make up
    ```
 
-   To view logs for a specific service (e.g., `compound-service`):
-
+4. **Verify Services Are Running:**
+   Check the health of all services:
    ```bash
-   docker-compose logs -f compound-service
+   curl http://localhost:8080/health
+   ```
+   
+   Or use:
+   ```bash
+   make health
    ```
 
-4. **Stopping the Platform:**
-   To stop all running services, use the following command:
-
+5. **Run Integration Tests:**
    ```bash
-   docker-compose down
+   python3 test_microservices.py
    ```
+   
+   Or use:
+   ```bash
+   make test
+   ```
+
+### Accessing the Platform
+
+Once all services are running:
+- **API Gateway:** http://localhost:8080
+- **Interactive API Docs:** http://localhost:8080/docs
+- **Health Check:** http://localhost:8080/health
+
+### Common Operations
+
+**View Logs:**
+```bash
+docker-compose logs -f                    # All services
+docker-compose logs -f compound-service   # Specific service
+make logs                                 # Using Makefile
+make logs-compound                        # Specific service
+```
+
+**Stop Services:**
+```bash
+docker-compose down
+make down
+```
+
+**Restart Services:**
+```bash
+docker-compose restart
+make restart
+```
+
+**Clean Everything:**
+```bash
+docker-compose down -v
+make clean
+```
 
 ## 4. API Endpoints
 
@@ -95,4 +146,29 @@ This will start the database, cache, and the compound service, allowing you to t
 
 ```bash
 docker-compose up -d --build compound-service
+# Or using Makefile
+make rebuild-compound
 ```
+
+### Development Workflow
+
+1. **Make code changes** in `services/[service-name]/`
+2. **Rebuild the service:** `make rebuild-[service-name]`
+3. **Check logs:** `make logs-[service-name]`
+4. **Test changes:** Run integration tests or use curl
+
+### Additional Resources
+
+- **Comprehensive API Documentation:** See [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
+- **Deployment Guide:** See [MICROSERVICES_DEPLOYMENT.md](MICROSERVICES_DEPLOYMENT.md)
+- **Environment Configuration:** See [.env.example](.env.example)
+
+### Troubleshooting
+
+See the [MICROSERVICES_DEPLOYMENT.md](MICROSERVICES_DEPLOYMENT.md) file for detailed troubleshooting steps.
+
+Common issues:
+- **Port conflicts:** Change ports in docker-compose.yml
+- **Services won't start:** Check logs with `make logs`
+- **Database connection errors:** Verify DATABASE_URL environment variable
+- **Health check failures:** Ensure curl is installed in containers
