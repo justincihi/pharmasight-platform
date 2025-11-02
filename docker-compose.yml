@@ -1,0 +1,72 @@
+version: '3.8'
+services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=compounds
+    ports:
+      - "5432:5432"
+
+  compound-service:
+    build: ./services/compound-analysis
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/compounds
+    depends_on:
+      - db
+      - redis
+
+  analog-service:
+    build: ./services/analog-generation
+    ports:
+      - "8002:8000"
+    depends_on:
+      - redis
+
+  ml-service:
+    build: ./services/ml-models
+    ports:
+      - "8003:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  quantum-calculator:
+    build: ./services/quantum-calculator
+    ports:
+      - "8004:8000"
+
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "8005:8000"
+    environment:
+      - SECRET_KEY=mysecretkey # Replace with a real secret in production
+
+  api-gateway:
+    build: ./services/api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - compound-service
+      - analog-service
+      - ml-service
+      - quantum-calculator
+      - auth-service
+
+volumes:
+  postgres_data:
