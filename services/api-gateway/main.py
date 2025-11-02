@@ -82,9 +82,11 @@ async def route_request(service: str, path: str, request: Request):
             # Handle different response types
             try:
                 return response.json()
-            except Exception:
+            except ValueError as e:
+                # Response is not JSON
+                logger.warning(f"Non-JSON response from {service_url}: {str(e)}")
                 return JSONResponse(
-                    content={"data": response.text},
+                    content={"data": response.text, "warning": "Response was not JSON"},
                     status_code=response.status_code
                 )
         except httpx.TimeoutException:

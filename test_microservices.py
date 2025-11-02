@@ -199,9 +199,14 @@ def test_ml_predictions(token: str = None) -> bool:
             if 'warning' in data:
                 print_warning(f"  {data['warning']}")
             
+            # Display configuration
+            MAX_SMILES_DISPLAY_LENGTH = 20
+            MAX_RESULTS_TO_SHOW = 2
+            
             predictions = data.get('predictions', {})
-            for smiles, pred in list(predictions.items())[:2]:
-                print_success(f"  {smiles[:20]}... - Absorption: {pred.get('absorption', 'N/A')}, Toxicity: {pred.get('toxicity', 'N/A')}")
+            for smiles, pred in list(predictions.items())[:MAX_RESULTS_TO_SHOW]:
+                smiles_display = f"{smiles[:MAX_SMILES_DISPLAY_LENGTH]}..." if len(smiles) > MAX_SMILES_DISPLAY_LENGTH else smiles
+                print_success(f"  {smiles_display} - Absorption: {pred.get('absorption', 'N/A')}, Toxicity: {pred.get('toxicity', 'N/A')}")
             
             return True
         else:
