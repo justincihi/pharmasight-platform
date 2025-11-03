@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+rdkit
+numpy
+scipy
+pandas
+redis
+pickle-compat
+psycopg2-binary
