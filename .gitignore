@@ -19,7 +19,6 @@ redis_data/
 logs/
 
 # IDEs
-.vscode/
 .idea/
 *.swp
 *.swo
