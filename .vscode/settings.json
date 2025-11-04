@@ -6,7 +6,7 @@
   "python.linting.flake8Enabled": true,
   "python.linting.flake8Args": [
     "--max-line-length=120",
-    "--ignore=E501,W503"
+    "--ignore=W503"
   ],
   "python.testing.pytestEnabled": true,
   "python.testing.pytestArgs": [
@@ -34,7 +34,6 @@
   },
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnSave": true,
     "editor.tabSize": 4,
     "editor.insertSpaces": true
   },
