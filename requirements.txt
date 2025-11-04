@@ -11,7 +11,7 @@ flask-cors==4.0.1
 # Scientific computing stack (Python 3.10 compatible)
 scipy==1.10.1
 numpy>=1.24.0,<2.0.0
-pandas>=2.0.0,<2.2.0
+pandas>=2.0.0,<3.0.0
 
 # Chemistry and cheminformatics
 rdkit>=2023.9.1,<2024.0.0
