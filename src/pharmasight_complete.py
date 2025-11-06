@@ -2328,7 +2328,7 @@ def index():
                             <div class="info-section">
                                 <div class="info-item">
                                     <span class="info-label">Similarity Score:</span>
-                                    <span class="info-value">${analog.similarity_score}%</span>
+                                    <span class="info-value">${Math.round(analog.similarity * 100)}%</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Patent Status:</span>
@@ -2350,7 +2350,7 @@ def index():
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">IP Potential:</span>
-                                    <span class="info-value">${analog.ip_potential}</span>
+                                    <span class="info-value">${analog.patent_opportunity_score ? Math.round(analog.patent_opportunity_score) : 'N/A'}</span>
                                 </div>
                             </div>
                         </div>
