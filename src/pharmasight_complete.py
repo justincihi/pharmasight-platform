@@ -2321,9 +2321,33 @@ def index():
             `;
             
             data.analogs.forEach((analog, index) => {
+                const isNovel = analog.is_novel_generation || false;
+                const noveltyBadge = isNovel ? '<span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; margin-left: 10px;">✨ Novel Generation</span>' : '';
+                
                 resultsHtml += `
-                    <div class="info-section" style="margin-top: 20px;">
-                        <div class="info-title">Analog ${index + 1}: ${analog.name}</div>
+                    <div class="info-section" style="margin-top: 20px; border-left: 4px solid ${isNovel ? '#10b981' : '#3b82f6'};">
+                        <div class="info-title">Analog ${index + 1}: ${analog.name} ${noveltyBadge}</div>
+                        
+                        ${analog.smiles ? `
+                        <div style="background: #f1f5f9; padding: 12px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 0.9em;">
+                            <strong>SMILES:</strong> <code style="background: white; padding: 4px 8px; border-radius: 4px;">${analog.smiles}</code>
+                            <button onclick="navigator.clipboard.writeText('${analog.smiles}')" style="margin-left: 10px; padding: 4px 8px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">📋 Copy</button>
+                        </div>
+                        ` : ''}
+                        
+                        ${analog.transformation_applied ? `
+                        <div style="background: #fef3c7; padding: 8px 12px; border-radius: 6px; margin: 10px 0; font-size: 0.9em;">
+                            <strong>🔬 Transformation:</strong> ${analog.transformation_applied}
+                        </div>
+                        ` : ''}
+                        
+                        ${analog.therapeutic_potential ? `
+                        <div style="background: ${analog.therapeutic_potential === 'Very High' ? '#d1fae5' : analog.therapeutic_potential === 'High' ? '#dbeafe' : '#e0e7ff'}; padding: 8px 12px; border-radius: 6px; margin: 10px 0; font-size: 0.9em;">
+                            <strong>💊 Therapeutic Potential:</strong> ${analog.therapeutic_potential}
+                            ${analog.estimated_value ? ` | <strong>Est. Value:</strong> ${analog.estimated_value}` : ''}
+                        </div>
+                        ` : ''}
+                        
                         <div class="compound-info">
                             <div class="info-section">
                                 <div class="info-item">
@@ -2332,11 +2356,15 @@ def index():
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Patent Status:</span>
-                                    <span class="info-value">${analog.patent_status}</span>
+                                    <span class="info-value" style="color: ${analog.patent_status.includes('Patent-Free') ? '#10b981' : '#6b7280'};">${analog.patent_status}</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Drug Likeness:</span>
                                     <span class="info-value">${analog.drug_likeness}%</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">MW:</span>
+                                    <span class="info-value">${analog.molecular_weight} g/mol</span>
                                 </div>
                             </div>
                             <div class="info-section">
@@ -2352,10 +2380,14 @@ def index():
                                     <span class="info-label">IP Potential:</span>
                                     <span class="info-value">${analog.patent_opportunity_score ? Math.round(analog.patent_opportunity_score) : 'N/A'}</span>
                                 </div>
+                                <div class="info-item">
+                                    <span class="info-label">LogP:</span>
+                                    <span class="info-value">${analog.logp}</span>
+                                </div>
                             </div>
                         </div>
                         <div style="margin-top: 15px;">
-                            ${analog.structure_svg}
+                            ${analog.structure_svg || '<div style="padding: 20px; background: #f9fafb; border-radius: 8px; text-align: center;">🧪 Structure visualization will be generated</div>'}
                         </div>
                         <div id="analogReceptorProfile_${index}" style="margin-top: 15px;"></div>
                     </div>
@@ -3330,17 +3362,57 @@ def generate_analogs():
     # Log the activity
     log_activity(session.get('user', 'anonymous'), 'analog_generation', f'Generated analogs for: {parent_compound}')
     
-    # Resolve brand names to generic names
-    resolved_data = resolve_compound_name(parent_compound)
+    # Get parent compound SMILES from database
+    parent_key = parent_compound.lower().strip()
     
-    # Extract the resolved compound name (resolve_compound_name now returns a dict)
-    if isinstance(resolved_data, dict):
-        resolved_compound = resolved_data.get('resolved_name', parent_compound)
-    else:
-        resolved_compound = resolved_data
+    if parent_key not in COMPOUND_DATABASE:
+        return jsonify({"error": f"Compound '{parent_compound}' not found in database. Please analyze it first to get its SMILES string."})
     
-    # Generate comprehensive analog report
-    result = generate_analog_report(resolved_compound, target_properties)
+    parent_smiles = COMPOUND_DATABASE[parent_key].get('smiles')
+    
+    if not parent_smiles:
+        return jsonify({"error": f"No SMILES structure available for '{parent_compound}'"})
+    
+    # Import RDKit analog generator
+    from rdkit_analog_generator import generate_novel_analogs
+    
+    # Generate novel analogs using RDKit
+    num_analogs = 10 if target_properties == 'all' else 15
+    analogs = generate_novel_analogs(parent_smiles, parent_compound, num_analogs)
+    
+    if isinstance(analogs, dict) and 'error' in analogs:
+        return jsonify(analogs)
+    
+    # Apply filters based on target properties
+    if target_properties == 'patent-free':
+        analogs = [a for a in analogs if 'Patent-Free' in a.get('patent_status', '')]
+    elif target_properties == 'high-similarity':
+        analogs = [a for a in analogs if a.get('similarity', 0) >= 0.9]
+    elif target_properties == 'drug-like':
+        analogs = [a for a in analogs if a.get('drug_likeness', 0) >= 80]
+    
+    # Generate summary statistics
+    total_analogs = len(analogs)
+    patent_free_count = len([a for a in analogs if 'Patent-Free' in a.get('patent_status', '')])
+    high_potential_count = len([a for a in analogs if a.get('therapeutic_potential') in ['Very High', 'High']])
+    avg_similarity = sum(a.get('similarity', 0) for a in analogs) / total_analogs if total_analogs > 0 else 0
+    
+    result = {
+        "parent_compound": parent_compound,
+        "parent_smiles": parent_smiles,
+        "analogs_found": total_analogs,
+        "analogs": analogs,
+        "generation_timestamp": datetime.datetime.now().isoformat(),
+        "filter_applied": target_properties,
+        "generation_method": "RDKit Molecular Transformations",
+        "summary": {
+            "total_analogs": total_analogs,
+            "patent_free_analogs": patent_free_count,
+            "high_potential_analogs": high_potential_count,
+            "average_similarity": round(avg_similarity, 3),
+            "patent_free_percentage": round((patent_free_count / total_analogs) * 100, 1) if total_analogs > 0 else 0
+        }
+    }
     
     return jsonify(result)
 
