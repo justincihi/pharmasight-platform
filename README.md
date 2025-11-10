@@ -38,14 +38,14 @@ git clone https://github.com/justincihi/pharmasight-platform.git
 cd pharmasight-platform
 ```
 
-2. **Configure Environment (Optional):**
+1. **Configure Environment (Optional):**
 
 ```bash
 cp .env.example .env
 # Edit .env with your preferred settings
 ```
 
-3. **Build and Start Services:**
+1. **Build and Start Services:**
 From the root of the project directory, run:
 
 ```bash
@@ -58,7 +58,7 @@ Or use the Makefile:
 make up
 ```
 
-4. **Verify Services Are Running:**
+1. **Verify Services Are Running:**
 Check the health of all services:
 
 ```bash
@@ -71,7 +71,7 @@ Or use:
 make health
 ```
 
-5. **Run Integration Tests:**
+1. **Run Integration Tests:**
 
 ```bash
 python3 test_microservices.py
@@ -180,7 +180,41 @@ make rebuild-compound
 See the [MICROSERVICES_DEPLOYMENT.md](MICROSERVICES_DEPLOYMENT.md) file for detailed troubleshooting steps.
 
 Common issues:
+
 - **Port conflicts:** Change ports in docker-compose.yml
 - **Services won't start:** Check logs with `make logs`
 - **Database connection errors:** Verify DATABASE_URL environment variable
 - **Health check failures:** Ensure curl is installed in containers
+
+## Changelog (recent fixes)
+
+- 2025-11-10 — Runtime/config fixes:
+  - Added CORS middleware to the API Gateway and made allowed origins configurable via `CORS_ALLOW_ORIGINS`.
+  - Made Redis optional for the gateway: if Redis is unavailable the gateway will start and rate-limiting is disabled with a clear warning in the logs.
+  - Improved request forwarding: the gateway now preserves downstream response status codes and content types, and forwards raw request bodies when JSON parsing fails.
+  - Fixed JWT encoding in the Auth service: the `exp` claim is now encoded as an integer epoch timestamp for compatibility with common JWT libraries.
+  - Small README and docs updates.
+
+These changes were committed on branch `11/10` (commit `9a01478`). If you run into problems starting the stack, see the "Run locally" section below.
+
+### Run locally (without Docker)
+
+If Docker is not available on your machine, you can run the API Gateway and Auth service in a local Python virtual environment for quick debugging:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r services/api-gateway/requirements.txt
+pip install -r services/auth-service/requirements.txt
+# Start services (separate terminals recommended):
+uvicorn services.api-gateway.main:app --reload --port 8080
+uvicorn services.auth-service.main:app --reload --port 8005
+```
+
+Then check:
+
+```bash
+curl http://localhost:8080/health
+curl http://localhost:8005/health
+```
+
