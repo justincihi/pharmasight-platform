@@ -32,60 +32,69 @@ The architecture consists of the following services:
 ### Quick Start
 
 1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/justincihi/pharmasight-platform.git
-   cd pharmasight-platform
-   ```
+
+```bash
+git clone https://github.com/justincihi/pharmasight-platform.git
+cd pharmasight-platform
+```
 
 2. **Configure Environment (Optional):**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your preferred settings
-   ```
+
+```bash
+cp .env.example .env
+# Edit .env with your preferred settings
+```
 
 3. **Build and Start Services:**
-   From the root of the project directory, run:
+From the root of the project directory, run:
 
-   ```bash
-   docker-compose up --build -d
-   ```
-   
-   Or use the Makefile:
-   ```bash
-   make up
-   ```
+```bash
+docker-compose up --build -d
+```
+
+Or use the Makefile:
+
+```bash
+make up
+```
 
 4. **Verify Services Are Running:**
-   Check the health of all services:
-   ```bash
-   curl http://localhost:8080/health
-   ```
-   
-   Or use:
-   ```bash
-   make health
-   ```
+Check the health of all services:
+
+```bash
+curl http://localhost:8080/health
+```
+
+Or use:
+
+```bash
+make health
+```
 
 5. **Run Integration Tests:**
-   ```bash
-   python3 test_microservices.py
-   ```
-   
-   Or use:
-   ```bash
-   make test
-   ```
+
+```bash
+python3 test_microservices.py
+```
+
+Or use:
+
+```bash
+make test
+```
 
 ### Accessing the Platform
 
 Once all services are running:
-- **API Gateway:** http://localhost:8080
-- **Interactive API Docs:** http://localhost:8080/docs
-- **Health Check:** http://localhost:8080/health
+
+- **API Gateway:** [<http://localhost:8080>](http://localhost:8080)
+- **Interactive API Docs:** [<http://localhost:8080/docs>](<http://localhost:8080/docs>)
+- **Health Check:** [<http://localhost:8080/health>](<http://localhost:8080/health>)
 
 ### Common Operations
 
 **View Logs:**
+
 ```bash
 docker-compose logs -f                    # All services
 docker-compose logs -f compound-service   # Specific service
@@ -94,18 +103,21 @@ make logs-compound                        # Specific service
 ```
 
 **Stop Services:**
+
 ```bash
 docker-compose down
 make down
 ```
 
 **Restart Services:**
+
 ```bash
 docker-compose restart
 make restart
 ```
 
 **Clean Everything:**
+
 ```bash
 docker-compose down -v
 make clean
@@ -115,7 +127,7 @@ make clean
 
 All endpoints are accessed through the API Gateway. The gateway uses the path to route to the correct service.
 
-**Example:** A `POST` request to `http://localhost:8080/compound-analysis/analyze` will be routed to the `/analyze` endpoint on the `compound-service`.
+**Example:** A `POST` request to `<http://localhost:8080/compound-analysis/analyze>` will be routed to the `/analyze` endpoint on the `compound-service`.
 
 - **Authentication:**
   - `POST /auth-service/token`: Obtain a JWT access token.

@@ -27,7 +27,7 @@ FAKE_USERS_DB = {
         "username": "researcher",
         "full_name": "Researcher",
         "email": "researcher@example.com",
-        "hashed_password": "$2b$12$EixZaB6Cq.w.t.h.i.s.I.s.A.Fake.Hash.1", # "password"
+        "hashed_password": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4fY9H5cxO",  # "password"
         "role": UserRole.RESEARCHER,
         "disabled": False,
     },
@@ -35,7 +35,7 @@ FAKE_USERS_DB = {
         "username": "admin",
         "full_name": "Admin",
         "email": "admin@example.com",
-        "hashed_password": "$2b$12$EixZaB6Cq.w.t.h.i.s.I.s.A.Fake.Hash.2", # "password"
+        "hashed_password": "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4fY9H5cxO",  # "password"
         "role": UserRole.ADMIN,
         "disabled": False,
     }
@@ -46,14 +46,11 @@ class SecurityManager:
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self.secret_key = os.getenv("SECRET_KEY", "mysecretkey")
         self.algorithm = "HS256"
-        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+        # tokenUrl should match the token endpoint path
+        self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
     def verify_password(self, plain_password, hashed_password):
-        # SECURITY WARNING: This is demo-only authentication!
-        # For demo purposes, accept "password" for all users
-        # TODO: In production, MUST use proper bcrypt verification:
-        # return self.pwd_context.verify(plain_password, hashed_password)
-        return plain_password == "password"
+        return self.pwd_context.verify(plain_password, hashed_password)
 
     def get_password_hash(self, password):
         return self.pwd_context.hash(password)
@@ -64,7 +61,8 @@ class SecurityManager:
             expire = datetime.utcnow() + expires_delta
         else:
             expire = datetime.utcnow() + timedelta(minutes=15)
-        to_encode.update({"exp": expire})
+        # JWT `exp` should be a numeric timestamp (epoch)
+        to_encode.update({"exp": int(expire.timestamp())})
         encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
         return encoded_jwt
 

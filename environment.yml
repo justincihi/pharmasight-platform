@@ -31,7 +31,6 @@ dependencies:
 
   # Additional dependencies for RDKit
   - cairo>=1.18
-  - boost>=1.86
 
   # Optional: Jupyter for interactive work
   # - jupyter
