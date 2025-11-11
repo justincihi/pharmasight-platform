@@ -6,10 +6,10 @@ This document serves as a **publicly accessible registry** of pharmaceutical com
 ## Legal Notice
 All compounds listed in this registry are claimed as discoveries by the PharmaSight™ research team. This public disclosure establishes prior art and may be used to support patent applications or defend against third-party patent claims.
 
-**Registry Established:** 2025-11-08  
-**Last Updated:** 2025-11-08 21:37:38 UTC  
-**Total Discovery Sessions:** 6  
-**Total Analog Discoveries:** 30
+**Registry Established:** 2025-11-10  
+**Last Updated:** 2025-11-10 19:43:46 UTC  
+**Total Discovery Sessions:** 12  
+**Total Analog Discoveries:** 119
 
 ---
 
@@ -39,7 +39,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.2: Ketamine Analog 2
 - **SMILES:** `CNC1(c2c(Cl)cccc2Cl)CCCCC1=O`
@@ -59,7 +59,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.3: Ketamine Analog 3
 - **SMILES:** `CNC1(c2ccccc2Cl)C(=O)CCCC1F`
@@ -79,7 +79,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.4: Ketamine Analog 4
 - **SMILES:** `CNC1(c2ccccc2Cl)C(=O)CCCC1C`
@@ -99,7 +99,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.5: Ketamine Analog 5
 - **SMILES:** `CNC1(c2ccccc2Cl)CCCC(C)C1=O`
@@ -119,7 +119,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.6: Ketamine Analog 6
 - **SMILES:** `CNC1(c2c(Cl)cccc2OC)CCCCC1=O`
@@ -139,7 +139,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.7: Ketamine Analog 7
 - **SMILES:** `CNC1(c2c(C)cccc2Cl)CCCCC1=O`
@@ -159,7 +159,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.8: Ketamine Analog 8
 - **SMILES:** `CNC1(c2cc(OC)ccc2Cl)CCCCC1=O`
@@ -179,7 +179,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.9: Ketamine Analog 9
 - **SMILES:** `CNC1(c2ccccc2Cl)CC(C)CCC1=O`
@@ -199,7 +199,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.10: Ketamine Analog 10
 - **SMILES:** `CNC1(c2ccccc2Cl)CCCC(F)C1=O`
@@ -219,7 +219,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.11: Ketamine Analog 11
 - **SMILES:** `CNC1(c2cccc(Br)c2Cl)CCCCC1=O`
@@ -239,7 +239,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.12: Ketamine Analog 12
 - **SMILES:** `CN(C)C1(c2ccccc2Cl)CCCCC1=O`
@@ -259,7 +259,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.13: Ketamine Analog 13
 - **SMILES:** `CCNC1(c2ccccc2Cl)CCCCC1=O`
@@ -279,7 +279,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.14: Ketamine Analog 14
 - **SMILES:** `CNC1(c2cccc(O)c2Cl)CCCCC1=O`
@@ -299,7 +299,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ### Analog 1.15: Ketamine Analog 15
 - **SMILES:** `CNC1(c2ccc(OC)cc2Cl)CCCCC1=O`
@@ -319,7 +319,7 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 - **Novelty Score:** 95%
 - **Estimated Value:** $25M-$50M
 - **Similarity to Parent:** 0%
-- **Discovery Timestamp:** 2025-11-08T21:37:38
+- **Discovery Timestamp:** 2025-11-10T19:43:46
 
 ---
 
@@ -688,28 +688,1868 @@ All compounds listed in this registry are claimed as discoveries by the PharmaSi
 
 ---
 
+## Discovery Session 7: Kavain Analogs
+
+**Parent Compound:** Kavain  
+**Parent SMILES:** `COc1ccc(\C=C\C(=O)N2CCCCC2)cc1`  
+**Discovery Date:** 2025-11-09T22:57:49  
+**Discovery Method:** RDKit-based Computational Generation  
+**Total Analogs:** 15
+
+### Analog 7.1: Kavain Analog 1
+- **SMILES:** `COc1ccc(/C(Br)=C/C(=O)N2CCCCC2)cc1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 324.22 g/mol
+- **LogP:** 3.44
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.2: Kavain Analog 2
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCC(Br)C2)cc1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 324.22 g/mol
+- **LogP:** 3.09
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.3: Kavain Analog 3
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCCC2F)cc1`
+- **Transformation:**  Add Fluorine
+- **Molecular Weight:** 263.31 g/mol
+- **LogP:** 3.02
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.4: Kavain Analog 4
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCCC2)c(C)c1`
+- **Transformation:**  Ring Expansion
+- **Molecular Weight:** 259.35 g/mol
+- **LogP:** 3.03
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.5: Kavain Analog 5
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCCC2O)cc1`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 261.32 g/mol
+- **LogP:** 2.04
+- **TPSA:** 49.77 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.6: Kavain Analog 6
+- **SMILES:** `CCOc1ccc(/C=C/C(=O)N2CCCCC2)cc1`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 259.35 g/mol
+- **LogP:** 3.11
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 4
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 89%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.7: Kavain Analog 7
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCCC2)cc1C`
+- **Transformation:**  Ring Expansion
+- **Molecular Weight:** 259.35 g/mol
+- **LogP:** 3.03
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.8: Kavain Analog 8
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCCC2)c(OC)c1`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 275.35 g/mol
+- **LogP:** 2.73
+- **TPSA:** 38.77 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 4
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.9: Kavain Analog 9
+- **SMILES:** `COc1ccc(/C(C)=C/C(=O)N2CCCCC2)cc1`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 259.35 g/mol
+- **LogP:** 3.11
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.10: Kavain Analog 10
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCC(O)C2)cc1`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 261.32 g/mol
+- **LogP:** 1.69
+- **TPSA:** 49.77 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.11: Kavain Analog 11
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCC(N)C2)cc1`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 260.34 g/mol
+- **LogP:** 1.66
+- **TPSA:** 55.56 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.12: Kavain Analog 12
+- **SMILES:** `COc1ccc(/C=C(\Cl)C(=O)N2CCCCC2)cc1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 279.77 g/mol
+- **LogP:** 3.29
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.13: Kavain Analog 13
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCCC2Br)cc1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 324.22 g/mol
+- **LogP:** 3.44
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.14: Kavain Analog 14
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCCC2)cc1OC`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 275.35 g/mol
+- **LogP:** 2.73
+- **TPSA:** 38.77 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 4
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 7.15: Kavain Analog 15
+- **SMILES:** `COc1ccc(/C=C/C(=O)N2CCCC(Cl)C2)cc1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 279.77 g/mol
+- **LogP:** 2.94
+- **TPSA:** 29.54 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+---
+
+## Discovery Session 8: Yangonin Analogs
+
+**Parent Compound:** Yangonin  
+**Parent SMILES:** `COc1cc(OC)c2c(c1)C=CC(=O)O2`  
+**Discovery Date:** 2025-11-09T22:57:49  
+**Discovery Method:** RDKit-based Computational Generation  
+**Total Analogs:** 15
+
+### Analog 8.1: Yangonin Analog 1
+- **SMILES:** `COc1cc2ccc(=O)oc2c(OC)c1C`
+- **Transformation:**  Ring Expansion
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.12
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.2: Yangonin Analog 2
+- **SMILES:** `COc1cc(OC)c2oc(=O)cc(OC)c2c1`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 236.22 g/mol
+- **LogP:** 1.82
+- **TPSA:** 57.9 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.3: Yangonin Analog 3
+- **SMILES:** `COc1cc(OC)c2oc(=O)cc(Br)c2c1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 285.09 g/mol
+- **LogP:** 2.57
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.4: Yangonin Analog 4
+- **SMILES:** `COc1cc(OC)c2oc(=O)c(Cl)cc2c1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 240.64 g/mol
+- **LogP:** 2.46
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.5: Yangonin Analog 5
+- **SMILES:** `CCOc1cc(OC)cc2ccc(=O)oc12`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.2
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.6: Yangonin Analog 6
+- **SMILES:** `COc1cc(OC)c2oc(=O)c(C)cc2c1`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.12
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.7: Yangonin Analog 7
+- **SMILES:** `COc1cc(OC)c2oc(=O)cc(N)c2c1`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 221.21 g/mol
+- **LogP:** 1.39
+- **TPSA:** 74.69 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.8: Yangonin Analog 8
+- **SMILES:** `COc1cc(OC)c2oc(=O)ccc2c1C`
+- **Transformation:**  Ring Expansion
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.12
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.9: Yangonin Analog 9
+- **SMILES:** `COc1cc(OCCl)c2oc(=O)ccc2c1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 240.64 g/mol
+- **LogP:** 2.38
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 89%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.10: Yangonin Analog 10
+- **SMILES:** `COc1cc2ccc(=O)oc2c(OC)c1N`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 221.21 g/mol
+- **LogP:** 1.39
+- **TPSA:** 74.69 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.11: Yangonin Analog 11
+- **SMILES:** `COc1cc(OC)c2oc(=O)c(OC)cc2c1`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 236.22 g/mol
+- **LogP:** 1.82
+- **TPSA:** 57.9 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.12: Yangonin Analog 12
+- **SMILES:** `COc1cc(OC)c2oc(=O)cc(C)c2c1`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.12
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.13: Yangonin Analog 13
+- **SMILES:** `CCOc1cc(OC)c2oc(=O)ccc2c1`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.2
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.14: Yangonin Analog 14
+- **SMILES:** `COc1cc(OCN)c2oc(=O)ccc2c1`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 221.21 g/mol
+- **LogP:** 1.1
+- **TPSA:** 74.69 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 89%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 8.15: Yangonin Analog 15
+- **SMILES:** `COc1cc(OCN)cc2ccc(=O)oc12`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 221.21 g/mol
+- **LogP:** 1.1
+- **TPSA:** 74.69 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 89%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+---
+
+## Discovery Session 9: Methysticin Analogs
+
+**Parent Compound:** Methysticin  
+**Parent SMILES:** `COc1cc2c(cc1OC)C=CC(=O)O2`  
+**Discovery Date:** 2025-11-09T22:57:49  
+**Discovery Method:** RDKit-based Computational Generation  
+**Total Analogs:** 15
+
+### Analog 9.1: Methysticin Analog 1
+- **SMILES:** `COc1cc2ccc(=O)oc2c(C)c1OC`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.12
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.2: Methysticin Analog 2
+- **SMILES:** `COc1cc2oc(=O)cc(N)c2cc1OC`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 221.21 g/mol
+- **LogP:** 1.39
+- **TPSA:** 74.69 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.3: Methysticin Analog 3
+- **SMILES:** `COc1cc2ccc(=O)oc2c(O)c1OC`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 222.2 g/mol
+- **LogP:** 1.52
+- **TPSA:** 68.9 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.4: Methysticin Analog 4
+- **SMILES:** `COc1cc2ccc(=O)oc2cc1OCN`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 221.21 g/mol
+- **LogP:** 1.1
+- **TPSA:** 74.69 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.5: Methysticin Analog 5
+- **SMILES:** `COc1cc2oc(=O)ccc2c(C)c1OC`
+- **Transformation:**  Ring Expansion
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.12
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.6: Methysticin Analog 6
+- **SMILES:** `COc1cc2oc(=O)ccc2c(O)c1OC`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 222.2 g/mol
+- **LogP:** 1.52
+- **TPSA:** 68.9 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.7: Methysticin Analog 7
+- **SMILES:** `COc1cc2cc(N)c(=O)oc2cc1OC`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 221.21 g/mol
+- **LogP:** 1.39
+- **TPSA:** 74.69 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.8: Methysticin Analog 8
+- **SMILES:** `COc1cc2ccc(=O)oc2c(F)c1OC`
+- **Transformation:**  Add Fluorine
+- **Molecular Weight:** 224.19 g/mol
+- **LogP:** 1.95
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.9: Methysticin Analog 9
+- **SMILES:** `COc1cc2ccc(=O)oc2cc1OCO`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 222.2 g/mol
+- **LogP:** 1.13
+- **TPSA:** 68.9 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.10: Methysticin Analog 10
+- **SMILES:** `COc1cc2ccc(=O)oc2c(OC)c1OC`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 236.22 g/mol
+- **LogP:** 1.82
+- **TPSA:** 57.9 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.11: Methysticin Analog 11
+- **SMILES:** `COc1cc2oc(=O)cc(C)c2cc1OC`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.12
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.12: Methysticin Analog 12
+- **SMILES:** `COc1cc2oc(=O)cc(OC)c2cc1OC`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 236.22 g/mol
+- **LogP:** 1.82
+- **TPSA:** 57.9 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.13: Methysticin Analog 13
+- **SMILES:** `COc1cc2oc(=O)ccc2cc1OCF`
+- **Transformation:**  Add Fluorine
+- **Molecular Weight:** 224.19 g/mol
+- **LogP:** 2.11
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.14: Methysticin Analog 14
+- **SMILES:** `CCOc1cc2ccc(=O)oc2cc1OC`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.2
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 9.15: Methysticin Analog 15
+- **SMILES:** `CCOc1cc2oc(=O)ccc2cc1OC`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 220.22 g/mol
+- **LogP:** 2.2
+- **TPSA:** 48.67 Ų
+- **H-Bond Donors:** 0
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+---
+
+## Discovery Session 10: MDAI Analogs
+
+**Parent Compound:** MDAI  
+**Parent SMILES:** `CC(Cc1ccc2ncccc2c1)N`  
+**Discovery Date:** 2025-11-09T22:57:49  
+**Discovery Method:** RDKit-based Computational Generation  
+**Total Analogs:** 15
+
+### Analog 10.1: MDAI Analog 1
+- **SMILES:** `Cc1cc(CC(C)N)cc2cccnc12`
+- **Transformation:**  Ring Expansion
+- **Molecular Weight:** 200.28 g/mol
+- **LogP:** 2.43
+- **TPSA:** 38.91 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.2: MDAI Analog 2
+- **SMILES:** `Cc1cc2ncccc2cc1CC(C)N`
+- **Transformation:**  Ring Expansion
+- **Molecular Weight:** 200.28 g/mol
+- **LogP:** 2.43
+- **TPSA:** 38.91 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.3: MDAI Analog 3
+- **SMILES:** `CC(N)Cc1ccc2ncc(O)cc2c1`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 202.26 g/mol
+- **LogP:** 1.83
+- **TPSA:** 59.14 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.4: MDAI Analog 4
+- **SMILES:** `CNC(C)Cc1ccc2ncccc2c1`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 200.28 g/mol
+- **LogP:** 2.39
+- **TPSA:** 24.92 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 88%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.5: MDAI Analog 5
+- **SMILES:** `COc1ccc2cc(CC(C)N)ccc2n1`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 216.28 g/mol
+- **LogP:** 2.13
+- **TPSA:** 48.14 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.6: MDAI Analog 6
+- **SMILES:** `CC(C)(N)Cc1ccc2ncccc2c1`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 200.28 g/mol
+- **LogP:** 2.51
+- **TPSA:** 38.91 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.7: MDAI Analog 7
+- **SMILES:** `COc1cnc2ccc(CC(C)N)cc2c1`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 216.28 g/mol
+- **LogP:** 2.13
+- **TPSA:** 48.14 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.8: MDAI Analog 8
+- **SMILES:** `CC(N)Cc1ccc2ncccc2c1O`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 202.26 g/mol
+- **LogP:** 1.83
+- **TPSA:** 59.14 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 84%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.9: MDAI Analog 9
+- **SMILES:** `CC(N)C(C)c1ccc2ncccc2c1`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 200.28 g/mol
+- **LogP:** 2.69
+- **TPSA:** 38.91 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.10: MDAI Analog 10
+- **SMILES:** `CCC(N)Cc1ccc2ncccc2c1`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 200.28 g/mol
+- **LogP:** 2.51
+- **TPSA:** 38.91 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 89%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.11: MDAI Analog 11
+- **SMILES:** `CC(N)Cc1ccc2nc(O)ccc2c1`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 202.26 g/mol
+- **LogP:** 1.83
+- **TPSA:** 59.14 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.12: MDAI Analog 12
+- **SMILES:** `COc1c(CC(C)N)ccc2ncccc12`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 216.28 g/mol
+- **LogP:** 2.13
+- **TPSA:** 48.14 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 3
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 84%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.13: MDAI Analog 13
+- **SMILES:** `CC(N)C(F)c1ccc2ncccc2c1`
+- **Transformation:**  Add Fluorine
+- **Molecular Weight:** 204.25 g/mol
+- **LogP:** 2.59
+- **TPSA:** 38.91 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.14: MDAI Analog 14
+- **SMILES:** `CC(N)Cc1cc(N)c2ncccc2c1`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 201.27 g/mol
+- **LogP:** 1.71
+- **TPSA:** 64.93 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 3
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 10.15: MDAI Analog 15
+- **SMILES:** `CC(N)Cc1ccc2nc(Cl)ccc2c1`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 220.7 g/mol
+- **LogP:** 2.78
+- **TPSA:** 38.91 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 2
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+---
+
+## Discovery Session 11: Mescaline HCl Analogs
+
+**Parent Compound:** Mescaline HCl  
+**Parent SMILES:** `COc1cc(CCN)cc(OC)c1OC`  
+**Discovery Date:** 2025-11-09T22:57:49  
+**Discovery Method:** RDKit-based Computational Generation  
+**Total Analogs:** 15
+
+### Analog 11.1: Mescaline HCl Analog 1
+- **SMILES:** `COc1cc(CC(N)O)cc(OC)c1OC`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 227.26 g/mol
+- **LogP:** 0.53
+- **TPSA:** 73.94 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.2: Mescaline HCl Analog 2
+- **SMILES:** `COc1cc(CCN)c(OC)c(OC)c1OC`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 241.29 g/mol
+- **LogP:** 1.22
+- **TPSA:** 62.94 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 6
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 87%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.3: Mescaline HCl Analog 3
+- **SMILES:** `COc1cc(CCN)cc(OC)c1OCO`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 227.26 g/mol
+- **LogP:** 0.53
+- **TPSA:** 73.94 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 6
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 89%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.4: Mescaline HCl Analog 4
+- **SMILES:** `COc1cc(CCN)cc(OCO)c1OC`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 227.26 g/mol
+- **LogP:** 0.53
+- **TPSA:** 73.94 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 6
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.5: Mescaline HCl Analog 5
+- **SMILES:** `COc1cc(C(F)CN)cc(OC)c1OC`
+- **Transformation:**  Add Fluorine
+- **Molecular Weight:** 229.25 g/mol
+- **LogP:** 1.68
+- **TPSA:** 53.71 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 84%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.6: Mescaline HCl Analog 6
+- **SMILES:** `COc1cc(C(C)CN)cc(OC)c1OC`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 225.29 g/mol
+- **LogP:** 1.77
+- **TPSA:** 53.71 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.7: Mescaline HCl Analog 7
+- **SMILES:** `COc1cc(CCN)c(N)c(OC)c1OC`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 226.28 g/mol
+- **LogP:** 0.8
+- **TPSA:** 79.73 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.8: Mescaline HCl Analog 8
+- **SMILES:** `COc1cc(C(O)CN)cc(OC)c1OC`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 227.26 g/mol
+- **LogP:** 0.7
+- **TPSA:** 73.94 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 84%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.9: Mescaline HCl Analog 9
+- **SMILES:** `COc1cc(CCN)cc(OCN)c1OC`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 226.28 g/mol
+- **LogP:** 0.5
+- **TPSA:** 79.73 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 6
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 91%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.10: Mescaline HCl Analog 10
+- **SMILES:** `COc1cc(CCN)c(O)c(OC)c1OC`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 227.26 g/mol
+- **LogP:** 0.92
+- **TPSA:** 73.94 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.11: Mescaline HCl Analog 11
+- **SMILES:** `COc1cc(CCN)c(C)c(OC)c1OC`
+- **Transformation:**  Ring Expansion
+- **Molecular Weight:** 225.29 g/mol
+- **LogP:** 1.52
+- **TPSA:** 53.71 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 86%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.12: Mescaline HCl Analog 12
+- **SMILES:** `COc1cc(CCN)c(F)c(OC)c1OC`
+- **Transformation:**  Add Fluorine
+- **Molecular Weight:** 229.25 g/mol
+- **LogP:** 1.35
+- **TPSA:** 53.71 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.13: Mescaline HCl Analog 13
+- **SMILES:** `COc1cc(C(N)CN)cc(OC)c1OC`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 226.28 g/mol
+- **LogP:** 0.67
+- **TPSA:** 79.73 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 5
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.14: Mescaline HCl Analog 14
+- **SMILES:** `CCOc1c(OC)cc(CCN)cc1OC`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 225.29 g/mol
+- **LogP:** 1.6
+- **TPSA:** 53.71 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 6
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 89%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 11.15: Mescaline HCl Analog 15
+- **SMILES:** `CCOc1cc(CCN)cc(OC)c1OC`
+- **Transformation:**  Extend Carbon Chain
+- **Molecular Weight:** 225.29 g/mol
+- **LogP:** 1.6
+- **TPSA:** 53.71 Ų
+- **H-Bond Donors:** 1
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 6
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 95%
+- **Efficacy Score:** 90%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+---
+
+## Discovery Session 12: Muscimol Analogs
+
+**Parent Compound:** Muscimol  
+**Parent SMILES:** `C1=C(C(=NO1)N)CO`  
+**Discovery Date:** 2025-11-09T22:57:49  
+**Discovery Method:** RDKit-based Computational Generation  
+**Total Analogs:** 14
+
+### Analog 12.1: Muscimol Analog 1
+- **SMILES:** `Nc1nocc1C(O)O`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 130.1 g/mol
+- **LogP:** -0.76
+- **TPSA:** 92.51 Ų
+- **H-Bond Donors:** 3
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 85%
+- **Efficacy Score:** 83%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.2: Muscimol Analog 2
+- **SMILES:** `CC(O)c1conc1N`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 128.13 g/mol
+- **LogP:** 0.31
+- **TPSA:** 72.28 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 83%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.3: Muscimol Analog 3
+- **SMILES:** `Nc1noc(F)c1CO`
+- **Transformation:**  Add Fluorine
+- **Molecular Weight:** 132.09 g/mol
+- **LogP:** -0.11
+- **TPSA:** 72.28 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 85%
+- **Efficacy Score:** 81%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.4: Muscimol Analog 4
+- **SMILES:** `Nc1nocc1C(N)O`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 129.12 g/mol
+- **LogP:** -0.79
+- **TPSA:** 98.3 Ų
+- **H-Bond Donors:** 3
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 85%
+- **Efficacy Score:** 83%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.5: Muscimol Analog 5
+- **SMILES:** `Nc1noc(N)c1CO`
+- **Transformation:**  Add Amino Group
+- **Molecular Weight:** 129.12 g/mol
+- **LogP:** -0.67
+- **TPSA:** 98.3 Ų
+- **H-Bond Donors:** 3
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 85%
+- **Efficacy Score:** 82%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.6: Muscimol Analog 6
+- **SMILES:** `Nc1nocc1C(O)Cl`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 148.55 g/mol
+- **LogP:** 0.49
+- **TPSA:** 72.28 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 83%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.7: Muscimol Analog 7
+- **SMILES:** `Nc1noc(Cl)c1CO`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 148.55 g/mol
+- **LogP:** 0.4
+- **TPSA:** 72.28 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 81%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.8: Muscimol Analog 8
+- **SMILES:** `COc1onc(N)c1CO`
+- **Transformation:**  Add Methoxy Group
+- **Molecular Weight:** 144.13 g/mol
+- **LogP:** -0.24
+- **TPSA:** 81.51 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 85%
+- **Efficacy Score:** 81%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.9: Muscimol Analog 9
+- **SMILES:** `Cc1onc(N)c1CO`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 128.13 g/mol
+- **LogP:** 0.06
+- **TPSA:** 72.28 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 81%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.10: Muscimol Analog 10
+- **SMILES:** `Nc1nocc1C(O)F`
+- **Transformation:**  Add Fluorine
+- **Molecular Weight:** 132.09 g/mol
+- **LogP:** 0.22
+- **TPSA:** 72.28 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 83%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.11: Muscimol Analog 11
+- **SMILES:** `Nc1nocc1C(O)Br`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 193.0 g/mol
+- **LogP:** 0.64
+- **TPSA:** 72.28 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 83%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.12: Muscimol Analog 12
+- **SMILES:** `Nc1noc(Br)c1CO`
+- **Transformation:**  Replace Hydrogen With Halogen
+- **Molecular Weight:** 193.0 g/mol
+- **LogP:** 0.51
+- **TPSA:** 72.28 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 81%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.13: Muscimol Analog 13
+- **SMILES:** `CNc1nocc1CO`
+- **Transformation:**  Add Methyl Group
+- **Molecular Weight:** 128.13 g/mol
+- **LogP:** 0.21
+- **TPSA:** 58.29 Ų
+- **H-Bond Donors:** 2
+- **H-Bond Acceptors:** 4
+- **Rotatable Bonds:** 2
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 90%
+- **Efficacy Score:** 85%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+### Analog 12.14: Muscimol Analog 14
+- **SMILES:** `Nc1noc(O)c1CO`
+- **Transformation:**  Add Hydroxyl
+- **Molecular Weight:** 130.1 g/mol
+- **LogP:** -0.55
+- **TPSA:** 92.51 Ų
+- **H-Bond Donors:** 3
+- **H-Bond Acceptors:** 5
+- **Rotatable Bonds:** 1
+- **Drug Likeness:** 100%
+- **Therapeutic Potential:** Very High
+- **Patent Status:** Patent-Free (Novel)
+- **IP Opportunity Score:** 100/100
+- **Safety Score:** 85%
+- **Efficacy Score:** 82%
+- **Novelty Score:** 95%
+- **Estimated Value:** $25M-$50M
+- **Similarity to Parent:** 0%
+- **Discovery Timestamp:** 2025-11-10T19:43:46
+
+---
+
 ## Summary Statistics
 
 ### Overall Discovery Metrics
-- **Total Discovery Sessions:** 6
-- **Total Analog Discoveries:** 30
-- **Parent Compounds Explored:** Ketamine, Psilocybin, Ketamine, Mdma, Sertraline, Alprazolam
-- **Registry Created:** 2025-11-08
-- **Last Updated:** 2025-11-08 21:37:38 UTC
+- **Total Discovery Sessions:** 12
+- **Total Analog Discoveries:** 119
+- **Parent Compounds Explored:** Ketamine, Psilocybin, Ketamine, Mdma, Sertraline, Alprazolam, Kavain, Yangonin, Methysticin, MDAI, Mescaline HCl, Muscimol
+- **Registry Created:** 2025-11-10
+- **Last Updated:** 2025-11-10 19:43:46 UTC
 
 ### Patent Status Distribution
-- **Patent-Free:** 6 (20.0%)
-- **Patent Expired:** 7 (23.3%)
-- **Patent Pending:** 1 (3.3%)
-- **Patented:** 16 (53.3%)
+- **Patent-Free:** 6 (5.0%)
+- **Patent Expired:** 7 (5.9%)
+- **Patent Pending:** 1 (0.8%)
+- **Patented:** 105 (88.2%)
 
 ### High IP Opportunity Analogs
-- **IP Opportunity ≥ 90:** 21 analogs (70.0%)
+- **IP Opportunity ≥ 90:** 110 analogs (92.4%)
 
 ### Therapeutic Potential Distribution
-- **Very High:** 18 analogs (60.0%)
-- **High:** 7 analogs (23.3%)
-- **Moderate:** 5 analogs (16.7%)
+- **Very High:** 107 analogs (89.9%)
+- **High:** 7 analogs (5.9%)
+- **Moderate:** 5 analogs (4.2%)
 
 ---
 
@@ -734,7 +2574,7 @@ For licensing inquiries, collaboration opportunities, or IP-related questions re
 **Registry Maintained By:** PharmaSight™ Platform  
 **GitHub Repository:** https://github.com/justincihi/pharmasight-platform  
 **Branch:** analog-discoveries-ip-protected  
-**Last Registry Update:** 2025-11-08 21:37:38 UTC
+**Last Registry Update:** 2025-11-10 19:43:46 UTC
 
 ---
 
