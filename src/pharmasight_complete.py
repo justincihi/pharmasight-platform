@@ -14,9 +14,9 @@ import re
 from io import BytesIO
 
 # Import custom modules
-from ddi_analysis_fix import get_detailed_interaction_info
-from analog_generation_fix import generate_analog_report, resolve_compound_name
-from research_findings_fix import get_research_findings_with_hypotheses, search_research_findings, get_research_analytics, generate_research_report
+from src.ddi_analysis_fix import get_detailed_interaction_info
+from src.analog_generation_fix import generate_analog_report, resolve_compound_name
+from src.research_findings_fix import get_research_findings_with_hypotheses, search_research_findings, get_research_analytics, generate_research_report
 
 app = Flask(__name__)
 app.secret_key = 'pharmasight_enterprise_2024'

@@ -1,0 +1,6 @@
+nohup: ignoring input
+[2025-11-11 19:32:05 -0500] [24500] [INFO] Starting gunicorn 23.0.0
+[2025-11-11 19:32:05 -0500] [24500] [INFO] Listening at: http://0.0.0.0:8000 (24500)
+[2025-11-11 19:32:05 -0500] [24500] [INFO] Using worker: sync
+[2025-11-11 19:32:05 -0500] [24501] [INFO] Booting worker with pid: 24501
+[2025-11-11 19:32:05 -0500] [24502] [INFO] Booting worker with pid: 24502
