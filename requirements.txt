@@ -1,7 +1,7 @@
 # Core Web Framework
-Flask==3.1.1
-gunicorn==21.2.0
-flask-cors==4.0.0
+Flask==3.1.2
+gunicorn==23.0.0
+Flask-Cors==5.0.0
 
 # Chemistry and Molecular Modeling
 rdkit==2025.9.1
@@ -20,7 +20,9 @@ openpyxl==3.1.5
 reportlab==4.4.4
 
 # HTTP Requests for External APIs
-requests==2.32.3
+requests==2.32.5
+beautifulsoup4==4.14.2
+Pillow==11.0.0
 
 # Optional: Additional ML/AI capabilities
 # torch  # Uncomment if deep learning models are needed

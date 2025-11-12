@@ -1,0 +1,16 @@
+*.log
+*.pyc
+__pycache__/
+.git/
+.gitignore
+*.md
+!README.md
+venv/
+env/
+.env.local
+.DS_Store
+*.swp
+*.swo
+research_session_*.json
+rdkit_sync_*.json
+
