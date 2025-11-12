@@ -14,6 +14,7 @@ from ai_lead_optimization import AILeadOptimizer
 from sar_explorer import SARExplorer
 from pharmacophore_modeling import PharmacophoreModeler
 from off_target_prediction import OffTargetPredictor
+from quantum_computing_module import create_quantum_routes
 
 # Create Flask blueprint for advanced features
 advanced_bp = Blueprint('advanced_features', __name__)
@@ -966,10 +967,16 @@ ADVANCED_FEATURES_HTML = '''
 def register_advanced_features(app):
     """Register advanced features blueprint with the main app"""
     app.register_blueprint(advanced_bp)
+    
+    # Register quantum computing routes
+    quantum_bp = create_quantum_routes(app)
+    app.register_blueprint(quantum_bp)
+    
     print("✅ Advanced Drug Discovery Features Integrated")
     print("   - Virtual High-Throughput Screening (82 receptors)")
     print("   - AI-Powered Lead Optimization")
     print("   - Structure-Activity Relationship Explorer")
     print("   - Pharmacophore Modeling")
     print("   - Off-Target Prediction System")
+    print("   - Quantum Computing Module")
     return app
