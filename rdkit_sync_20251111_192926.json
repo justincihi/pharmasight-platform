@@ -1,0 +1,33 @@
+{
+  "sync_timestamp": "2025-11-11T19:29:26.638778",
+  "compounds_processed": 3,
+  "total_analogs_generated": 30,
+  "high_ip_opportunity_analogs": 30,
+  "patent_free_analogs": 30,
+  "compounds": [
+    {
+      "compound_name": "ketamine",
+      "compound_smiles": "CNC1(c2ccccc2Cl)CCCCC1=O",
+      "analogs_generated": 10,
+      "patent_free": 10,
+      "high_ip_opportunity": 10,
+      "timestamp": "2025-11-11T19:29:26.638863"
+    },
+    {
+      "compound_name": "muscimol",
+      "compound_smiles": "C1=C(C(=NO1)N)CO",
+      "analogs_generated": 10,
+      "patent_free": 10,
+      "high_ip_opportunity": 10,
+      "timestamp": "2025-11-11T19:29:26.654498"
+    },
+    {
+      "compound_name": "psilocybin",
+      "compound_smiles": "CN(C)CCc1c[nH]c2ccc(OP(=O)(O)O)cc12",
+      "analogs_generated": 10,
+      "patent_free": 10,
+      "high_ip_opportunity": 10,
+      "timestamp": "2025-11-11T19:29:26.665173"
+    }
+  ]
+}
