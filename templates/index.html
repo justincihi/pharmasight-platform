@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaSight™ - Advanced Drug Discovery Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: #555;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #667eea;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .hero .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        /* Feature Cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-card .icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 24px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .feature-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Sections (hidden by default) */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Analysis Section */
+        .analysis-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        /* Results */
+        .results-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e1e8ed;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: #666;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                <span>💊</span>
+                <span>PharmaSight™</span>
+            </div>
+            <ul class="nav-links">
+                <li><a class="nav-link active" onclick="showSection('home')">Dashboard</a></li>
+                <li><a class="nav-link" onclick="showSection('screening')">Screening</a></li>
+                <li><a class="nav-link" onclick="showSection('optimization')">Optimization</a></li>
+                <li><a class="nav-link" onclick="showSection('safety')">Safety</a></li>
+                <li><a class="nav-link" onclick="showSection('quantum')">Quantum</a></li>
+                <li><a class="nav-link" onclick="showSection('analysis')">Analysis</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Home Section -->
+        <div id="home" class="section active">
+            <div class="hero">
+                <h1>Welcome to <span class="gradient-text">PharmaSight™</span></h1>
+                <p>Enterprise-Grade AI-Powered Drug Discovery Platform</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">82</div>
+                        <div class="stat-label">Receptor Targets</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">500+</div>
+                        <div class="stat-label">Compounds</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">AI Modules</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">10K×</div>
+                        <div class="stat-label">Quantum Speedup</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card" onclick="showSection('screening')">
+                    <div class="icon">🔬</div>
+                    <h3>Virtual Screening</h3>
+                    <p>Screen compounds against 82 receptor targets simultaneously using our advanced vHTS pipeline.</p>
+                    <button class="feature-btn">Start Screening</button>
+                </div>
+
+                <div class="feature-card" onclick="showSection('optimization')">
+                    <div class="icon">🧬</div>
+                    <h3>Lead Optimization</h3>
+                    <p>AI-powered molecular modifications to improve binding affinity and drug-likeness.</p>
+                    <button class="feature-btn">Optimize Leads</button>
+                </div>
+
+                <div class="feature-card" onclick="showSection('safety')">
+                    <div class="icon">⚠️</div>
+                    <h3>Safety Prediction</h3>
+                    <p>Predict off-targets, side effects, and drug-drug interactions before synthesis.</p>
+                    <button class="feature-btn">Check Safety</button>
+                </div>
+
+                <div class="feature-card" onclick="showSection('analysis')">
+                    <div class="icon">📊</div>
+                    <h3>Compound Analysis</h3>
+                    <p>Comprehensive molecular analysis with RDKit integration and property calculation.</p>
+                    <button class="feature-btn">Analyze Compound</button>
+                </div>
+
+                <div class="feature-card" onclick="showSection('sar')">
+                    <div class="icon">📈</div>
+                    <h3>SAR Explorer</h3>
+                    <p>Visualize structure-activity relationships and identify activity cliffs.</p>
+                    <button class="feature-btn">Explore SAR</button>
+                </div>
+
+                <div class="feature-card" onclick="showSection('quantum')">
+                    <div class="icon">⚛️</div>
+                    <h3>Quantum Computing</h3>
+                    <p>Leverage quantum algorithms for protein folding and molecular dynamics.</p>
+                    <button class="feature-btn">Quantum Simulation</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Virtual Screening Section -->
+        <div id="screening" class="section">
+            <div class="analysis-container">
+                <h2>🔬 Virtual High-Throughput Screening</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Screen your compounds against all 82 receptor targets</p>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('screening', 'single')">Single Compound</button>
+                    <button class="tab" onclick="switchTab('screening', 'batch')">Batch Screening</button>
+                </div>
+
+                <div id="screening-single" class="tab-content active">
+                    <div class="input-group">
+                        <label>SMILES String</label>
+                        <input type="text" id="vhts-smiles" placeholder="e.g., CN1CCC[C@H]1c2cccnc2" value="CN1CCC[C@H]1c2cccnc2">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Compound Name (Optional)</label>
+                        <input type="text" id="vhts-name" placeholder="Enter compound name">
+                    </div>
+                    
+                    <button class="btn-primary" onclick="runVirtualScreening()">Run Screening</button>
+                </div>
+
+                <div id="screening-batch" class="tab-content">
+                    <div class="input-group">
+                        <label>Compound List (JSON Format)</label>
+                        <textarea id="batch-compounds" rows="6" placeholder='[{"smiles": "...", "name": "..."}, ...]'>[
+  {"smiles": "CN1CCC[C@H]1c2cccnc2", "name": "Nicotine"},
+  {"smiles": "CC(C)NCC(O)COc1ccccc1", "name": "Propranolol"},
+  {"smiles": "O=C(C)Oc1ccccc1C(=O)O", "name": "Aspirin"}
+]</textarea>
+                    </div>
+                    
+                    <button class="btn-primary" onclick="runBatchScreening()">Run Batch Screening</button>
+                </div>
+
+                <div id="screening-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Screening against 82 receptor targets...</p>
+                </div>
+
+                <div id="screening-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Lead Optimization Section -->
+        <div id="optimization" class="section">
+            <div class="analysis-container">
+                <h2>🧬 AI-Powered Lead Optimization</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Generate optimized molecular modifications using machine learning</p>
+                
+                <div class="input-group">
+                    <label>Lead Compound SMILES</label>
+                    <input type="text" id="opt-smiles" placeholder="Enter SMILES string" value="Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)NC(=O)c4ccc(cc4)CN5CCN(CC5)C">
+                </div>
+                
+                <div class="input-group">
+                    <label>Optimization Goals</label>
+                    <select id="opt-goals" multiple style="height: 100px;">
+                        <option value="potency" selected>Improve Potency</option>
+                        <option value="selectivity">Improve Selectivity</option>
+                        <option value="solubility">Improve Solubility</option>
+                        <option value="stability">Metabolic Stability</option>
+                        <option value="toxicity">Reduce Toxicity</option>
+                    </select>
+                    <small style="color: #666;">Hold Ctrl/Cmd to select multiple</small>
+                </div>
+                
+                <button class="btn-primary" onclick="optimizeLead()">Generate Optimizations</button>
+                
+                <div id="opt-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Generating optimization strategies...</p>
+                </div>
+
+                <div id="opt-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Safety Prediction Section -->
+        <div id="safety" class="section">
+            <div class="analysis-container">
+                <h2>⚠️ Off-Target & Safety Prediction</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Predict potential side effects and safety liabilities</p>
+                
+                <div class="input-group">
+                    <label>Compound SMILES</label>
+                    <input type="text" id="safety-smiles" placeholder="Enter SMILES string" value="O=C(C)Oc1ccccc1C(=O)O">
+                </div>
+                
+                <div class="input-group">
+                    <label>Primary Target (Optional)</label>
+                    <input type="text" id="safety-target" placeholder="e.g., COX-2, 5-HT2A, D2" value="COX-2">
+                </div>
+                
+                <button class="btn-primary" onclick="predictSafety()">Predict Safety Profile</button>
+                
+                <div id="safety-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing safety profile...</p>
+                </div>
+
+                <div id="safety-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Compound Analysis Section -->
+        <div id="analysis" class="section">
+            <div class="analysis-container">
+                <h2>📊 Compound Analysis</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Comprehensive molecular analysis and visualization</p>
+                
+                <div class="input-group">
+                    <label>Compound Name or SMILES</label>
+                    <input type="text" id="analysis-input" placeholder="e.g., Aspirin, Caffeine, or SMILES" value="Caffeine">
+                </div>
+                
+                <button class="btn-primary" onclick="analyzeCompound()">Analyze Compound</button>
+                
+                <div id="analysis-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing compound...</p>
+                </div>
+
+                <div id="analysis-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- SAR Explorer Section -->
+        <div id="sar" class="section">
+            <div class="analysis-container">
+                <h2>📈 Structure-Activity Relationship Explorer</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Analyze SAR patterns and activity cliffs</p>
+                
+                <div class="input-group">
+                    <label>Compound Series (JSON Format)</label>
+                    <textarea id="sar-compounds" rows="8" placeholder='[{"smiles": "...", "activity": 0.8, "id": "CPD1"}, ...]'>[
+  {"smiles": "CC(C)NCC(O)COc1ccccc1", "activity": 0.75, "id": "CPD1"},
+  {"smiles": "CC(C)NCC(O)COc1ccccc1F", "activity": 0.85, "id": "CPD2"},
+  {"smiles": "CC(C)NCC(O)COc1ccccc1Cl", "activity": 0.65, "id": "CPD3"},
+  {"smiles": "CC(C)NCC(O)COc1ccc(OC)cc1", "activity": 0.90, "id": "CPD4"}
+]</textarea>
+                </div>
+                
+                <button class="btn-primary" onclick="analyzeSAR()">Analyze SAR</button>
+                
+                <div id="sar-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing structure-activity relationships...</p>
+                </div>
+
+                <div id="sar-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Quantum Computing Section -->
+        <div id="quantum" class="section">
+            <div class="analysis-container">
+                <h2>⚛️ Quantum Computing Simulations</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Harness quantum algorithms for advanced molecular simulations</p>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('quantum', 'folding')">Protein Folding</button>
+                    <button class="tab" onclick="switchTab('quantum', 'dynamics')">Molecular Dynamics</button>
+                    <button class="tab" onclick="switchTab('quantum', 'qopt')">Lead Optimization</button>
+                </div>
+
+                <div id="quantum-folding" class="tab-content active">
+                    <div class="input-group">
+                        <label>Protein Sequence</label>
+                        <input type="text" id="protein-seq" placeholder="Enter amino acid sequence" value="MKALVLIALLVA">
+                    </div>
+                    <button class="btn-primary" onclick="simulateProteinFolding()">Simulate Folding</button>
+                </div>
+
+                <div id="quantum-dynamics" class="tab-content">
+                    <div class="input-group">
+                        <label>Molecule SMILES</label>
+                        <input type="text" id="qmd-smiles" placeholder="Enter SMILES" value="CC(C)NCC(O)COc1ccccc1">
+                    </div>
+                    <div class="input-group">
+                        <label>Target Protein</label>
+                        <input type="text" id="qmd-target" placeholder="e.g., 5-HT2A, D2" value="5-HT2A">
+                    </div>
+                    <button class="btn-primary" onclick="runQuantumMD()">Run Quantum MD</button>
+                </div>
+
+                <div id="quantum-qopt" class="tab-content">
+                    <div class="input-group">
+                        <label>Lead Compound SMILES</label>
+                        <input type="text" id="qopt-smiles" placeholder="Enter SMILES" value="Cc1ccc(cc1)NC(=O)c2ccccc2">
+                    </div>
+                    <button class="btn-primary" onclick="quantumOptimize()">Quantum Optimize</button>
+                </div>
+                
+                <div id="quantum-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Running quantum simulation...</p>
+                </div>
+
+                <div id="quantum-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed results -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Results</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target?.classList.add('active');
+        }
+
+        // Tab switching
+        function switchTab(feature, tab) {
+            // Update tabs
+            const container = document.getElementById(feature);
+            container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${feature}-${tab}`).classList.add('active');
+        }
+
+        // Modal
+        function showModal(title, content) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('resultModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('active');
+        }
+
+        // Virtual Screening
+        async function runVirtualScreening() {
+            const smiles = document.getElementById('vhts-smiles').value;
+            const name = document.getElementById('vhts-name').value || 'Compound';
+            const loading = document.getElementById('screening-loading');
+            const results = document.getElementById('screening-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/vhts/screen_compound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles, name: name })
+                });
+                
+                const data = await response.json();
+                
+                let html = `
+                    <h3>Screening Results for ${data.compound_id || name}</h3>
+                    <div class="result-item">
+                        <strong>Total Receptor Hits:</strong> ${data.receptor_hits?.length || 0}<br>
+                        <strong>Selectivity:</strong> ${data.selectivity_profile?.status || 'N/A'}<br>
+                        <strong>Polypharmacology Score:</strong> ${data.polypharmacology_score || 0}
+                    </div>
+                `;
+                
+                if (data.receptor_hits && data.receptor_hits.length > 0) {
+                    html += '<h4>Top Receptor Hits:</h4>';
+                    data.receptor_hits.slice(0, 10).forEach(hit => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${hit.receptor}</strong> (${hit.family})<br>
+                                Binding Score: ${hit.binding_score}<br>
+                                Predicted Ki: ${hit.predicted_ki}<br>
+                                Activity: ${hit.activity_type}
+                            </div>
+                        `;
+                    });
+                }
+                
+                if (data.safety_flags && data.safety_flags.length > 0) {
+                    html += `<div class="message error">⚠️ Safety Flags: ${data.safety_flags.join(', ')}</div>`;
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function runBatchScreening() {
+            const compounds = JSON.parse(document.getElementById('batch-compounds').value);
+            const loading = document.getElementById('screening-loading');
+            const results = document.getElementById('screening-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/vhts/batch_screen', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ compounds: compounds })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>Batch Screening Report</h3>';
+                html += `
+                    <div class="result-item">
+                        <strong>Total Compounds:</strong> ${data.report?.total_compounds || 0}<br>
+                        <strong>Compounds with Hits:</strong> ${data.report?.summary?.compounds_with_hits || 0}<br>
+                        <strong>Selective Compounds:</strong> ${data.report?.summary?.selective_compounds || 0}<br>
+                        <strong>Safety Concerns:</strong> ${data.report?.summary?.safety_concerns || 0}
+                    </div>
+                `;
+                
+                if (data.report?.top_hits) {
+                    html += '<h4>Top Hits:</h4>';
+                    data.report.top_hits.slice(0, 5).forEach(hit => {
+                        html += `
+                            <div class="result-item">
+                                ${hit.compound} → ${hit.receptor} (Score: ${hit.score})
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // Lead Optimization
+        async function optimizeLead() {
+            const smiles = document.getElementById('opt-smiles').value;
+            const loading = document.getElementById('opt-loading');
+            const results = document.getElementById('opt-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/lead_opt/optimize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>Lead Optimization Results</h3>';
+                
+                if (data.current_properties) {
+                    html += `
+                        <div class="result-item">
+                            <strong>Current Properties:</strong><br>
+                            MW: ${data.current_properties.mw}<br>
+                            LogP: ${data.current_properties.logp}<br>
+                            QED: ${data.current_properties.qed}<br>
+                            Synthetic Accessibility: ${data.current_properties.synthetic_accessibility}
+                        </div>
+                    `;
+                }
+                
+                if (data.modified_structures && data.modified_structures.length > 0) {
+                    html += '<h4>Top Optimization Suggestions:</h4>';
+                    data.modified_structures.slice(0, 5).forEach((mod, i) => {
+                        html += `
+                            <div class="result-item">
+                                <strong>Option ${i+1}:</strong> ${mod.modification}<br>
+                                Strategy: ${mod.strategy}<br>
+                                Improvement Score: ${mod.improvement_score}<br>
+                                New Properties: MW=${mod.properties.mw}, LogP=${mod.properties.logp}
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // Safety Prediction
+        async function predictSafety() {
+            const smiles = document.getElementById('safety-smiles').value;
+            const target = document.getElementById('safety-target').value;
+            const loading = document.getElementById('safety-loading');
+            const results = document.getElementById('safety-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/off_target/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles, primary_target: target })
+                });
+                
+                const data = await response.json();
+                const pred = data.prediction;
+                
+                let html = '<h3>Safety Assessment Report</h3>';
+                
+                // Risk summary
+                const riskColor = pred.risk_score > 50 ? 'red' : pred.risk_score > 30 ? 'orange' : 'green';
+                html += `
+                    <div class="result-item">
+                        <strong>Overall Risk Score:</strong> <span style="color: ${riskColor}; font-size: 24px;">${pred.risk_score}/100</span><br>
+                        <strong>Classification:</strong> ${pred.safety_classification}<br>
+                        <strong>DDI Risk:</strong> ${pred.drug_drug_interaction_risk}
+                    </div>
+                `;
+                
+                // Safety alerts
+                if (pred.safety_alerts && pred.safety_alerts.length > 0) {
+                    html += '<h4>Safety Alerts:</h4>';
+                    pred.safety_alerts.forEach(alert => {
+                        const alertColor = alert.level === 'CRITICAL' ? 'red' : alert.level === 'HIGH' ? 'orange' : 'yellow';
+                        html += `
+                            <div class="message" style="background: ${alertColor}20; border-color: ${alertColor};">
+                                <strong>${alert.level}:</strong> ${alert.message}<br>
+                                <em>Recommendation:</em> ${alert.recommendation}
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Off-targets
+                if (pred.off_target_hits && pred.off_target_hits.length > 0) {
+                    html += '<h4>Off-Target Interactions:</h4>';
+                    pred.off_target_hits.forEach(hit => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${hit.target}</strong> (${hit.category})<br>
+                                Predicted IC50: ${hit.predicted_ic50}<br>
+                                Concern: ${hit.concern}<br>
+                                Severity: <span style="color: ${hit.severity === 'critical' ? 'red' : hit.severity === 'high' ? 'orange' : 'black'};">${hit.severity}</span>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Predicted side effects
+                if (pred.predicted_side_effects && pred.predicted_side_effects.length > 0) {
+                    html += '<h4>Predicted Side Effects:</h4>';
+                    html += '<div class="result-item">';
+                    html += pred.predicted_side_effects.map(effect => `• ${effect}`).join('<br>');
+                    html += '</div>';
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // Compound Analysis
+        async function analyzeCompound() {
+            const input = document.getElementById('analysis-input').value;
+            const loading = document.getElementById('analysis-loading');
+            const results = document.getElementById('analysis-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/analyze_compound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ compound: input })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                let html = `<h3>Analysis: ${data.name}</h3>`;
+                
+                // Structure visualization
+                if (data.structure_svg) {
+                    html += `<div style="text-align: center; margin: 20px 0;">${data.structure_svg}</div>`;
+                }
+                
+                // Properties
+                html += `
+                    <div class="result-item">
+                        <strong>SMILES:</strong> ${data.smiles}<br>
+                        <strong>Formula:</strong> ${data.formula}<br>
+                        <strong>MW:</strong> ${data.molecular_weight}<br>
+                        <strong>LogP:</strong> ${data.logP}
+                    </div>
+                `;
+                
+                // Targets
+                if (data.targets && data.targets.length > 0) {
+                    html += '<h4>Known Targets:</h4>';
+                    html += '<div class="result-item">' + data.targets.join(', ') + '</div>';
+                }
+                
+                // Therapeutic uses
+                if (data.therapeutic_uses && data.therapeutic_uses.length > 0) {
+                    html += '<h4>Therapeutic Uses:</h4>';
+                    html += '<div class="result-item">' + data.therapeutic_uses.join(', ') + '</div>';
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // SAR Analysis
+        async function analyzeSAR() {
+            const compounds = JSON.parse(document.getElementById('sar-compounds').value);
+            const loading = document.getElementById('sar-loading');
+            const results = document.getElementById('sar-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/sar/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ compounds: compounds })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>SAR Analysis Results</h3>';
+                html += `
+                    <div class="result-item">
+                        <strong>Series Size:</strong> ${data.series_size} compounds<br>
+                        <strong>Activity Cliffs:</strong> ${data.activity_cliffs?.length || 0} identified
+                    </div>
+                `;
+                
+                // Key features
+                if (data.key_features && data.key_features.length > 0) {
+                    html += '<h4>Key Features Affecting Activity:</h4>';
+                    data.key_features.slice(0, 5).forEach(feat => {
+                        const color = feat.importance === 'positive' ? 'green' : feat.importance === 'negative' ? 'red' : 'gray';
+                        html += `
+                            <div class="result-item">
+                                <strong style="color: ${color};">${feat.fragment}</strong><br>
+                                Contribution: ${feat.contribution}<br>
+                                Occurrence: ${feat.occurrence} compounds<br>
+                                Importance: ${feat.importance}
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Activity cliffs
+                if (data.activity_cliffs && data.activity_cliffs.length > 0) {
+                    html += '<h4>Activity Cliffs:</h4>';
+                    data.activity_cliffs.slice(0, 3).forEach(cliff => {
+                        html += `
+                            <div class="result-item">
+                                ${cliff.compound1} vs ${cliff.compound2}<br>
+                                Similarity: ${cliff.similarity}<br>
+                                Activity Δ: ${cliff.activity_difference}<br>
+                                Cliff Steepness: ${cliff.cliff_steepness}
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // Quantum Simulations
+        async function simulateProteinFolding() {
+            const sequence = document.getElementById('protein-seq').value;
+            const loading = document.getElementById('quantum-loading');
+            const results = document.getElementById('quantum-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/quantum/protein_folding', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sequence: sequence })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>Quantum Protein Folding Results</h3>';
+                html += `
+                    <div class="result-item">
+                        <strong>Sequence Length:</strong> ${data.length} amino acids<br>
+                        <strong>Algorithm:</strong> ${data.algorithm}<br>
+                        <strong>Predicted Structure:</strong> ${data.folding_prediction?.predicted_structure}<br>
+                        <strong>Confidence:</strong> ${data.folding_prediction?.confidence?.toFixed(1)}%
+                    </div>
+                    <div class="result-item">
+                        <strong>Computational Advantage:</strong><br>
+                        Classical Steps: ${data.computational_advantage?.classical_steps}<br>
+                        Quantum Steps: ${data.computational_advantage?.quantum_steps}<br>
+                        <strong style="color: green;">Speedup: ${data.computational_advantage?.speedup}</strong>
+                    </div>
+                    <div class="result-item">
+                        <strong>Quantum Resources:</strong><br>
+                        Qubits Required: ${data.quantum_requirements?.qubits}<br>
+                        Gates: ${data.quantum_requirements?.gates}<br>
+                        Coherence Time: ${data.quantum_requirements?.coherence_time}
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function runQuantumMD() {
+            const smiles = document.getElementById('qmd-smiles').value;
+            const target = document.getElementById('qmd-target').value;
+            const loading = document.getElementById('quantum-loading');
+            const results = document.getElementById('quantum-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/quantum/molecular_dynamics', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles, target: target })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>Quantum Molecular Dynamics Results</h3>';
+                html += `
+                    <div class="result-item">
+                        <strong>Target:</strong> ${data.target}<br>
+                        <strong>Binding Energy:</strong> ${data.results?.binding_energy} kcal/mol<br>
+                        <strong>Simulation Time:</strong> ${data.quantum_parameters?.simulation_time}
+                    </div>
+                    <div class="result-item">
+                        <strong>Performance:</strong><br>
+                        Quantum Time: ${data.performance_comparison?.quantum_time}<br>
+                        Classical Time: ${data.performance_comparison?.classical_time}<br>
+                        <strong style="color: green;">Speedup: ${data.performance_comparison?.speedup}</strong><br>
+                        Accuracy Improvement: ${data.performance_comparison?.accuracy_improvement}
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function quantumOptimize() {
+            const smiles = document.getElementById('qopt-smiles').value;
+            const loading = document.getElementById('quantum-loading');
+            const results = document.getElementById('quantum-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/quantum/lead_optimization', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>Quantum Lead Optimization Results</h3>';
+                html += `
+                    <div class="result-item">
+                        <strong>Algorithm:</strong> ${data.quantum_setup?.algorithm}<br>
+                        <strong>Qubits:</strong> ${data.quantum_setup?.qubits}<br>
+                        <strong>Search Space:</strong> ${data.computational_advantage?.search_space}<br>
+                        <strong>Expected Improvement:</strong> ${data.computational_advantage?.expected_improvement}
+                    </div>
+                `;
+                
+                if (data.optimized_structures && data.optimized_structures.length > 0) {
+                    html += '<h4>Quantum-Optimized Variants:</h4>';
+                    data.optimized_structures.forEach(opt => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${opt.variant}:</strong> Score ${opt.quantum_score}<br>
+                                Improvements: Binding ${opt.improvements?.binding_affinity}, 
+                                Selectivity ${opt.improvements?.selectivity}, 
+                                Stability ${opt.improvements?.stability}
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
