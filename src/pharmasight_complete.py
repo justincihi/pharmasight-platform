@@ -4,7 +4,7 @@ PharmaSight™ - Enterprise Drug Discovery Platform
 Complete implementation with all requested features
 """
 
-from flask import Flask, render_template_string, request, jsonify, session, send_file
+from flask import Flask, render_template_string, render_template, request, jsonify, session, send_file
 from flask_cors import CORS
 import json
 import datetime
@@ -18,7 +18,9 @@ from ddi_analysis_fix import get_detailed_interaction_info
 from analog_generation_fix import generate_analog_report, resolve_compound_name
 from research_findings_fix import get_research_findings_with_hypotheses, search_research_findings, get_research_analytics, generate_research_report
 
-app = Flask(__name__)
+import os
+
+app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'templates'))
 app.secret_key = 'pharmasight_enterprise_2024'
 CORS(app)
 
@@ -982,6 +984,10 @@ def log_activity(user, action, details):
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@app.route('/login_page')
+def login_page():
     return render_template_string('''
 <!DOCTYPE html>
 <html lang="en">
