@@ -137,6 +137,23 @@ services:
     networks:
       - pharmasight-network
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./PUBLIC_ANALOG_DISCOVERY_REGISTRY.md:/app/PUBLIC_ANALOG_DISCOVERY_REGISTRY.md
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
   api-gateway:
     build: ./services/api-gateway
     ports:

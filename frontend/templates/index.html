@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaSight™ - AI-Powered Drug Discovery Platform</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="/static/images/pharmasight-logo.png" alt="PharmaSight Logo" class="logo-img">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#discover" class="nav-link">Discover</a></li>
+                <li><a href="#research" class="nav-link">Research</a></li>
+                <li><a href="#analogs" class="nav-link">Analogs</a></li>
+                <li><a href="#analytics" class="nav-link">Analytics</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background">
+            <video autoplay muted loop playsinline class="hero-video">
+                <source src="/static/images/pharmasight-intro.mp4" type="video/mp4">
+            </video>
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">AI-Powered</span><br>
+                Drug Discovery Platform
+            </h1>
+            <p class="hero-subtitle">
+                Accelerating pharmaceutical research with autonomous literature scanning,
+                molecular analysis, and novel analog generation
+            </p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="analogCount">119</div>
+                    <div class="stat-label">Novel Analogs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="articleCount">26</div>
+                    <div class="stat-label">Research Articles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">87%</div>
+                    <div class="stat-label">Patent-Free</div>
+                </div>
+            </div>
+            <div class="hero-cta">
+                <button class="btn btn-primary" onclick="scrollToSection('discover')">
+                    <i class="fas fa-rocket"></i> Start Discovery
+                </button>
+                <button class="btn btn-secondary" onclick="scrollToSection('research')">
+                    <i class="fas fa-book"></i> View Research
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="discover" class="features">
+        <div class="container">
+            <h2 class="section-title">Platform Capabilities</h2>
+            <p class="section-subtitle">Comprehensive tools for modern drug discovery</p>
+            
+            <div class="features-grid">
+                <div class="feature-card" data-feature="compound">
+                    <div class="feature-icon">
+                        <i class="fas fa-atom"></i>
+                    </div>
+                    <h3>Compound Analysis</h3>
+                    <p>Advanced molecular property calculations using RDKit with 500+ compounds</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> 70+ Receptor Subtypes</li>
+                        <li><i class="fas fa-check"></i> ADMET Predictions</li>
+                        <li><i class="fas fa-check"></i> Quantum Calculations</li>
+                    </ul>
+                    <button class="btn btn-outline" onclick="openCompoundAnalysis()">Analyze</button>
+                </div>
+
+                <div class="feature-card" data-feature="analog">
+                    <div class="feature-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h3>Analog Generation</h3>
+                    <p>Generate novel chemical analogs with 8 transformation strategies</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> True RDKit Generation</li>
+                        <li><i class="fas fa-check"></i> Patent Screening</li>
+                        <li><i class="fas fa-check"></i> IP Protection</li>
+                    </ul>
+                    <button class="btn btn-outline" onclick="openAnalogGeneration()">Generate</button>
+                </div>
+
+                <div class="feature-card" data-feature="research">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Autonomous Research</h3>
+                    <p>Daily literature scanning with PubMed integration and rate limiting</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> 50 API Calls/Day</li>
+                        <li><i class="fas fa-check"></i> Article Database</li>
+                        <li><i class="fas fa-check"></i> Auto Discovery</li>
+                    </ul>
+                    <button class="btn btn-outline" onclick="openResearchEngine()">Explore</button>
+                </div>
+
+                <div class="feature-card" data-feature="pkpd">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>PKPD Simulation</h3>
+                    <p>Population-based pharmacokinetic and pharmacodynamic modeling</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Age Group Analysis</li>
+                        <li><i class="fas fa-check"></i> Genetic Variation</li>
+                        <li><i class="fas fa-check"></i> Organ Distribution</li>
+                    </ul>
+                    <button class="btn btn-outline" onclick="openPKPDSimulation()">Simulate</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research Articles Section -->
+    <section id="research" class="research-section">
+        <div class="container">
+            <h2 class="section-title">Research Database</h2>
+            <p class="section-subtitle">Curated collection of pharmaceutical research articles</p>
+            
+            <div class="research-controls">
+                <input type="text" id="searchArticles" placeholder="Search articles..." class="search-input">
+                <select id="filterYear" class="filter-select">
+                    <option value="">All Years</option>
+                </select>
+                <button class="btn btn-primary" onclick="runResearchCycle()">
+                    <i class="fas fa-sync"></i> Run Research Cycle
+                </button>
+            </div>
+
+            <div id="articlesGrid" class="articles-grid">
+                <!-- Articles will be loaded dynamically -->
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading articles...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analog Discoveries Section -->
+    <section id="analogs" class="analogs-section">
+        <div class="container">
+            <h2 class="section-title">Novel Analog Discoveries</h2>
+            <p class="section-subtitle">119 patent-free analogs with complete IP protection</p>
+            
+            <div class="analogs-showcase">
+                <div class="analog-featured">
+                    <img src="/static/images/ketamine-racemic.png" alt="Racemic Ketamine" class="featured-molecule">
+                    <div class="featured-info">
+                        <h3>Featured: Racemic Ketamine</h3>
+                        <p>15 novel analogs generated with 8 transformation strategies</p>
+                        <div class="molecule-tags">
+                            <span class="tag tag-success">Patent-Free</span>
+                            <span class="tag tag-info">High IP Opportunity</span>
+                            <span class="tag tag-primary">NMDA Antagonist</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analogs-stats">
+                    <div class="stat-box">
+                        <i class="fas fa-flask"></i>
+                        <div class="stat-value">119</div>
+                        <div class="stat-name">Total Analogs</div>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-shield-alt"></i>
+                        <div class="stat-value">104</div>
+                        <div class="stat-name">Patent-Free</div>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-star"></i>
+                        <div class="stat-value">110</div>
+                        <div class="stat-name">High IP Value</div>
+                    </div>
+                    <div class="stat-box">
+                        <i class="fas fa-pills"></i>
+                        <div class="stat-value">12</div>
+                        <div class="stat-name">Compounds</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analogsGrid" class="discoveries-grid">
+                <!-- Analogs will be loaded dynamically -->
+            </div>
+
+            <button class="btn btn-primary btn-large" onclick="viewPublicRegistry()">
+                <i class="fas fa-book-open"></i> View Public IP Registry
+            </button>
+        </div>
+    </section>
+
+    <!-- Analytics Dashboard -->
+    <section id="analytics" class="analytics-section">
+        <div class="container">
+            <h2 class="section-title">Platform Analytics</h2>
+            <p class="section-subtitle">Real-time insights and performance metrics</p>
+            
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3><i class="fas fa-database"></i> Database Statistics</h3>
+                    <canvas id="databaseChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3><i class="fas fa-chart-pie"></i> Discovery Distribution</h3>
+                    <canvas id="discoveryChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Research Timeline</h3>
+                    <canvas id="timelineChart"></canvas>
+                </div>
+                <div class="analytics-card">
+                    <h3><i class="fas fa-network-wired"></i> System Health</h3>
+                    <div id="systemHealth" class="health-grid">
+                        <!-- Health status will be loaded -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <img src="/static/images/pharmasight-logo.png" alt="PharmaSight" class="footer-logo">
+                    <p>AI-powered drug discovery platform accelerating pharmaceutical research</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="#discover">Compound Analysis</a></li>
+                        <li><a href="#analogs">Analog Generation</a></li>
+                        <li><a href="#research">Research Engine</a></li>
+                        <li><a href="#analytics">Analytics</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="/docs">API Documentation</a></li>
+                        <li><a href="https://github.com/justincihi/pharmasight-platform">GitHub</a></li>
+                        <li><a href="/registry">IP Registry</a></li>
+                        <li><a href="/articles">Research Database</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Statistics</h4>
+                    <ul>
+                        <li>119 Novel Analogs</li>
+                        <li>26 Research Articles</li>
+                        <li>7 Microservices</li>
+                        <li>87% Patent-Free Rate</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 PharmaSight™. All rights reserved.</p>
+                <p>Microservices Architecture | Production Ready</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
+

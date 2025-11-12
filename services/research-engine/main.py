@@ -1,6 +1,6 @@
 """
-PharmaSight™ Research Engine Microservice
-Autonomous research, article database, and RDKit integration
+PharmaSight™ Research Engine Microservice - Enhanced
+Autonomous research, article database, RDKit integration, and PubChem API
 """
 
 from fastapi import FastAPI, HTTPException
@@ -22,9 +22,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="PharmaSight Research Engine",
-    description="Autonomous research, literature scanning, and analog discovery",
-    version="1.0.0"
+    title="PharmaSight Research Engine - Enhanced",
+    description="Autonomous research with PubChem integration, literature scanning, and analog discovery",
+    version="2.0.0"
 )
 
 # CORS middleware
@@ -45,9 +45,6 @@ article_db = ResearchArticleDatabase()
 rdkit_integration = ResearchRDKitIntegration()
 
 # Request/Response Models
-class ResearchGoal(BaseModel):
-    goal: str
-
 class ResearchGoalsList(BaseModel):
     goals: List[str]
 
@@ -60,13 +57,82 @@ class RDKitSyncRequest(BaseModel):
 
 # Health check
 @app.get("/health")
-async def health_check():
+async def health():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "service": "research-engine",
+        "service": "research-engine-enhanced",
+        "version": "2.0.0",
+        "features": [
+            "autonomous_research",
+            "article_database",
+            "rdkit_integration",
+            "pubchem_api"
+        ],
         "timestamp": datetime.now().isoformat()
     }
+
+# PubChem Integration Endpoints
+@app.get("/pubchem/compound/{compound_name}")
+async def get_pubchem_compound(compound_name: str):
+    """Get compound information from PubChem by name"""
+    try:
+        from api_integrations import PubChemAPI
+        api = PubChemAPI()
+        data = api.get_compound_by_name(compound_name)
+        
+        if data:
+            return {
+                "success": True,
+                "compound": data,
+                "source": "PubChem",
+                "timestamp": datetime.now().isoformat()
+            }
+        return {"success": False, "error": "Compound not found in PubChem"}
+    except Exception as e:
+        logger.error(f"PubChem API error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@app.get("/pubchem/cid/{cid}")
+async def get_pubchem_by_cid(cid: int):
+    """Get compound information from PubChem by CID"""
+    try:
+        from api_integrations import PubChemAPI
+        api = PubChemAPI()
+        data = api.get_compound_by_cid(cid)
+        
+        if data:
+            return {
+                "success": True,
+                "compound": data,
+                "source": "PubChem",
+                "cid": cid,
+                "timestamp": datetime.now().isoformat()
+            }
+        return {"success": False, "error": f"CID {cid} not found in PubChem"}
+    except Exception as e:
+        logger.error(f"PubChem API error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@app.get("/pubchem/properties/{compound_name}")
+async def get_pubchem_properties(compound_name: str):
+    """Get molecular properties from PubChem"""
+    try:
+        from api_integrations import PubChemAPI
+        api = PubChemAPI()
+        properties = api.get_compound_properties(compound_name)
+        
+        if properties:
+            return {
+                "success": True,
+                "properties": properties,
+                "compound": compound_name,
+                "timestamp": datetime.now().isoformat()
+            }
+        return {"success": False, "error": "Properties not found"}
+    except Exception as e:
+        logger.error(f"PubChem properties error: {str(e)}")
+        return {"success": False, "error": str(e)}
 
 # Research Engine Endpoints
 @app.post("/research/run-cycle")
@@ -74,69 +140,75 @@ async def run_research_cycle(request: ResearchGoalsList):
     """Run a daily research cycle with specified goals"""
     try:
         logger.info(f"Starting research cycle with {len(request.goals)} goals")
-        summary = research_engine.run_daily_research_cycle(request.goals)
+        results = research_engine.run_daily_cycle(request.goals)
+        
+        return {
+            "success": True,
+            "summary": results,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Research cycle error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/research/session-summary")
+async def get_session_summary():
+    """Get summary of the last research session"""
+    try:
+        summary = research_engine.get_session_summary()
         return {
             "success": True,
             "summary": summary,
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"Research cycle failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/research/session-summary")
-async def get_session_summary():
-    """Get the current research session summary"""
-    try:
-        summary = research_engine.get_session_summary()
-        return {
-            "success": True,
-            "summary": summary
-        }
-    except Exception as e:
-        logger.error(f"Failed to get session summary: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Session summary error: {str(e)}")
+        return {"success": False, "error": str(e)}
 
 # Article Database Endpoints
 @app.get("/articles/all")
 async def get_all_articles():
-    """Get all articles from the database"""
+    """Get all research articles from the database"""
     try:
         articles = article_db.get_all_articles()
         return {
             "success": True,
+            "articles": articles,
             "count": len(articles),
-            "articles": articles
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"Failed to get articles: {str(e)}")
+        logger.error(f"Get articles error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/articles/search")
 async def search_articles(request: ArticleSearchRequest):
     """Search articles by keyword"""
     try:
-        articles = article_db.search_by_keyword(request.keyword, request.limit)
+        articles = article_db.search_articles(request.keyword, limit=request.limit)
         return {
             "success": True,
+            "articles": articles,
             "count": len(articles),
-            "articles": articles
+            "keyword": request.keyword,
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"Article search failed: {str(e)}")
+        logger.error(f"Search articles error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/articles/statistics")
 async def get_article_statistics():
-    """Get database statistics"""
+    """Get statistics about the article database"""
     try:
         stats = article_db.get_statistics()
         return {
             "success": True,
-            "statistics": stats
+            "statistics": stats,
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"Failed to get statistics: {str(e)}")
+        logger.error(f"Statistics error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/articles/by-year/{year}")
@@ -146,46 +218,47 @@ async def get_articles_by_year(year: int):
         articles = article_db.get_articles_by_year(year)
         return {
             "success": True,
-            "year": year,
+            "articles": articles,
             "count": len(articles),
-            "articles": articles
+            "year": year,
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"Failed to get articles by year: {str(e)}")
+        logger.error(f"Get by year error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # RDKit Integration Endpoints
 @app.post("/rdkit/sync")
-async def sync_research_with_rdkit(request: RDKitSyncRequest):
-    """Sync research goals with RDKit for analog generation"""
+async def sync_with_rdkit(request: RDKitSyncRequest):
+    """Synchronize research findings with RDKit analog generation"""
     try:
         logger.info(f"Starting RDKit sync with max_compounds={request.max_compounds}")
-        summary = rdkit_integration.sync_research_goals_with_rdkit(
-            max_compounds=request.max_compounds
-        )
+        results = rdkit_integration.sync_research_with_rdkit(max_compounds=request.max_compounds)
+        
+        return {
+            "success": True,
+            "results": results,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"RDKit sync error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/rdkit/sync-summary")
+async def get_rdkit_sync_summary():
+    """Get summary of the last RDKit synchronization"""
+    try:
+        summary = rdkit_integration.get_sync_summary()
         return {
             "success": True,
             "summary": summary,
             "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"RDKit sync failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"RDKit summary error: {str(e)}")
+        return {"success": False, "error": str(e)}
 
-@app.get("/rdkit/sync-summary")
-async def get_rdkit_sync_summary():
-    """Get the last RDKit sync summary"""
-    try:
-        # This would need to be implemented in the integration class
-        return {
-            "success": True,
-            "message": "Check sync logs for details"
-        }
-    except Exception as e:
-        logger.error(f"Failed to get sync summary: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Analog Discovery Endpoints
+# Analog Discoveries Endpoints
 @app.get("/discoveries/all")
 async def get_all_discoveries():
     """Get all analog discoveries"""
@@ -193,25 +266,68 @@ async def get_all_discoveries():
         discoveries = rdkit_integration.get_all_discoveries()
         return {
             "success": True,
-            "total_sessions": discoveries.get("total_sessions", 0),
-            "total_analogs": discoveries.get("total_analogs", 0),
-            "discoveries": discoveries.get("discovery_sessions", [])
+            "discoveries": discoveries,
+            "total_analogs": sum(len(d.get("analogs", [])) for d in discoveries),
+            "total_sessions": len(discoveries),
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"Failed to get discoveries: {str(e)}")
+        logger.error(f"Get discoveries error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/discoveries/statistics")
 async def get_discovery_statistics():
-    """Get analog discovery statistics"""
+    """Get statistics about analog discoveries"""
     try:
         stats = rdkit_integration.get_discovery_statistics()
         return {
             "success": True,
-            "statistics": stats
+            "statistics": stats,
+            "timestamp": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"Failed to get discovery statistics: {str(e)}")
+        logger.error(f"Discovery statistics error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Combined Research + PubChem Endpoint
+@app.post("/research/enhanced-cycle")
+async def run_enhanced_research_cycle(request: ResearchGoalsList):
+    """Run enhanced research cycle with PubChem validation"""
+    try:
+        logger.info(f"Starting enhanced research cycle with PubChem integration")
+        
+        # Run standard research cycle
+        research_results = research_engine.run_daily_cycle(request.goals)
+        
+        # Validate compounds with PubChem
+        from api_integrations import PubChemAPI
+        pubchem = PubChemAPI()
+        
+        validated_compounds = []
+        for goal in request.goals:
+            # Extract compound name from goal (simple extraction)
+            words = goal.split()
+            if words:
+                compound_name = words[0]
+                pubchem_data = pubchem.get_compound_by_name(compound_name)
+                if pubchem_data:
+                    validated_compounds.append({
+                        "name": compound_name,
+                        "pubchem_data": pubchem_data,
+                        "validated": True
+                    })
+        
+        return {
+            "success": True,
+            "research_results": research_results,
+            "pubchem_validation": {
+                "validated_compounds": validated_compounds,
+                "count": len(validated_compounds)
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"Enhanced research cycle error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
