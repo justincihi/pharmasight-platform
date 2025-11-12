@@ -3396,6 +3396,15 @@ def search_chembl(name):
     else:
         return jsonify({'error': 'Compound not found'}), 404
 
+# ========== INTEGRATE ADVANCED DRUG DISCOVERY FEATURES ==========
+# Import and register new advanced features
+try:
+    from advanced_features_integration import register_advanced_features
+    app = register_advanced_features(app)
+    print("✅ Advanced Drug Discovery Suite Loaded")
+except Exception as e:
+    print(f"⚠️ Warning: Could not load advanced features: {e}")
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5008, debug=False)
 
