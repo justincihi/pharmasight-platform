@@ -1,11 +1,16 @@
 // PharmaSight™ Frontend JavaScript
 
 // API Configuration
+// Support both local development and production deployment
 const API_BASE = window.location.origin.includes('localhost') 
     ? 'http://localhost:8080' 
     : window.location.origin;
 
-const RESEARCH_API = `${API_BASE}/research-engine`;
+// Research Engine API - direct access for now
+// TODO: Route through API Gateway once configured
+const RESEARCH_API = window.location.origin.includes('localhost')
+    ? 'http://localhost:8006'
+    : `${window.location.protocol}//${window.location.hostname}:8006`;
 
 // Utility Functions
 function scrollToSection(sectionId) {
