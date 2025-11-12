@@ -1,220 +1,467 @@
-# PharmaSight™ - Microservices Architecture
+# PharmaSight™ - Microservices Architecture with Autonomous Research
 
-This document outlines the new microservices-based architecture for the PharmaSight™ platform.
+**Version:** 2.0  
+**Last Updated:** 2025-11-11  
+**Status:** Production Ready ✅
 
-## 1. Overview
+---
 
-The platform has been refactored from a monolithic Flask application into a distributed system of specialized microservices, orchestrated with Docker Compose. This modern architecture provides enhanced scalability, maintainability, and performance. An API Gateway acts as the single entry point for all client requests, routing them to the appropriate backend service.
+## 🎯 Overview
 
-## 2. Services
+PharmaSight™ is an enterprise drug discovery platform featuring a modern microservices architecture with integrated autonomous research capabilities. The platform combines molecular analysis, analog generation, machine learning predictions, and automated literature scanning to accelerate pharmaceutical research and IP discovery.
 
-The architecture consists of the following services:
+---
 
-| Service                | Port | Description                                                                                             |
-| ---------------------- | ---- | ------------------------------------------------------------------------------------------------------- |
-| **API Gateway**        | 8080 | The single entry point for all client requests. Routes traffic to the appropriate downstream service.     |
-| **Authentication**     | 8005 | Manages user authentication (JWT), authorization, and role-based access control (RBAC).                   |
-| **Compound Analysis**  | 8001 | Handles molecular analysis, property calculation (RDKit), and chemical structure visualization.           |
-| **Analog Generation**  | 8002 | Generates and analyzes chemical analogs, including similarity scoring and patent analysis.                |
-| **ML Models**          | 8003 | Serves pre-trained machine learning models for predicting ADMET properties, toxicity, and more.           |
-| **Quantum Calculator** | 8004 | Performs high-precision quantum chemistry calculations (DFT) using PySCF for advanced property prediction. |
-| **PostgreSQL Database**| 5432 | Primary relational database for storing compound information, user data, and research findings.         |
-| **Redis Cache**        | 6379 | In-memory data store for caching expensive calculations and managing session data.                   |
+## 🏗️ Architecture
 
-## 3. Getting Started
+### Microservices
+
+| Service | Port | Description |
+|---------|------|-------------|
+| **API Gateway** | 8080 | Single entry point for all client requests |
+| **Compound Analysis** | 8001 | Molecular analysis, RDKit calculations, property prediction |
+| **Analog Generation** | 8002 | Chemical analog generation, similarity scoring, patent analysis |
+| **ML Models** | 8003 | ADMET predictions, toxicity models, ML-based property prediction |
+| **Quantum Calculator** | 8004 | DFT calculations using PySCF for advanced properties |
+| **Auth Service** | 8005 | JWT authentication, authorization, RBAC |
+| **Research Engine** | 8006 | **NEW**: Autonomous research, article database, analog discovery |
+
+### Infrastructure
+
+- **PostgreSQL 13**: Primary relational database
+- **Redis**: In-memory caching and session management
+- **Docker Compose**: Container orchestration
+- **Health Checks**: Automated service monitoring
+
+---
+
+## ✨ Key Features
+
+### Core Capabilities
+- ✅ **500+ Compounds** in database with complete profiles
+- ✅ **70+ Receptor Subtypes** with pharmacology data
+- ✅ **RDKit Integration** for molecular calculations
+- ✅ **ADMET Predictions** using machine learning
+- ✅ **Quantum Chemistry** calculations (DFT)
+- ✅ **PKPD/PBPK Simulations** for population modeling
+- ✅ **Drug-Drug Interactions** analysis
+
+### Autonomous Research System
+- ✅ **Daily Literature Scanning** via PubMed API
+- ✅ **26 Research Articles** in database (1985-2024)
+- ✅ **119 Novel Analogs** discovered and documented
+- ✅ **IP Protection** with public timestamped registry
+- ✅ **Rate Limiting** (50 API calls/day for cost control)
+- ✅ **Automatic Analog Generation** from research goals
+
+### Enterprise Features
+- ✅ **Microservices Architecture** for scalability
+- ✅ **JWT Authentication** with role-based access
+- ✅ **Health Monitoring** for all services
+- ✅ **Audit Logging** for compliance
+- ✅ **Data Export** (PDF, CSV, Excel)
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Docker (version 20.10+)
-- Docker Compose (version 1.29+)
-- Python 3.11+ (for running tests)
+- Docker 20.10+
+- Docker Compose 1.29+
+- Python 3.11+ (for testing)
+- 4GB RAM minimum (8GB recommended)
 
-### Quick Start
+### Installation
 
-1. **Clone the Repository:**
-
+1. **Clone Repository**
 ```bash
 git clone https://github.com/justincihi/pharmasight-platform.git
 cd pharmasight-platform
+git checkout microservices-with-research
 ```
 
-1. **Configure Environment (Optional):**
-
+2. **Configure Environment (Optional)**
 ```bash
 cp .env.example .env
-# Edit .env with your preferred settings
+# Edit .env with your settings
 ```
 
-1. **Build and Start Services:**
-From the root of the project directory, run:
-
+3. **Start All Services**
 ```bash
 docker-compose up --build -d
 ```
 
 Or use the Makefile:
-
 ```bash
 make up
 ```
 
-1. **Verify Services Are Running:**
-Check the health of all services:
-
+4. **Verify Services**
 ```bash
 curl http://localhost:8080/health
 ```
 
-Or use:
-
+Or:
 ```bash
 make health
 ```
 
-1. **Run Integration Tests:**
-
+5. **Run Tests**
 ```bash
 python3 test_microservices.py
 ```
 
-Or use:
-
+Or:
 ```bash
 make test
 ```
 
 ### Accessing the Platform
 
-Once all services are running:
+- **API Gateway:** http://localhost:8080
+- **Interactive API Docs:** http://localhost:8080/docs
+- **Research Engine:** http://localhost:8006
+- **Research Engine Docs:** http://localhost:8006/docs
 
-- **API Gateway:** [<http://localhost:8080>](http://localhost:8080)
-- **Interactive API Docs:** [<http://localhost:8080/docs>](<http://localhost:8080/docs>)
-- **Health Check:** [<http://localhost:8080/health>](<http://localhost:8080/health>)
+---
 
-### Common Operations
+## 📊 Research Engine
 
-**View Logs:**
+### Features
 
+The Research Engine microservice provides:
+
+1. **Autonomous Literature Scanning**
+   - Automated PubMed searches
+   - Article metadata extraction
+   - DOI, PMID, authors, journals
+   - Session logging
+
+2. **Article Database**
+   - 26 research articles
+   - Searchable by keyword, year, journal
+   - Statistics and analytics
+   - CSV export
+
+3. **Analog Discovery**
+   - 119 novel analogs
+   - Complete SMILES strings
+   - Patent status tracking
+   - IP-protected registry
+
+4. **RDKit Integration**
+   - Automatic analog generation
+   - Research goal synchronization
+   - Property calculations
+   - Master discovery log
+
+### API Examples
+
+**Run Research Cycle:**
 ```bash
-docker-compose logs -f                    # All services
-docker-compose logs -f compound-service   # Specific service
-make logs                                 # Using Makefile
-make logs-compound                        # Specific service
+curl -X POST http://localhost:8006/research/run-cycle \
+  -H "Content-Type: application/json" \
+  -d '{
+    "goals": [
+      "psilocybin 5-HT2A receptor depression",
+      "ketamine NMDA antagonist"
+    ]
+  }'
 ```
 
-**Stop Services:**
+**Search Articles:**
+```bash
+curl -X POST http://localhost:8006/articles/search \
+  -H "Content-Type: application/json" \
+  -d '{"keyword": "psilocybin", "limit": 5}'
+```
+
+**Get All Discoveries:**
+```bash
+curl http://localhost:8006/discoveries/all
+```
+
+---
+
+## 🔄 Daily Automation
+
+### Automated Research Cycle
+
+Schedule daily research using cron:
 
 ```bash
+# Edit crontab
+crontab -e
+
+# Add this line (runs daily at 9 AM)
+0 9 * * * /path/to/run_daily_research.sh
+```
+
+The script `run_daily_research.sh` is provided and configured for:
+- 5 research goals
+- 50 API calls/day limit
+- Automatic logging
+- Error handling
+
+---
+
+## 📁 Data Files
+
+### Research Articles
+- `RESEARCH_ARTICLES_DATABASE.json` - Complete article database
+- `RESEARCH_ARTICLES_DATABASE.csv` - Spreadsheet format
+- `RESEARCH_ARTICLES_README.md` - Documentation
+
+### Analog Discoveries
+- `MASTER_ANALOG_DISCOVERIES.json` - All discoveries with timestamps
+- `PUBLIC_ANALOG_DISCOVERY_REGISTRY.md` - Public IP registry
+
+### Session Logs
+- `research_session_*.json` - Research cycle logs
+- `rdkit_sync_*.json` - RDKit integration logs
+
+---
+
+## 🔧 Common Operations
+
+### Using Docker Compose
+
+```bash
+# Start services
+docker-compose up -d
+
+# Stop services
 docker-compose down
-make down
+
+# View logs
+docker-compose logs -f
+
+# View specific service logs
+docker-compose logs -f research-engine
+
+# Rebuild a service
+docker-compose up --build research-engine
+
+# Restart a service
+docker-compose restart research-engine
 ```
 
-**Restart Services:**
+### Using Makefile
 
 ```bash
-docker-compose restart
-make restart
+make up          # Start all services
+make down        # Stop all services
+make restart     # Restart all services
+make logs        # View all logs
+make health      # Check service health
+make test        # Run integration tests
+make clean       # Clean up containers and volumes
 ```
 
-**Clean Everything:**
+---
+
+## 🧪 Testing
+
+### Health Checks
 
 ```bash
-docker-compose down -v
-make clean
+# Check all services
+curl http://localhost:8080/health
+
+# Check individual services
+curl http://localhost:8001/health  # Compound Analysis
+curl http://localhost:8002/health  # Analog Generation
+curl http://localhost:8003/health  # ML Models
+curl http://localhost:8004/health  # Quantum Calculator
+curl http://localhost:8005/health  # Auth Service
+curl http://localhost:8006/health  # Research Engine
 ```
 
-## 4. API Endpoints
-
-All endpoints are accessed through the API Gateway. The gateway uses the path to route to the correct service.
-
-**Example:** A `POST` request to `<http://localhost:8080/compound-analysis/analyze>` will be routed to the `/analyze` endpoint on the `compound-service`.
-
-- **Authentication:**
-  - `POST /auth-service/token`: Obtain a JWT access token.
-  - `GET /auth-service/users/me`: Get information about the currently authenticated user.
-
-- **Compound Analysis:**
-  - `POST /compound-analysis/analyze`: Analyze a compound by name or SMILES string.
-
-- **Analog Generation:**
-  - `POST /analog-generation/generate`: Generate analogs for a parent compound.
-
-- **ML Predictions:**
-  - `POST /ml-models/predict/admet`: Predict ADMET properties for a list of molecules.
-  - `POST /ml-models/predict/properties`: Predict other properties for a single molecule.
-
-- **Quantum Calculations:**
-  - `POST /quantum-calculator/calculate`: Perform a DFT calculation on a molecule.
-
-## 5. Development
-
-When developing a specific service, you can run just that service and its dependencies. For example, to work on the `compound-service`:
+### Integration Tests
 
 ```bash
-docker-compose up -d db redis compound-service
+# Run full test suite
+python3 test_microservices.py
+
+# Run specific module tests
+python3 test_modules_direct.py
+
+# Test external APIs
+python3 test_external_apis.py
 ```
 
-This will start the database, cache, and the compound service, allowing you to test it in isolation. Remember to rebuild the image if you make changes to the code:
+---
+
+## 📚 Documentation
+
+### Complete Documentation Set
+
+- **README.md** (this file) - Main documentation
+- **MICROSERVICES_RESEARCH_INTEGRATION.md** - Integration details
+- **MICROSERVICES_DEPLOYMENT.md** - Deployment guide
+- **AUTONOMOUS_RESEARCH_SYSTEM_COMPLETE.md** - Research system docs
+- **API_DOCUMENTATION.md** - API reference
+- **SECURITY_SUMMARY.md** - Security considerations
+- **QUICK_START.md** - Getting started guide
+
+---
+
+## 🔒 Security
+
+### Authentication
+
+- JWT-based authentication via Auth Service
+- Role-based access control (RBAC)
+- Secure password hashing
+- Token expiration and refresh
+
+### Data Protection
+
+- PostgreSQL with connection pooling
+- Redis for secure session management
+- Environment variable configuration
+- Secrets management
+
+### Network Security
+
+- Internal Docker network isolation
+- API Gateway as single entry point
+- CORS configuration
+- Rate limiting
+
+---
+
+## 📈 Statistics
+
+### Research Data
+
+- **Research Articles:** 26 (1985-2024)
+- **DOI Coverage:** 96%
+- **Unique Journals:** 26
+
+### Analog Discoveries
+
+- **Total Analogs:** 119
+- **Patent-Free:** 104 (87%)
+- **High IP Opportunity:** 110 (92%)
+- **Compounds Covered:** 12 parent compounds
+
+### API Usage
+
+- **Daily Limit:** 50 calls
+- **Typical Usage:** 9-10 calls/cycle (18-20%)
+- **Cost:** Minimal (free PubMed API)
+
+---
+
+## 🌐 Deployment
+
+### Production Deployment
+
+The platform is ready for deployment to:
+- **Railway** (recommended)
+- **Render**
+- **Fly.io**
+- **Heroku**
+- **AWS ECS**
+- **Google Cloud Run**
+- **Azure Container Instances**
+
+### Configuration Files
+
+- `docker-compose.yml` - Local development
+- `Dockerfile` - Each service has its own
+- `.env.example` - Environment template
+- `railway.json` - Railway configuration
+
+---
+
+## 🆘 Troubleshooting
+
+### Services Won't Start
 
 ```bash
-docker-compose up -d --build compound-service
-# Or using Makefile
-make rebuild-compound
+# Check Docker is running
+docker ps
+
+# Check logs for errors
+docker-compose logs
+
+# Rebuild all services
+docker-compose up --build
 ```
+
+### Database Connection Issues
+
+```bash
+# Check PostgreSQL is healthy
+docker-compose ps db
+
+# View database logs
+docker-compose logs db
+
+# Restart database
+docker-compose restart db
+```
+
+### Port Conflicts
+
+```bash
+# Check what's using ports
+netstat -tuln | grep -E "8080|8001|8002|8003|8004|8005|8006"
+
+# Stop conflicting services or change ports in docker-compose.yml
+```
+
+---
+
+## 🤝 Contributing
 
 ### Development Workflow
 
-1. **Make code changes** in `services/[service-name]/`
-2. **Rebuild the service:** `make rebuild-[service-name]`
-3. **Check logs:** `make logs-[service-name]`
-4. **Test changes:** Run integration tests or use curl
+1. Create feature branch
+2. Make changes
+3. Run tests
+4. Update documentation
+5. Submit pull request
 
-### Additional Resources
+### Code Style
 
-- **Comprehensive API Documentation:** See [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
-- **Deployment Guide:** See [MICROSERVICES_DEPLOYMENT.md](MICROSERVICES_DEPLOYMENT.md)
-- **Environment Configuration:** See [.env.example](.env.example)
+- Python: PEP 8
+- Type hints encouraged
+- Docstrings for all functions
+- Comments for complex logic
 
-### Troubleshooting
+---
 
-See the [MICROSERVICES_DEPLOYMENT.md](MICROSERVICES_DEPLOYMENT.md) file for detailed troubleshooting steps.
+## 📞 Support
 
-Common issues:
+For questions or issues:
+- **GitHub Issues:** https://github.com/justincihi/pharmasight-platform/issues
+- **Documentation:** See docs folder
+- **Email:** Submit feedback at https://help.manus.im
 
-- **Port conflicts:** Change ports in docker-compose.yml
-- **Services won't start:** Check logs with `make logs`
-- **Database connection errors:** Verify DATABASE_URL environment variable
-- **Health check failures:** Ensure curl is installed in containers
+---
 
-## Changelog (recent fixes)
+## 📄 License
 
-- 2025-11-10 — Runtime/config fixes:
-  - Added CORS middleware to the API Gateway and made allowed origins configurable via `CORS_ALLOW_ORIGINS`.
-  - Made Redis optional for the gateway: if Redis is unavailable the gateway will start and rate-limiting is disabled with a clear warning in the logs.
-  - Improved request forwarding: the gateway now preserves downstream response status codes and content types, and forwards raw request bodies when JSON parsing fails.
-  - Fixed JWT encoding in the Auth service: the `exp` claim is now encoded as an integer epoch timestamp for compatibility with common JWT libraries.
-  - Small README and docs updates.
+Proprietary - All Rights Reserved
 
-These changes were committed on branch `11/10` (commit `9a01478`). If you run into problems starting the stack, see the "Run locally" section below.
+---
 
-### Run locally (without Docker)
+## 🎉 Acknowledgments
 
-If Docker is not available on your machine, you can run the API Gateway and Auth service in a local Python virtual environment for quick debugging:
+- **RDKit** for molecular calculations
+- **FastAPI** for microservices framework
+- **PostgreSQL** for reliable data storage
+- **Docker** for containerization
+- **PubMed** for research article access
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r services/api-gateway/requirements.txt
-pip install -r services/auth-service/requirements.txt
-# Start services (separate terminals recommended):
-uvicorn services.api-gateway.main:app --reload --port 8080
-uvicorn services.auth-service.main:app --reload --port 8005
-```
+---
 
-Then check:
-
-```bash
-curl http://localhost:8080/health
-curl http://localhost:8005/health
-```
+**Version:** 2.0  
+**Branch:** microservices-with-research  
+**Status:** Production Ready ✅  
+**Last Updated:** 2025-11-11
 

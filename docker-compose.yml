@@ -120,6 +120,23 @@ services:
     networks:
       - pharmasight-network
 
+  research-engine:
+    build: ./services/research-engine
+    ports:
+      - "8006:8006"
+    volumes:
+      - ./MASTER_ANALOG_DISCOVERIES.json:/app/MASTER_ANALOG_DISCOVERIES.json
+      - ./RESEARCH_ARTICLES_DATABASE.json:/app/RESEARCH_ARTICLES_DATABASE.json
+      - ./PUBLIC_ANALOG_DISCOVERY_REGISTRY.md:/app/PUBLIC_ANALOG_DISCOVERY_REGISTRY.md
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
   api-gateway:
     build: ./services/api-gateway
     ports:
@@ -134,6 +151,8 @@ services:
       quantum-calculator:
         condition: service_healthy
       auth-service:
+        condition: service_healthy
+      research-engine:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
