@@ -116,12 +116,30 @@ Key packages installed:
 - Substructure highlighting
 - Drug-likeness scoring (Lipinski's Rule)
 
-## Database
+## Database & External Connections
+### Internal Database
 - **500+ compounds** in internal database
 - Includes psychedelics, opioids, anxiolytics, stimulants, etc.
 - Comprehensive patent and research data
 - Drug-drug interaction database (50+ pairs)
 - 82 receptor targets for virtual screening
+
+### External Database Connectivity (Active)
+- ✅ **PubChem**: CONNECTED - Access to 100+ million compounds
+  - Real-time compound property retrieval
+  - Molecular structure validation
+  - Bioactivity data access
+- ✅ **ChEMBL**: CONNECTED - Access to 2+ million compounds
+  - Bioactivity information
+  - Target-compound interactions
+  - Drug development phase data
+- ✅ **FDA Orange Book**: CONNECTED - US drug regulatory data
+  - Approved drug information
+  - Generic/brand name mappings
+  - Regulatory status tracking
+- ⚠️ **DrugBank**: Framework ready (requires API key for full access)
+- ⚠️ **ZINC**: Framework implemented (not yet fully operational)
+- ⚠️ **OpenTargets**: Framework implemented (GraphQL integration pending)
 
 ## Recent Changes (November 12, 2025)
 - ✅ Created modern responsive frontend (templates/index.html)
