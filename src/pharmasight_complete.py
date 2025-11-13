@@ -3402,6 +3402,104 @@ def search_chembl(name):
     else:
         return jsonify({'error': 'Compound not found'}), 404
 
+# ========== MISSING API ENDPOINTS FOR FRONTEND ==========
+
+# Virtual Screening Endpoints
+@app.route('/api/vhts/screen_compound', methods=['POST'])
+def vhts_screen_compound():
+    """Screen a single compound against all receptors"""
+    from virtual_screening_pipeline import VirtualScreeningPipeline
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    compound_name = data.get('compound_name', None)
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    pipeline = VirtualScreeningPipeline()
+    result = pipeline.screen_compound(smiles, compound_name)
+    
+    if 'error' in result:
+        return jsonify(result), 400
+    
+    return jsonify(result)
+
+@app.route('/api/vhts/batch_screen', methods=['POST'])
+def vhts_batch_screen():
+    """Batch screen multiple compounds"""
+    from virtual_screening_pipeline import VirtualScreeningPipeline
+    
+    data = request.get_json()
+    compounds = data.get('compounds', [])
+    
+    if not compounds:
+        return jsonify({'error': 'Compounds list is required'}), 400
+    
+    pipeline = VirtualScreeningPipeline()
+    results = pipeline.batch_screen(compounds)
+    
+    return jsonify(results)
+
+# Lead Optimization Endpoint
+@app.route('/api/lead_opt/optimize', methods=['POST'])
+def lead_optimize():
+    """Optimize a lead compound"""
+    from ai_lead_optimization import AILeadOptimizer
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    target_profile = data.get('target_profile', {})
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    optimizer = AILeadOptimizer()
+    result = optimizer.optimize_lead(smiles, target_profile)
+    
+    if 'error' in result:
+        return jsonify(result), 400
+    
+    return jsonify(result)
+
+# Off-Target Prediction Endpoint
+@app.route('/api/off_target/predict', methods=['POST'])
+def off_target_predict():
+    """Predict off-target interactions and safety profile"""
+    from off_target_prediction import OffTargetPredictor
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    primary_target = data.get('primary_target', 'Unknown')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    predictor = OffTargetPredictor()
+    result = predictor.predict_off_targets(smiles, primary_target)
+    
+    if 'error' in result:
+        return jsonify(result), 400
+    
+    return jsonify(result)
+
+# SAR Analysis Endpoint
+@app.route('/api/sar/analyze', methods=['POST'])
+def sar_analyze():
+    """Analyze Structure-Activity Relationships"""
+    from sar_explorer import SARExplorer
+    
+    data = request.get_json()
+    compound_series = data.get('compound_series', [])
+    
+    if not compound_series:
+        return jsonify({'error': 'Compound series is required'}), 400
+    
+    explorer = SARExplorer()
+    result = explorer.analyze_sar(compound_series)
+    
+    return jsonify(result)
+
 # ========== INTEGRATE ADVANCED DRUG DISCOVERY FEATURES ==========
 # Import and register new advanced features
 try:
