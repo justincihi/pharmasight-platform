@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Frontend Test</title>
+</head>
+<body>
+    <h1>PharmaSight Debug Test</h1>
+    
+    <h2>Test 1: Virtual Screening</h2>
+    <input type="text" id="test-smiles" value="CN1CCC[C@H]1c2cccnc2" placeholder="Enter SMILES">
+    <button onclick="testVirtualScreening()">Test Virtual Screening</button>
+    <div id="result1"></div>
+    
+    <h2>Test 2: Lead Optimization</h2>
+    <input type="text" id="test-opt-smiles" value="CC(C)c1ccc(cc1)C(C)C(O)=O" placeholder="Enter SMILES">
+    <button onclick="testLeadOptimization()">Test Lead Optimization</button>
+    <div id="result2"></div>
+    
+    <h2>Test 3: Direct API Test</h2>
+    <button onclick="directAPITest()">Direct API Test</button>
+    <div id="result3"></div>
+
+    <script>
+        async function testVirtualScreening() {
+            const smiles = document.getElementById('test-smiles').value;
+            console.log('SMILES value:', smiles);
+            document.getElementById('result1').innerHTML = `<p>Sending SMILES: ${smiles}</p>`;
+            
+            try {
+                const response = await fetch('/api/vhts/screen_compound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles, compound_name: 'Test' })
+                });
+                const data = await response.json();
+                document.getElementById('result1').innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result1').innerHTML += `<p style="color:red">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testLeadOptimization() {
+            const smiles = document.getElementById('test-opt-smiles').value;
+            console.log('SMILES value:', smiles);
+            document.getElementById('result2').innerHTML = `<p>Sending SMILES: ${smiles}</p>`;
+            
+            try {
+                const response = await fetch('/api/lead_opt/optimize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles, target_profile: {} })
+                });
+                const data = await response.json();
+                document.getElementById('result2').innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result2').innerHTML += `<p style="color:red">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function directAPITest() {
+            // Test with hardcoded SMILES
+            const hardcodedSmiles = "CC(C)c1ccc(cc1)C(C)C(O)=O";
+            document.getElementById('result3').innerHTML = `<p>Testing with hardcoded SMILES: ${hardcodedSmiles}</p>`;
+            
+            try {
+                const response = await fetch('/api/analyze_compound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: hardcodedSmiles })
+                });
+                const data = await response.json();
+                document.getElementById('result3').innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('result3').innerHTML += `<p style="color:red">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

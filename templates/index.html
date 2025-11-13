@@ -715,32 +715,49 @@
 
     <script>
         // Navigation
-        function showSection(sectionId) {
+        function showSection(sectionId, evt) {
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
             
             // Show selected section
-            document.getElementById(sectionId).classList.add('active');
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
             
             // Update nav links
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
+                // Check if this link calls the same section
+                if (link.getAttribute('onclick')?.includes(sectionId)) {
+                    link.classList.add('active');
+                }
             });
-            event.target?.classList.add('active');
         }
 
         // Tab switching
-        function switchTab(feature, tab) {
+        function switchTab(feature, tab, evt) {
             // Update tabs
             const container = document.getElementById(feature);
-            container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Update content
-            container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById(`${feature}-${tab}`).classList.add('active');
+            if (container) {
+                container.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                
+                // Find and activate the correct tab
+                container.querySelectorAll('.tab').forEach(t => {
+                    if (t.getAttribute('onclick')?.includes(tab)) {
+                        t.classList.add('active');
+                    }
+                });
+                
+                // Update content
+                container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                const tabContent = document.getElementById(`${feature}-${tab}`);
+                if (tabContent) {
+                    tabContent.classList.add('active');
+                }
+            }
         }
 
         // Modal
@@ -756,8 +773,17 @@
 
         // Virtual Screening
         async function runVirtualScreening() {
-            const smiles = document.getElementById('vhts-smiles').value;
-            const name = document.getElementById('vhts-name').value || 'Compound';
+            const smilesInput = document.getElementById('vhts-smiles');
+            if (!smilesInput) {
+                alert('Error: Cannot find SMILES input field');
+                return;
+            }
+            const smiles = smilesInput.value.trim();
+            if (!smiles) {
+                alert('Please enter a SMILES string');
+                return;
+            }
+            const name = document.getElementById('vhts-name')?.value || 'Compound';
             const loading = document.getElementById('screening-loading');
             const results = document.getElementById('screening-results');
             
@@ -860,7 +886,16 @@
 
         // Lead Optimization
         async function optimizeLead() {
-            const smiles = document.getElementById('opt-smiles').value;
+            const smilesInput = document.getElementById('opt-smiles');
+            if (!smilesInput) {
+                alert('Error: Cannot find lead compound input field');
+                return;
+            }
+            const smiles = smilesInput.value.trim();
+            if (!smiles) {
+                alert('Please enter a SMILES string');
+                return;
+            }
             const loading = document.getElementById('opt-loading');
             const results = document.getElementById('opt-results');
             
@@ -916,8 +951,17 @@
 
         // Safety Prediction
         async function predictSafety() {
-            const smiles = document.getElementById('safety-smiles').value;
-            const target = document.getElementById('safety-target').value;
+            const smilesInput = document.getElementById('safety-smiles');
+            if (!smilesInput) {
+                alert('Error: Cannot find safety SMILES input field');
+                return;
+            }
+            const smiles = smilesInput.value.trim();
+            if (!smiles) {
+                alert('Please enter a SMILES string');
+                return;
+            }
+            const target = document.getElementById('safety-target')?.value || 'Unknown';
             const loading = document.getElementById('safety-loading');
             const results = document.getElementById('safety-results');
             
