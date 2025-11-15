@@ -945,26 +945,38 @@ def calculate_overall_safety_score(interactions, contraindications):
 
 # Generate SVG chemical structure
 def generate_svg_structure(smiles):
-    """Generate SVG representation of chemical structure"""
-    # Simplified SVG generation - in production would use RDKit
-    return f'''
-    <svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="300" height="200" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"/>
-        <text x="150" y="100" text-anchor="middle" font-family="Arial" font-size="14" fill="#495057">
-            Chemical Structure
-        </text>
-        <text x="150" y="120" text-anchor="middle" font-family="Arial" font-size="12" fill="#6c757d">
-            SMILES: {smiles[:30]}{'...' if len(smiles) > 30 else ''}
-        </text>
-        <circle cx="80" cy="60" r="8" fill="#007bff"/>
-        <circle cx="120" cy="80" r="8" fill="#28a745"/>
-        <circle cx="160" cy="60" r="8" fill="#dc3545"/>
-        <circle cx="200" cy="80" r="8" fill="#ffc107"/>
-        <line x1="80" y1="60" x2="120" y2="80" stroke="#495057" stroke-width="2"/>
-        <line x1="120" y1="80" x2="160" y2="60" stroke="#495057" stroke-width="2"/>
-        <line x1="160" y1="60" x2="200" y2="80" stroke="#495057" stroke-width="2"/>
-    </svg>
-    '''
+    """Generate SVG representation of chemical structure using RDKit"""
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import Draw
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            raise ValueError("Invalid SMILES")
+        
+        # Generate SVG with RDKit
+        drawer = Draw.MolDraw2DSVG(300, 200)
+        drawer.DrawMolecule(mol)
+        drawer.FinishDrawing()
+        svg = drawer.GetDrawingText()
+        
+        # Clean up SVG for embedding
+        svg = svg.replace('<?xml version=\'1.0\' encoding=\'iso-8859-1\'?>\n', '')
+        return svg
+        
+    except Exception as e:
+        # Fallback to placeholder if RDKit fails
+        return f'''
+        <svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="200" fill="#f8f9fa" stroke="#dee2e6" stroke-width="1"/>
+            <text x="150" y="100" text-anchor="middle" font-family="Arial" font-size="14" fill="#495057">
+                Chemical Structure
+            </text>
+            <text x="150" y="120" text-anchor="middle" font-family="Arial" font-size="12" fill="#6c757d">
+                SMILES: {smiles[:30]}{'...' if len(smiles) > 30 else ''}
+            </text>
+        </svg>
+        '''
 
 # Audit logging
 def log_activity(user, action, details):
@@ -3199,6 +3211,91 @@ def search_compounds_endpoint():
     
     return jsonify({'compounds': results, 'count': len(results)})
 
+# ========== QUANTUM COMPUTING ENDPOINTS ==========
+
+@app.route('/api/quantum/optimize', methods=['POST'])
+def quantum_optimize():
+    """Quantum-enhanced lead optimization with detailed chemical changes"""
+    from quantum_computing_module import QuantumMolecularSimulator
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    optimization_type = data.get('type', 'lead_optimization')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    try:
+        simulator = QuantumMolecularSimulator()
+        
+        if optimization_type == 'lead_optimization':
+            result = simulator.quantum_lead_optimization(smiles)
+        elif optimization_type == 'protein_folding':
+            result = simulator.quantum_protein_folding(smiles)
+        else:
+            result = simulator.quantum_molecular_dynamics(smiles)
+        
+        # Enhanced visualization for quantum optimizations
+        if result.get('optimized_structures'):
+            from rdkit import Chem
+            from rdkit.Chem import Draw, AllChem, DataStructs, inchi
+            import base64
+            from io import BytesIO
+            
+            original_mol = Chem.MolFromSmiles(smiles)
+            
+            for i, opt_struct in enumerate(result['optimized_structures']):
+                opt_smiles = opt_struct.get('smiles', '')
+                if opt_smiles and original_mol:
+                    opt_mol = Chem.MolFromSmiles(opt_smiles)
+                    if opt_mol:
+                        # Generate detailed comparison
+                        AllChem.Compute2DCoords(original_mol)
+                        AllChem.Compute2DCoords(opt_mol)
+                        
+                        # Create side-by-side visualization
+                        mols = [original_mol, opt_mol]
+                        labels = ['Original', f"Quantum Optimized {i+1}"]
+                        img = Draw.MolsToGridImage(mols, molsPerRow=2, subImgSize=(350, 350), legends=labels)
+                        
+                        buffered = BytesIO()
+                        img.save(buffered, format="PNG")
+                        png_base64 = base64.b64encode(buffered.getvalue()).decode()
+                        
+                        # Calculate molecular fingerprint similarity
+                        fp1 = AllChem.GetMorganFingerprintAsBitVect(original_mol, 2)
+                        fp2 = AllChem.GetMorganFingerprintAsBitVect(opt_mol, 2)
+                        similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
+                        
+                        # Generate all chemical notations
+                        opt_struct['enhanced_visualization'] = {
+                            'comparison_image': f"data:image/png;base64,{png_base64}",
+                            'similarity_score': round(similarity, 4),
+                            'notations': {
+                                'original': {
+                                    'smiles': Chem.MolToSmiles(original_mol),
+                                    'inchi': inchi.MolToInchi(original_mol),
+                                    'inchi_key': inchi.MolToInchiKey(original_mol)
+                                },
+                                'optimized': {
+                                    'smiles': Chem.MolToSmiles(opt_mol),
+                                    'inchi': inchi.MolToInchi(opt_mol),
+                                    'inchi_key': inchi.MolToInchiKey(opt_mol)
+                                }
+                            },
+                            'structural_changes': {
+                                'atoms_added': opt_mol.GetNumAtoms() - original_mol.GetNumAtoms(),
+                                'bonds_changed': opt_mol.GetNumBonds() - original_mol.GetNumBonds(),
+                                'heavy_atoms': opt_mol.GetNumHeavyAtoms() - original_mol.GetNumHeavyAtoms(),
+                                'modification_description': opt_struct.get('modification', 'Quantum optimization')
+                            }
+                        }
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ========== NEW ADVANCED FEATURES ==========
 
 @app.route('/api/3d_viewer/<smiles>')
@@ -3259,6 +3356,228 @@ def predict_admet():
     )
     
     return jsonify(predictions)
+
+# ========== MOLECULAR VISUALIZATION & NOTATION ENDPOINTS ==========
+
+@app.route('/api/visualize/2d', methods=['POST'])
+def visualize_2d():
+    """Generate 2D molecular visualization with multiple notation support"""
+    data = request.get_json()
+    input_notation = data.get('notation', 'smiles')
+    input_value = data.get('value', '')
+    size = data.get('size', [400, 400])
+    highlight_atoms = data.get('highlight_atoms', [])
+    
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import Draw, Descriptors, AllChem, inchi
+        import base64
+        from io import BytesIO
+        
+        # Convert input to molecule based on notation type
+        mol = None
+        if input_notation == 'smiles':
+            mol = Chem.MolFromSmiles(input_value)
+        elif input_notation == 'inchi':
+            mol = Chem.MolFromInchi(input_value)
+        elif input_notation == 'smarts':
+            mol = Chem.MolFromSmarts(input_value)
+            
+        if mol is None:
+            return jsonify({"error": f"Invalid {input_notation.upper()} notation"}), 422
+            
+        # Generate all notation formats
+        canonical_smiles = Chem.MolToSmiles(mol)
+        inchi_str = inchi.MolToInchi(mol)
+        inchi_key = inchi.MolToInchiKey(mol)
+        
+        # Generate 2D coordinates
+        AllChem.Compute2DCoords(mol)
+        
+        # Create SVG
+        drawer = Draw.MolDraw2DSVG(size[0], size[1])
+        if highlight_atoms:
+            drawer.DrawMolecule(mol, highlightAtoms=highlight_atoms)
+        else:
+            drawer.DrawMolecule(mol)
+        drawer.FinishDrawing()
+        svg = drawer.GetDrawingText()
+        
+        # Create PNG
+        img = Draw.MolToImage(mol, size=tuple(size), highlightAtoms=highlight_atoms)
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        png_base64 = base64.b64encode(buffered.getvalue()).decode()
+        
+        # Calculate additional properties
+        properties = {
+            "molecular_weight": round(Descriptors.MolWt(mol), 2),
+            "logp": round(Descriptors.MolLogP(mol), 2),
+            "hbd": Descriptors.NumHDonors(mol),
+            "hba": Descriptors.NumHAcceptors(mol),
+            "tpsa": round(Descriptors.TPSA(mol), 2),
+            "num_atoms": mol.GetNumAtoms(),
+            "num_bonds": mol.GetNumBonds(),
+            "num_rings": Descriptors.RingCount(mol)
+        }
+        
+        return jsonify({
+            "svg": svg,
+            "png_base64": f"data:image/png;base64,{png_base64}",
+            "notations": {
+                "smiles": canonical_smiles,
+                "inchi": inchi_str,
+                "inchi_key": inchi_key
+            },
+            "properties": properties
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/visualize/3d', methods=['POST'])
+def visualize_3d():
+    """Generate 3D molecular visualization data"""
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import AllChem
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return jsonify({"error": "Invalid SMILES"}), 422
+            
+        # Add 3D coordinates
+        mol = Chem.AddHs(mol)
+        AllChem.EmbedMolecule(mol, randomSeed=42)
+        AllChem.MMFFOptimizeMolecule(mol)
+        
+        # Convert to SDF format for 3D viewer
+        sdf_block = Chem.MolToMolBlock(mol)
+        
+        return jsonify({
+            "sdf": sdf_block,
+            "num_atoms": mol.GetNumAtoms(),
+            "num_bonds": mol.GetNumBonds()
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/notation/convert', methods=['POST'])
+def convert_notation():
+    """Convert between different chemical notations"""
+    data = request.get_json()
+    from_notation = data.get('from_notation', 'smiles')
+    to_notation = data.get('to_notation', 'inchi')
+    value = data.get('value', '')
+    
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import inchi
+        
+        # Parse input
+        mol = None
+        if from_notation == 'smiles':
+            mol = Chem.MolFromSmiles(value)
+        elif from_notation == 'inchi':
+            mol = Chem.MolFromInchi(value)
+        elif from_notation == 'smarts':
+            mol = Chem.MolFromSmarts(value)
+            
+        if mol is None:
+            return jsonify({"error": f"Invalid {from_notation.upper()}"}), 422
+            
+        # Convert to requested format
+        result = None
+        if to_notation == 'smiles':
+            result = Chem.MolToSmiles(mol)
+        elif to_notation == 'inchi':
+            result = inchi.MolToInchi(mol)
+        elif to_notation == 'inchi_key':
+            result = inchi.MolToInchiKey(mol)
+        elif to_notation == 'smarts':
+            result = Chem.MolToSmarts(mol)
+            
+        # Return all formats for convenience
+        return jsonify({
+            "requested": result,
+            "all_formats": {
+                "smiles": Chem.MolToSmiles(mol),
+                "inchi": inchi.MolToInchi(mol),
+                "inchi_key": inchi.MolToInchiKey(mol),
+                "molecular_formula": Chem.rdMolDescriptors.CalcMolFormula(mol)
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/visualize/compare', methods=['POST'])
+def visualize_comparison():
+    """Generate side-by-side comparison of two molecules"""
+    data = request.get_json()
+    smiles1 = data.get('smiles1', '')
+    smiles2 = data.get('smiles2', '')
+    labels = data.get('labels', ['Original', 'Modified'])
+    
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import Draw, AllChem, DataStructs
+        import base64
+        from io import BytesIO
+        
+        mol1 = Chem.MolFromSmiles(smiles1)
+        mol2 = Chem.MolFromSmiles(smiles2)
+        
+        if mol1 is None or mol2 is None:
+            return jsonify({"error": "Invalid SMILES"}), 422
+            
+        # Generate coordinates
+        AllChem.Compute2DCoords(mol1)
+        AllChem.Compute2DCoords(mol2)
+        
+        # Create grid image
+        mols = [mol1, mol2]
+        img = Draw.MolsToGridImage(mols, molsPerRow=2, subImgSize=(300, 300), legends=labels)
+        
+        # Convert to base64
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        png_base64 = base64.b64encode(buffered.getvalue()).decode()
+        
+        # Calculate similarity
+        fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2)
+        fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2)
+        similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
+        
+        # Find structural differences
+        differences = []
+        if mol1.GetNumAtoms() != mol2.GetNumAtoms():
+            differences.append(f"Atom count: {mol1.GetNumAtoms()} → {mol2.GetNumAtoms()}")
+        if mol1.GetNumBonds() != mol2.GetNumBonds():
+            differences.append(f"Bond count: {mol1.GetNumBonds()} → {mol2.GetNumBonds()}")
+            
+        return jsonify({
+            "comparison_image": f"data:image/png;base64,{png_base64}",
+            "similarity": round(similarity, 3),
+            "differences": differences,
+            "molecule1": {
+                "smiles": Chem.MolToSmiles(mol1),
+                "num_atoms": mol1.GetNumAtoms(),
+                "num_bonds": mol1.GetNumBonds()
+            },
+            "molecule2": {
+                "smiles": Chem.MolToSmiles(mol2),
+                "num_atoms": mol2.GetNumAtoms(),
+                "num_bonds": mol2.GetNumBonds()
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/retrosynthesis/analyze', methods=['POST'])
 def analyze_retrosynthesis():
@@ -3444,12 +3763,13 @@ def vhts_batch_screen():
 # Lead Optimization Endpoint
 @app.route('/api/lead_opt/optimize', methods=['POST'])
 def lead_optimize():
-    """Optimize a lead compound"""
+    """Optimize a lead compound with enhanced visualization"""
     from ai_lead_optimization import AILeadOptimizer
     
     data = request.get_json()
     smiles = data.get('smiles', '')
     target_profile = data.get('target_profile', {})
+    include_visualization = data.get('include_visualization', True)
     
     if not smiles:
         return jsonify({'error': 'SMILES string is required'}), 400
@@ -3459,6 +3779,58 @@ def lead_optimize():
     
     if 'error' in result:
         return jsonify(result), 400
+    
+    # Add molecular visualization for each optimized structure
+    if include_visualization and 'modified_structures' in result:
+        try:
+            from rdkit import Chem
+            from rdkit.Chem import Draw, AllChem, DataStructs, inchi
+            import base64
+            from io import BytesIO
+            
+            original_mol = Chem.MolFromSmiles(smiles)
+            
+            # Add visualization data for each modified structure
+            for i, mod_struct in enumerate(result['modified_structures']):
+                mod_smiles = mod_struct.get('smiles', '')
+                if mod_smiles:
+                    mod_mol = Chem.MolFromSmiles(mod_smiles)
+                    if mod_mol and original_mol:
+                        # Generate comparison image
+                        AllChem.Compute2DCoords(original_mol)
+                        AllChem.Compute2DCoords(mod_mol)
+                        
+                        mols = [original_mol, mod_mol]
+                        labels = ['Original', f"Modified {i+1}"]
+                        img = Draw.MolsToGridImage(mols, molsPerRow=2, subImgSize=(300, 300), legends=labels)
+                        
+                        buffered = BytesIO()
+                        img.save(buffered, format="PNG")
+                        png_base64 = base64.b64encode(buffered.getvalue()).decode()
+                        
+                        # Calculate similarity
+                        fp1 = AllChem.GetMorganFingerprintAsBitVect(original_mol, 2)
+                        fp2 = AllChem.GetMorganFingerprintAsBitVect(mod_mol, 2)
+                        similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
+                        
+                        # Add chemical notation formats
+                        mod_struct['visualization'] = {
+                            'comparison_image': f"data:image/png;base64,{png_base64}",
+                            'similarity': round(similarity, 3),
+                            'notations': {
+                                'smiles': Chem.MolToSmiles(mod_mol),
+                                'inchi': inchi.MolToInchi(mod_mol),
+                                'inchi_key': inchi.MolToInchiKey(mod_mol)
+                            },
+                            'chemical_changes': {
+                                'atom_diff': mod_mol.GetNumAtoms() - original_mol.GetNumAtoms(),
+                                'bond_diff': mod_mol.GetNumBonds() - original_mol.GetNumBonds(),
+                                'modification_type': mod_struct.get('modification', 'Unknown')
+                            }
+                        }
+        except Exception as e:
+            # Continue without visualization if RDKit fails
+            pass
     
     return jsonify(result)
 
