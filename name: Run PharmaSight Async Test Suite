@@ -1,0 +1,53 @@
+name: Run PharmaSight Async Test Suite
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install httpx pytest pytest-asyncio
+
+      - name: Start Flask app in background
+        run: |
+          nohup python3 app.py &
+
+      - name: Wait for server to start
+        run: sleep 5
+
+      - name: Run async test suite
+        run: python3 test_core_features.py
+
+      - name: Run tests with coverage
+        run: |
+          pip install coverage
+          coverage run --source=. -m pytest
+          coverage report -m
+          coverage xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          flags: unittests
+          name: codecov-upload
