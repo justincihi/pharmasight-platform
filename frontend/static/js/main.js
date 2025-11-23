@@ -1,16 +1,9 @@
 // PharmaSight™ Frontend JavaScript
 
 // API Configuration
-// Support both local development and production deployment
-const API_BASE = window.location.origin.includes('localhost') 
-    ? 'http://localhost:8080' 
-    : window.location.origin;
-
-// Research Engine API - direct access for now
-// TODO: Route through API Gateway once configured
-const RESEARCH_API = window.location.origin.includes('localhost')
-    ? 'http://localhost:8006'
-    : `${window.location.protocol}//${window.location.hostname}:8006`;
+// All APIs are served from the same origin (frontend with mock data)
+const API_BASE = window.location.origin;
+const RESEARCH_API = window.location.origin;
 
 // Utility Functions
 function scrollToSection(sectionId) {
@@ -53,10 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // Research Articles
 async function loadArticles() {
     try {
-        const response = await fetch(`${RESEARCH_API}/articles/all`);
+        const response = await fetch(`${RESEARCH_API}/api/research/articles`);
         const data = await response.json();
         
-        if (data.success) {
+        if (data.status === 'success' || data.articles) {
             displayArticles(data.articles);
             populateYearFilter(data.articles);
             updateArticleCount(data.count);
@@ -123,12 +116,12 @@ function updateArticleCount(count) {
 // Analog Discoveries
 async function loadAnalogs() {
     try {
-        const response = await fetch(`${RESEARCH_API}/discoveries/all`);
+        const response = await fetch(`${RESEARCH_API}/api/research/discoveries`);
         const data = await response.json();
         
-        if (data.success) {
+        if (data.status === 'success' || data.discoveries) {
             displayAnalogStats(data);
-            updateAnalogCount(data.total_analogs);
+            updateAnalogCount(data.total_analogs || data.count);
         }
     } catch (error) {
         console.error('Error loading analogs:', error);
@@ -182,7 +175,7 @@ async function runResearchCycle() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
     
     try {
-        const response = await fetch(`${RESEARCH_API}/research/run-cycle`, {
+        const response = await fetch(`${RESEARCH_API}/api/research/run-cycle`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
