@@ -21,7 +21,7 @@ from research_findings_fix import get_research_findings_with_hypotheses, search_
 import os
 
 app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'templates'))
-app.secret_key = 'pharmasight_enterprise_2024'
+app.secret_key = os.environ.get('SECRET_KEY', 'pharmasight_enterprise_2024_dev_only')
 CORS(app)
 
 # Massive Compound Database (500+ compounds)
@@ -3838,7 +3838,7 @@ def run_research_engine():
     
     try:
         engine = DailyDiscoveryEngine()
-        report = engine.generate_daily_report()
+        report = engine.generate_daily_report(goals=goals)
         
         return jsonify({
             'success': True,
@@ -3847,22 +3847,17 @@ def run_research_engine():
             'patent_opportunities': report.get('summary', {}).get('patent_opportunities', 5),
             'papers_scanned': 47,
             'goals_processed': len(goals),
+            'goals_used': goals,
             'top_discoveries': report.get('breakthrough_candidates', [])[:5]
         })
     except Exception as e:
         return jsonify({
-            'success': True,
-            'discoveries_found': 12,
-            'high_value': 3,
-            'patent_opportunities': 5,
-            'papers_scanned': 47,
+            'success': False,
+            'error': str(e),
+            'discoveries_found': 0,
             'goals_processed': len(goals),
-            'top_discoveries': [
-                {'compound': '4-OH-DiPT analog', 'finding': 'Novel tryptamine with enhanced 5-HT2A selectivity', 'confidence': 92, 'value': '$12M'},
-                {'compound': 'GABA-A PAM derivative', 'finding': 'Reduced sedation profile vs benzodiazepines', 'confidence': 87, 'value': '$8M'},
-                {'compound': 'Ketamine prodrug', 'finding': 'Extended release formulation, patent-free', 'confidence': 78, 'value': '$15M'}
-            ]
-        })
+            'message': 'Research engine encountered an error. Please try again.'
+        }), 500
 
 @app.route('/api/research/discoveries', methods=['POST'])
 def get_research_discoveries():

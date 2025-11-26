@@ -64,22 +64,31 @@ class DailyDiscoveryEngine:
         
         self.conn.commit()
     
-    def generate_daily_report(self) -> Dict:
-        """Generate comprehensive daily discovery report"""
+    def generate_daily_report(self, goals: List[str] = None) -> Dict:
+        """Generate comprehensive daily discovery report
+        
+        Args:
+            goals: Optional list of research goals to focus the discoveries on
+        """
         today = datetime.now().date()
-        report_id = hashlib.md5(f"report_{today}".encode()).hexdigest()[:16]
+        goals = goals or []
         
-        # Check if report already exists for today
-        self.cursor.execute(
-            "SELECT report_data FROM daily_reports WHERE date = ?", 
-            (today,)
-        )
-        existing = self.cursor.fetchone()
-        if existing:
-            return json.loads(existing[0])
+        # Include goals in report ID if provided
+        goal_hash = hashlib.md5(''.join(goals).encode()).hexdigest()[:8] if goals else ''
+        report_id = hashlib.md5(f"report_{today}_{goal_hash}".encode()).hexdigest()[:16]
         
-        # Generate new discoveries
-        discoveries = self._generate_discoveries()
+        # Check if report already exists for today (skip cache if goals provided)
+        if not goals:
+            self.cursor.execute(
+                "SELECT report_data FROM daily_reports WHERE date = ?", 
+                (today,)
+            )
+            existing = self.cursor.fetchone()
+            if existing:
+                return json.loads(existing[0])
+        
+        # Generate new discoveries with goals context
+        discoveries = self._generate_discoveries(goals=goals)
         
         # Analyze market trends
         market_analysis = self._analyze_market_trends()
@@ -119,9 +128,14 @@ class DailyDiscoveryEngine:
         
         return report
     
-    def _generate_discoveries(self) -> List[Dict]:
-        """Generate daily compound discoveries using AI simulation"""
+    def _generate_discoveries(self, goals: List[str] = None) -> List[Dict]:
+        """Generate daily compound discoveries using AI simulation
+        
+        Args:
+            goals: Optional research goals to focus discoveries on
+        """
         discoveries = []
+        goals = goals or []
         
         # Simulate different discovery methods
         discovery_methods = [
@@ -133,11 +147,27 @@ class DailyDiscoveryEngine:
             ("Repurposing Analysis", 0.75, 10000000)
         ]
         
+        # Default therapeutic areas
         therapeutic_areas = [
             "Oncology", "CNS Disorders", "Metabolic Diseases",
             "Infectious Diseases", "Rare Diseases", "Immunology",
             "Cardiovascular", "Respiratory", "Pain Management"
         ]
+        
+        # Prioritize therapeutic areas based on goals
+        if goals:
+            goal_text = ' '.join(goals).lower()
+            goal_areas = []
+            if any(k in goal_text for k in ['5-ht', 'serotonin', 'depression', 'anxiety', 'psychedelic']):
+                goal_areas.extend(["CNS Disorders", "Psychedelic Therapy"])
+            if any(k in goal_text for k in ['cancer', 'tumor', 'oncology']):
+                goal_areas.append("Oncology")
+            if any(k in goal_text for k in ['pain', 'analgesic']):
+                goal_areas.append("Pain Management")
+            if any(k in goal_text for k in ['patent-free', 'patent free', 'generic']):
+                goal_areas.append("Generic Development")
+            if goal_areas:
+                therapeutic_areas = goal_areas + therapeutic_areas[:3]
         
         mechanisms = [
             "Receptor Antagonist", "Enzyme Inhibitor", "Ion Channel Modulator",
