@@ -20,7 +20,10 @@ from research_findings_fix import get_research_findings_with_hypotheses, search_
 
 import os
 
-app = Flask(__name__, template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'templates'))
+app = Flask(__name__, 
+             template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'templates'),
+             static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static'),
+             static_url_path='/static')
 app.secret_key = os.environ.get('SECRET_KEY', 'pharmasight_enterprise_2024_dev_only')
 CORS(app)
 
