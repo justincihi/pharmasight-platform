@@ -3,14 +3,17 @@
 ## Overview
 PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and drug discovery platform. This is the complete, most recent version with all features enabled, including advanced drug discovery capabilities and quantum computing simulations.
 
-## Current Status (November 12, 2025)
+## Current Status (November 26, 2025)
 - ✅ **Status**: Fully operational with modern UI
-- ✅ **Version**: 4.0.0 Enterprise Enhanced
+- ✅ **Version**: 4.1.0 Enterprise Enhanced
 - ✅ **RDKit**: Installed and working (version 2025.9.1)
 - ✅ **Server**: Running on port 5000
 - ✅ **Frontend**: Modern responsive UI with all features connected
-- ✅ **Advanced Features**: All 7 AI modules operational
+- ✅ **Advanced Features**: All 10+ AI modules operational
 - ✅ **Quantum Computing**: Integrated with VQE, QAOA, and Grover's algorithms
+- ✅ **Retrosynthesis**: Chemical synthesis route planning
+- ✅ **Research Engine**: Autonomous 24/7 discovery engine with goal-based research
+- ✅ **Authentication**: Login/Admin system with role-based access
 
 ## Key Features
 1. **AI-Powered Compound Analysis** - Advanced molecular analysis with ML algorithms
@@ -23,6 +26,10 @@ PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and dru
 8. **Quantum Computing Module** - Protein folding and molecular dynamics
 9. **Patent Intelligence System** - Real-time patent monitoring
 10. **Drug-Drug Interaction Analysis** - Comprehensive DDI assessment
+11. **Retrosynthesis Analysis** - Chemical synthesis route planning with complexity scoring
+12. **Autonomous Research Engine** - 24/7 AI-driven discovery with editable research goals
+13. **PKPD/PBPK Modeling** - Pharmacokinetic simulation and modeling
+14. **Analog Generation** - Patent-free compound analog generation with RDKit
 
 ## Technology Stack
 - **Python**: 3.11.13
@@ -80,6 +87,7 @@ The modern UI includes:
 - `POST /api/analyze_compound` - Analyze molecular properties
 - `POST /api/generate_analog` - Generate patent-free analogs
 - `POST /api/ddi_analysis` - Drug-drug interaction analysis
+- `POST /api/pkpd/simulate` - PKPD/PBPK modeling and simulation
 
 ### Advanced Features
 - `POST /api/vhts/screen_compound` - Virtual screening (single)
@@ -89,10 +97,24 @@ The modern UI includes:
 - `POST /api/off_target/predict` - Safety prediction
 - `POST /api/pharmacophore/generate` - Pharmacophore modeling
 
+### Retrosynthesis
+- `POST /api/retrosynthesis/analyze` - Chemical synthesis route planning
+- `POST /api/retrosynthesis` - Simple retrosynthesis analysis
+
+### Research Engine
+- `POST /api/research/run` - Run autonomous research with custom goals
+- `POST /api/research/discoveries` - Get discoveries for date range
+- `POST /api/research/literature` - Scan scientific literature
+
 ### Quantum Computing
 - `POST /api/quantum/protein_folding` - Quantum protein folding
 - `POST /api/quantum/molecular_dynamics` - Quantum MD simulation
 - `POST /api/quantum/lead_optimization` - Quantum lead optimization
+
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/status` - Check authentication status
 
 ## Dependencies Installation
 All dependencies are installed via:
@@ -141,7 +163,17 @@ Key packages installed:
 - ⚠️ **ZINC**: Framework implemented (not yet fully operational)
 - ⚠️ **OpenTargets**: Framework implemented (GraphQL integration pending)
 
-## Recent Changes (November 12, 2025)
+## Recent Changes (November 26, 2025)
+- ✅ Added Retrosynthesis Analysis feature with synthesis route planning
+- ✅ Implemented Autonomous Research Engine with editable research goals
+- ✅ Created Login/Authentication system with role-based access
+- ✅ Fixed DDI analysis and analog generation endpoints
+- ✅ Added PKPD/PBPK modeling module
+- ✅ Improved error handling with proper HTTP status codes
+- ✅ Moved SECRET_KEY to environment variable for security
+- ✅ Updated navigation with Retrosynthesis, Research Engine, and Login sections
+
+## Previous Changes (November 12, 2025)
 - ✅ Created modern responsive frontend (templates/index.html)
 - ✅ Integrated all 7 advanced drug discovery features
 - ✅ Added quantum computing capabilities
