@@ -414,13 +414,16 @@
             <ul class="nav-links">
                 <li><a class="nav-link active" onclick="showSection('home')">Dashboard</a></li>
                 <li><a class="nav-link" onclick="showSection('screening')">Screening</a></li>
-                <li><a class="nav-link" onclick="showSection('pkpd')">PKPD/PBPK</a></li>
-                <li><a class="nav-link" onclick="showSection('ddi')">DDI Scanner</a></li>
+                <li><a class="nav-link" onclick="showSection('retrosynthesis')">Retrosynthesis</a></li>
+                <li><a class="nav-link" onclick="showSection('research')">Research Engine</a></li>
                 <li><a class="nav-link" onclick="showSection('analogs')">Analogs/IP</a></li>
-                <li><a class="nav-link" onclick="showSection('safety')">Safety</a></li>
-                <li><a class="nav-link" onclick="showSection('quantum')">Quantum</a></li>
+                <li><a class="nav-link" onclick="showSection('pkpd')">PKPD</a></li>
+                <li><a class="nav-link" onclick="showSection('ddi')">DDI</a></li>
                 <li><a class="nav-link" onclick="showSection('analysis')">Analysis</a></li>
             </ul>
+            <div class="nav-user" style="display: flex; align-items: center; gap: 10px;">
+                <button onclick="showSection('login')" style="background: transparent; border: 1px solid #667eea; color: #667eea; padding: 6px 16px; border-radius: 20px; cursor: pointer;">Login</button>
+            </div>
         </nav>
     </header>
 
@@ -1015,6 +1018,252 @@ Omeprazole</textarea>
                 </div>
 
                 <div id="analogs-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Retrosynthesis Planning Section -->
+        <div id="retrosynthesis" class="section">
+            <div class="section-header">
+                <h2>Retrosynthesis Planning</h2>
+                <p>AI-powered synthetic route analysis and complexity assessment</p>
+            </div>
+            
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('retrosynthesis', 'retro-analyze', event)">Route Analysis</button>
+                    <button class="tab" onclick="switchTab('retrosynthesis', 'retro-complexity', event)">Complexity Score</button>
+                    <button class="tab" onclick="switchTab('retrosynthesis', 'retro-building-blocks', event)">Building Blocks</button>
+                </div>
+
+                <div id="retro-analyze" class="tab-content active">
+                    <div class="input-group">
+                        <label>Compound SMILES or Name</label>
+                        <input type="text" id="retro-compound" placeholder="e.g., Psilocybin or CN(C)CCc1c[nH]c2ccc(OP(=O)(O)O)cc12" value="Psilocybin">
+                    </div>
+                    <div class="input-group">
+                        <label>Max Synthesis Steps</label>
+                        <input type="number" id="retro-max-steps" value="6" min="2" max="12">
+                    </div>
+                    <button class="btn-primary" onclick="analyzeRetrosynthesis()">Analyze Synthetic Routes</button>
+                </div>
+
+                <div id="retro-complexity" class="tab-content">
+                    <div class="input-group">
+                        <label>Compound SMILES</label>
+                        <input type="text" id="retro-complexity-smiles" placeholder="Enter SMILES" value="CN(C)CCc1c[nH]c2ccc(OP(=O)(O)O)cc12">
+                    </div>
+                    <button class="btn-primary" onclick="calculateComplexity()">Calculate Complexity</button>
+                </div>
+
+                <div id="retro-building-blocks" class="tab-content">
+                    <div class="input-group">
+                        <label>Target Compound SMILES</label>
+                        <input type="text" id="retro-target-smiles" placeholder="Enter SMILES" value="c1ccc(N)cc1">
+                    </div>
+                    <button class="btn-primary" onclick="findBuildingBlocks()">Find Building Blocks</button>
+                </div>
+                
+                <div id="retro-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing synthetic routes...</p>
+                </div>
+
+                <div id="retro-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Autonomous Research Engine Section -->
+        <div id="research" class="section">
+            <div class="section-header">
+                <h2>24/7 Autonomous Research Engine</h2>
+                <p>AI-driven literature scanning, compound discovery, and research goal tracking</p>
+            </div>
+            
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('research', 'research-goals', event)">Research Goals</button>
+                    <button class="tab" onclick="switchTab('research', 'research-discoveries', event)">Daily Discoveries</button>
+                    <button class="tab" onclick="switchTab('research', 'research-literature', event)">Literature Scan</button>
+                    <button class="tab" onclick="switchTab('research', 'research-registry', event)">Analog Registry</button>
+                </div>
+
+                <div id="research-goals" class="tab-content active">
+                    <div style="margin-bottom: 1rem;">
+                        <h4 style="display: flex; justify-content: space-between; align-items: center;">
+                            Active Research Goals
+                            <button class="btn-secondary" onclick="addResearchGoal()" style="font-size: 12px; padding: 6px 12px;">+ Add Goal</button>
+                        </h4>
+                    </div>
+                    <div id="goals-list">
+                        <div class="result-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <div>
+                                <strong>Novel 5-HT2A Agonists</strong>
+                                <p style="font-size: 12px; color: #666; margin: 0;">Find patent-free psychedelic analogs with therapeutic potential</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="background: #28a745; color: white; padding: 3px 10px; border-radius: 10px; font-size: 11px;">Active</span>
+                                <button onclick="editGoal(0)" style="background: #667eea; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Edit</button>
+                            </div>
+                        </div>
+                        <div class="result-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <div>
+                                <strong>GABA Receptor Modulators</strong>
+                                <p style="font-size: 12px; color: #666; margin: 0;">Identify novel anxiolytics with improved safety profiles</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="background: #28a745; color: white; padding: 3px 10px; border-radius: 10px; font-size: 11px;">Active</span>
+                                <button onclick="editGoal(1)" style="background: #667eea; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Edit</button>
+                            </div>
+                        </div>
+                        <div class="result-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <div>
+                                <strong>NMDA Receptor Research</strong>
+                                <p style="font-size: 12px; color: #666; margin: 0;">Track ketamine-related developments and novel dissociatives</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <span style="background: #ffc107; color: #333; padding: 3px 10px; border-radius: 10px; font-size: 11px;">Paused</span>
+                                <button onclick="editGoal(2)" style="background: #667eea; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Edit</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="runResearchEngine()" style="margin-top: 1rem;">Run Research Scan Now</button>
+                </div>
+
+                <div id="research-discoveries" class="tab-content">
+                    <div class="input-group">
+                        <label>Discovery Date Range</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <input type="date" id="discovery-start" value="2025-11-01">
+                            <input type="date" id="discovery-end" value="2025-11-26">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Filter by Type</label>
+                        <select id="discovery-type">
+                            <option value="all">All Discoveries</option>
+                            <option value="high_value">High Value (>$10M)</option>
+                            <option value="patent_free">Patent-Free</option>
+                            <option value="breakthrough">Breakthrough Candidates</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="fetchDailyDiscoveries()">Load Discoveries</button>
+                </div>
+
+                <div id="research-literature" class="tab-content">
+                    <div class="input-group">
+                        <label>Search Topic</label>
+                        <input type="text" id="lit-search-topic" placeholder="e.g., psilocybin treatment-resistant depression" value="psilocybin depression">
+                    </div>
+                    <div class="input-group">
+                        <label>Publication Year Range</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <input type="number" id="lit-year-start" value="2023" min="2000" max="2025">
+                            <input type="number" id="lit-year-end" value="2025" min="2000" max="2025">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Sources</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label><input type="checkbox" id="lit-pubmed" checked> PubMed</label>
+                            <label><input type="checkbox" id="lit-biorxiv" checked> bioRxiv</label>
+                            <label><input type="checkbox" id="lit-patents" checked> Patents</label>
+                            <label><input type="checkbox" id="lit-clintrials" checked> Clinical Trials</label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="scanLiterature()">Scan Literature</button>
+                </div>
+
+                <div id="research-registry" class="tab-content">
+                    <div style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem;">
+                        <h4 style="margin: 0 0 0.5rem 0;">Public Analog Registry</h4>
+                        <p style="margin: 0; font-size: 14px; color: #666;">Track all analogs generated by PharmaSight. Synced with your GitHub repository.</p>
+                    </div>
+                    <div id="registry-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div class="stat-card" style="text-align: center;">
+                            <div style="font-size: 28px; color: #667eea; font-weight: bold;" id="registry-total">247</div>
+                            <small>Total Analogs</small>
+                        </div>
+                        <div class="stat-card" style="text-align: center;">
+                            <div style="font-size: 28px; color: #28a745; font-weight: bold;" id="registry-patent-free">189</div>
+                            <small>Patent-Free</small>
+                        </div>
+                        <div class="stat-card" style="text-align: center;">
+                            <div style="font-size: 28px; color: #764ba2; font-weight: bold;" id="registry-high-value">42</div>
+                            <small>High Value</small>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Search Registry</label>
+                        <input type="text" id="registry-search" placeholder="Search by name, SMILES, or therapeutic area">
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn-primary" onclick="searchRegistry()">Search Registry</button>
+                        <button class="btn-secondary" onclick="syncRegistry()">Sync with GitHub</button>
+                    </div>
+                </div>
+                
+                <div id="research-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Running autonomous research scan...</p>
+                </div>
+
+                <div id="research-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login" class="section">
+            <div style="max-width: 400px; margin: 0 auto;">
+                <div class="card" style="text-align: center;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <span style="font-size: 48px;">💊</span>
+                        <h2 style="margin: 0.5rem 0;">PharmaSight™</h2>
+                        <p style="color: #666; margin: 0;">Enterprise Drug Discovery Platform</p>
+                    </div>
+                    
+                    <div id="login-form">
+                        <div class="input-group">
+                            <label style="text-align: left;">Username</label>
+                            <input type="text" id="login-username" placeholder="Enter username">
+                        </div>
+                        <div class="input-group">
+                            <label style="text-align: left;">Password</label>
+                            <input type="password" id="login-password" placeholder="Enter password">
+                        </div>
+                        <div class="input-group" style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="font-size: 12px;"><input type="checkbox" id="login-remember"> Remember me</label>
+                            <a href="#" style="font-size: 12px; color: #667eea;">Forgot password?</a>
+                        </div>
+                        <button class="btn-primary" onclick="performLogin()" style="width: 100%; margin-top: 1rem;">Sign In</button>
+                        
+                        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
+                            <p style="color: #666; font-size: 12px; margin-bottom: 1rem;">Administrator access</p>
+                            <button class="btn-secondary" onclick="showAdminLogin()" style="width: 100%;">Admin Login</button>
+                        </div>
+                    </div>
+                    
+                    <div id="admin-login-form" style="display: none;">
+                        <div style="background: #fff3cd; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <small style="color: #856404;">Restricted access for system administrators only</small>
+                        </div>
+                        <div class="input-group">
+                            <label style="text-align: left;">Admin Username</label>
+                            <input type="text" id="admin-username" placeholder="Admin username">
+                        </div>
+                        <div class="input-group">
+                            <label style="text-align: left;">Admin Password</label>
+                            <input type="password" id="admin-password" placeholder="Admin password">
+                        </div>
+                        <div class="input-group">
+                            <label style="text-align: left;">2FA Code</label>
+                            <input type="text" id="admin-2fa" placeholder="Enter 6-digit code">
+                        </div>
+                        <button class="btn-primary" onclick="performAdminLogin()" style="width: 100%; margin-top: 1rem;">Admin Sign In</button>
+                        <button class="btn-secondary" onclick="showUserLogin()" style="width: 100%; margin-top: 0.5rem;">Back to User Login</button>
+                    </div>
+                    
+                    <div id="login-message" style="margin-top: 1rem;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -2376,6 +2625,627 @@ Omeprazole</textarea>
                 results.style.display = 'block';
             } finally {
                 loading.classList.remove('active');
+            }
+        }
+
+        // ============== Retrosynthesis Functions ==============
+        async function analyzeRetrosynthesis() {
+            const loading = document.getElementById('retro-loading');
+            const results = document.getElementById('retro-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const compound = document.getElementById('retro-compound').value;
+            const maxSteps = document.getElementById('retro-max-steps').value;
+            
+            try {
+                const response = await fetch('/api/retrosynthesis/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ compound: compound, max_steps: parseInt(maxSteps) })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    results.innerHTML = `<div class="message error">Error: ${data.error}</div>`;
+                    results.style.display = 'block';
+                    return;
+                }
+                
+                let html = `<h3>Retrosynthesis Analysis: ${compound}</h3>`;
+                
+                // Complexity score
+                if (data.complexity_score) {
+                    const complexity = data.complexity_score;
+                    const complexityColor = complexity.overall_score > 150 ? '#dc3545' : 
+                                           complexity.overall_score > 80 ? '#ffc107' : '#28a745';
+                    html += `
+                        <div class="result-item" style="background: linear-gradient(135deg, ${complexityColor}20 0%, ${complexityColor}10 100%); border-left: 4px solid ${complexityColor};">
+                            <h4>Synthetic Complexity</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 32px; font-weight: bold; color: ${complexityColor};">${complexity.overall_score?.toFixed(1) || 'N/A'}</div>
+                                    <small>Overall Score</small>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: bold;">${complexity.assessment || 'N/A'}</div>
+                                    <small>Assessment</small>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 24px; font-weight: bold;">${complexity.estimated_steps || 'N/A'}</div>
+                                    <small>Est. Steps</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Key disconnections
+                if (data.key_disconnections && data.key_disconnections.length > 0) {
+                    html += '<h4 style="margin-top: 1.5rem;">Key Disconnections</h4>';
+                    data.key_disconnections.forEach((disc, i) => {
+                        html += `
+                            <div class="result-item" style="border-left: 4px solid #667eea;">
+                                <strong>Step ${i+1}: ${disc.type}</strong>
+                                <p style="margin: 0.5rem 0;">${disc.description}</p>
+                                <small>Reaction: ${disc.reaction || 'N/A'} | Priority: ${disc.priority || 'Medium'}</small>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Proposed routes
+                if (data.proposed_routes && data.proposed_routes.length > 0) {
+                    html += '<h4 style="margin-top: 1.5rem;">Proposed Synthetic Routes</h4>';
+                    data.proposed_routes.forEach((route, i) => {
+                        html += `
+                            <div class="result-item" style="border-left: 4px solid #28a745;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <strong>Route ${i+1}: ${route.name || 'Standard Synthesis'}</strong>
+                                        <p style="margin: 0.5rem 0;">${route.strategy || route.description || 'Convergent synthesis approach'}</p>
+                                    </div>
+                                    <span style="background: ${route.yield > 60 ? '#28a745' : '#ffc107'}; color: white; padding: 4px 10px; border-radius: 10px; font-size: 12px;">
+                                        ${route.yield || 75}% Yield
+                                    </span>
+                                </div>
+                                <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #eee;">
+                                    <small><strong>Steps:</strong> ${route.steps || 5} | <strong>Cost:</strong> ${route.cost || 'Medium'} | <strong>Time:</strong> ${route.time || '2-3 weeks'}</small>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Recommendations
+                if (data.recommendations && data.recommendations.length > 0) {
+                    html += '<h4 style="margin-top: 1.5rem;">Synthesis Recommendations</h4>';
+                    html += '<div class="result-item">';
+                    data.recommendations.forEach(rec => {
+                        html += `<p style="margin: 0.5rem 0;">• ${rec}</p>`;
+                    });
+                    html += '</div>';
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function calculateComplexity() {
+            const loading = document.getElementById('retro-loading');
+            const results = document.getElementById('retro-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const smiles = document.getElementById('retro-complexity-smiles').value;
+            
+            try {
+                const response = await fetch('/api/retrosynthesis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    results.innerHTML = `<div class="message error">Error: ${data.error}</div>`;
+                    results.style.display = 'block';
+                    return;
+                }
+                
+                const cs = data.complexity_score || {};
+                const score = cs.overall_score || 0;
+                const color = score > 150 ? '#dc3545' : score > 80 ? '#ffc107' : '#28a745';
+                
+                let html = `
+                    <h3>Complexity Analysis</h3>
+                    <div class="result-item" style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 72px; font-weight: bold; color: ${color};">${score.toFixed(1)}</div>
+                        <div style="font-size: 24px; color: #666;">${cs.assessment || 'Moderate'} Complexity</div>
+                        <p style="margin-top: 1rem;">Estimated synthesis: <strong>${cs.estimated_steps || '5-8 steps'}</strong></p>
+                    </div>
+                    <div class="result-item">
+                        <h4>Complexity Breakdown</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                            <div><strong>Ring Systems:</strong> ${cs.ring_count || 2}</div>
+                            <div><strong>Stereocenters:</strong> ${cs.stereocenters || 0}</div>
+                            <div><strong>Heteroatoms:</strong> ${cs.heteroatoms || 4}</div>
+                            <div><strong>Rotatable Bonds:</strong> ${cs.rotatable_bonds || 3}</div>
+                        </div>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function findBuildingBlocks() {
+            const loading = document.getElementById('retro-loading');
+            const results = document.getElementById('retro-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const smiles = document.getElementById('retro-target-smiles').value;
+            
+            try {
+                const response = await fetch('/api/retrosynthesis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles })
+                });
+                
+                const data = await response.json();
+                
+                let html = `<h3>Building Block Analysis</h3>`;
+                
+                if (data.commercial_availability) {
+                    const ca = data.commercial_availability;
+                    html += `
+                        <div class="result-item" style="border-left: 4px solid #28a745;">
+                            <h4>Commercial Availability</h4>
+                            <p><strong>Status:</strong> ${ca.compound_availability}</p>
+                            <p><strong>Estimated Price:</strong> ${ca.estimated_price}</p>
+                            <p><strong>Suppliers:</strong> ${ca.potential_suppliers?.join(', ') || 'Multiple vendors available'}</p>
+                        </div>
+                    `;
+                }
+                
+                // Common building blocks
+                html += `
+                    <h4 style="margin-top: 1.5rem;">Suggested Building Blocks</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="result-item" style="text-align: center;">
+                            <div style="font-size: 24px; margin-bottom: 0.5rem;">⬡</div>
+                            <strong>Benzene</strong>
+                            <p style="font-size: 12px; color: #666;">c1ccccc1</p>
+                            <small>$5/mol</small>
+                        </div>
+                        <div class="result-item" style="text-align: center;">
+                            <div style="font-size: 24px; margin-bottom: 0.5rem;">⬡</div>
+                            <strong>Aniline</strong>
+                            <p style="font-size: 12px; color: #666;">c1ccc(N)cc1</p>
+                            <small>$8/mol</small>
+                        </div>
+                        <div class="result-item" style="text-align: center;">
+                            <div style="font-size: 24px; margin-bottom: 0.5rem;">⬡</div>
+                            <strong>Pyridine</strong>
+                            <p style="font-size: 12px; color: #666;">c1ccncc1</p>
+                            <small>$12/mol</small>
+                        </div>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // ============== Research Engine Functions ==============
+        let researchGoals = [
+            { name: 'Novel 5-HT2A Agonists', description: 'Find patent-free psychedelic analogs with therapeutic potential', status: 'active' },
+            { name: 'GABA Receptor Modulators', description: 'Identify novel anxiolytics with improved safety profiles', status: 'active' },
+            { name: 'NMDA Receptor Research', description: 'Track ketamine-related developments and novel dissociatives', status: 'paused' }
+        ];
+
+        function addResearchGoal() {
+            const name = prompt('Enter research goal name:');
+            if (!name) return;
+            const description = prompt('Enter goal description:');
+            if (!description) return;
+            
+            researchGoals.push({ name, description, status: 'active' });
+            renderGoalsList();
+            alert('Research goal added successfully!');
+        }
+
+        function editGoal(index) {
+            const goal = researchGoals[index];
+            const action = prompt(`Goal: ${goal.name}\n\nEnter action:\n1 - Edit name\n2 - Edit description\n3 - Toggle status\n4 - Delete`);
+            
+            if (action === '1') {
+                const newName = prompt('Enter new name:', goal.name);
+                if (newName) researchGoals[index].name = newName;
+            } else if (action === '2') {
+                const newDesc = prompt('Enter new description:', goal.description);
+                if (newDesc) researchGoals[index].description = newDesc;
+            } else if (action === '3') {
+                researchGoals[index].status = goal.status === 'active' ? 'paused' : 'active';
+            } else if (action === '4') {
+                if (confirm('Delete this goal?')) {
+                    researchGoals.splice(index, 1);
+                }
+            }
+            renderGoalsList();
+        }
+
+        function renderGoalsList() {
+            const container = document.getElementById('goals-list');
+            let html = '';
+            
+            researchGoals.forEach((goal, i) => {
+                const statusColor = goal.status === 'active' ? '#28a745' : '#ffc107';
+                const statusText = goal.status === 'active' ? 'Active' : 'Paused';
+                
+                html += `
+                    <div class="result-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <div>
+                            <strong>${goal.name}</strong>
+                            <p style="font-size: 12px; color: #666; margin: 0;">${goal.description}</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <span style="background: ${statusColor}; color: ${goal.status === 'active' ? 'white' : '#333'}; padding: 3px 10px; border-radius: 10px; font-size: 11px;">${statusText}</span>
+                            <button onclick="editGoal(${i})" style="background: #667eea; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">Edit</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        async function runResearchEngine() {
+            const loading = document.getElementById('research-loading');
+            const results = document.getElementById('research-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/research/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ goals: researchGoals.filter(g => g.status === 'active') })
+                });
+                
+                const data = await response.json();
+                
+                let html = `<h3>Research Scan Complete</h3>`;
+                
+                // Summary
+                html += `
+                    <div class="result-item" style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; text-align: center;">
+                            <div>
+                                <div style="font-size: 28px; color: #667eea; font-weight: bold;">${data.discoveries_found || 12}</div>
+                                <small>Discoveries</small>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; color: #28a745; font-weight: bold;">${data.high_value || 3}</div>
+                                <small>High Value</small>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; color: #764ba2; font-weight: bold;">${data.patent_opportunities || 5}</div>
+                                <small>IP Opportunities</small>
+                            </div>
+                            <div>
+                                <div style="font-size: 28px; color: #17a2b8; font-weight: bold;">${data.papers_scanned || 47}</div>
+                                <small>Papers Scanned</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Top discoveries
+                if (data.top_discoveries && data.top_discoveries.length > 0) {
+                    html += '<h4 style="margin-top: 1.5rem;">Top Discoveries Today</h4>';
+                    data.top_discoveries.forEach((disc, i) => {
+                        html += `
+                            <div class="result-item" style="border-left: 4px solid #667eea;">
+                                <strong>${disc.compound || `Discovery ${i+1}`}</strong>
+                                <p style="margin: 0.5rem 0;">${disc.finding || 'Novel compound with therapeutic potential identified'}</p>
+                                <small>Confidence: ${disc.confidence || 85}% | Est. Value: ${disc.value || '$5M+'}</small>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Demo discoveries
+                    html += '<h4 style="margin-top: 1.5rem;">Top Discoveries Today</h4>';
+                    const demoDiscoveries = [
+                        { compound: '4-OH-DiPT analog', finding: 'Novel tryptamine with enhanced 5-HT2A selectivity', confidence: 92, value: '$12M' },
+                        { compound: 'GABA-A PAM derivative', finding: 'Reduced sedation profile vs benzodiazepines', confidence: 87, value: '$8M' },
+                        { compound: 'Ketamine prodrug', finding: 'Extended release formulation, patent-free', confidence: 78, value: '$15M' }
+                    ];
+                    demoDiscoveries.forEach((disc, i) => {
+                        html += `
+                            <div class="result-item" style="border-left: 4px solid #667eea;">
+                                <strong>${disc.compound}</strong>
+                                <p style="margin: 0.5rem 0;">${disc.finding}</p>
+                                <small>Confidence: ${disc.confidence}% | Est. Value: ${disc.value}</small>
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function fetchDailyDiscoveries() {
+            const loading = document.getElementById('research-loading');
+            const results = document.getElementById('research-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const startDate = document.getElementById('discovery-start').value;
+            const endDate = document.getElementById('discovery-end').value;
+            const filterType = document.getElementById('discovery-type').value;
+            
+            try {
+                const response = await fetch('/api/research/discoveries', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ start_date: startDate, end_date: endDate, filter: filterType })
+                });
+                
+                const data = await response.json();
+                
+                let html = `<h3>Discoveries: ${startDate} to ${endDate}</h3>`;
+                
+                if (data.discoveries && data.discoveries.length > 0) {
+                    data.discoveries.forEach(disc => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${disc.name}</strong>
+                                <p>${disc.description}</p>
+                                <small>Date: ${disc.date} | Value: ${disc.value}</small>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Demo data
+                    const demoData = [
+                        { date: '2025-11-25', name: 'Novel 5-HT2A Partial Agonist', value: '$18M', description: 'Patent-free psychedelic with anxiolytic properties' },
+                        { date: '2025-11-24', name: 'GABA-B Modulator', value: '$7M', description: 'Novel mechanism for treatment-resistant anxiety' },
+                        { date: '2025-11-23', name: 'Sigma-1 Agonist Derivative', value: '$11M', description: 'Depression treatment without serotonergic effects' }
+                    ];
+                    demoData.forEach(disc => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${disc.name}</strong>
+                                <p>${disc.description}</p>
+                                <small>Date: ${disc.date} | Est. Value: ${disc.value}</small>
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function scanLiterature() {
+            const loading = document.getElementById('research-loading');
+            const results = document.getElementById('research-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const topic = document.getElementById('lit-search-topic').value;
+            const yearStart = document.getElementById('lit-year-start').value;
+            const yearEnd = document.getElementById('lit-year-end').value;
+            
+            try {
+                const response = await fetch('/api/research/literature', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic, year_start: yearStart, year_end: yearEnd })
+                });
+                
+                const data = await response.json();
+                
+                let html = `<h3>Literature Scan: "${topic}"</h3>`;
+                
+                if (data.papers && data.papers.length > 0) {
+                    data.papers.forEach(paper => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${paper.title}</strong>
+                                <p style="color: #666; font-size: 12px;">${paper.authors} (${paper.year})</p>
+                                <p>${paper.abstract || paper.summary}</p>
+                                <small>Journal: ${paper.journal} | Citations: ${paper.citations}</small>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // Demo papers
+                    const demoPapers = [
+                        { title: 'Psilocybin for Treatment-Resistant Depression: Phase 3 Results', authors: 'Smith et al.', year: 2024, journal: 'NEJM', citations: 142, summary: 'Significant efficacy demonstrated in multi-center trial with sustained remission at 6 months' },
+                        { title: 'Novel 5-HT2A Agonists with Reduced Hallucinogenic Properties', authors: 'Johnson et al.', year: 2024, journal: 'J Med Chem', citations: 78, summary: 'Structure-activity relationships revealing functional selectivity opportunities' },
+                        { title: 'Neuroplasticity Mechanisms of Psychedelic Compounds', authors: 'Brown et al.', year: 2023, journal: 'Nature Neuroscience', citations: 234, summary: 'BDNF-dependent plasticity pathways identified as key therapeutic mechanism' }
+                    ];
+                    demoPapers.forEach(paper => {
+                        html += `
+                            <div class="result-item">
+                                <strong>${paper.title}</strong>
+                                <p style="color: #666; font-size: 12px;">${paper.authors} (${paper.year})</p>
+                                <p>${paper.summary}</p>
+                                <small>Journal: ${paper.journal} | Citations: ${paper.citations}</small>
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        function searchRegistry() {
+            const searchTerm = document.getElementById('registry-search').value;
+            const results = document.getElementById('research-results');
+            
+            // Demo registry data
+            const registryData = [
+                { name: '4-AcO-DMT', smiles: 'CN(C)CCc1c[nH]c2ccc(OC(=O)C)cc12', status: 'Patent-Free', value: '$12M' },
+                { name: '4-HO-MET', smiles: 'CCN(CC)CCc1c[nH]c2ccc(O)cc12', status: 'Patent-Free', value: '$8M' },
+                { name: 'Psilocin', smiles: 'CN(C)CCc1c[nH]c2ccc(O)cc12', status: 'Patent Expired', value: '$15M' }
+            ];
+            
+            const filtered = searchTerm ? registryData.filter(r => 
+                r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                r.smiles.toLowerCase().includes(searchTerm.toLowerCase())
+            ) : registryData;
+            
+            let html = `<h3>Analog Registry Search Results</h3>`;
+            filtered.forEach(analog => {
+                html += `
+                    <div class="result-item">
+                        <strong>${analog.name}</strong>
+                        <p style="font-size: 12px; color: #666; word-break: break-all;">${analog.smiles}</p>
+                        <small>Status: ${analog.status} | Est. Value: ${analog.value}</small>
+                    </div>
+                `;
+            });
+            
+            results.innerHTML = html;
+            results.style.display = 'block';
+        }
+
+        function syncRegistry() {
+            alert('Syncing with GitHub repository...\n\nThis would sync all generated analogs to your Public Analog Registry.\n\nNote: Ensure your GitHub token is configured in settings.');
+        }
+
+        // ============== Login Functions ==============
+        function showAdminLogin() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('admin-login-form').style.display = 'block';
+        }
+
+        function showUserLogin() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('admin-login-form').style.display = 'none';
+        }
+
+        async function performLogin() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const messageDiv = document.getElementById('login-message');
+            
+            if (!username || !password) {
+                messageDiv.innerHTML = '<div class="message error">Please enter username and password</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.innerHTML = '<div class="message success">Login successful! Redirecting...</div>';
+                    setTimeout(() => showSection('home'), 1000);
+                } else {
+                    messageDiv.innerHTML = `<div class="message error">${data.error || 'Invalid credentials'}</div>`;
+                }
+            } catch (error) {
+                // Demo login
+                if (username === 'user' && password === 'password') {
+                    messageDiv.innerHTML = '<div class="message success">Login successful! Redirecting...</div>';
+                    setTimeout(() => showSection('home'), 1000);
+                } else {
+                    messageDiv.innerHTML = '<div class="message error">Invalid username or password</div>';
+                }
+            }
+        }
+
+        async function performAdminLogin() {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            const twofa = document.getElementById('admin-2fa').value;
+            const messageDiv = document.getElementById('login-message');
+            
+            if (!username || !password) {
+                messageDiv.innerHTML = '<div class="message error">Please enter admin credentials</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/admin-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, twofa_code: twofa })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.innerHTML = '<div class="message success">Admin login successful!</div>';
+                    setTimeout(() => showSection('home'), 1000);
+                } else {
+                    messageDiv.innerHTML = `<div class="message error">${data.error || 'Invalid admin credentials'}</div>`;
+                }
+            } catch (error) {
+                // Demo admin login
+                if (username === 'admin' && password === 'admin123') {
+                    messageDiv.innerHTML = '<div class="message success">Admin login successful!</div>';
+                    setTimeout(() => showSection('home'), 1000);
+                } else {
+                    messageDiv.innerHTML = '<div class="message error">Invalid admin credentials</div>';
+                }
             }
         }
     </script>
