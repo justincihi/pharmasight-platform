@@ -3721,6 +3721,285 @@ def search_chembl(name):
     else:
         return jsonify({'error': 'Compound not found'}), 404
 
+# ========== PKPD/PBPK SIMULATION ENDPOINTS ==========
+
+@app.route('/api/generate_analog', methods=['POST'])
+def generate_analog():
+    """Redirect to generate_analogs for frontend compatibility"""
+    data = request.get_json()
+    parent_compound = data.get('parent_compound', '')
+    target_properties = data.get('target_properties', 'all')
+    
+    # Log the activity
+    log_activity(session.get('user', 'anonymous'), 'analog_generation', f'Generated analogs for: {parent_compound}')
+    
+    # Resolve brand names to generic names
+    resolved_data = resolve_compound_name(parent_compound)
+    
+    # Extract the resolved compound name
+    if isinstance(resolved_data, dict):
+        resolved_compound = resolved_data.get('resolved_name', parent_compound)
+    else:
+        resolved_compound = resolved_data
+    
+    # Generate comprehensive analog report
+    result = generate_analog_report(resolved_compound, target_properties)
+    
+    return jsonify(result)
+
+@app.route('/api/ddi_analysis', methods=['POST'])
+def ddi_analysis():
+    """Analyze drug-drug interactions"""
+    from ddi_analysis_fix import get_detailed_interaction_info, COMPREHENSIVE_INTERACTION_DB
+    
+    data = request.get_json()
+    drug1 = data.get('drug1', '').lower()
+    drug2 = data.get('drug2', '').lower()
+    
+    # Log the activity
+    log_activity(session.get('user', 'anonymous'), 'ddi_analysis', f'Analyzed interaction: {drug1} + {drug2}')
+    
+    interaction = get_detailed_interaction_info(drug1, drug2)
+    
+    if interaction:
+        result = {
+            'drug1': drug1.capitalize(),
+            'drug2': drug2.capitalize(),
+            'interaction_found': True,
+            'risk_level': interaction.get('risk_level', 'Unknown'),
+            'mechanism': interaction.get('mechanism', ''),
+            'synergy': interaction.get('synergy', ''),
+            'recommendation': interaction.get('recommendation', ''),
+            'dosage_adjustment': interaction.get('dosage_adjustment', ''),
+            'cyp450_enzymes': {
+                'CYP2D6': {'inhibition': 'Strong' if 'CYP2D6' in interaction.get('mechanism', '') else 'None'},
+                'CYP3A4': {'inhibition': 'None'}
+            }
+        }
+    else:
+        result = {
+            'drug1': drug1.capitalize(),
+            'drug2': drug2.capitalize(),
+            'interaction_found': False,
+            'risk_level': 'Low',
+            'mechanism': 'No significant interaction documented in database.',
+            'synergy': 'No synergistic effects expected.',
+            'recommendation': 'Standard precautions apply. Monitor for unexpected effects.',
+            'dosage_adjustment': 'No adjustment required based on current data.'
+        }
+    
+    return jsonify(result)
+
+@app.route('/api/retrosynthesis', methods=['POST'])
+def retrosynthesis_analysis():
+    """Analyze retrosynthetic routes for a compound"""
+    from retrosynthesis_analyzer import RetrosynthesisAnalyzer
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES required'}), 400
+    
+    analyzer = RetrosynthesisAnalyzer()
+    result = analyzer.analyze_synthesis(smiles)
+    
+    return jsonify(result)
+
+@app.route('/api/psychiatric-analysis', methods=['POST'])
+def psychiatric_analysis():
+    """Analyze psychiatric drug combinations"""
+    data = request.get_json()
+    drugs = data.get('drugs', [])
+    patient_profile = data.get('patient_profile', {})
+    
+    # Basic safety analysis for drug cocktail
+    interactions = []
+    recommendations = []
+    
+    # Check for known interactions
+    from ddi_analysis_fix import COMPREHENSIVE_INTERACTION_DB
+    
+    drug_pairs = []
+    for i, drug1 in enumerate(drugs):
+        for drug2 in drugs[i+1:]:
+            drug_pairs.append((drug1.lower(), drug2.lower()))
+    
+    safety_score = 100
+    
+    for d1, d2 in drug_pairs:
+        # Check both orderings
+        key = (d1, d2) if (d1, d2) in COMPREHENSIVE_INTERACTION_DB else (d2, d1)
+        if key in COMPREHENSIVE_INTERACTION_DB:
+            interaction = COMPREHENSIVE_INTERACTION_DB[key]
+            interactions.append({
+                'drug1': d1.capitalize(),
+                'drug2': d2.capitalize(),
+                'risk_level': interaction.get('risk_level', 'Unknown'),
+                'mechanism': interaction.get('mechanism', '')
+            })
+            
+            # Adjust safety score
+            if interaction.get('risk_level') == 'Very High':
+                safety_score -= 30
+            elif interaction.get('risk_level') == 'High':
+                safety_score -= 20
+            elif interaction.get('risk_level') == 'Moderate':
+                safety_score -= 10
+    
+    # Generate recommendations
+    if patient_profile.get('elderly'):
+        recommendations.append('Consider reduced doses for elderly patients')
+        safety_score -= 5
+    if patient_profile.get('liver_disease'):
+        recommendations.append('Monitor hepatic function closely')
+        safety_score -= 10
+    if patient_profile.get('kidney_disease'):
+        recommendations.append('Adjust doses for renal impairment')
+        safety_score -= 10
+    
+    if len(interactions) > 0:
+        recommendations.append('Monitor for adverse effects from identified interactions')
+    if len(drugs) > 3:
+        recommendations.append('Consider reducing polypharmacy where possible')
+    
+    return jsonify({
+        'drugs_analyzed': drugs,
+        'safety_score': max(0, safety_score),
+        'interactions': interactions,
+        'recommendations': recommendations,
+        'patient_profile': patient_profile
+    })
+
+@app.route('/api/pkpd/simulate', methods=['POST'])
+def pkpd_simulate():
+    """Run single-patient PK simulation"""
+    from pkpd_pbpk_simulator import PKPDSimulator
+    
+    data = request.get_json()
+    
+    # Build patient object
+    patient = {
+        'id': 1,
+        'age': data.get('patient', {}).get('age', 45),
+        'weight': data.get('patient', {}).get('weight', 70),
+        'liver_function': data.get('patient', {}).get('liver_function', 1.0),
+        'creatinine_clearance': data.get('patient', {}).get('creatinine_clearance', 100),
+        'conditions': []
+    }
+    
+    simulator = PKPDSimulator()
+    
+    model_type = data.get('model_type', 'one_compartment')
+    dose = data.get('dose', 100)
+    ka = data.get('ka', 1.0)
+    cl = data.get('clearance', 10)
+    vd = data.get('vd', 50)
+    
+    if model_type == 'two_compartment':
+        result = simulator.simulate_two_compartment_pk(
+            dose=dose,
+            patient=patient,
+            ka=ka,
+            cl=cl,
+            v1=vd * 0.6,
+            v2=vd * 0.4
+        )
+    else:
+        result = simulator.simulate_one_compartment_pk(
+            dose=dose,
+            patient=patient,
+            ka=ka,
+            cl=cl,
+            vd=vd
+        )
+    
+    return jsonify(result)
+
+@app.route('/api/pkpd/population', methods=['POST'])
+def pkpd_population():
+    """Run population PK analysis"""
+    from pkpd_pbpk_simulator import PopulationPKPDAnalyzer, VirtualPatientGenerator
+    
+    data = request.get_json()
+    
+    # Generate virtual patients
+    generator = VirtualPatientGenerator()
+    pop_size = data.get('population_size', 100)
+    age_range = data.get('age_range', [18, 75])
+    
+    patients = generator.generate_population(
+        n=pop_size,
+        age_range=tuple(age_range),
+        conditions=['hepatic_impairment', 'renal_impairment'] if data.get('include_hepatic') else []
+    )
+    
+    # Run population simulation
+    analyzer = PopulationPKPDAnalyzer()
+    
+    drug_props = {
+        'ka': 1.0,
+        'cl': 10.0,
+        'vd': 50.0
+    }
+    
+    result = analyzer.run_population_simulation(
+        dose=data.get('dose', 100),
+        patients=patients,
+        drug_properties=drug_props,
+        model_type='one_compartment'
+    )
+    
+    # Identify high-risk patients
+    therapeutic_window = (10, 50)  # Default therapeutic range
+    high_risk = analyzer.identify_high_risk_patients(
+        result['individual_results'],
+        therapeutic_window
+    )
+    
+    result['high_risk_patients'] = high_risk
+    
+    return jsonify(result)
+
+@app.route('/api/pkpd/pbpk', methods=['POST'])
+def pkpd_pbpk():
+    """Run PBPK simulation"""
+    from pkpd_pbpk_simulator import PBPKSimulator, VirtualPatientGenerator
+    
+    data = request.get_json()
+    
+    # Generate patient with PBPK parameters
+    generator = VirtualPatientGenerator()
+    patients = generator.generate_population(n=1, age_range=(30, 50))
+    patient = patients[0]
+    
+    # Add physiological parameters needed for PBPK
+    patient['plasma_volume'] = 3.0
+    patient['liver_volume'] = 1.8
+    patient['kidney_volume'] = 0.3
+    patient['fat_volume'] = patient['weight'] * 0.2
+    patient['muscle_volume'] = patient['weight'] * 0.4
+    patient['liver_blood_flow'] = 1.5
+    patient['kidney_blood_flow'] = 1.2
+    patient['brain_blood_flow'] = 0.75
+    patient['cardiac_output'] = 5.0
+    
+    # Drug properties
+    drug_props = {
+        'logp': data.get('logp', 2.5),
+        'fraction_unbound': data.get('fraction_unbound', 0.1),
+        'blood_plasma_ratio': 1.0
+    }
+    
+    simulator = PBPKSimulator()
+    result = simulator.simulate_pbpk(
+        dose=data.get('dose', 100),
+        patient=patient,
+        drug_properties=drug_props
+    )
+    
+    return jsonify(result)
+
 # ========== MISSING API ENDPOINTS FOR FRONTEND ==========
 
 # Virtual Screening Endpoints

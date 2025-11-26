@@ -414,7 +414,9 @@
             <ul class="nav-links">
                 <li><a class="nav-link active" onclick="showSection('home')">Dashboard</a></li>
                 <li><a class="nav-link" onclick="showSection('screening')">Screening</a></li>
-                <li><a class="nav-link" onclick="showSection('optimization')">Optimization</a></li>
+                <li><a class="nav-link" onclick="showSection('pkpd')">PKPD/PBPK</a></li>
+                <li><a class="nav-link" onclick="showSection('ddi')">DDI Scanner</a></li>
+                <li><a class="nav-link" onclick="showSection('analogs')">Analogs/IP</a></li>
                 <li><a class="nav-link" onclick="showSection('safety')">Safety</a></li>
                 <li><a class="nav-link" onclick="showSection('quantum')">Quantum</a></li>
                 <li><a class="nav-link" onclick="showSection('analysis')">Analysis</a></li>
@@ -477,6 +479,27 @@
                     <h3>Compound Analysis</h3>
                     <p>Comprehensive molecular analysis with RDKit integration and property calculation.</p>
                     <button class="feature-btn">Analyze Compound</button>
+                </div>
+
+                <div class="feature-card" onclick="showSection('pkpd')">
+                    <div class="icon">📉</div>
+                    <h3>PKPD/PBPK Modeling</h3>
+                    <p>Pharmacokinetic/pharmacodynamic simulations with population analysis and concentration curves.</p>
+                    <button class="feature-btn">Run PK Simulation</button>
+                </div>
+
+                <div class="feature-card" onclick="showSection('ddi')">
+                    <div class="icon">💊</div>
+                    <h3>DDI Scanner</h3>
+                    <p>Drug-drug interaction analysis with CYP450 enzyme predictions and risk assessment.</p>
+                    <button class="feature-btn">Scan Interactions</button>
+                </div>
+
+                <div class="feature-card" onclick="showSection('analogs')">
+                    <div class="icon">🔓</div>
+                    <h3>Patent-Free Analogs</h3>
+                    <p>Generate high-confidence analogs with IP opportunity scoring and patent status analysis.</p>
+                    <button class="feature-btn">Find Analogs</button>
                 </div>
 
                 <div class="feature-card" onclick="showSection('sar')">
@@ -698,6 +721,300 @@
                 </div>
 
                 <div id="quantum-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- PKPD/PBPK Modeling Section -->
+        <div id="pkpd" class="section">
+            <div class="analysis-container">
+                <h2>📉 PKPD/PBPK Modeling</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Simulate pharmacokinetic profiles and analyze drug behavior across patient populations</p>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('pkpd', 'single')">Single Patient</button>
+                    <button class="tab" onclick="switchTab('pkpd', 'population')">Population PK</button>
+                    <button class="tab" onclick="switchTab('pkpd', 'pbpk')">PBPK Model</button>
+                </div>
+
+                <div id="pkpd-single" class="tab-content active">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <h4 style="margin-bottom: 1rem; color: #667eea;">Drug Parameters</h4>
+                            <div class="input-group">
+                                <label>Drug Name / SMILES</label>
+                                <input type="text" id="pkpd-drug" placeholder="e.g., Ibuprofen or SMILES" value="Ibuprofen">
+                            </div>
+                            <div class="input-group">
+                                <label>Dose (mg)</label>
+                                <input type="number" id="pkpd-dose" placeholder="e.g., 400" value="400">
+                            </div>
+                            <div class="input-group">
+                                <label>Clearance (L/h)</label>
+                                <input type="number" id="pkpd-clearance" placeholder="e.g., 10" value="10" step="0.1">
+                            </div>
+                            <div class="input-group">
+                                <label>Volume of Distribution (L)</label>
+                                <input type="number" id="pkpd-vd" placeholder="e.g., 50" value="50">
+                            </div>
+                            <div class="input-group">
+                                <label>Absorption Rate (1/h)</label>
+                                <input type="number" id="pkpd-ka" placeholder="e.g., 1.0" value="1.0" step="0.1">
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom: 1rem; color: #667eea;">Patient Parameters</h4>
+                            <div class="input-group">
+                                <label>Age (years)</label>
+                                <input type="number" id="pkpd-age" placeholder="e.g., 45" value="45">
+                            </div>
+                            <div class="input-group">
+                                <label>Weight (kg)</label>
+                                <input type="number" id="pkpd-weight" placeholder="e.g., 70" value="70">
+                            </div>
+                            <div class="input-group">
+                                <label>Liver Function (0-1)</label>
+                                <input type="number" id="pkpd-liver" placeholder="1.0 = normal" value="1.0" step="0.1" min="0" max="1">
+                            </div>
+                            <div class="input-group">
+                                <label>Creatinine Clearance (mL/min)</label>
+                                <input type="number" id="pkpd-creatinine" placeholder="e.g., 100" value="100">
+                            </div>
+                            <div class="input-group">
+                                <label>PK Model</label>
+                                <select id="pkpd-model">
+                                    <option value="one_compartment">One-Compartment</option>
+                                    <option value="two_compartment">Two-Compartment</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="runPKPDSimulation()">Run PK Simulation</button>
+                </div>
+
+                <div id="pkpd-population" class="tab-content">
+                    <div class="input-group">
+                        <label>Drug Name / SMILES</label>
+                        <input type="text" id="pop-drug" placeholder="e.g., Metformin" value="Metformin">
+                    </div>
+                    <div class="input-group">
+                        <label>Dose (mg)</label>
+                        <input type="number" id="pop-dose" placeholder="e.g., 500" value="500">
+                    </div>
+                    <div class="input-group">
+                        <label>Population Size</label>
+                        <input type="number" id="pop-size" placeholder="e.g., 100" value="100" min="10" max="1000">
+                    </div>
+                    <div class="input-group">
+                        <label>Age Range</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <input type="number" id="pop-age-min" placeholder="Min" value="18" style="width: 50%;">
+                            <input type="number" id="pop-age-max" placeholder="Max" value="75" style="width: 50%;">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Include Conditions</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label><input type="checkbox" id="pop-hepatic" checked> Hepatic Impairment</label>
+                            <label><input type="checkbox" id="pop-renal" checked> Renal Impairment</label>
+                            <label><input type="checkbox" id="pop-elderly" checked> Elderly (>65)</label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="runPopulationPK()">Run Population Analysis</button>
+                </div>
+
+                <div id="pkpd-pbpk" class="tab-content">
+                    <div class="input-group">
+                        <label>Drug Name / SMILES</label>
+                        <input type="text" id="pbpk-drug" placeholder="e.g., Atorvastatin or SMILES" value="CC(C)c1c(C(=O)Nc2ccccc2)c(c(c3ccc(F)cc3)n1CC[C@@H](O)C[C@@H](O)CC(=O)O)c4ccccc4">
+                    </div>
+                    <div class="input-group">
+                        <label>Dose (mg)</label>
+                        <input type="number" id="pbpk-dose" placeholder="e.g., 20" value="20">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="input-group">
+                            <label>LogP (Lipophilicity)</label>
+                            <input type="number" id="pbpk-logp" placeholder="e.g., 4.5" value="4.5" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Fraction Unbound</label>
+                            <input type="number" id="pbpk-fu" placeholder="e.g., 0.02" value="0.02" step="0.01" min="0" max="1">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Target Organs</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label><input type="checkbox" id="pbpk-liver" checked> Liver</label>
+                            <label><input type="checkbox" id="pbpk-kidney" checked> Kidney</label>
+                            <label><input type="checkbox" id="pbpk-brain"> Brain</label>
+                            <label><input type="checkbox" id="pbpk-heart" checked> Heart</label>
+                            <label><input type="checkbox" id="pbpk-muscle"> Muscle</label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="runPBPKSimulation()">Run PBPK Model</button>
+                </div>
+                
+                <div id="pkpd-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Running pharmacokinetic simulation...</p>
+                </div>
+
+                <div id="pkpd-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- DDI Scanner Section -->
+        <div id="ddi" class="section">
+            <div class="analysis-container">
+                <h2>💊 Drug-Drug Interaction Scanner</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Analyze drug combinations for interactions, CYP450 effects, and safety risks</p>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('ddi', 'pair')">Drug Pair</button>
+                    <button class="tab" onclick="switchTab('ddi', 'cyp')">CYP450 Profile</button>
+                    <button class="tab" onclick="switchTab('ddi', 'cocktail')">Drug Cocktail</button>
+                </div>
+
+                <div id="ddi-pair" class="tab-content active">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div class="input-group">
+                            <label>Drug 1</label>
+                            <input type="text" id="ddi-drug1" placeholder="e.g., Sertraline" value="Sertraline">
+                        </div>
+                        <div class="input-group">
+                            <label>Drug 2</label>
+                            <input type="text" id="ddi-drug2" placeholder="e.g., Tramadol" value="Tramadol">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="scanDDIPair()">Analyze Interaction</button>
+                </div>
+
+                <div id="ddi-cyp" class="tab-content">
+                    <div class="input-group">
+                        <label>Compound (Name or SMILES)</label>
+                        <input type="text" id="cyp-compound" placeholder="e.g., Fluoxetine or SMILES" value="Fluoxetine">
+                    </div>
+                    <div class="input-group">
+                        <label>CYP Enzymes to Analyze</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label><input type="checkbox" id="cyp-3a4" checked> CYP3A4</label>
+                            <label><input type="checkbox" id="cyp-2d6" checked> CYP2D6</label>
+                            <label><input type="checkbox" id="cyp-2c9" checked> CYP2C9</label>
+                            <label><input type="checkbox" id="cyp-2c19" checked> CYP2C19</label>
+                            <label><input type="checkbox" id="cyp-1a2" checked> CYP1A2</label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="analyzeCYPProfile()">Analyze CYP450 Profile</button>
+                </div>
+
+                <div id="ddi-cocktail" class="tab-content">
+                    <div class="input-group">
+                        <label>Drug List (one per line)</label>
+                        <textarea id="cocktail-drugs" rows="6" placeholder="Enter drug names, one per line">Sertraline
+Alprazolam
+Ibuprofen
+Omeprazole</textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Patient Conditions</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label><input type="checkbox" id="cocktail-liver"> Liver Disease</label>
+                            <label><input type="checkbox" id="cocktail-kidney"> Kidney Disease</label>
+                            <label><input type="checkbox" id="cocktail-elderly"> Elderly (>65)</label>
+                            <label><input type="checkbox" id="cocktail-pregnant"> Pregnancy</label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="analyzeDrugCocktail()">Analyze Cocktail Safety</button>
+                </div>
+                
+                <div id="ddi-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing drug interactions...</p>
+                </div>
+
+                <div id="ddi-results" class="results-container" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Patent-Free Analog Generation Section -->
+        <div id="analogs" class="section">
+            <div class="analysis-container">
+                <h2>🔓 Patent-Free Analog Generation</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Generate high-confidence analogs with IP opportunity scoring and freedom-to-operate analysis</p>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('analogs', 'generate')">Generate Analogs</button>
+                    <button class="tab" onclick="switchTab('analogs', 'ip')">IP Analysis</button>
+                    <button class="tab" onclick="switchTab('analogs', 'database')">Database Search</button>
+                </div>
+
+                <div id="analogs-generate" class="tab-content active">
+                    <div class="input-group">
+                        <label>Parent Compound (Name or SMILES)</label>
+                        <input type="text" id="analog-parent" placeholder="e.g., Psilocybin, Ketamine, or SMILES" value="Psilocybin">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="input-group">
+                            <label>Minimum Similarity</label>
+                            <input type="number" id="analog-similarity" placeholder="e.g., 0.7" value="0.7" step="0.05" min="0.5" max="0.99">
+                        </div>
+                        <div class="input-group">
+                            <label>Number of Analogs</label>
+                            <input type="number" id="analog-count" placeholder="e.g., 10" value="10" min="1" max="50">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Patent Status Filter</label>
+                        <select id="analog-patent-filter">
+                            <option value="all">All Analogs</option>
+                            <option value="patent_free" selected>Patent-Free Only</option>
+                            <option value="expired">Patent Expired</option>
+                            <option value="pending">Patent Pending</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Optimization Targets</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label><input type="checkbox" id="analog-efficacy" checked> Efficacy</label>
+                            <label><input type="checkbox" id="analog-safety" checked> Safety</label>
+                            <label><input type="checkbox" id="analog-druglike" checked> Drug-Likeness</label>
+                            <label><input type="checkbox" id="analog-novelty" checked> Novelty</label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="generatePatentFreeAnalogs()">Generate Patent-Free Analogs</button>
+                </div>
+
+                <div id="analogs-ip" class="tab-content">
+                    <div class="input-group">
+                        <label>Compound SMILES</label>
+                        <input type="text" id="ip-smiles" placeholder="Enter SMILES for IP analysis" value="CN(C)CCc1c[nH]c2ccc(OP(=O)(O)O)cc12">
+                    </div>
+                    <button class="btn-primary" onclick="analyzeIPOpportunity()">Analyze IP Opportunity</button>
+                </div>
+
+                <div id="analogs-database" class="tab-content">
+                    <div class="input-group">
+                        <label>Search Term (Name or SMILES)</label>
+                        <input type="text" id="db-search" placeholder="e.g., Ketamine, Aspirin" value="Ketamine">
+                    </div>
+                    <div class="input-group">
+                        <label>External Databases</label>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <label><input type="checkbox" id="db-pubchem" checked> PubChem</label>
+                            <label><input type="checkbox" id="db-chembl" checked> ChEMBL</label>
+                            <label><input type="checkbox" id="db-fda" checked> FDA Orange Book</label>
+                            <label><input type="checkbox" id="db-internal" checked> Internal Database</label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="searchDatabases()">Search Databases</button>
+                </div>
+                
+                <div id="analogs-loading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Generating patent-free analogs...</p>
+                </div>
+
+                <div id="analogs-results" class="results-container" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -1298,6 +1615,758 @@
                             </div>
                         `;
                     });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // ============== PKPD/PBPK Functions ==============
+        async function runPKPDSimulation() {
+            const loading = document.getElementById('pkpd-loading');
+            const results = document.getElementById('pkpd-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const params = {
+                drug: document.getElementById('pkpd-drug').value,
+                dose: parseFloat(document.getElementById('pkpd-dose').value),
+                clearance: parseFloat(document.getElementById('pkpd-clearance').value),
+                vd: parseFloat(document.getElementById('pkpd-vd').value),
+                ka: parseFloat(document.getElementById('pkpd-ka').value),
+                patient: {
+                    age: parseInt(document.getElementById('pkpd-age').value),
+                    weight: parseFloat(document.getElementById('pkpd-weight').value),
+                    liver_function: parseFloat(document.getElementById('pkpd-liver').value),
+                    creatinine_clearance: parseFloat(document.getElementById('pkpd-creatinine').value)
+                },
+                model_type: document.getElementById('pkpd-model').value
+            };
+            
+            try {
+                const response = await fetch('/api/pkpd/simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>Pharmacokinetic Simulation Results</h3>';
+                
+                // PK Parameters
+                html += `
+                    <div class="result-item" style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); padding: 1.5rem; border-radius: 10px;">
+                        <h4 style="color: #667eea; margin-bottom: 1rem;">PK Parameters</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                            <div><strong>Cmax:</strong> ${data.cmax?.toFixed(2) || 'N/A'} mg/L</div>
+                            <div><strong>Tmax:</strong> ${data.tmax?.toFixed(2) || 'N/A'} h</div>
+                            <div><strong>AUC:</strong> ${data.auc?.toFixed(2) || 'N/A'} mg*h/L</div>
+                            <div><strong>Half-life:</strong> ${data.half_life?.toFixed(2) || 'N/A'} h</div>
+                            <div><strong>Clearance:</strong> ${data.clearance?.toFixed(2) || 'N/A'} L/h</div>
+                            <div><strong>Vd:</strong> ${data.volume_distribution?.toFixed(2) || 'N/A'} L</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Concentration-Time Curve (simple text visualization)
+                if (data.concentration && data.time) {
+                    html += '<h4 style="margin-top: 1.5rem;">Concentration-Time Profile</h4>';
+                    html += '<div class="result-item" style="font-family: monospace; background: #f5f5f5; padding: 1rem; border-radius: 10px;">';
+                    
+                    // Create simple ASCII-style chart
+                    const maxConc = Math.max(...data.concentration);
+                    const chartHeight = 10;
+                    const chartWidth = 50;
+                    const step = Math.floor(data.concentration.length / chartWidth);
+                    
+                    for (let row = chartHeight; row >= 0; row--) {
+                        let line = '';
+                        const threshold = (row / chartHeight) * maxConc;
+                        for (let col = 0; col < chartWidth; col++) {
+                            const idx = col * step;
+                            if (idx < data.concentration.length && data.concentration[idx] >= threshold) {
+                                line += '█';
+                            } else {
+                                line += row === 0 ? '─' : ' ';
+                            }
+                        }
+                        html += line + (row === chartHeight ? ` ${maxConc.toFixed(1)} mg/L` : '') + '<br>';
+                    }
+                    html += '└' + '─'.repeat(chartWidth) + '→ Time (0-24h)';
+                    html += '</div>';
+                }
+                
+                // Clinical interpretation
+                html += `
+                    <div class="result-item" style="margin-top: 1rem;">
+                        <h4 style="color: #667eea;">Clinical Interpretation</h4>
+                        <p>Based on the simulated PK profile, the drug reaches peak concentration at ${data.tmax?.toFixed(1) || 'N/A'} hours. 
+                        With a half-life of ${data.half_life?.toFixed(1) || 'N/A'} hours, approximately 97% of the drug will be eliminated after 
+                        ${(data.half_life * 5)?.toFixed(1) || 'N/A'} hours (5 half-lives).</p>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function runPopulationPK() {
+            const loading = document.getElementById('pkpd-loading');
+            const results = document.getElementById('pkpd-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const params = {
+                drug: document.getElementById('pop-drug').value,
+                dose: parseFloat(document.getElementById('pop-dose').value),
+                population_size: parseInt(document.getElementById('pop-size').value),
+                age_range: [
+                    parseInt(document.getElementById('pop-age-min').value),
+                    parseInt(document.getElementById('pop-age-max').value)
+                ],
+                include_hepatic: document.getElementById('pop-hepatic').checked,
+                include_renal: document.getElementById('pop-renal').checked,
+                include_elderly: document.getElementById('pop-elderly').checked
+            };
+            
+            try {
+                const response = await fetch('/api/pkpd/population', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                
+                const data = await response.json();
+                const stats = data.population_statistics || {};
+                
+                let html = '<h3>Population PK Analysis</h3>';
+                
+                html += `
+                    <div class="result-item" style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); padding: 1.5rem; border-radius: 10px;">
+                        <h4 style="color: #667eea; margin-bottom: 1rem;">Population Statistics (n=${stats.n_patients || 0})</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div>
+                                <strong>Cmax:</strong><br>
+                                Mean: ${stats.cmax_mean?.toFixed(2) || 'N/A'} mg/L<br>
+                                SD: ${stats.cmax_std?.toFixed(2) || 'N/A'}<br>
+                                Range: ${stats.cmax_range?.[0]?.toFixed(2) || 'N/A'} - ${stats.cmax_range?.[1]?.toFixed(2) || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>AUC:</strong><br>
+                                Mean: ${stats.auc_mean?.toFixed(2) || 'N/A'} mg*h/L<br>
+                                SD: ${stats.auc_std?.toFixed(2) || 'N/A'}<br>
+                                Range: ${stats.auc_range?.[0]?.toFixed(2) || 'N/A'} - ${stats.auc_range?.[1]?.toFixed(2) || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>Variability:</strong><br>
+                                CV%: ${stats.variability_coefficient?.toFixed(1) || 'N/A'}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // High-risk patients
+                if (data.high_risk_patients && data.high_risk_patients.length > 0) {
+                    html += '<h4 style="margin-top: 1.5rem; color: #dc3545;">High-Risk Patients Identified</h4>';
+                    data.high_risk_patients.slice(0, 5).forEach(patient => {
+                        html += `
+                            <div class="message" style="background: #f8d7da; border-color: #dc3545; margin-bottom: 0.5rem;">
+                                <strong>Patient ${patient.patient_id}:</strong> 
+                                Age ${patient.patient_age}, ${patient.patient_weight}kg<br>
+                                Risk: ${patient.risk_reason} | Recommendation: ${patient.dose_adjustment || 'Monitor closely'}
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function runPBPKSimulation() {
+            const loading = document.getElementById('pkpd-loading');
+            const results = document.getElementById('pkpd-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const params = {
+                drug: document.getElementById('pbpk-drug').value,
+                dose: parseFloat(document.getElementById('pbpk-dose').value),
+                logp: parseFloat(document.getElementById('pbpk-logp').value),
+                fraction_unbound: parseFloat(document.getElementById('pbpk-fu').value),
+                organs: {
+                    liver: document.getElementById('pbpk-liver').checked,
+                    kidney: document.getElementById('pbpk-kidney').checked,
+                    brain: document.getElementById('pbpk-brain').checked,
+                    heart: document.getElementById('pbpk-heart').checked,
+                    muscle: document.getElementById('pbpk-muscle').checked
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/pkpd/pbpk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>PBPK Model Results</h3>';
+                
+                // Organ concentrations
+                if (data.organ_concentrations) {
+                    html += '<h4 style="color: #667eea;">Organ Distribution (Cmax)</h4>';
+                    html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">';
+                    for (const [organ, conc] of Object.entries(data.organ_concentrations)) {
+                        const barWidth = Math.min(100, (conc / Math.max(...Object.values(data.organ_concentrations))) * 100);
+                        html += `
+                            <div class="result-item" style="padding: 1rem;">
+                                <strong>${organ.charAt(0).toUpperCase() + organ.slice(1)}</strong><br>
+                                <div style="background: #e9ecef; border-radius: 5px; height: 20px; margin-top: 5px;">
+                                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: ${barWidth}%; height: 100%; border-radius: 5px;"></div>
+                                </div>
+                                <small>${conc?.toFixed(2) || 'N/A'} mg/L</small>
+                            </div>
+                        `;
+                    }
+                    html += '</div>';
+                }
+                
+                // PK parameters
+                html += `
+                    <div class="result-item" style="margin-top: 1.5rem;">
+                        <h4 style="color: #667eea;">Systemic PK Parameters</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                            <div><strong>Plasma Cmax:</strong> ${data.plasma_cmax?.toFixed(2) || 'N/A'} mg/L</div>
+                            <div><strong>AUC:</strong> ${data.auc?.toFixed(2) || 'N/A'} mg*h/L</div>
+                            <div><strong>Hepatic Clearance:</strong> ${data.hepatic_clearance?.toFixed(2) || 'N/A'} L/h</div>
+                            <div><strong>Renal Clearance:</strong> ${data.renal_clearance?.toFixed(2) || 'N/A'} L/h</div>
+                        </div>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // ============== DDI Scanner Functions ==============
+        async function scanDDIPair() {
+            const loading = document.getElementById('ddi-loading');
+            const results = document.getElementById('ddi-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const drug1 = document.getElementById('ddi-drug1').value;
+            const drug2 = document.getElementById('ddi-drug2').value;
+            
+            try {
+                const response = await fetch('/api/ddi_analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ drug1: drug1, drug2: drug2 })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>Drug-Drug Interaction Analysis</h3>';
+                
+                // Risk level with color coding
+                const riskColors = {
+                    'Very High': '#dc3545',
+                    'High': '#fd7e14',
+                    'Moderate': '#ffc107',
+                    'Low': '#28a745',
+                    'Minimal': '#20c997'
+                };
+                const riskColor = riskColors[data.risk_level] || '#6c757d';
+                
+                html += `
+                    <div class="result-item" style="background: ${riskColor}20; border-left: 5px solid ${riskColor}; padding: 1.5rem;">
+                        <h4 style="color: ${riskColor}; font-size: 24px;">${data.risk_level || 'Unknown'} Risk</h4>
+                        <p><strong>${drug1}</strong> + <strong>${drug2}</strong></p>
+                    </div>
+                `;
+                
+                // Mechanism
+                if (data.mechanism) {
+                    html += `
+                        <div class="result-item">
+                            <h4 style="color: #667eea;">Mechanism of Interaction</h4>
+                            <p>${data.mechanism}</p>
+                        </div>
+                    `;
+                }
+                
+                // Synergy/Antagonism
+                if (data.synergy) {
+                    html += `
+                        <div class="result-item">
+                            <h4 style="color: #667eea;">Synergy/Antagonism</h4>
+                            <p>${data.synergy}</p>
+                        </div>
+                    `;
+                }
+                
+                // Clinical Recommendations
+                if (data.recommendation) {
+                    html += `
+                        <div class="result-item" style="background: #e3f2fd; border-left: 5px solid #2196f3;">
+                            <h4 style="color: #1976d2;">Clinical Recommendation</h4>
+                            <p>${data.recommendation}</p>
+                        </div>
+                    `;
+                }
+                
+                // Dosage Adjustment
+                if (data.dosage_adjustment) {
+                    html += `
+                        <div class="result-item" style="background: #fff3e0; border-left: 5px solid #ff9800;">
+                            <h4 style="color: #f57c00;">Dosage Adjustment</h4>
+                            <p>${data.dosage_adjustment}</p>
+                        </div>
+                    `;
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function analyzeCYPProfile() {
+            const loading = document.getElementById('ddi-loading');
+            const results = document.getElementById('ddi-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const compound = document.getElementById('cyp-compound').value;
+            const enzymes = [];
+            if (document.getElementById('cyp-3a4').checked) enzymes.push('CYP3A4');
+            if (document.getElementById('cyp-2d6').checked) enzymes.push('CYP2D6');
+            if (document.getElementById('cyp-2c9').checked) enzymes.push('CYP2C9');
+            if (document.getElementById('cyp-2c19').checked) enzymes.push('CYP2C19');
+            if (document.getElementById('cyp-1a2').checked) enzymes.push('CYP1A2');
+            
+            try {
+                const response = await fetch('/api/analyze_compound', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ compound: compound, analyze_cyp: true, enzymes: enzymes })
+                });
+                
+                const data = await response.json();
+                
+                let html = `<h3>CYP450 Profile: ${data.name || compound}</h3>`;
+                
+                // CYP Substrates
+                if (data.cyp_substrates || data.metabolism?.cyp_substrates) {
+                    const cyp = data.cyp_substrates || data.metabolism?.cyp_substrates || {};
+                    html += '<h4 style="color: #667eea; margin-top: 1rem;">CYP450 Substrate Prediction</h4>';
+                    html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">';
+                    
+                    for (const enzyme of enzymes) {
+                        const isSubstrate = cyp[enzyme];
+                        const status = isSubstrate ? 'Likely Substrate' : 'Unlikely Substrate';
+                        const color = isSubstrate ? '#dc3545' : '#28a745';
+                        const icon = isSubstrate ? '⚠️' : '✓';
+                        
+                        html += `
+                            <div class="result-item" style="text-align: center; border: 2px solid ${color}20;">
+                                <h5 style="color: ${color};">${enzyme}</h5>
+                                <div style="font-size: 24px;">${icon}</div>
+                                <p style="color: ${color}; font-weight: bold;">${status}</p>
+                            </div>
+                        `;
+                    }
+                    html += '</div>';
+                }
+                
+                // Drug interaction warnings
+                html += `
+                    <div class="result-item" style="margin-top: 1.5rem; background: #fff3cd; border-left: 5px solid #ffc107;">
+                        <h4 style="color: #856404;">Potential Interaction Drugs</h4>
+                        <p>Based on CYP profile, be cautious when combining with:</p>
+                        <ul>
+                            <li><strong>CYP3A4 inhibitors:</strong> Ketoconazole, Itraconazole, Ritonavir, Grapefruit juice</li>
+                            <li><strong>CYP2D6 inhibitors:</strong> Fluoxetine, Paroxetine, Quinidine</li>
+                            <li><strong>CYP3A4 inducers:</strong> Rifampin, Carbamazepine, St. John's Wort</li>
+                        </ul>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function analyzeDrugCocktail() {
+            const loading = document.getElementById('ddi-loading');
+            const results = document.getElementById('ddi-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const drugsText = document.getElementById('cocktail-drugs').value;
+            const drugs = drugsText.split('\n').map(d => d.trim()).filter(d => d.length > 0);
+            
+            const patientProfile = {
+                liver_disease: document.getElementById('cocktail-liver').checked,
+                kidney_disease: document.getElementById('cocktail-kidney').checked,
+                elderly: document.getElementById('cocktail-elderly').checked,
+                pregnant: document.getElementById('cocktail-pregnant').checked
+            };
+            
+            try {
+                const response = await fetch('/api/psychiatric-analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ drugs: drugs, patient_profile: patientProfile })
+                });
+                
+                const data = await response.json();
+                
+                let html = `<h3>Drug Cocktail Safety Analysis</h3>`;
+                html += `<p style="color: #666;">Analyzing ${drugs.length} drugs: ${drugs.join(', ')}</p>`;
+                
+                // Overall safety score
+                const safetyScore = data.safety_score || 75;
+                const safetyColor = safetyScore > 70 ? '#28a745' : safetyScore > 40 ? '#ffc107' : '#dc3545';
+                
+                html += `
+                    <div class="result-item" style="text-align: center; padding: 2rem;">
+                        <h4>Overall Safety Score</h4>
+                        <div style="font-size: 48px; color: ${safetyColor}; font-weight: bold;">${safetyScore}/100</div>
+                    </div>
+                `;
+                
+                // Pairwise interactions
+                if (data.interactions && data.interactions.length > 0) {
+                    html += '<h4 style="margin-top: 1.5rem; color: #dc3545;">Identified Interactions</h4>';
+                    data.interactions.forEach(interaction => {
+                        const riskColor = interaction.risk_level === 'High' ? '#dc3545' : 
+                                         interaction.risk_level === 'Moderate' ? '#ffc107' : '#28a745';
+                        html += `
+                            <div class="result-item" style="border-left: 4px solid ${riskColor};">
+                                <strong>${interaction.drug1} + ${interaction.drug2}</strong>
+                                <span style="color: ${riskColor}; float: right;">${interaction.risk_level} Risk</span><br>
+                                <small>${interaction.mechanism || 'Potential interaction identified'}</small>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Recommendations
+                if (data.recommendations && data.recommendations.length > 0) {
+                    html += '<h4 style="margin-top: 1.5rem; color: #667eea;">Recommendations</h4>';
+                    data.recommendations.forEach(rec => {
+                        html += `<div class="result-item">• ${rec}</div>`;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        // ============== Patent-Free Analog Functions ==============
+        async function generatePatentFreeAnalogs() {
+            const loading = document.getElementById('analogs-loading');
+            const results = document.getElementById('analogs-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const params = {
+                parent_compound: document.getElementById('analog-parent').value,
+                min_similarity: parseFloat(document.getElementById('analog-similarity').value),
+                num_analogs: parseInt(document.getElementById('analog-count').value),
+                patent_filter: document.getElementById('analog-patent-filter').value,
+                optimize: {
+                    efficacy: document.getElementById('analog-efficacy').checked,
+                    safety: document.getElementById('analog-safety').checked,
+                    drug_likeness: document.getElementById('analog-druglike').checked,
+                    novelty: document.getElementById('analog-novelty').checked
+                }
+            };
+            
+            try {
+                const response = await fetch('/api/generate_analog', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(params)
+                });
+                
+                const data = await response.json();
+                
+                let html = `<h3>Patent-Free Analog Results for ${data.parent_compound || params.parent_compound}</h3>`;
+                
+                // Summary statistics
+                if (data.summary) {
+                    html += `
+                        <div class="result-item" style="background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%); padding: 1.5rem; border-radius: 10px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; text-align: center;">
+                                <div>
+                                    <div style="font-size: 28px; color: #667eea; font-weight: bold;">${data.summary.total_analogs || 0}</div>
+                                    <small>Total Analogs</small>
+                                </div>
+                                <div>
+                                    <div style="font-size: 28px; color: #28a745; font-weight: bold;">${data.summary.patent_free_analogs || 0}</div>
+                                    <small>Patent-Free</small>
+                                </div>
+                                <div>
+                                    <div style="font-size: 28px; color: #764ba2; font-weight: bold;">${data.summary.high_potential_analogs || 0}</div>
+                                    <small>High Potential</small>
+                                </div>
+                                <div>
+                                    <div style="font-size: 28px; color: #17a2b8; font-weight: bold;">${(data.summary.average_similarity * 100)?.toFixed(0) || 0}%</div>
+                                    <small>Avg Similarity</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Individual analogs
+                if (data.analogs && data.analogs.length > 0) {
+                    html += '<h4 style="margin-top: 1.5rem;">Generated Analogs</h4>';
+                    
+                    data.analogs.forEach((analog, i) => {
+                        const patentColors = {
+                            'Patent-Free': '#28a745',
+                            'Patent Expired': '#20c997',
+                            'Patent Pending': '#ffc107',
+                            'Patented': '#dc3545'
+                        };
+                        const patentColor = patentColors[analog.patent_status] || '#6c757d';
+                        const patentIcon = analog.patent_status === 'Patent-Free' ? '🔓' : 
+                                          analog.patent_status === 'Patent Expired' ? '✓' :
+                                          analog.patent_status === 'Patent Pending' ? '⏳' : '🔒';
+                        
+                        html += `
+                            <div class="result-item" style="border-left: 4px solid ${patentColor}; margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <h5 style="margin: 0;">${analog.name || `Analog ${i+1}`}</h5>
+                                        <small style="color: #666; word-break: break-all;">${analog.smiles}</small>
+                                    </div>
+                                    <span style="background: ${patentColor}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">
+                                        ${patentIcon} ${analog.patent_status}
+                                    </span>
+                                </div>
+                                
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.5rem; margin-top: 1rem;">
+                                    <div><strong>Similarity:</strong> ${(analog.similarity * 100)?.toFixed(0)}%</div>
+                                    <div><strong>Safety:</strong> ${analog.safety_score}/100</div>
+                                    <div><strong>Efficacy:</strong> ${analog.efficacy_score}/100</div>
+                                    <div><strong>Novelty:</strong> ${analog.novelty_score}/100</div>
+                                </div>
+                                
+                                ${analog.therapeutic_potential ? `
+                                    <div style="margin-top: 0.5rem;">
+                                        <strong>Therapeutic Potential:</strong> 
+                                        <span style="color: ${analog.therapeutic_potential === 'Very High' ? '#28a745' : '#667eea'};">
+                                            ${analog.therapeutic_potential}
+                                        </span>
+                                        ${analog.estimated_value ? `| <strong>Est. Value:</strong> ${analog.estimated_value}` : ''}
+                                    </div>
+                                ` : ''}
+                                
+                                ${analog.patent_opportunity_score ? `
+                                    <div style="margin-top: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 5px;">
+                                        <strong>IP Opportunity Score:</strong> 
+                                        <span style="font-size: 18px; color: #667eea; font-weight: bold;">${analog.patent_opportunity_score}/100</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function analyzeIPOpportunity() {
+            const loading = document.getElementById('analogs-loading');
+            const results = document.getElementById('analogs-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const smiles = document.getElementById('ip-smiles').value;
+            
+            try {
+                const response = await fetch('/api/retrosynthesis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ smiles: smiles })
+                });
+                
+                const data = await response.json();
+                
+                let html = '<h3>IP Opportunity Analysis</h3>';
+                
+                // Synthesis complexity
+                html += `
+                    <div class="result-item">
+                        <h4 style="color: #667eea;">Synthetic Complexity</h4>
+                        <p>Complexity Score: <strong>${data.complexity_score?.toFixed(1) || 'N/A'}/10</strong></p>
+                        <p>${data.complexity_score > 7 ? 'High complexity may provide IP protection advantages' : 
+                           data.complexity_score > 4 ? 'Moderate complexity' : 'Low complexity - easier to reproduce'}</p>
+                    </div>
+                `;
+                
+                // Commercial availability
+                if (data.commercial_availability) {
+                    html += `
+                        <div class="result-item">
+                            <h4 style="color: #667eea;">Commercial Availability</h4>
+                            <p><strong>Status:</strong> ${data.commercial_availability.compound_availability}</p>
+                            <p><strong>Est. Price:</strong> ${data.commercial_availability.estimated_price}</p>
+                            <p><strong>Potential Suppliers:</strong> ${data.commercial_availability.potential_suppliers?.join(', ') || 'N/A'}</p>
+                        </div>
+                    `;
+                }
+                
+                // Recommendations
+                if (data.recommendations && data.recommendations.length > 0) {
+                    html += '<h4 style="color: #667eea; margin-top: 1rem;">Synthesis Recommendations</h4>';
+                    data.recommendations.forEach(rec => {
+                        html += `<div class="result-item">• ${rec}</div>`;
+                    });
+                }
+                
+                results.innerHTML = html;
+                results.style.display = 'block';
+            } catch (error) {
+                results.innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+                results.style.display = 'block';
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        async function searchDatabases() {
+            const loading = document.getElementById('analogs-loading');
+            const results = document.getElementById('analogs-results');
+            
+            loading.classList.add('active');
+            results.style.display = 'none';
+            
+            const searchTerm = document.getElementById('db-search').value;
+            const databases = [];
+            if (document.getElementById('db-pubchem').checked) databases.push('pubchem');
+            if (document.getElementById('db-chembl').checked) databases.push('chembl');
+            if (document.getElementById('db-fda').checked) databases.push('fda');
+            if (document.getElementById('db-internal').checked) databases.push('internal');
+            
+            let html = `<h3>Database Search Results: "${searchTerm}"</h3>`;
+            
+            try {
+                // Search each selected database
+                for (const db of databases) {
+                    let endpoint = '';
+                    if (db === 'pubchem') endpoint = `/api/external/pubchem/${encodeURIComponent(searchTerm)}`;
+                    else if (db === 'chembl') endpoint = `/api/external/chembl/${encodeURIComponent(searchTerm)}`;
+                    else if (db === 'fda') endpoint = `/api/external/fda/${encodeURIComponent(searchTerm)}`;
+                    else endpoint = `/api/analyze_compound`;
+                    
+                    try {
+                        let response;
+                        if (db === 'internal') {
+                            response = await fetch(endpoint, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ compound: searchTerm })
+                            });
+                        } else {
+                            response = await fetch(endpoint);
+                        }
+                        
+                        const data = await response.json();
+                        
+                        const dbNames = {
+                            'pubchem': 'PubChem',
+                            'chembl': 'ChEMBL',
+                            'fda': 'FDA Orange Book',
+                            'internal': 'Internal Database'
+                        };
+                        
+                        const statusColor = data.error ? '#dc3545' : '#28a745';
+                        const statusIcon = data.error ? '❌' : '✓';
+                        
+                        html += `
+                            <div class="result-item" style="border-left: 4px solid ${statusColor};">
+                                <h4>${statusIcon} ${dbNames[db]}</h4>
+                                ${data.error ? `<p style="color: #dc3545;">No results found</p>` : `
+                                    <p><strong>Name:</strong> ${data.name || data.compound_name || searchTerm}</p>
+                                    ${data.smiles ? `<p><strong>SMILES:</strong> <code style="word-break: break-all;">${data.smiles}</code></p>` : ''}
+                                    ${data.molecular_weight ? `<p><strong>MW:</strong> ${data.molecular_weight}</p>` : ''}
+                                    ${data.formula ? `<p><strong>Formula:</strong> ${data.formula}</p>` : ''}
+                                    ${data.cid ? `<p><strong>PubChem CID:</strong> ${data.cid}</p>` : ''}
+                                    ${data.chembl_id ? `<p><strong>ChEMBL ID:</strong> ${data.chembl_id}</p>` : ''}
+                                `}
+                            </div>
+                        `;
+                    } catch (err) {
+                        html += `
+                            <div class="result-item" style="border-left: 4px solid #ffc107;">
+                                <h4>⚠️ ${db.toUpperCase()}</h4>
+                                <p style="color: #856404;">Could not retrieve data</p>
+                            </div>
+                        `;
+                    }
                 }
                 
                 results.innerHTML = html;
