@@ -9,8 +9,8 @@ channel = "stable-24_05"
 packages = ["cairo", "catch2", "comic-neue", "coordgenlibs", "eigen", "freetype", "glibcLocales", "inchi", "libxcrypt", "maeparser", "pkg-config", "rapidjson", "xsimd"]
 
 [deployment]
-run = ["sh", "-c", "python app.py"]
-deploymentTarget = "cloudrun"
+run = ["python", "app.py"]
+deploymentTarget = "autoscale"
 
 [env]
 PYTHONPATH = "/home/runner/$REPL_SLUG:$PYTHONPATH"
@@ -19,10 +19,6 @@ PORT = "5000"
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 39863
-externalPort = 3000
 
 [[ports]]
 localPort = 43745
@@ -44,13 +40,13 @@ args = "PharmaSight Platform"
 name = "PharmaSight Platform"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
+waitForPort = 5000
 
 [agent]
 expertMode = true
