@@ -1,0 +1,411 @@
+# PharmaSight Branch Analysis Report
+Generated: Tue Nov 25 20:18:11 EST 2025
+
+## Branch: 10-28
+
+**Last Commit:**
+- Date: 2025-10-28 15:20:53 -0400
+- Author: justincihi
+- Message: Add branch 10-28 summary documentation
+
+**File Count:**
+3122
+
+**Key Directories:**
+.github
+.gitignore
+.replit
+BRANCH_10-28_SUMMARY.md
+COMPREHENSIVE_DIAGNOSTIC_REPORT.md
+COMPREHENSIVE_IMPLEMENTATION_SUMMARY.md
+DEPLOYMENT_GUIDE.md
+DEPLOYMENT_READINESS_REPORT.md
+DOCUMENTATION_INDEX.md
+IMPROVEMENTS.md
+
+---
+
+## Branch: 11/10
+
+**Last Commit:**
+- Date: 2025-11-10 05:54:11 -0500
+- Author: IncogNeato
+- Message: Update README.md
+
+**File Count:**
+3132
+
+**Key Directories:**
+# Deep learning for property prediction.py
+.DS_Store
+.env.example
+.github
+.gitignore
+.replit
+.vscode
+API_DOCUMENTATION.md
+BRANCH_10-28_SUMMARY.md
+COMPREHENSIVE_DIAGNOSTIC_REPORT.md
+
+---
+
+## Branch: analog-discoveries-ip-protected
+
+**Last Commit:**
+- Date: 2025-11-11 19:40:31 -0500
+- Author: justincihi
+- Message: Add production deployment configuration
+
+**File Count:**
+3156
+
+**Key Directories:**
+.github
+.gitignore
+.railwayignore
+.replit
+ANALOG_RECEPTOR_DATA_POPULATED.md
+AUTONOMOUS_RESEARCH_SYSTEM_COMPLETE.md
+BRANCH_10-28_SUMMARY.md
+COMPREHENSIVE_ANALOG_REGISTRY_SUMMARY.md
+COMPREHENSIVE_DIAGNOSTIC_REPORT.md
+COMPREHENSIVE_IMPLEMENTATION_SUMMARY.md
+
+---
+
+## Branch: branch-10
+
+**Last Commit:**
+- Date: 2025-09-24 04:06:06 -0400
+- Author: justincihi
+- Message: 🚀 PharmaSight™ v2.1.0 - Final Comprehensive Enhancement
+
+**File Count:**
+3078
+
+**Key Directories:**
+COMPREHENSIVE_ENHANCEMENT_DOCUMENTATION.md
+CONVERSATION_HISTORY.md
+FINAL_COMPREHENSIVE_STATUS_REPORT.md
+FINAL_PROJECT_STATUS_REPORT.md
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+UI_UX_TESTING_RESULTS.md
+UNIFIED_SEARCH_TESTING_RESULTS.md
+app.py
+
+---
+
+## Branch: branch-13
+
+**Last Commit:**
+- Date: 2025-09-24 11:23:30 -0400
+- Author: justincihi
+- Message: Deploy enhanced PharmaSight™ platform with 500+ compounds and all features
+
+**File Count:**
+3091
+
+**Key Directories:**
+COMPREHENSIVE_ENHANCEMENT_DOCUMENTATION.md
+CONVERSATION_HISTORY.md
+ENHANCED_PLATFORM_VERIFICATION.md
+FINAL_COMPREHENSIVE_STATUS_REPORT.md
+FINAL_PROJECT_STATUS_REPORT.md
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+PLATFORM_TESTING_VERIFICATION.md
+README.md
+
+---
+
+## Branch: branch-14
+
+**Last Commit:**
+- Date: 2025-09-24 14:22:46 -0400
+- Author: justincihi
+- Message: Deploy Ultimate PharmaSight™ Platform with Advanced Research Features
+
+**File Count:**
+3102
+
+**Key Directories:**
+COMPREHENSIVE_ENHANCEMENT_DOCUMENTATION.md
+CONVERSATION_HISTORY.md
+ENHANCED_PLATFORM_VERIFICATION.md
+FINAL_COMPREHENSIVE_STATUS_REPORT.md
+FINAL_PROJECT_STATUS_REPORT.md
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+PLATFORM_TESTING_VERIFICATION.md
+README.md
+
+---
+
+## Branch: branch-30
+
+**Last Commit:**
+- Date: 2025-09-27 20:01:35 -0400
+- Author: justincihi
+- Message: Version 30: Save current changes
+
+**File Count:**
+3106
+
+**Key Directories:**
+BUTTON_FUNCTIONALITY_ANALYSIS.md
+COMPREHENSIVE_ENHANCEMENT_DOCUMENTATION.md
+CONVERSATION_HISTORY.md
+DEPLOYMENT_CONFIG.md
+ENHANCED_PLATFORM_VERIFICATION.md
+FINAL_COMPREHENSIVE_STATUS_REPORT.md
+FINAL_PROJECT_STATUS_REPORT.md
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+
+---
+
+## Branch: branch-5
+
+**Last Commit:**
+- Date: 2025-09-22 14:30:11 -0400
+- Author: justincihi
+- Message: Implement unified search engine with 6 database integrations
+
+**File Count:**
+3053
+
+**Key Directories:**
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+UI_UX_TESTING_RESULTS.md
+UNIFIED_SEARCH_TESTING_RESULTS.md
+app.py
+main.py
+requirements.txt
+src
+venv
+
+---
+
+## Branch: branch-8
+
+**Last Commit:**
+- Date: 2025-09-23 13:39:46 -0400
+- Author: justincihi
+- Message: 🚀 PharmaSight™ v2.0.0 - Comprehensive Enterprise Enhancement
+
+**File Count:**
+3072
+
+**Key Directories:**
+COMPREHENSIVE_ENHANCEMENT_DOCUMENTATION.md
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+UI_UX_TESTING_RESULTS.md
+UNIFIED_SEARCH_TESTING_RESULTS.md
+app.py
+data
+main.py
+requirements.txt
+
+---
+
+## Branch: claude/create-readme-011CUSE9T8QRX6nD8beW9cAT
+
+**Last Commit:**
+- Date: 2025-10-24 15:05:13 +0000
+- Author: Claude
+- Message: docs: Create comprehensive README.md for PharmaSight platform
+
+**File Count:**
+3048
+
+**Key Directories:**
+.github
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+README.md
+UI_UX_TESTING_RESULTS.md
+app.py
+example.py
+requirements.txt
+src
+
+---
+
+## Branch: claude/merge-all-features-011CUSE9T8QRX6nD8beW9cAT
+
+**Last Commit:**
+- Date: 2025-10-24 12:31:15 -0400
+- Author: IncogNeato
+- Message: Update requirements-rdkit.txt
+
+**File Count:**
+3070
+
+**Key Directories:**
+.github
+.gitignore
+IMPROVEMENTS.md
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+QUICK_START.md
+RDKIT_SETUP.md
+README.md
+UI_UX_TESTING_RESULTS.md
+
+---
+
+## Branch: copilot/fix-end-of-file-error
+
+**Last Commit:**
+- Date: 2025-11-04 22:34:27 +0000
+- Author: copilot-swe-agent[bot]
+- Message: Use VSCode built-in JSON formatter instead of Prettier
+
+**File Count:**
+3132
+
+**Key Directories:**
+# Deep learning for property prediction.py
+.DS_Store
+.env.example
+.github
+.gitignore
+.replit
+.vscode
+API_DOCUMENTATION.md
+BRANCH_10-28_SUMMARY.md
+COMPREHENSIVE_DIAGNOSTIC_REPORT.md
+
+---
+
+## Branch: copilot/fixscipy-compat
+
+**Last Commit:**
+- Date: 2025-11-04 01:47:16 +0000
+- Author: copilot-swe-agent[bot]
+- Message: Add pyscf version constraint and document pickle-compat usage
+
+**File Count:**
+3132
+
+**Key Directories:**
+# Deep learning for property prediction.py
+.DS_Store
+.env.example
+.github
+.gitignore
+.replit
+API_DOCUMENTATION.md
+BRANCH_10-28_SUMMARY.md
+COMPREHENSIVE_DIAGNOSTIC_REPORT.md
+COMPREHENSIVE_IMPLEMENTATION_SUMMARY.md
+
+---
+
+## Branch: feature/pk-core-v2
+
+**Last Commit:**
+- Date: 2025-11-18 20:47:38 -0500
+- Author: IncogNeato
+- Message: 25 files committed to pk-core-v2
+
+**File Count:**
+3147
+
+**Key Directories:**
+# Deep learning for property prediction.py
+# PharmaSight Platform.md
+.DS_Store
+.env.example
+.github
+.gitignore
+.replit
+.vscode
+API_DOCUMENTATION.md
+BRANCH_10-28_SUMMARY.md
+
+---
+
+## Branch: main
+
+**Last Commit:**
+- Date: 2025-11-03 04:37:20 -0500
+- Author: IncogNeato
+- Message: Merge pull request #3 from justincihi/copilot/vscode1762095683278
+
+**File Count:**
+3131
+
+**Key Directories:**
+# Deep learning for property prediction.py
+.DS_Store
+.env.example
+.github
+.gitignore
+.replit
+API_DOCUMENTATION.md
+BRANCH_10-28_SUMMARY.md
+COMPREHENSIVE_DIAGNOSTIC_REPORT.md
+COMPREHENSIVE_IMPLEMENTATION_SUMMARY.md
+
+---
+
+## Branch: main-enhanced
+
+**Last Commit:**
+- Date: 2025-09-24 04:11:00 -0400
+- Author: justincihi
+- Message: docs: Add comprehensive README.md for repository
+
+**File Count:**
+3079
+
+**Key Directories:**
+COMPREHENSIVE_ENHANCEMENT_DOCUMENTATION.md
+CONVERSATION_HISTORY.md
+FINAL_COMPREHENSIVE_STATUS_REPORT.md
+FINAL_PROJECT_STATUS_REPORT.md
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+PLATFORM_TESTING_RESULTS.md
+README.md
+UI_UX_TESTING_RESULTS.md
+UNIFIED_SEARCH_TESTING_RESULTS.md
+
+---
+
+## Branch: replit-enhanced
+
+**Last Commit:**
+- Date: 2025-11-12 18:52:44 +0000
+- Author: justincihi
+- Message: Saved progress at the end of the loop
+
+**File Count:**
+3107
+
+**Key Directories:**
+.github
+.gitignore
+.replit
+COMPREHENSIVE_DIAGNOSTIC_REPORT.md
+COMPREHENSIVE_IMPLEMENTATION_SUMMARY.md
+DEPLOYMENT_GUIDE.md
+DOCUMENTATION_INDEX.md
+IMPROVEMENTS.md
+INTEGRATION_STATUS_REPORT.md
+PHARMASIGHT_FINAL_STATUS_REPORT.md
+
+---
+
