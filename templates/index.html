@@ -2911,41 +2911,90 @@ Omeprazole</textarea>
         }
 
         // ============== Research Engine Functions ==============
-        let researchGoals = [
-            { name: 'Novel 5-HT2A Agonists', description: 'Find patent-free psychedelic analogs with therapeutic potential', status: 'active' },
-            { name: 'GABA Receptor Modulators', description: 'Identify novel anxiolytics with improved safety profiles', status: 'active' },
-            { name: 'NMDA Receptor Research', description: 'Track ketamine-related developments and novel dissociatives', status: 'paused' }
-        ];
+        let researchGoals = [];
 
-        function addResearchGoal() {
+        async function loadResearchGoals() {
+            try {
+                const response = await fetch('/api/research/goals');
+                const data = await response.json();
+                researchGoals = data.goals || [];
+                renderGoalsList();
+            } catch (e) {
+                researchGoals = [
+                    { id: 1, name: 'Novel 5-HT2A Agonists', description: 'Find patent-free psychedelic analogs with therapeutic potential', status: 'active' },
+                    { id: 2, name: 'GABA Receptor Modulators', description: 'Identify novel anxiolytics with improved safety profiles', status: 'active' },
+                    { id: 3, name: 'NMDA Receptor Research', description: 'Track ketamine-related developments and novel dissociatives', status: 'paused' }
+                ];
+                renderGoalsList();
+            }
+        }
+
+        async function addResearchGoal() {
             const name = prompt('Enter research goal name:');
             if (!name) return;
             const description = prompt('Enter goal description:');
             if (!description) return;
             
-            researchGoals.push({ name, description, status: 'active' });
-            renderGoalsList();
-            alert('Research goal added successfully!');
+            try {
+                const response = await fetch('/api/research/goals', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description, status: 'active' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    researchGoals.push(data.goal);
+                    renderGoalsList();
+                    alert('Research goal added successfully!');
+                }
+            } catch (e) {
+                researchGoals.push({ id: Date.now(), name, description, status: 'active' });
+                renderGoalsList();
+            }
         }
 
-        function editGoal(index) {
+        async function editGoal(index) {
             const goal = researchGoals[index];
             const action = prompt(`Goal: ${goal.name}\n\nEnter action:\n1 - Edit name\n2 - Edit description\n3 - Toggle status\n4 - Delete`);
             
             if (action === '1') {
                 const newName = prompt('Enter new name:', goal.name);
-                if (newName) researchGoals[index].name = newName;
+                if (newName) {
+                    goal.name = newName;
+                    await updateGoalOnServer(goal);
+                }
             } else if (action === '2') {
                 const newDesc = prompt('Enter new description:', goal.description);
-                if (newDesc) researchGoals[index].description = newDesc;
+                if (newDesc) {
+                    goal.description = newDesc;
+                    await updateGoalOnServer(goal);
+                }
             } else if (action === '3') {
-                researchGoals[index].status = goal.status === 'active' ? 'paused' : 'active';
+                goal.status = goal.status === 'active' ? 'paused' : 'active';
+                await updateGoalOnServer(goal);
             } else if (action === '4') {
                 if (confirm('Delete this goal?')) {
+                    await deleteGoalOnServer(goal.id);
                     researchGoals.splice(index, 1);
                 }
             }
             renderGoalsList();
+        }
+
+        async function updateGoalOnServer(goal) {
+            try {
+                await fetch(`/api/research/goals/${goal.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(goal)
+                });
+            } catch (e) {}
+        }
+
+        async function deleteGoalOnServer(goalId) {
+            try {
+                await fetch(`/api/research/goals/${goalId}`, { method: 'DELETE' });
+            } catch (e) {}
         }
 
         function renderGoalsList() {
@@ -2972,6 +3021,8 @@ Omeprazole</textarea>
             
             container.innerHTML = html;
         }
+
+        window.addEventListener('DOMContentLoaded', loadResearchGoals);
 
         async function runResearchEngine() {
             const loading = document.getElementById('research-loading');
@@ -3019,31 +3070,38 @@ Omeprazole</textarea>
                 if (data.top_discoveries && data.top_discoveries.length > 0) {
                     html += '<h4 style="margin-top: 1.5rem;">Top Discoveries Today</h4>';
                     data.top_discoveries.forEach((disc, i) => {
+                        const confidenceColor = disc.confidence > 85 ? '#28a745' : disc.confidence > 70 ? '#ffc107' : '#6c757d';
                         html += `
                             <div class="result-item" style="border-left: 4px solid #667eea;">
-                                <strong>${disc.compound || `Discovery ${i+1}`}</strong>
-                                <p style="margin: 0.5rem 0;">${disc.finding || 'Novel compound with therapeutic potential identified'}</p>
-                                <small>Confidence: ${disc.confidence || 85}% | Est. Value: ${disc.value || '$5M+'}</small>
+                                <div style="display: flex; justify-content: space-between; align-items: start;">
+                                    <strong>${disc.name || disc.compound || 'Discovery ' + (i+1)}</strong>
+                                    <span style="background: ${confidenceColor}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">
+                                        ${Math.round(disc.confidence || 85)}% confidence
+                                    </span>
+                                </div>
+                                ${disc.smiles ? `
+                                    <div style="background: #f8f9fa; padding: 6px 10px; border-radius: 4px; margin: 8px 0; font-family: monospace; font-size: 12px; word-break: break-all; color: #495057;">
+                                        SMILES: ${disc.smiles}
+                                    </div>
+                                ` : ''}
+                                <p style="margin: 0.5rem 0; color: #666;">
+                                    ${disc.therapeutic_area ? `<strong>${disc.therapeutic_area}</strong> - ` : ''}
+                                    ${disc.mechanism || disc.finding || 'Novel compound with therapeutic potential'}
+                                </p>
+                                ${disc.key_features && disc.key_features.length > 0 ? `
+                                    <div style="margin: 8px 0;">
+                                        ${disc.key_features.map(f => `<span style="background: #e9ecef; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-right: 4px;">${f}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                                <small style="color: #888;">
+                                    ${disc.discovery_type ? `Method: ${disc.discovery_type} | ` : ''}
+                                    Est. Value: ${disc.value || '$5M+'}
+                                </small>
                             </div>
                         `;
                     });
                 } else {
-                    // Demo discoveries
-                    html += '<h4 style="margin-top: 1.5rem;">Top Discoveries Today</h4>';
-                    const demoDiscoveries = [
-                        { compound: '4-OH-DiPT analog', finding: 'Novel tryptamine with enhanced 5-HT2A selectivity', confidence: 92, value: '$12M' },
-                        { compound: 'GABA-A PAM derivative', finding: 'Reduced sedation profile vs benzodiazepines', confidence: 87, value: '$8M' },
-                        { compound: 'Ketamine prodrug', finding: 'Extended release formulation, patent-free', confidence: 78, value: '$15M' }
-                    ];
-                    demoDiscoveries.forEach((disc, i) => {
-                        html += `
-                            <div class="result-item" style="border-left: 4px solid #667eea;">
-                                <strong>${disc.compound}</strong>
-                                <p style="margin: 0.5rem 0;">${disc.finding}</p>
-                                <small>Confidence: ${disc.confidence}% | Est. Value: ${disc.value}</small>
-                            </div>
-                        `;
-                    });
+                    html += '<h4 style="margin-top: 1.5rem;">No discoveries found. Try adjusting your research goals.</h4>';
                 }
                 
                 results.innerHTML = html;

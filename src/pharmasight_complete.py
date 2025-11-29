@@ -3748,25 +3748,59 @@ def search_chembl(name):
 
 @app.route('/api/generate_analog', methods=['POST'])
 def generate_analog():
-    """Redirect to generate_analogs for frontend compatibility"""
+    """Generate analogs - supports both compound names and SMILES input"""
     data = request.get_json()
-    parent_compound = data.get('parent_compound', '')
+    parent_compound = data.get('parent_compound', '').strip()
     target_properties = data.get('target_properties', 'all')
+    num_analogs = data.get('num_analogs', 10)
+    min_similarity = data.get('min_similarity', 0.7)
     
-    # Log the activity
     log_activity(session.get('user', 'anonymous'), 'analog_generation', f'Generated analogs for: {parent_compound}')
     
-    # Resolve brand names to generic names
-    resolved_data = resolve_compound_name(parent_compound)
+    def is_likely_smiles(text):
+        smiles_chars = set('=()[]#@+-./:')
+        if not text or len(text) < 3:
+            return False
+        if any(c in text for c in smiles_chars):
+            return True
+        if text[0].islower() and len([c for c in text if c.islower()]) > len(text) * 0.3:
+            return True
+        return False
     
-    # Extract the resolved compound name
+    if is_likely_smiles(parent_compound):
+        try:
+            from rdkit_analog_generator import generate_rdkit_analogs
+            result = generate_rdkit_analogs(parent_compound, num_analogs, min_similarity)
+            if 'error' not in result:
+                result['source'] = 'RDKit Chemical Transformations'
+                return jsonify(result)
+        except Exception as e:
+            pass
+    
+    resolved_data = resolve_compound_name(parent_compound)
     if isinstance(resolved_data, dict):
         resolved_compound = resolved_data.get('resolved_name', parent_compound)
     else:
         resolved_compound = resolved_data
     
-    # Generate comprehensive analog report
     result = generate_analog_report(resolved_compound, target_properties)
+    
+    if 'error' in result:
+        try:
+            from external_database_apis import PubChemAPI
+            pubchem = PubChemAPI()
+            compound_data = pubchem.search_compound(parent_compound)
+            
+            if compound_data and compound_data.get('canonical_smiles'):
+                smiles = compound_data['canonical_smiles']
+                from rdkit_analog_generator import generate_rdkit_analogs
+                result = generate_rdkit_analogs(smiles, num_analogs, min_similarity)
+                if 'error' not in result:
+                    result['source'] = 'PubChem + RDKit'
+                    result['external_data'] = compound_data
+                    return jsonify(result)
+        except Exception as e:
+            pass
     
     return jsonify(result)
 
@@ -3843,6 +3877,21 @@ def run_research_engine():
         engine = DailyDiscoveryEngine()
         report = engine.generate_daily_report(goals=goals)
         
+        discoveries = report.get('discoveries', [])
+        top_discoveries = []
+        for disc in discoveries[:8]:
+            top_discoveries.append({
+                'name': disc.get('compound_name', 'Unknown'),
+                'smiles': disc.get('compound_smiles', ''),
+                'confidence': disc.get('confidence', 0),
+                'value': f"${int(disc.get('estimated_value', 0) / 1000000)}M",
+                'therapeutic_area': disc.get('therapeutic_area', ''),
+                'mechanism': disc.get('mechanism', ''),
+                'discovery_type': disc.get('discovery_type', ''),
+                'key_features': disc.get('key_features', []),
+                'next_steps': disc.get('next_steps', [])
+            })
+        
         return jsonify({
             'success': True,
             'discoveries_found': report.get('summary', {}).get('total_discoveries', 12),
@@ -3851,7 +3900,8 @@ def run_research_engine():
             'papers_scanned': 47,
             'goals_processed': len(goals),
             'goals_used': goals,
-            'top_discoveries': report.get('breakthrough_candidates', [])[:5]
+            'top_discoveries': top_discoveries,
+            'full_report': report
         })
     except Exception as e:
         return jsonify({
@@ -3892,7 +3942,6 @@ def scan_literature():
     year_start = data.get('year_start', 2023)
     year_end = data.get('year_end', 2025)
     
-    # Demo papers
     papers = [
         {'title': f'{topic.title()} for Treatment-Resistant Depression: Phase 3 Results', 'authors': 'Smith et al.', 'year': 2024, 'journal': 'NEJM', 'citations': 142, 'summary': 'Significant efficacy demonstrated in multi-center trial with sustained remission at 6 months'},
         {'title': f'Novel 5-HT2A Agonists with Reduced Hallucinogenic Properties', 'authors': 'Johnson et al.', 'year': 2024, 'journal': 'J Med Chem', 'citations': 78, 'summary': 'Structure-activity relationships revealing functional selectivity opportunities'},
@@ -3902,6 +3951,60 @@ def scan_literature():
     ]
     
     return jsonify({'papers': papers, 'total': len(papers), 'topic': topic})
+
+RESEARCH_GOALS_DB = [
+    {'id': 1, 'name': 'Novel 5-HT2A Agonists', 'description': 'Find patent-free psychedelic analogs with therapeutic potential', 'status': 'active'},
+    {'id': 2, 'name': 'GABA Receptor Modulators', 'description': 'Identify novel anxiolytics with improved safety profiles', 'status': 'active'},
+    {'id': 3, 'name': 'NMDA Receptor Research', 'description': 'Track ketamine-related developments and novel dissociatives', 'status': 'paused'}
+]
+
+@app.route('/api/research/goals', methods=['GET'])
+def get_research_goals():
+    """Get all research goals"""
+    return jsonify({'goals': RESEARCH_GOALS_DB, 'total': len(RESEARCH_GOALS_DB)})
+
+@app.route('/api/research/goals', methods=['POST'])
+def add_research_goal():
+    """Add a new research goal"""
+    global RESEARCH_GOALS_DB
+    data = request.get_json()
+    
+    new_goal = {
+        'id': max([g['id'] for g in RESEARCH_GOALS_DB], default=0) + 1,
+        'name': data.get('name', 'Untitled Goal'),
+        'description': data.get('description', ''),
+        'status': data.get('status', 'active')
+    }
+    
+    RESEARCH_GOALS_DB.append(new_goal)
+    return jsonify({'success': True, 'goal': new_goal})
+
+@app.route('/api/research/goals/<int:goal_id>', methods=['PUT'])
+def update_research_goal(goal_id):
+    """Update an existing research goal"""
+    global RESEARCH_GOALS_DB
+    data = request.get_json()
+    
+    for goal in RESEARCH_GOALS_DB:
+        if goal['id'] == goal_id:
+            goal['name'] = data.get('name', goal['name'])
+            goal['description'] = data.get('description', goal['description'])
+            goal['status'] = data.get('status', goal['status'])
+            return jsonify({'success': True, 'goal': goal})
+    
+    return jsonify({'error': 'Goal not found'}), 404
+
+@app.route('/api/research/goals/<int:goal_id>', methods=['DELETE'])
+def delete_research_goal(goal_id):
+    """Delete a research goal"""
+    global RESEARCH_GOALS_DB
+    
+    for i, goal in enumerate(RESEARCH_GOALS_DB):
+        if goal['id'] == goal_id:
+            deleted = RESEARCH_GOALS_DB.pop(i)
+            return jsonify({'success': True, 'deleted': deleted})
+    
+    return jsonify({'error': 'Goal not found'}), 404
 
 # ========== AUTHENTICATION ENDPOINTS ==========
 
