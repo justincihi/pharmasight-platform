@@ -224,6 +224,350 @@ ANALOG_GENERATION_DATABASE = {
                 "receptor_binding": {"GABA-A": 88, "α1": 85, "α2": 82, "α5": 62}
             }
         ]
+    },
+    "morphine": {
+        "analogs": [
+            {
+                "name": "Hydromorphone",
+                "smiles": "CN1CCC23C4CCCCC4(C=C(C2CC1)O)C3=O",
+                "similarity": 0.88,
+                "patent_status": "Patent Expired",
+                "safety_score": 72,
+                "efficacy_score": 95,
+                "drug_likeness": 85,
+                "novelty_score": 60,
+                "therapeutic_potential": "Very High",
+                "estimated_value": "$20M",
+                "receptor_binding": {"μ-opioid": 98, "δ-opioid": 45, "κ-opioid": 38}
+            },
+            {
+                "name": "Oxymorphone",
+                "smiles": "CN1CCC23C4CCCC(O)C4(C=C(C2CC1)O)C3=O",
+                "similarity": 0.85,
+                "patent_status": "Patent Expired",
+                "safety_score": 68,
+                "efficacy_score": 93,
+                "drug_likeness": 82,
+                "novelty_score": 62,
+                "therapeutic_potential": "High",
+                "estimated_value": "$18M",
+                "receptor_binding": {"μ-opioid": 96, "δ-opioid": 42, "κ-opioid": 35}
+            },
+            {
+                "name": "Buprenorphine",
+                "smiles": "C[C@H]1C[C@@H]2[C@]3(CCN(C)[C@@H]1[C@@]24C5=C(O)C=CC6=C5[C@@]42CCN(CC7CC7)[C@H]6C(C)(C)C)OC3",
+                "similarity": 0.72,
+                "patent_status": "Patent-Free",
+                "safety_score": 88,
+                "efficacy_score": 85,
+                "drug_likeness": 78,
+                "novelty_score": 75,
+                "therapeutic_potential": "Very High",
+                "estimated_value": "$28M",
+                "receptor_binding": {"μ-opioid": 82, "κ-opioid": 68, "δ-opioid": 35, "ORL1": 55}
+            }
+        ]
+    },
+    "diazepam": {
+        "analogs": [
+            {
+                "name": "Oxazepam",
+                "smiles": "O=C1N[C@@H](O)c2cc(Cl)ccc2N=C1c1ccccc1",
+                "similarity": 0.88,
+                "patent_status": "Patent Expired",
+                "safety_score": 82,
+                "efficacy_score": 78,
+                "drug_likeness": 89,
+                "novelty_score": 55,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$10M",
+                "receptor_binding": {"GABA-A": 88, "α1": 85, "α2": 82, "α3": 78}
+            },
+            {
+                "name": "Temazepam",
+                "smiles": "CN1c2ccc(Cl)cc2C(O)(c2ccccc2)NC1=O",
+                "similarity": 0.92,
+                "patent_status": "Patent Expired",
+                "safety_score": 78,
+                "efficacy_score": 82,
+                "drug_likeness": 88,
+                "novelty_score": 58,
+                "therapeutic_potential": "High",
+                "estimated_value": "$12M",
+                "receptor_binding": {"GABA-A": 92, "α1": 88, "α2": 85, "α5": 75}
+            },
+            {
+                "name": "Flurazepam",
+                "smiles": "OCCN(CC)c1cc2c(cc1Cl)N=C(c1ccccc1F)CC(=O)N2",
+                "similarity": 0.78,
+                "patent_status": "Patent Expired",
+                "safety_score": 75,
+                "efficacy_score": 80,
+                "drug_likeness": 82,
+                "novelty_score": 60,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$8M",
+                "receptor_binding": {"GABA-A": 85, "α1": 92, "α2": 78, "α5": 68}
+            }
+        ]
+    },
+    "cbd": {
+        "analogs": [
+            {
+                "name": "Cannabidiol Dimethyl Ether",
+                "smiles": "CCCCCC1=CC(=C(C(=C1)OC)C2C=C(CCC2C(=C)C)C)OC",
+                "similarity": 0.92,
+                "patent_status": "Patent-Free",
+                "safety_score": 85,
+                "efficacy_score": 78,
+                "drug_likeness": 75,
+                "novelty_score": 88,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$15M",
+                "receptor_binding": {"CB2": 72, "5-HT1A": 65, "GPR55": 58, "TRPV1": 55}
+            },
+            {
+                "name": "CBDV (Cannabidivarin)",
+                "smiles": "CCCC1=CC(=C(C(=C1)O)C2C=C(CCC2C(=C)C)C)O",
+                "similarity": 0.95,
+                "patent_status": "Patent-Free",
+                "safety_score": 88,
+                "efficacy_score": 75,
+                "drug_likeness": 78,
+                "novelty_score": 82,
+                "therapeutic_potential": "High",
+                "estimated_value": "$20M",
+                "receptor_binding": {"CB1": 18, "CB2": 35, "5-HT1A": 55, "GPR55": 48}
+            },
+            {
+                "name": "HU-308",
+                "smiles": "CCCCCC1=C(C2=C(C=C1)C(CCC2C(C)C)(C)C)O",
+                "similarity": 0.78,
+                "patent_status": "Patent-Free",
+                "safety_score": 82,
+                "efficacy_score": 82,
+                "drug_likeness": 72,
+                "novelty_score": 90,
+                "therapeutic_potential": "High",
+                "estimated_value": "$22M",
+                "receptor_binding": {"CB2": 95, "CB1": 12, "GPR55": 45}
+            }
+        ]
+    },
+    "thc": {
+        "analogs": [
+            {
+                "name": "Delta-8-THC",
+                "smiles": "CCCCCC1=CC2=C(C3CC(=CCC3C(O2)(C)C)C)C(=C1)O",
+                "similarity": 0.95,
+                "patent_status": "Patent-Free",
+                "safety_score": 78,
+                "efficacy_score": 75,
+                "drug_likeness": 72,
+                "novelty_score": 75,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$12M",
+                "receptor_binding": {"CB1": 85, "CB2": 65, "GPR55": 45}
+            },
+            {
+                "name": "THCV (Tetrahydrocannabivarin)",
+                "smiles": "CCCC1=CC2=C(C3CC(=CCC3C(O2)(C)C)C)C(=C1)O",
+                "similarity": 0.92,
+                "patent_status": "Patent-Free",
+                "safety_score": 82,
+                "efficacy_score": 72,
+                "drug_likeness": 75,
+                "novelty_score": 85,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$18M",
+                "receptor_binding": {"CB1": 55, "CB2": 78, "GPR55": 42}
+            },
+            {
+                "name": "Dronabinol",
+                "smiles": "CCCCCC1=CC2=C(C3CC(=CCC3C(O2)(C)C)C)C(=C1)O",
+                "similarity": 0.98,
+                "patent_status": "Patent Expired",
+                "safety_score": 75,
+                "efficacy_score": 85,
+                "drug_likeness": 70,
+                "novelty_score": 55,
+                "therapeutic_potential": "High",
+                "estimated_value": "$25M",
+                "receptor_binding": {"CB1": 95, "CB2": 72, "GPR55": 52}
+            }
+        ]
+    },
+    "caffeine": {
+        "analogs": [
+            {
+                "name": "Theophylline",
+                "smiles": "CN1C2=C(C(=O)N(C1=O)C)N=CN2",
+                "similarity": 0.92,
+                "patent_status": "Patent Expired",
+                "safety_score": 78,
+                "efficacy_score": 82,
+                "drug_likeness": 88,
+                "novelty_score": 55,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$8M",
+                "receptor_binding": {"A1": 85, "A2A": 78, "PDE": 72}
+            },
+            {
+                "name": "Theobromine",
+                "smiles": "CN1C=NC2=C1C(=O)N(C(=O)N2)C",
+                "similarity": 0.88,
+                "patent_status": "Patent Expired",
+                "safety_score": 85,
+                "efficacy_score": 65,
+                "drug_likeness": 85,
+                "novelty_score": 50,
+                "therapeutic_potential": "Low",
+                "estimated_value": "$5M",
+                "receptor_binding": {"A1": 68, "A2A": 55, "PDE": 58}
+            },
+            {
+                "name": "Paraxanthine",
+                "smiles": "CN1C2=C(NC=N2)C(=O)N(C1=O)C",
+                "similarity": 0.95,
+                "patent_status": "Patent-Free",
+                "safety_score": 82,
+                "efficacy_score": 78,
+                "drug_likeness": 82,
+                "novelty_score": 85,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$12M",
+                "receptor_binding": {"A1": 82, "A2A": 88, "PDE": 65}
+            }
+        ]
+    },
+    "ibuprofen": {
+        "analogs": [
+            {
+                "name": "Naproxen",
+                "smiles": "COc1ccc2cc(C(C)C(=O)O)ccc2c1",
+                "similarity": 0.82,
+                "patent_status": "Patent Expired",
+                "safety_score": 78,
+                "efficacy_score": 85,
+                "drug_likeness": 92,
+                "novelty_score": 55,
+                "therapeutic_potential": "High",
+                "estimated_value": "$10M",
+                "receptor_binding": {"COX-1": 75, "COX-2": 88}
+            },
+            {
+                "name": "Ketoprofen",
+                "smiles": "CC(C(=O)O)c1cccc(c1)C(=O)c2ccccc2",
+                "similarity": 0.78,
+                "patent_status": "Patent Expired",
+                "safety_score": 72,
+                "efficacy_score": 82,
+                "drug_likeness": 88,
+                "novelty_score": 58,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$8M",
+                "receptor_binding": {"COX-1": 82, "COX-2": 78}
+            },
+            {
+                "name": "Flurbiprofen",
+                "smiles": "CC(C(=O)O)c1ccc(c(c1)F)c2ccccc2",
+                "similarity": 0.85,
+                "patent_status": "Patent Expired",
+                "safety_score": 75,
+                "efficacy_score": 80,
+                "drug_likeness": 90,
+                "novelty_score": 60,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$7M",
+                "receptor_binding": {"COX-1": 85, "COX-2": 72}
+            }
+        ]
+    },
+    "lsd": {
+        "analogs": [
+            {
+                "name": "1P-LSD",
+                "smiles": "CCCN(CC)C(=O)C1CN(C2CC3=CNC4=C3C(=CC=C4)C2=C1)C",
+                "similarity": 0.95,
+                "patent_status": "Patent-Free",
+                "safety_score": 75,
+                "efficacy_score": 88,
+                "drug_likeness": 72,
+                "novelty_score": 88,
+                "therapeutic_potential": "High",
+                "estimated_value": "$15M",
+                "receptor_binding": {"5-HT2A": 92, "5-HT2C": 85, "5-HT1A": 68, "D2": 45}
+            },
+            {
+                "name": "AL-LAD",
+                "smiles": "CC(C)CN(C(=O)C1CN(C2CC3=CNC4=C3C(=CC=C4)C2=C1)C)CC",
+                "similarity": 0.88,
+                "patent_status": "Patent-Free",
+                "safety_score": 72,
+                "efficacy_score": 82,
+                "drug_likeness": 68,
+                "novelty_score": 85,
+                "therapeutic_potential": "High",
+                "estimated_value": "$12M",
+                "receptor_binding": {"5-HT2A": 88, "5-HT2C": 78, "5-HT1A": 55, "D2": 38}
+            },
+            {
+                "name": "ETH-LAD",
+                "smiles": "CCN(CC)C(=O)C1CN(C2CC3=CNC4=C3C(=CC=C4)C2=C1)CC",
+                "similarity": 0.85,
+                "patent_status": "Patent-Free",
+                "safety_score": 70,
+                "efficacy_score": 85,
+                "drug_likeness": 70,
+                "novelty_score": 82,
+                "therapeutic_potential": "High",
+                "estimated_value": "$14M",
+                "receptor_binding": {"5-HT2A": 90, "5-HT2C": 82, "5-HT1A": 62, "D2": 42}
+            }
+        ]
+    },
+    "amphetamine": {
+        "analogs": [
+            {
+                "name": "Lisdexamfetamine",
+                "smiles": "CC(CC1=CC=CC=C1)NC(=O)C(CCCCN)N",
+                "similarity": 0.85,
+                "patent_status": "Patented",
+                "safety_score": 82,
+                "efficacy_score": 88,
+                "drug_likeness": 78,
+                "novelty_score": 75,
+                "therapeutic_potential": "Very High",
+                "estimated_value": "$30M",
+                "receptor_binding": {"DAT": 92, "NET": 88, "TAAR1": 78}
+            },
+            {
+                "name": "Methamphetamine",
+                "smiles": "CC(CC1=CC=CC=C1)NC",
+                "similarity": 0.92,
+                "patent_status": "Patent Expired",
+                "safety_score": 55,
+                "efficacy_score": 92,
+                "drug_likeness": 85,
+                "novelty_score": 40,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$8M",
+                "receptor_binding": {"DAT": 98, "NET": 95, "TAAR1": 85, "VMAT2": 72}
+            },
+            {
+                "name": "Phentermine",
+                "smiles": "CC(CC1=CC=CC=C1)(C)N",
+                "similarity": 0.78,
+                "patent_status": "Patent Expired",
+                "safety_score": 72,
+                "efficacy_score": 75,
+                "drug_likeness": 88,
+                "novelty_score": 55,
+                "therapeutic_potential": "Moderate",
+                "estimated_value": "$10M",
+                "receptor_binding": {"DAT": 68, "NET": 82, "TAAR1": 55}
+            }
+        ]
     }
 }
 

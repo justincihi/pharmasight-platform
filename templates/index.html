@@ -2425,6 +2425,21 @@ Omeprazole</textarea>
                 
                 const data = await response.json();
                 
+                // Check for error response
+                if (data.error) {
+                    results.innerHTML = `
+                        <div class="result-item" style="border-left: 4px solid #dc3545;">
+                            <h4 style="color: #dc3545;">Compound Not Found</h4>
+                            <p>${data.error}</p>
+                            <p style="margin-top: 1rem; color: #666;">
+                                <strong>Tip:</strong> Try one of the available compounds listed above, or enter a valid SMILES notation.
+                            </p>
+                        </div>`;
+                    results.style.display = 'block';
+                    loading.classList.remove('active');
+                    return;
+                }
+                
                 let html = `<h3>Patent-Free Analog Results for ${data.parent_compound || params.parent_compound}</h3>`;
                 
                 // Summary statistics
