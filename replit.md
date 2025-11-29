@@ -3,9 +3,9 @@
 ## Overview
 PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and drug discovery platform. This is the complete, most recent version with all features enabled, including advanced drug discovery capabilities and quantum computing simulations.
 
-## Current Status (November 26, 2025)
+## Current Status (November 29, 2025)
 - ✅ **Status**: Fully operational with modern UI
-- ✅ **Version**: 4.1.0 Enterprise Enhanced
+- ✅ **Version**: 4.2.0 Enterprise Enhanced
 - ✅ **RDKit**: Installed and working (version 2025.9.1)
 - ✅ **Server**: Running on port 5000
 - ✅ **Frontend**: Modern responsive UI with all features connected
@@ -14,6 +14,7 @@ PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and dru
 - ✅ **Retrosynthesis**: Chemical synthesis route planning
 - ✅ **Research Engine**: Autonomous 24/7 discovery engine with goal-based research
 - ✅ **Authentication**: Login/Admin system with role-based access
+- ✅ **Virtual Screening**: Enhanced with balanced pharmacophore scoring for all 16 receptor families
 
 ## Key Features
 1. **AI-Powered Compound Analysis** - Advanced molecular analysis with ML algorithms
