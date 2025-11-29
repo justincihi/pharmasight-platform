@@ -3871,11 +3871,18 @@ def run_research_engine():
     from daily_discovery_engine import DailyDiscoveryEngine
     
     data = request.get_json()
-    goals = data.get('goals', [])
+    raw_goals = data.get('goals', [])
+    
+    goal_strings = []
+    for g in raw_goals:
+        if isinstance(g, dict):
+            goal_strings.append(f"{g.get('name', '')} - {g.get('description', '')}")
+        else:
+            goal_strings.append(str(g))
     
     try:
         engine = DailyDiscoveryEngine()
-        report = engine.generate_daily_report(goals=goals)
+        report = engine.generate_daily_report(goals=goal_strings)
         
         discoveries = report.get('discoveries', [])
         top_discoveries = []
@@ -3898,8 +3905,8 @@ def run_research_engine():
             'high_value': report.get('summary', {}).get('high_value_discoveries', 3),
             'patent_opportunities': report.get('summary', {}).get('patent_opportunities', 5),
             'papers_scanned': 47,
-            'goals_processed': len(goals),
-            'goals_used': goals,
+            'goals_processed': len(goal_strings),
+            'goals_used': goal_strings,
             'top_discoveries': top_discoveries,
             'full_report': report
         })
@@ -3908,7 +3915,7 @@ def run_research_engine():
             'success': False,
             'error': str(e),
             'discoveries_found': 0,
-            'goals_processed': len(goals),
+            'goals_processed': len(raw_goals),
             'message': 'Research engine encountered an error. Please try again.'
         }), 500
 
