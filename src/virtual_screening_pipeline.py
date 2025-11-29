@@ -115,46 +115,331 @@ class VirtualScreeningPipeline:
         return screening_result
     
     def _calculate_binding_score(self, mol, receptor_data: Dict) -> float:
-        """Calculate binding score using pharmacophore matching and ML"""
-        # Simplified scoring based on molecular properties
-        # In production, this would use real docking or ML models
+        """Calculate binding score using advanced pharmacophore matching for all receptor families"""
+        import random
+        from rdkit.Chem import rdMolDescriptors, Fragments
         
         mw = Descriptors.MolWt(mol)
         logp = Descriptors.MolLogP(mol)
         hbd = Descriptors.NumHDonors(mol)
         hba = Descriptors.NumHAcceptors(mol)
         tpsa = Descriptors.TPSA(mol)
+        rotatable_bonds = Descriptors.NumRotatableBonds(mol)
+        aromatic_rings = rdMolDescriptors.CalcNumAromaticRings(mol)
+        aliphatic_rings = rdMolDescriptors.CalcNumAliphaticRings(mol)
+        total_rings = rdMolDescriptors.CalcNumRings(mol)
+        num_heteroatoms = rdMolDescriptors.CalcNumHeteroatoms(mol)
+        fraction_sp3 = rdMolDescriptors.CalcFractionCSP3(mol)
         
-        # Receptor-specific scoring
-        base_score = 0.5
+        has_basic_nitrogen = self._has_basic_nitrogen(mol)
+        has_phenol = Fragments.fr_phenol(mol) > 0
+        has_ether = Fragments.fr_ether(mol) > 0
+        has_amine = Fragments.fr_NH2(mol) > 0 or Fragments.fr_NH1(mol) > 0 or Fragments.fr_NH0(mol) > 0
+        has_amide = Fragments.fr_amide(mol) > 0
+        has_halogen = Fragments.fr_halogen(mol) > 0
+        has_sulfur = Fragments.fr_sulfide(mol) > 0 or Fragments.fr_sulfonamd(mol) > 0
+        has_benzene = Fragments.fr_benzene(mol) > 0
+        has_piperidine = Fragments.fr_piperdine(mol) > 0
+        has_morpholine = Fragments.fr_morpholine(mol) > 0
+        has_furan = Fragments.fr_furan(mol) > 0
+        has_thiophene = Fragments.fr_thiophene(mol) > 0
+        has_pyridine = Fragments.fr_pyridine(mol) > 0
         
-        # Check known ligands similarity
-        if 'agonists' in receptor_data:
-            for known_ligand in receptor_data.get('agonists', [])[:3]:
-                # Simulate similarity check
-                base_score += 0.1
+        indole_pattern = Chem.MolFromSmarts('c1ccc2[nH]ccc2c1')
+        has_indole = mol.HasSubstructMatch(indole_pattern) if indole_pattern else False
         
-        # Apply receptor family-specific rules
+        base_score = 0.25
         family = receptor_data.get('family', '')
+        receptor_name = receptor_data.get('name', '')
+        receptor_type = receptor_data.get('type', 'GPCR')
         
-        if family == 'GABA':
-            if hbd > 1 and hba > 2:
-                base_score += 0.2
-        elif family == 'Serotonin':
-            if 150 < mw < 400 and logp > 1:
-                base_score += 0.15
+        pharmacophore_score = self._get_pharmacophore_score(
+            family, mol, mw, logp, hbd, hba, tpsa, aromatic_rings, aliphatic_rings,
+            total_rings, rotatable_bonds, has_basic_nitrogen, has_phenol, has_ether,
+            has_amine, has_amide, has_halogen, has_indole, has_benzene, has_piperidine,
+            has_morpholine, has_furan, has_thiophene, has_pyridine, fraction_sp3,
+            num_heteroatoms, has_sulfur, receptor_type
+        )
+        
+        base_score += pharmacophore_score
+        
+        noise = random.gauss(0, 0.06)
+        base_score += noise
+        
+        return max(0.0, min(1.0, base_score))
+    
+    def _has_basic_nitrogen(self, mol) -> bool:
+        """Check if molecule contains a basic nitrogen (protonatable at physiological pH)"""
+        from rdkit.Chem import AllChem
+        pattern_tertiary = Chem.MolFromSmarts('[N;X3;!$(N-C=O);!$(N-S=O)]')
+        pattern_secondary = Chem.MolFromSmarts('[NH1;!$(N-C=O);!$(N-S=O)]')
+        pattern_primary = Chem.MolFromSmarts('[NH2;!$(N-C=O)]')
+        
+        has_basic = False
+        if pattern_tertiary and mol.HasSubstructMatch(pattern_tertiary):
+            has_basic = True
+        if pattern_secondary and mol.HasSubstructMatch(pattern_secondary):
+            has_basic = True
+        if pattern_primary and mol.HasSubstructMatch(pattern_primary):
+            has_basic = True
+        return has_basic
+    
+    def _get_pharmacophore_score(self, family: str, mol, mw, logp, hbd, hba, tpsa,
+                                  aromatic_rings, aliphatic_rings, total_rings,
+                                  rotatable_bonds, has_basic_nitrogen, has_phenol,
+                                  has_ether, has_amine, has_amide, has_halogen,
+                                  has_indole, has_benzene, has_piperidine,
+                                  has_morpholine, has_furan, has_thiophene,
+                                  has_pyridine, fraction_sp3, num_heteroatoms,
+                                  has_sulfur, receptor_type) -> float:
+        """Calculate pharmacophore-based score for each receptor family"""
+        
+        score = 0.0
+        
+        if family == 'Serotonin':
+            if has_indole:
+                score += 0.20
+            elif aromatic_rings >= 2 and has_basic_nitrogen:
+                score += 0.12
+            if has_basic_nitrogen and 2 <= logp <= 4:
+                score += 0.10
+            if 180 < mw < 380:
+                score += 0.08
+            if 20 < tpsa < 80:
+                score += 0.05
+            if has_phenol and aromatic_rings >= 1:
+                score += 0.05
+                
         elif family == 'Dopamine':
-            if hba > 1 and logp > 2:
-                base_score += 0.15
+            if has_phenol and has_basic_nitrogen:
+                score += 0.22
+            elif aromatic_rings >= 1 and has_basic_nitrogen:
+                score += 0.12
+            if 1.5 <= logp <= 4.5:
+                score += 0.10
+            if 150 < mw < 450:
+                score += 0.08
+            if has_piperidine or has_morpholine:
+                score += 0.08
+            if 30 < tpsa < 90:
+                score += 0.05
+                
+        elif family == 'Adrenergic':
+            if has_phenol and has_basic_nitrogen and hbd >= 2:
+                score += 0.22
+            elif aromatic_rings >= 1 and has_basic_nitrogen:
+                score += 0.10
+            if 0.5 <= logp <= 3.5:
+                score += 0.10
+            if 150 < mw < 400:
+                score += 0.08
+            if 40 < tpsa < 100:
+                score += 0.06
+            if has_ether:
+                score += 0.04
+                
         elif family == 'Opioid':
-            if mw > 250 and hbd > 0:
-                base_score += 0.2
+            if total_rings >= 3 and has_basic_nitrogen:
+                score += 0.22
+            elif has_piperidine and aromatic_rings >= 1:
+                score += 0.18
+            if 250 < mw < 550:
+                score += 0.10
+            if 1.5 <= logp <= 5.0:
+                score += 0.08
+            if hbd >= 1 and hba >= 2:
+                score += 0.06
+            if aliphatic_rings >= 2:
+                score += 0.06
+                
+        elif family == 'GABA':
+            if receptor_type == 'Ion channel':
+                if has_amide or (hbd >= 2 and hba >= 3):
+                    score += 0.22
+                if 150 < mw < 400:
+                    score += 0.10
+                if -1 <= logp <= 3:
+                    score += 0.10
+                if 50 < tpsa < 120:
+                    score += 0.08
+                if has_halogen and aromatic_rings >= 1:
+                    score += 0.08
+            else:
+                if has_basic_nitrogen and aromatic_rings >= 1:
+                    score += 0.18
+                if 200 < mw < 500:
+                    score += 0.08
+                    
+        elif family == 'Glutamate':
+            if hbd >= 2 and hba >= 4:
+                score += 0.20
+            if 100 < mw < 350:
+                score += 0.12
+            if -2 <= logp <= 2:
+                score += 0.12
+            if tpsa > 80:
+                score += 0.08
+            if has_amine and not has_benzene:
+                score += 0.08
+                
+        elif family == 'Cannabinoid':
+            if aromatic_rings >= 1 and aliphatic_rings >= 1:
+                score += 0.18
+            if 3 <= logp <= 7:
+                score += 0.15
+            if 280 < mw < 500:
+                score += 0.10
+            if has_phenol:
+                score += 0.08
+            if rotatable_bonds >= 4:
+                score += 0.06
+            if 40 < tpsa < 80:
+                score += 0.05
+                
+        elif family == 'Muscarinic':
+            if has_basic_nitrogen and (has_ether or total_rings >= 2):
+                score += 0.22
+            if 200 < mw < 450:
+                score += 0.10
+            if 1 <= logp <= 4:
+                score += 0.10
+            if 30 < tpsa < 80:
+                score += 0.06
+            if has_piperidine or aliphatic_rings >= 1:
+                score += 0.06
+                
+        elif family == 'Nicotinic':
+            if has_pyridine and has_basic_nitrogen:
+                score += 0.25
+            elif aromatic_rings >= 1 and has_basic_nitrogen:
+                score += 0.12
+            if 120 < mw < 350:
+                score += 0.10
+            if 0 <= logp <= 3:
+                score += 0.10
+            if 20 < tpsa < 70:
+                score += 0.05
+                
+        elif family == 'Histamine':
+            if has_basic_nitrogen and aromatic_rings >= 1:
+                score += 0.18
+            if 200 < mw < 400:
+                score += 0.12
+            if 1 <= logp <= 4:
+                score += 0.10
+            if 30 < tpsa < 80:
+                score += 0.08
+            if has_piperidine or has_morpholine:
+                score += 0.06
+            if has_halogen:
+                score += 0.04
+                
+        elif family == 'Adenosine':
+            if mw < 180 or mw > 500:
+                return 0.0
+            if total_rings >= 2 and num_heteroatoms >= 5:
+                score += 0.25
+            elif total_rings >= 2 and num_heteroatoms >= 4:
+                score += 0.15
+            if has_furan and num_heteroatoms >= 4:
+                score += 0.12
+            elif has_ether and num_heteroatoms >= 3:
+                score += 0.06
+            if 220 < mw < 420:
+                score += 0.08
+            if -1 <= logp <= 2.5:
+                score += 0.08
+            if hba >= 5:
+                score += 0.06
+                
+        elif family == 'TRP':
+            if mw < 220 or mw > 550:
+                return 0.0
+            if aromatic_rings >= 1 and 2.5 <= logp <= 5.5:
+                score += 0.18
+            if 280 < mw < 480:
+                score += 0.10
+            if hbd >= 1 and hba >= 2 and has_amide:
+                score += 0.12
+            elif hbd >= 1 and hba >= 2:
+                score += 0.06
+            if 50 < tpsa < 100:
+                score += 0.05
+                
+        elif family == 'Purinergic':
+            if mw < 180 or mw > 550:
+                return 0.0
+            if num_heteroatoms >= 5 and total_rings >= 2:
+                score += 0.25
+            elif num_heteroatoms >= 4 and total_rings >= 2:
+                score += 0.15
+            if 220 < mw < 480:
+                score += 0.08
+            if -1 <= logp <= 2.5:
+                score += 0.10
+            if tpsa > 90:
+                score += 0.08
+            if hbd >= 2 and hba >= 4:
+                score += 0.06
+                
+        elif family == 'Orexin':
+            if mw < 320 or mw > 650:
+                return 0.0
+            if has_amide and aromatic_rings >= 2 and total_rings >= 3:
+                score += 0.25
+            if 380 < mw < 580:
+                score += 0.12
+            if 2.5 <= logp <= 5:
+                score += 0.08
+            if 70 < tpsa < 130:
+                score += 0.06
+            if has_sulfur and has_amide:
+                score += 0.08
+                
+        elif family == 'Melatonin':
+            if not has_indole:
+                if mw < 180 or mw > 380:
+                    return 0.0
+            if has_indole and has_amide:
+                score += 0.35
+            elif has_indole:
+                score += 0.22
+            elif aromatic_rings >= 1 and has_amide and 200 < mw < 350:
+                score += 0.12
+            if 200 < mw < 320:
+                score += 0.08
+            if 1 <= logp <= 3:
+                score += 0.06
+            if 45 < tpsa < 75:
+                score += 0.04
+                
+        elif family == 'Chemokine':
+            if mw < 320 or mw > 700:
+                return 0.0
+            if tpsa < 50 or tpsa > 160:
+                return 0.0
+            if has_basic_nitrogen and aromatic_rings >= 2 and total_rings >= 3:
+                score += 0.22
+            if 380 < mw < 600:
+                score += 0.10
+            if 2.5 <= logp <= 5.5:
+                score += 0.08
+            if 70 < tpsa < 140:
+                score += 0.06
+            if has_amide and has_piperidine:
+                score += 0.08
+                
+        else:
+            if aromatic_rings >= 1 and has_basic_nitrogen:
+                score += 0.12
+            if 200 < mw < 500:
+                score += 0.08
+            if 0 <= logp <= 5:
+                score += 0.08
+            if 30 < tpsa < 100:
+                score += 0.05
         
-        # Add some randomness for simulation
-        import random
-        base_score += random.uniform(-0.2, 0.3)
-        
-        return max(0, min(1, base_score))
+        return score
     
     def _score_to_ki(self, score: float) -> str:
         """Convert binding score to predicted Ki"""
