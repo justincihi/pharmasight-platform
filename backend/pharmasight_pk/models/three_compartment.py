@@ -7,7 +7,12 @@ Useful for drugs with complex distribution patterns (e.g., lipophilic compounds)
 
 from __future__ import annotations
 from typing import Dict, Any, Optional, List
-import numpy as np
+
+try:
+    import numpy as np
+except ImportError as e:
+    raise ImportError("The 'numpy' package is required for three_compartment.py. Please install it with 'pip install numpy'.") from e
+
 import logging
 
 from .base import PKModel, PKParameters, ModelType, AdminRoute

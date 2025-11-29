@@ -17,7 +17,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Any, Optional, Callable
-import numpy as np
+try:
+    import numpy as np
+    _sqrt = np.sqrt
+except ImportError:
+    import math
+    _sqrt = math.sqrt
 import logging
 from datetime import datetime
 
@@ -130,7 +135,7 @@ class CovariateProfile:
         """
         if self.height_cm is not None:
             # Mosteller formula
-            return np.sqrt((self.weight_kg * self.height_cm) / 3600.0)
+            return _sqrt((self.weight_kg * self.height_cm) / 3600.0)
         else:
             # DuBois approximation (uses weight only, assumes average height)
             # Estimate height from weight (rough correlation)

@@ -8,7 +8,15 @@ and CYP450-mediated metabolism.
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, List, Tuple
-import numpy as np
+
+try:
+    import numpy as np
+except ImportError as e:
+    raise ImportError(
+        "NumPy is required for pbpk_minimal.py but could not be found. "
+        "Please install it using the command: pip install numpy"
+    ) from e
+
 import logging
 
 from .base import PKModel, PKParameters, ModelType, AdminRoute
