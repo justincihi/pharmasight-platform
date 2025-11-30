@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+rdkit
+redis
+pickle-compat

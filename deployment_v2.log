@@ -1,0 +1,278 @@
+nohup: ignoring input
+[2025-10-26 21:24:51 -0400] [3125] [INFO] Starting gunicorn 23.0.0
+[2025-10-26 21:24:51 -0400] [3125] [INFO] Listening at: http://0.0.0.0:5000 (3125)
+[2025-10-26 21:24:51 -0400] [3125] [INFO] Using worker: sync
+[2025-10-26 21:24:51 -0400] [3127] [INFO] Booting worker with pid: 3127
+[2025-10-26 21:24:51 -0400] [3128] [INFO] Booting worker with pid: 3128
+[2025-10-26 21:26:17 -0400] [3127] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-26 21:26:17 -0400] [3127] [INFO] Worker exiting (pid: 3127)
+✅ Successfully imported pharmasight_complete app
+[2025-10-26 21:26:17 -0400] [3181] [INFO] Booting worker with pid: 3181
+[2025-10-26 21:26:17 -0400] [3128] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-26 21:26:17 -0400] [3128] [INFO] Worker exiting (pid: 3128)
+✅ Successfully imported pharmasight_complete app
+[2025-10-26 21:26:17 -0400] [3183] [INFO] Booting worker with pid: 3183
+[2025-10-26 21:27:41,783] ERROR in app: Exception on /api/generate_analogs [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2834, in generate_analogs
+    result = generate_analog_report(resolved_compound, target_properties)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/analog_generation_fix.py", line 301, in generate_analog_report
+    result = generate_compound_analogs(parent_compound, target_properties)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/analog_generation_fix.py", line 232, in generate_compound_analogs
+    parent_key = parent_compound.lower().strip()
+                 ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'lower'
+[2025-10-26 21:28:30 -0400] [3181] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-26 21:28:30 -0400] [3181] [INFO] Worker exiting (pid: 3181)
+✅ Successfully imported pharmasight_complete app
+[2025-10-26 21:28:30 -0400] [3268] [INFO] Booting worker with pid: 3268
+[2025-10-26 21:28:30 -0400] [3183] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-26 21:28:30 -0400] [3183] [INFO] Worker exiting (pid: 3183)
+✅ Successfully imported pharmasight_complete app
+[2025-10-26 21:28:30 -0400] [3270] [INFO] Booting worker with pid: 3270
+[2025-10-27 06:36:36 -0400] [3125] [CRITICAL] WORKER TIMEOUT (pid:3268)
+[2025-10-27 06:36:36 -0400] [3268] [INFO] Worker exiting (pid: 3268)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 06:36:37 -0400] [3125] [ERROR] Worker (pid:3268) was sent SIGKILL! Perhaps out of memory?
+[2025-10-27 06:36:37 -0400] [3983] [INFO] Booting worker with pid: 3983
+[2025-10-27 06:45:51,520] ERROR in app: Exception on /api/analyze_pkpd [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2904, in analyze_pkpd
+    analysis_result = analyze_pkpd_interaction(medications, patient_conditions)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 736, in analyze_pkpd_interaction
+    "risk_level": interaction_info["risk_level"],
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+[2025-10-27 06:46:02,405] ERROR in app: Exception on /api/analyze_pkpd [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2904, in analyze_pkpd
+    analysis_result = analyze_pkpd_interaction(medications, patient_conditions)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 736, in analyze_pkpd_interaction
+    "risk_level": interaction_info["risk_level"],
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+[2025-10-27 06:46:09,709] ERROR in app: Exception on /api/analyze_pkpd [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2904, in analyze_pkpd
+    analysis_result = analyze_pkpd_interaction(medications, patient_conditions)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 736, in analyze_pkpd_interaction
+    "risk_level": interaction_info["risk_level"],
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+[2025-10-27 06:46:09,873] ERROR in app: Exception on /api/analyze_pkpd [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2904, in analyze_pkpd
+    analysis_result = analyze_pkpd_interaction(medications, patient_conditions)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 736, in analyze_pkpd_interaction
+    "risk_level": interaction_info["risk_level"],
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+[2025-10-27 06:46:10,929] ERROR in app: Exception on /api/analyze_pkpd [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2904, in analyze_pkpd
+    analysis_result = analyze_pkpd_interaction(medications, patient_conditions)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 736, in analyze_pkpd_interaction
+    "risk_level": interaction_info["risk_level"],
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+[2025-10-27 06:46:13,709] ERROR in app: Exception on /api/analyze_pkpd [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2904, in analyze_pkpd
+    analysis_result = analyze_pkpd_interaction(medications, patient_conditions)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 736, in analyze_pkpd_interaction
+    "risk_level": interaction_info["risk_level"],
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+[2025-10-27 06:46:31,046] ERROR in app: Exception on /api/analyze_pkpd [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2904, in analyze_pkpd
+    analysis_result = analyze_pkpd_interaction(medications, patient_conditions)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 736, in analyze_pkpd_interaction
+    "risk_level": interaction_info["risk_level"],
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+[2025-10-27 07:05:31,225] ERROR in app: Exception on /api/analyze_pkpd [POST]
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask_cors/extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 2904, in analyze_pkpd
+    analysis_result = analyze_pkpd_interaction(medications, patient_conditions)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/pharmasight-latest/src/pharmasight_complete.py", line 736, in analyze_pkpd_interaction
+    "risk_level": interaction_info["risk_level"],
+                  ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+[2025-10-27 07:06:42 -0400] [3983] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:06:42 -0400] [3270] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:06:42 -0400] [3983] [INFO] Worker exiting (pid: 3983)
+[2025-10-27 07:06:42 -0400] [3270] [INFO] Worker exiting (pid: 3270)
+✅ Successfully imported pharmasight_complete app
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:06:42 -0400] [5464] [INFO] Booting worker with pid: 5464
+[2025-10-27 07:06:42 -0400] [5465] [INFO] Booting worker with pid: 5465
+[2025-10-27 07:15:00 -0400] [5464] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:15:00 -0400] [5464] [INFO] Worker exiting (pid: 5464)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:15:00 -0400] [5465] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:15:00 -0400] [5465] [INFO] Worker exiting (pid: 5465)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:15:00 -0400] [5804] [INFO] Booting worker with pid: 5804
+[2025-10-27 07:15:00 -0400] [5805] [INFO] Booting worker with pid: 5805
+[2025-10-27 07:15:14 -0400] [5804] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:15:14 -0400] [5804] [INFO] Worker exiting (pid: 5804)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:15:14 -0400] [5822] [INFO] Booting worker with pid: 5822
+[2025-10-27 07:15:14 -0400] [5805] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:15:14 -0400] [5805] [INFO] Worker exiting (pid: 5805)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:15:14 -0400] [5823] [INFO] Booting worker with pid: 5823
+[2025-10-27 07:15:20 -0400] [5822] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:15:20 -0400] [5822] [INFO] Worker exiting (pid: 5822)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:15:20 -0400] [5826] [INFO] Booting worker with pid: 5826
+[2025-10-27 07:15:20 -0400] [5823] [INFO] Worker reloading: /home/ubuntu/pharmasight-latest/src/pharmasight_complete.py modified
+[2025-10-27 07:15:20 -0400] [5823] [INFO] Worker exiting (pid: 5823)
+✅ Successfully imported pharmasight_complete app
+[2025-10-27 07:15:20 -0400] [5827] [INFO] Booting worker with pid: 5827

@@ -1,0 +1,2 @@
+smiles,name,molecular_weight,therapeutic_area,status,patent_status,patent_number,safety_score,efficacy_score,drug_likeness,receptor_binding
+CN(C)CCc1c[nH]c2ccc(OP(=O)(O)O)cc12,Psilocybin,284.25,Psychedelic Therapy,Phase II Clinical Trials,Patent-Free,,85,92,78,"{'5-HT2A': 95, '5-HT2C': 87, '5-HT1A': 45}"
