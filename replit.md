@@ -13,7 +13,7 @@ PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and dru
 - ✅ **Quantum Computing**: Integrated with VQE, QAOA, and Grover's algorithms
 - ✅ **Retrosynthesis**: Chemical synthesis route planning
 - ✅ **Research Engine**: Autonomous 24/7 discovery engine with goal-based research
-- ✅ **Authentication**: Login/Admin system with role-based access
+- ✅ **Authentication**: Database-backed auth with hashed passwords (PostgreSQL)
 - ✅ **Virtual Screening**: Enhanced with balanced pharmacophore scoring for all 16 receptor families
 - ✅ **Analog Generation**: Full RDKit-based analog generation from any SMILES input with score cards
 - ✅ **Compound Database**: 202 compounds (35 internal + 167 FDA approved drugs)
