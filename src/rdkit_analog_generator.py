@@ -329,6 +329,7 @@ class RDKitAnalogGenerator:
                             'patent_status': self._estimate_patent_status(analog_smiles),
                             'therapeutic_potential': self._assess_therapeutic_potential(drug_score, similarity),
                             'estimated_value': self._estimate_value(drug_score, similarity),
+                            'patent_opportunity_score': self._calculate_patent_opportunity(analog_smiles, drug_score, similarity),
                         })
                     except:
                         continue
@@ -372,6 +373,7 @@ class RDKitAnalogGenerator:
                     'patent_status': self._estimate_patent_status(variant_smiles),
                     'therapeutic_potential': self._assess_therapeutic_potential(drug_score, similarity),
                     'estimated_value': self._estimate_value(drug_score, similarity),
+                    'patent_opportunity_score': self._calculate_patent_opportunity(variant_smiles, drug_score, similarity),
                 })
             except:
                 continue
@@ -439,6 +441,26 @@ class RDKitAnalogGenerator:
             return '$3M - $8M'
         else:
             return '$1M - $3M'
+    
+    def _calculate_patent_opportunity(self, smiles: str, drug_score: int, similarity: float) -> int:
+        """Calculate patent opportunity score (0-100)"""
+        patent_status = self._estimate_patent_status(smiles)
+        base_score = 50
+        
+        if patent_status == 'Patent-Free':
+            base_score = 85
+        elif patent_status == 'Patent Expired':
+            base_score = 75
+        elif patent_status == 'Patent Pending':
+            base_score = 35
+        else:
+            base_score = 20
+        
+        drug_bonus = drug_score * 0.15
+        novelty_penalty = similarity * 10
+        
+        final_score = base_score + drug_bonus - novelty_penalty + random.randint(-5, 5)
+        return max(10, min(100, int(final_score)))
 
 
 rdkit_generator = RDKitAnalogGenerator()
