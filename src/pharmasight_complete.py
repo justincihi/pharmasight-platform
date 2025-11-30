@@ -6,6 +6,7 @@ Complete implementation with all requested features
 
 from flask import Flask, render_template_string, render_template, request, jsonify, session, send_file
 from flask_cors import CORS
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 import json
 import datetime
 import hashlib
@@ -13,10 +14,15 @@ import random
 import re
 from io import BytesIO
 
-# Import custom modules
 from ddi_analysis_fix import get_detailed_interaction_info
 from analog_generation_fix import generate_analog_report, resolve_compound_name
 from research_findings_fix import get_research_findings_with_hypotheses, search_research_findings, get_research_analytics, generate_research_report
+
+from auth_db import (
+    init_auth_tables, create_user, authenticate_user, get_user_by_id,
+    change_password, get_all_users, delete_user, create_default_admin,
+    reset_user_password
+)
 
 import os
 
@@ -26,6 +32,20 @@ app = Flask(__name__,
              static_url_path='/static')
 app.secret_key = os.environ.get('SECRET_KEY', 'pharmasight_enterprise_2024_dev_only')
 CORS(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login_page'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return get_user_by_id(int(user_id))
+
+try:
+    init_auth_tables()
+    create_default_admin()
+except Exception as e:
+    print(f"Warning: Could not initialize auth tables: {e}")
 
 # Massive Compound Database (500+ compounds)
 COMPOUND_DATABASE = {
@@ -1904,16 +1924,40 @@ def login_page():
         <div class="login-section gradient-border glass-morphism" id="loginSection">
             <div class="gradient-border-inner">
                 <div class="login-title">🔐 Secure Access Portal</div>
-                <div class="login-form">
+                <div id="loginForm" class="login-form">
                     <div class="form-group">
-                        <label for="username">Username:</label>
-                        <input type="text" id="username" value="ImplicateOrder25" required class="enhanced-hover">
+                        <label for="username">Username or Email:</label>
+                        <input type="text" id="username" placeholder="Enter username or email" required class="enhanced-hover">
                     </div>
                     <div class="form-group">
                         <label for="password">Password:</label>
-                        <input type="password" id="password" value="ExplicateOrder26" required class="enhanced-hover">
+                        <input type="password" id="password" placeholder="Enter password" required class="enhanced-hover">
                     </div>
+                    <div id="loginError" style="color: #ef4444; margin-bottom: 10px; display: none;"></div>
                     <button class="login-btn animated-border" onclick="login()">Login to Enterprise Platform</button>
+                    <p style="text-align: center; margin-top: 15px; color: #6b7280;">
+                        Don't have an account? <a href="#" onclick="showRegisterForm()" style="color: #667eea;">Register here</a>
+                    </p>
+                </div>
+                <div id="registerForm" class="login-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="regUsername">Username:</label>
+                        <input type="text" id="regUsername" placeholder="Choose a username" required class="enhanced-hover">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email:</label>
+                        <input type="email" id="regEmail" placeholder="Enter your email" required class="enhanced-hover">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password:</label>
+                        <input type="password" id="regPassword" placeholder="Create a password (min 8 chars)" required class="enhanced-hover">
+                    </div>
+                    <div id="registerError" style="color: #ef4444; margin-bottom: 10px; display: none;"></div>
+                    <div id="registerSuccess" style="color: #10b981; margin-bottom: 10px; display: none;"></div>
+                    <button class="login-btn animated-border" onclick="register()">Create Account</button>
+                    <p style="text-align: center; margin-top: 15px; color: #6b7280;">
+                        Already have an account? <a href="#" onclick="showLoginForm()" style="color: #667eea;">Login here</a>
+                    </p>
                 </div>
             </div>
         </div>
@@ -2076,26 +2120,78 @@ def login_page():
             }
         });
         
-        function login() {
+        async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
             
-            if (username === 'ImplicateOrder25' && password === 'ExplicateOrder26') {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('dashboard').classList.add('active');
-                
-                // Log the login activity
-                fetch('/api/log_activity', {
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: 'login',
-                        details: 'Admin user logged in successfully'
-                    })
+                    body: JSON.stringify({ username, password })
                 });
-            } else {
-                alert('Invalid credentials. Please try again.');
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('dashboard').classList.add('active');
+                    sessionStorage.setItem('user', data.user);
+                    sessionStorage.setItem('role', data.role);
+                } else {
+                    errorDiv.textContent = data.error || 'Invalid credentials';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Login failed. Please try again.';
+                errorDiv.style.display = 'block';
             }
+        }
+        
+        async function register() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const errorDiv = document.getElementById('registerError');
+            const successDiv = document.getElementById('registerSuccess');
+            
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    successDiv.textContent = 'Account created successfully! You can now login.';
+                    successDiv.style.display = 'block';
+                    setTimeout(() => showLoginForm(), 2000);
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Registration failed. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+        
+        function showLoginForm() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
         }
         
         function showTab(tabName) {
@@ -4052,58 +4148,157 @@ def delete_research_goal(goal_id):
     
     return jsonify({'error': 'Goal not found'}), 404
 
-# ========== AUTHENTICATION ENDPOINTS ==========
+# ========== AUTHENTICATION ENDPOINTS (Database-Backed) ==========
 
 @app.route('/api/auth/login', methods=['POST'])
 def user_login():
-    """User login endpoint"""
+    """User login endpoint with database authentication"""
     data = request.get_json()
     username = data.get('username', '')
     password = data.get('password', '')
+    ip_address = request.remote_addr
     
-    # Demo authentication
-    valid_users = {
-        'user': 'password',
-        'researcher': 'research123',
-        'demo': 'demo'
-    }
+    user = authenticate_user(username, password, ip_address)
     
-    if username in valid_users and valid_users[username] == password:
-        session['user'] = username
-        session['role'] = 'user'
-        log_activity(username, 'login', 'User login successful')
-        return jsonify({'success': True, 'user': username, 'role': 'user'})
+    if user:
+        login_user(user)
+        session['user'] = user.username
+        session['role'] = user.role
+        log_activity(user.username, 'login', f'User login successful (role: {user.role})')
+        return jsonify({
+            'success': True, 
+            'user': user.username, 
+            'role': user.role,
+            'email': user.email
+        })
     
-    return jsonify({'success': False, 'error': 'Invalid username or password'})
+    return jsonify({'success': False, 'error': 'Invalid username or password'}), 401
 
-@app.route('/api/auth/admin-login', methods=['POST'])
-def admin_login():
-    """Admin login endpoint"""
+@app.route('/api/auth/register', methods=['POST'])
+def register_user():
+    """User registration endpoint"""
     data = request.get_json()
-    username = data.get('username', '')
+    username = data.get('username', '').strip()
+    email = data.get('email', '').strip()
     password = data.get('password', '')
-    twofa = data.get('twofa_code', '')
     
-    # Demo admin authentication
-    valid_admins = {
-        'admin': 'admin123'
-    }
+    if len(username) < 3:
+        return jsonify({'success': False, 'error': 'Username must be at least 3 characters'}), 400
+    if len(password) < 8:
+        return jsonify({'success': False, 'error': 'Password must be at least 8 characters'}), 400
+    if '@' not in email:
+        return jsonify({'success': False, 'error': 'Invalid email address'}), 400
     
-    if username in valid_admins and valid_admins[username] == password:
-        session['user'] = username
-        session['role'] = 'admin'
-        log_activity(username, 'admin_login', 'Admin login successful')
-        return jsonify({'success': True, 'user': username, 'role': 'admin'})
+    result = create_user(username, email, password, role='user')
     
-    return jsonify({'success': False, 'error': 'Invalid admin credentials'})
+    if result['success']:
+        log_activity(username, 'register', 'New user registered')
+        return jsonify(result)
+    else:
+        return jsonify(result), 400
 
 @app.route('/api/auth/logout', methods=['POST'])
 def logout():
     """Logout endpoint"""
     user = session.get('user', 'anonymous')
     log_activity(user, 'logout', 'User logged out')
+    logout_user()
     session.clear()
     return jsonify({'success': True})
+
+@app.route('/api/auth/status', methods=['GET'])
+def auth_status():
+    """Check current authentication status"""
+    if current_user.is_authenticated:
+        return jsonify({
+            'authenticated': True,
+            'user': current_user.username,
+            'role': current_user.role,
+            'email': current_user.email
+        })
+    return jsonify({'authenticated': False})
+
+@app.route('/api/auth/change-password', methods=['POST'])
+@login_required
+def change_user_password():
+    """Change password endpoint"""
+    data = request.get_json()
+    old_password = data.get('old_password', '')
+    new_password = data.get('new_password', '')
+    
+    if len(new_password) < 8:
+        return jsonify({'success': False, 'error': 'New password must be at least 8 characters'}), 400
+    
+    result = change_password(current_user.id, old_password, new_password)
+    
+    if result['success']:
+        log_activity(current_user.username, 'password_change', 'Password changed')
+    
+    return jsonify(result)
+
+@app.route('/api/admin/users', methods=['GET'])
+@login_required
+def list_users():
+    """List all users (admin only)"""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    users = get_all_users()
+    return jsonify({'users': users})
+
+@app.route('/api/admin/users', methods=['POST'])
+@login_required
+def admin_create_user():
+    """Admin create user endpoint"""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    data = request.get_json()
+    result = create_user(
+        username=data.get('username'),
+        email=data.get('email'),
+        password=data.get('password'),
+        role=data.get('role', 'user')
+    )
+    
+    if result['success']:
+        log_activity(current_user.username, 'admin_create_user', f'Created user: {data.get("username")}')
+    
+    return jsonify(result)
+
+@app.route('/api/admin/users/<int:user_id>/reset-password', methods=['POST'])
+@login_required
+def admin_reset_password(user_id):
+    """Admin reset user password"""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    data = request.get_json()
+    new_password = data.get('new_password')
+    
+    result = reset_user_password(user_id, new_password)
+    
+    if result['success']:
+        log_activity(current_user.username, 'admin_reset_password', f'Reset password for user ID: {user_id}')
+    
+    return jsonify(result)
+
+@app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
+@login_required
+def admin_delete_user(user_id):
+    """Admin delete user"""
+    if not current_user.is_admin:
+        return jsonify({'error': 'Admin access required'}), 403
+    
+    if user_id == current_user.id:
+        return jsonify({'error': 'Cannot delete your own account'}), 400
+    
+    result = delete_user(user_id)
+    
+    if result['success']:
+        log_activity(current_user.username, 'admin_delete_user', f'Deleted user ID: {user_id}')
+    
+    return jsonify(result)
 
 @app.route('/api/psychiatric-analysis', methods=['POST'])
 def psychiatric_analysis():
