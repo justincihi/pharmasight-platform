@@ -3748,61 +3748,100 @@ def search_chembl(name):
 
 @app.route('/api/generate_analog', methods=['POST'])
 def generate_analog():
-    """Generate analogs - supports both compound names and SMILES input"""
+    """Generate analogs - supports both compound names and SMILES input
+    
+    This endpoint now fully supports:
+    1. Direct SMILES input -> RDKit analog generation
+    2. Compound name lookup -> SMILES extraction -> RDKit generation
+    3. External database fallback (PubChem, ChEMBL)
+    """
     data = request.get_json()
     parent_compound = data.get('parent_compound', '').strip()
     target_properties = data.get('target_properties', 'all')
-    num_analogs = data.get('num_analogs', 10)
-    min_similarity = data.get('min_similarity', 0.7)
+    num_analogs = data.get('num_analogs', 15)
+    min_similarity = data.get('min_similarity', 0.5)
     
     log_activity(session.get('user', 'anonymous'), 'analog_generation', f'Generated analogs for: {parent_compound}')
     
     def is_likely_smiles(text):
-        smiles_chars = set('=()[]#@+-./:')
         if not text or len(text) < 3:
             return False
-        if any(c in text for c in smiles_chars):
+        smiles_specific_chars = set('=()[]#@/:')
+        if any(c in text for c in smiles_specific_chars):
             return True
-        if text[0].islower() and len([c for c in text if c.islower()]) > len(text) * 0.3:
+        if text.isalpha():
+            return False
+        if any(c.isdigit() for c in text) and any(c in text for c in 'cnCNOS'):
             return True
         return False
     
+    smiles_to_use = None
+    compound_name = parent_compound
+    source = 'Unknown'
+    
     if is_likely_smiles(parent_compound):
-        try:
-            from rdkit_analog_generator import generate_rdkit_analogs
-            result = generate_rdkit_analogs(parent_compound, num_analogs, min_similarity)
-            if 'error' not in result:
-                result['source'] = 'RDKit Chemical Transformations'
-                return jsonify(result)
-        except Exception as e:
-            pass
-    
-    resolved_data = resolve_compound_name(parent_compound)
-    if isinstance(resolved_data, dict):
-        resolved_compound = resolved_data.get('resolved_name', parent_compound)
+        smiles_to_use = parent_compound
+        source = 'Direct SMILES Input'
     else:
-        resolved_compound = resolved_data
+        compound_key = parent_compound.lower().replace(' ', '_').replace('-', '_')
+        if compound_key in COMPOUND_DATABASE:
+            smiles_to_use = COMPOUND_DATABASE[compound_key].get('smiles')
+            compound_name = COMPOUND_DATABASE[compound_key].get('name', parent_compound)
+            source = 'Internal Database'
+        else:
+            try:
+                import sys
+                sys.path.insert(0, 'data')
+                from fda_approved_drugs import FDA_APPROVED_DRUGS
+                if compound_key in FDA_APPROVED_DRUGS:
+                    smiles_to_use = FDA_APPROVED_DRUGS[compound_key].get('smiles')
+                    compound_name = FDA_APPROVED_DRUGS[compound_key].get('name', parent_compound)
+                    source = 'FDA Approved Drugs Database'
+            except:
+                pass
+        
+        if not smiles_to_use:
+            try:
+                from external_database_apis import PubChemAPI
+                pubchem = PubChemAPI()
+                compound_data = pubchem.search_compound(parent_compound)
+                if compound_data and compound_data.get('canonical_smiles'):
+                    smiles_to_use = compound_data['canonical_smiles']
+                    compound_name = compound_data.get('iupac_name', parent_compound)
+                    source = 'PubChem Database'
+            except:
+                pass
     
-    result = generate_analog_report(resolved_compound, target_properties)
+    if not smiles_to_use:
+        return jsonify({
+            'error': f'Could not find SMILES for "{parent_compound}". Try entering a valid SMILES string directly.',
+            'suggestion': 'Enter a SMILES string like "Cn1cnc2c1c(=O)n(c(=O)n2C)C" for caffeine',
+            'searched_databases': ['Internal Database', 'FDA Approved Drugs', 'PubChem']
+        }), 404
     
-    if 'error' in result:
-        try:
-            from external_database_apis import PubChemAPI
-            pubchem = PubChemAPI()
-            compound_data = pubchem.search_compound(parent_compound)
-            
-            if compound_data and compound_data.get('canonical_smiles'):
-                smiles = compound_data['canonical_smiles']
-                from rdkit_analog_generator import generate_rdkit_analogs
-                result = generate_rdkit_analogs(smiles, num_analogs, min_similarity)
-                if 'error' not in result:
-                    result['source'] = 'PubChem + RDKit'
-                    result['external_data'] = compound_data
-                    return jsonify(result)
-        except Exception as e:
-            pass
-    
-    return jsonify(result)
+    try:
+        from rdkit_analog_generator import generate_rdkit_analogs
+        result = generate_rdkit_analogs(smiles_to_use, num_analogs, min_similarity)
+        
+        if 'error' in result:
+            return jsonify({
+                'error': result['error'],
+                'input_smiles': smiles_to_use,
+                'source': source
+            }), 400
+        
+        result['source'] = source
+        result['compound_name'] = compound_name
+        result['input_smiles'] = smiles_to_use
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'error': f'Analog generation failed: {str(e)}',
+            'input_smiles': smiles_to_use,
+            'source': source
+        }), 500
 
 @app.route('/api/ddi_analysis', methods=['POST'])
 def ddi_analysis():

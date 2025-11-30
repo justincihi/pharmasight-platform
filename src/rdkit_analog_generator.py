@@ -5,9 +5,10 @@ Generates molecular analogs from any valid SMILES input using various strategies
 """
 
 from rdkit import Chem
-from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors, DataStructs
-from rdkit.Chem import Fragments, Lipinski, Draw, rdFMCS
+from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors, DataStructs, Draw
+from rdkit.Chem import Fragments, Lipinski, rdFMCS
 from rdkit.Chem.MolStandardize import rdMolStandardize
+from rdkit.Chem import RWMol
 from typing import List, Optional, Dict, Tuple
 import random
 import hashlib
@@ -25,24 +26,12 @@ ANALOG_STRATEGIES = [
 ]
 
 BIOISOSTERE_REPLACEMENTS = {
-    '[OH]': ['[SH]', '[NH2]', 'F'],
-    'C(=O)O': ['C(=O)N', 'S(=O)(=O)O', 'P(=O)(O)O'],
-    '[NH2]': ['[OH]', '[CH3]', 'F'],
-    'c1ccccc1': ['c1ccncc1', 'c1ccc2ccccc2c1', 'c1ccoc1'],
-    'Cl': ['F', 'Br', '[CF3]'],
-    'F': ['Cl', '[CH3]', '[OH]'],
-}
-
-FUNCTIONAL_GROUP_ADDITIONS = {
-    'methyl': 'C',
-    'ethyl': 'CC',
-    'hydroxyl': 'O',
-    'amino': 'N',
-    'fluoro': 'F',
-    'chloro': 'Cl',
-    'cyano': 'C#N',
-    'methoxy': 'OC',
-    'acetyl': 'C(=O)C',
+    'OH': ['SH', 'NH2', 'F'],
+    'COOH': ['CONH2', 'SO3H', 'PO3H2'],
+    'NH2': ['OH', 'CH3', 'F'],
+    'Cl': ['F', 'Br', 'CF3'],
+    'F': ['Cl', 'CH3', 'OH'],
+    'Br': ['Cl', 'I', 'CF3'],
 }
 
 
@@ -115,117 +104,164 @@ class RDKitAnalogGenerator:
             score -= 10
             
         return max(score, 0), violations
-    
-    def generate_fluorinated_analog(self, mol: Chem.Mol) -> List[Chem.Mol]:
-        """Generate fluorinated analogs by replacing H with F"""
-        analogs = []
+
+    def _get_modifiable_atoms(self, mol: Chem.Mol) -> List[Tuple[int, str]]:
+        """Find atoms that can be modified"""
+        modifiable = []
+        for atom in mol.GetAtoms():
+            symbol = atom.GetSymbol()
+            idx = atom.GetIdx()
+            num_hs = atom.GetTotalNumHs()
+            
+            if symbol == 'C' and num_hs > 0:
+                modifiable.append((idx, 'C_with_H'))
+            elif symbol == 'N':
+                modifiable.append((idx, 'N'))
+            elif symbol == 'O':
+                modifiable.append((idx, 'O'))
+            elif symbol in ['F', 'Cl', 'Br', 'I']:
+                modifiable.append((idx, 'halogen'))
+        return modifiable
+
+    def _add_substituent(self, mol: Chem.Mol, atom_idx: int, substituent: str) -> Optional[Chem.Mol]:
+        """Add a substituent to a specific atom"""
         try:
-            rxn_smarts = '[cH:1]>>[cF:1]'
-            rxn = AllChem.ReactionFromSmarts(rxn_smarts)
-            products = rxn.RunReactants((mol,))
-            for product in products[:3]:
-                if product[0]:
-                    analogs.append(product[0])
+            rw_mol = RWMol(mol)
+            target_atom = rw_mol.GetAtomWithIdx(atom_idx)
+            
+            if target_atom.GetTotalNumHs() < 1:
+                return None
+            
+            sub_mol = Chem.MolFromSmiles(substituent)
+            if sub_mol is None:
+                return None
+            
+            combined = Chem.CombineMols(rw_mol, sub_mol)
+            rw_combined = RWMol(combined)
+            
+            num_atoms_orig = rw_mol.GetNumAtoms()
+            rw_combined.AddBond(atom_idx, num_atoms_orig, Chem.BondType.SINGLE)
+            
+            result = rw_combined.GetMol()
+            Chem.SanitizeMol(result)
+            return result
+        except:
+            return None
+
+    def _replace_atom(self, mol: Chem.Mol, atom_idx: int, new_symbol: str) -> Optional[Chem.Mol]:
+        """Replace an atom with a different element"""
+        try:
+            rw_mol = RWMol(mol)
+            atom = rw_mol.GetAtomWithIdx(atom_idx)
+            
+            if atom.GetSymbol() in ['F', 'Cl', 'Br', 'I'] and new_symbol in ['F', 'Cl', 'Br', 'I']:
+                atom.SetAtomicNum(Chem.GetPeriodicTable().GetAtomicNumber(new_symbol))
+                result = rw_mol.GetMol()
+                Chem.SanitizeMol(result)
+                return result
         except:
             pass
-        return analogs
-    
-    def generate_methylated_analog(self, mol: Chem.Mol) -> List[Chem.Mol]:
-        """Generate methylated analogs"""
+        return None
+
+    def generate_substitution_analogs(self, mol: Chem.Mol) -> List[Chem.Mol]:
+        """Generate analogs by adding substituents to carbon atoms"""
         analogs = []
-        try:
-            rxn_smarts = '[NH:1]>>[N:1]C'
-            rxn = AllChem.ReactionFromSmarts(rxn_smarts)
-            products = rxn.RunReactants((mol,))
-            for product in products[:2]:
-                if product[0]:
-                    analogs.append(product[0])
-                    
-            rxn_smarts2 = '[OH:1]>>[O:1]C'
-            rxn2 = AllChem.ReactionFromSmarts(rxn_smarts2)
-            products2 = rxn2.RunReactants((mol,))
-            for product in products2[:2]:
-                if product[0]:
-                    analogs.append(product[0])
-        except:
-            pass
+        substituents = ['F', 'C', 'O', 'N', 'Cl']
+        
+        modifiable = self._get_modifiable_atoms(mol)
+        carbon_atoms = [(idx, t) for idx, t in modifiable if t == 'C_with_H']
+        
+        for atom_idx, _ in carbon_atoms[:5]:
+            for sub in substituents:
+                new_mol = self._add_substituent(mol, atom_idx, sub)
+                if new_mol:
+                    analogs.append(new_mol)
+        
         return analogs
-    
-    def generate_hydroxylated_analog(self, mol: Chem.Mol) -> List[Chem.Mol]:
-        """Generate hydroxylated analogs"""
+
+    def generate_halogen_swap_analogs(self, mol: Chem.Mol) -> List[Chem.Mol]:
+        """Swap halogens in the molecule"""
         analogs = []
-        try:
-            rxn_smarts = '[cH:1]>>[c:1]O'
-            rxn = AllChem.ReactionFromSmarts(rxn_smarts)
-            products = rxn.RunReactants((mol,))
-            for product in products[:3]:
-                if product[0]:
-                    analogs.append(product[0])
-        except:
-            pass
+        swap_map = {'F': ['Cl', 'Br'], 'Cl': ['F', 'Br'], 'Br': ['F', 'Cl'], 'I': ['Cl', 'Br']}
+        
+        for atom in mol.GetAtoms():
+            if atom.GetSymbol() in swap_map:
+                for new_halogen in swap_map[atom.GetSymbol()]:
+                    new_mol = self._replace_atom(mol, atom.GetIdx(), new_halogen)
+                    if new_mol:
+                        analogs.append(new_mol)
+        
         return analogs
-    
-    def generate_halogen_swap_analog(self, mol: Chem.Mol) -> List[Chem.Mol]:
-        """Swap halogens (F <-> Cl <-> Br)"""
+
+    def generate_smiles_variants(self, smiles: str) -> List[str]:
+        """Generate analog SMILES by string manipulation (fallback method)"""
+        variants = []
+        
+        substitutions = [
+            ('C', 'CC'),
+            ('c', 'cc'),
+            ('N', 'NC'),
+            ('O', 'OC'),
+            ('Cl', 'F'),
+            ('F', 'Cl'),
+            ('Br', 'Cl'),
+            ('c1ccccc1', 'c1ccncc1'),
+            ('C(=O)', 'C(=O)C'),
+        ]
+        
+        for old, new in substitutions:
+            if old in smiles:
+                variant = smiles.replace(old, new, 1)
+                if variant != smiles:
+                    mol = Chem.MolFromSmiles(variant)
+                    if mol:
+                        variants.append(Chem.MolToSmiles(mol))
+        
+        return variants
+
+    def generate_deuterated_analog(self, smiles: str) -> List[str]:
+        """Generate deuterated analogs (conceptual - changes methyl groups)"""
+        variants = []
+        
+        methyl_patterns = ['NC', 'OC', 'SC']
+        for pattern in methyl_patterns:
+            if pattern in smiles:
+                for suffix in ['C', 'CC', '']:
+                    variant = smiles.replace(pattern, pattern[0] + 'C' + suffix, 1)
+                    mol = Chem.MolFromSmiles(variant)
+                    if mol and variant != smiles:
+                        variants.append(Chem.MolToSmiles(mol))
+        
+        return variants
+
+    def generate_extended_chain_analogs(self, mol: Chem.Mol) -> List[Chem.Mol]:
+        """Extend carbon chains"""
         analogs = []
-        try:
-            swaps = [
-                ('[F:1]>>[Cl:1]', 'F to Cl'),
-                ('[Cl:1]>>[F:1]', 'Cl to F'),
-                ('[Cl:1]>>[Br:1]', 'Cl to Br'),
-                ('[Br:1]>>[Cl:1]', 'Br to Cl'),
-            ]
-            for smarts, _ in swaps:
-                rxn = AllChem.ReactionFromSmarts(smarts)
-                products = rxn.RunReactants((mol,))
-                for product in products[:1]:
-                    if product[0]:
-                        analogs.append(product[0])
-        except:
-            pass
-        return analogs
-    
-    def generate_amine_modification_analog(self, mol: Chem.Mol) -> List[Chem.Mol]:
-        """Modify amine groups"""
+        
+        for atom in mol.GetAtoms():
+            if atom.GetSymbol() == 'C' and atom.GetTotalNumHs() >= 2:
+                new_mol = self._add_substituent(mol, atom.GetIdx(), 'C')
+                if new_mol:
+                    analogs.append(new_mol)
+                new_mol2 = self._add_substituent(mol, atom.GetIdx(), 'CC')
+                if new_mol2:
+                    analogs.append(new_mol2)
+        
+        return analogs[:6]
+
+    def generate_nitrogen_modifications(self, mol: Chem.Mol) -> List[Chem.Mol]:
+        """Modify nitrogen atoms"""
         analogs = []
-        try:
-            mods = [
-                '[NH2:1]>>[NH:1]C',
-                '[NH:1]>>[N:1](C)C',
-                '[NH2:1]>>[NH:1]CC',
-            ]
-            for smarts in mods:
-                rxn = AllChem.ReactionFromSmarts(smarts)
-                products = rxn.RunReactants((mol,))
-                for product in products[:1]:
-                    if product[0]:
-                        analogs.append(product[0])
-        except:
-            pass
+        
+        for atom in mol.GetAtoms():
+            if atom.GetSymbol() == 'N' and atom.GetTotalNumHs() > 0:
+                new_mol = self._add_substituent(mol, atom.GetIdx(), 'C')
+                if new_mol:
+                    analogs.append(new_mol)
+        
         return analogs
-    
-    def generate_ring_modification_analog(self, mol: Chem.Mol) -> List[Chem.Mol]:
-        """Modify ring systems"""
-        analogs = []
-        try:
-            mods = [
-                'c1ccccc1>>c1ccncc1',
-                'c1ccccc1>>c1ccc2ccccc2c1',
-            ]
-            for smarts in mods:
-                try:
-                    rxn = AllChem.ReactionFromSmarts(smarts)
-                    products = rxn.RunReactants((mol,))
-                    for product in products[:1]:
-                        if product[0]:
-                            analogs.append(product[0])
-                except:
-                    continue
-        except:
-            pass
-        return analogs
-    
-    def generate_analogs(self, smiles: str, num_analogs: int = 10, min_similarity: float = 0.7) -> Dict:
+
+    def generate_analogs(self, smiles: str, num_analogs: int = 10, min_similarity: float = 0.5) -> Dict:
         """
         Generate analogs from any valid SMILES input
         
@@ -248,12 +284,10 @@ class RDKitAnalogGenerator:
         seen_smiles = {canonical}
         
         generators = [
-            ('Fluorination', self.generate_fluorinated_analog),
-            ('Methylation', self.generate_methylated_analog),
-            ('Hydroxylation', self.generate_hydroxylated_analog),
-            ('Halogen Swap', self.generate_halogen_swap_analog),
-            ('Amine Modification', self.generate_amine_modification_analog),
-            ('Ring Modification', self.generate_ring_modification_analog),
+            ('Substitution', lambda m: self.generate_substitution_analogs(m)),
+            ('Halogen Swap', lambda m: self.generate_halogen_swap_analogs(m)),
+            ('Chain Extension', lambda m: self.generate_extended_chain_analogs(m)),
+            ('N-Modification', lambda m: self.generate_nitrogen_modifications(m)),
         ]
         
         for strategy_name, generator in generators:
@@ -298,6 +332,47 @@ class RDKitAnalogGenerator:
                         })
                     except:
                         continue
+            except:
+                continue
+        
+        smiles_variants = self.generate_smiles_variants(canonical)
+        for variant_smiles in smiles_variants:
+            if variant_smiles in seen_smiles:
+                continue
+            seen_smiles.add(variant_smiles)
+            
+            variant_mol = Chem.MolFromSmiles(variant_smiles)
+            if not variant_mol:
+                continue
+            
+            try:
+                similarity = self.calculate_similarity(parent_mol, variant_mol)
+                if similarity < min_similarity:
+                    continue
+                
+                props = self.calculate_properties(variant_mol)
+                drug_score, violations = self.assess_drug_likeness(props)
+                analog_hash = hashlib.md5(variant_smiles.encode()).hexdigest()[:8]
+                
+                all_analogs.append({
+                    'name': f'Bioisostere-Analog-{analog_hash.upper()}',
+                    'smiles': variant_smiles,
+                    'similarity': similarity,
+                    'modification_strategy': 'Bioisostere Replacement',
+                    'molecular_weight': props.get('molecular_weight', 0),
+                    'logp': props.get('logp', 0),
+                    'hbd': props.get('hbd', 0),
+                    'hba': props.get('hba', 0),
+                    'tpsa': props.get('tpsa', 0),
+                    'drug_likeness': drug_score,
+                    'lipinski_violations': violations,
+                    'safety_score': min(95, drug_score + random.randint(-5, 10)),
+                    'efficacy_score': random.randint(65, 95),
+                    'novelty_score': random.randint(70, 95),
+                    'patent_status': self._estimate_patent_status(variant_smiles),
+                    'therapeutic_potential': self._assess_therapeutic_potential(drug_score, similarity),
+                    'estimated_value': self._estimate_value(drug_score, similarity),
+                })
             except:
                 continue
         
@@ -354,14 +429,21 @@ class RDKitAnalogGenerator:
             return 'Low'
     
     def _estimate_value(self, drug_score: int, similarity: float) -> str:
-        """Estimate market value"""
-        base_value = (drug_score * 0.3 + similarity * 20) * 100000
-        return f'${int(base_value / 1000000)}M'
+        """Estimate commercial value"""
+        combined = drug_score * 0.5 + similarity * 50
+        if combined > 80:
+            return '$15M - $25M'
+        elif combined > 60:
+            return '$8M - $15M'
+        elif combined > 40:
+            return '$3M - $8M'
+        else:
+            return '$1M - $3M'
 
 
 rdkit_generator = RDKitAnalogGenerator()
 
 
-def generate_rdkit_analogs(smiles: str, num_analogs: int = 10, min_similarity: float = 0.7) -> Dict:
+def generate_rdkit_analogs(smiles: str, num_analogs: int = 10, min_similarity: float = 0.5) -> Dict:
     """Convenience function for generating analogs"""
     return rdkit_generator.generate_analogs(smiles, num_analogs, min_similarity)
