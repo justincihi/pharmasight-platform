@@ -10,11 +10,11 @@ Includes:
 - Enhanced DDI Analysis
 """
 
-from .models.base import PKParameters, SimulationResult, AdminRoute, ModelType
-from .models.one_compartment import OneCompartmentModel
-from .models.two_compartment import TwoCompartmentModel
-from .models.three_compartment import ThreeCompartmentModel
-from .models.pbpk_minimal import MinimalPBPKModel
+from .models.base import PKParameters, SimulationResult, AdminRoute, ModelType, PKModel
+from .models.one_compartment import OneCompartmentIV
+from .models.two_compartment import TwoCompartmentIV, TwoCompartmentOral
+from .models.three_compartment import ThreeCompartmentIV, ThreeCompartmentOral
+from .models.pbpk_minimal import MinimalPBPK, PBPKCompartment, PBPKStructure
 
 __version__ = "2.0.0"
 __all__ = [
@@ -22,8 +22,13 @@ __all__ = [
     "SimulationResult", 
     "AdminRoute",
     "ModelType",
-    "OneCompartmentModel",
-    "TwoCompartmentModel",
-    "ThreeCompartmentModel",
-    "MinimalPBPKModel",
+    "PKModel",
+    "OneCompartmentIV",
+    "TwoCompartmentIV",
+    "TwoCompartmentOral",
+    "ThreeCompartmentIV",
+    "ThreeCompartmentOral",
+    "MinimalPBPK",
+    "PBPKCompartment",
+    "PBPKStructure",
 ]
