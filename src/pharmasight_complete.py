@@ -4643,6 +4643,164 @@ def research_articles():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ========== COMPREHENSIVE VIABILITY ANALYSIS ENDPOINTS ==========
+
+@app.route('/api/viability/analyze', methods=['POST'])
+def viability_analyze():
+    """Comprehensive viability analysis for a compound"""
+    try:
+        from comprehensive_viability import ComprehensiveViabilityAnalyzer
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        include_admet = data.get('include_admet', True)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        analyzer = ComprehensiveViabilityAnalyzer()
+        result = analyzer.calculate_overall_viability(smiles, include_admet)
+        
+        if 'error' in result:
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/viability/batch', methods=['POST'])
+def viability_batch():
+    """Batch viability analysis with ranking"""
+    try:
+        from comprehensive_viability import ComprehensiveViabilityAnalyzer
+        
+        data = request.get_json()
+        compounds = data.get('compounds', [])
+        
+        if not compounds:
+            return jsonify({'error': 'Compounds list is required'}), 400
+        
+        analyzer = ComprehensiveViabilityAnalyzer()
+        result = analyzer.batch_viability_analysis(compounds)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/viability/np_score', methods=['POST'])
+def viability_np_score():
+    """Calculate Natural Product-likeness Score"""
+    try:
+        from comprehensive_viability import ComprehensiveViabilityAnalyzer
+        from rdkit import Chem
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if not mol:
+            return jsonify({'error': 'Invalid SMILES string'}), 400
+        
+        analyzer = ComprehensiveViabilityAnalyzer()
+        result = analyzer.calculate_np_score(mol)
+        result['smiles'] = smiles
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/viability/fto', methods=['POST'])
+def viability_fto():
+    """Calculate Freedom-to-Operate Score"""
+    try:
+        from comprehensive_viability import ComprehensiveViabilityAnalyzer
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        analyzer = ComprehensiveViabilityAnalyzer()
+        result = analyzer.calculate_fto_score(smiles)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/patent/generate', methods=['POST'])
+def patent_generate():
+    """Generate provisional patent document draft"""
+    try:
+        from comprehensive_viability import PatentDocumentGenerator
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        compound_name = data.get('compound_name', 'Novel Compound')
+        parent_compound = data.get('parent_compound', None)
+        therapeutic_area = data.get('therapeutic_area', None)
+        modification_type = data.get('modification_type', None)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        generator = PatentDocumentGenerator()
+        result = generator.generate_provisional_patent(
+            smiles=smiles,
+            compound_name=compound_name,
+            parent_compound=parent_compound,
+            therapeutic_area=therapeutic_area,
+            modification_type=modification_type
+        )
+        
+        if 'error' in result:
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/patent/text', methods=['POST'])
+def patent_text():
+    """Generate formatted patent document text"""
+    try:
+        from comprehensive_viability import PatentDocumentGenerator
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        compound_name = data.get('compound_name', 'Novel Compound')
+        parent_compound = data.get('parent_compound', None)
+        therapeutic_area = data.get('therapeutic_area', None)
+        modification_type = data.get('modification_type', None)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        generator = PatentDocumentGenerator()
+        patent_doc = generator.generate_provisional_patent(
+            smiles=smiles,
+            compound_name=compound_name,
+            parent_compound=parent_compound,
+            therapeutic_area=therapeutic_area,
+            modification_type=modification_type
+        )
+        
+        if 'error' in patent_doc:
+            return jsonify(patent_doc), 400
+        
+        text = generator.generate_patent_text(patent_doc)
+        
+        return jsonify({
+            'success': True,
+            'patent_document': patent_doc,
+            'formatted_text': text
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ========== MISSING API ENDPOINTS FOR FRONTEND ==========
 
 # Virtual Screening Endpoints
