@@ -4494,6 +4494,155 @@ def pkpd_pbpk():
     
     return jsonify(result)
 
+# ========== ENHANCED PK/PBPK SIMULATION ENDPOINTS ==========
+
+@app.route('/api/pk/compartmental', methods=['POST'])
+def pk_compartmental_simulation():
+    """Run compartmental PK simulation with advanced models"""
+    try:
+        from pharmasight_pk.models.base import PKParameters
+        from pharmasight_pk.models.one_compartment import OneCompartmentIV
+        from pharmasight_pk.models.two_compartment import TwoCompartmentIV, TwoCompartmentOral
+        from pharmasight_pk.models.three_compartment import ThreeCompartmentIV, ThreeCompartmentOral
+        
+        data = request.get_json()
+        
+        model_type = data.get('model_type', 'one_compartment')
+        route = data.get('route', 'iv')
+        dose = data.get('dose', 100)
+        t_end = data.get('t_end', 24)
+        
+        cl = data.get('clearance', 5.0)
+        vc = data.get('central_volume', 50.0)
+        qp = data.get('intercompartmental_cl', 2.0)
+        vp = data.get('peripheral_volume', 100.0)
+        ka = data.get('absorption_rate', 1.0)
+        f = data.get('bioavailability', 1.0)
+        
+        if model_type == 'one_compartment':
+            params = PKParameters(CL=cl, Vc=vc)
+            model = OneCompartmentIV(params)
+        elif model_type == 'two_compartment':
+            params = PKParameters(CL=cl, Vc=vc, Qp=qp, Vp=vp, Ka=ka if route == 'oral' else None, F=f)
+            model = TwoCompartmentOral(params) if route == 'oral' else TwoCompartmentIV(params)
+        elif model_type == 'three_compartment':
+            params = PKParameters(CL=cl, Vc=vc, Qp=qp, Vp=vp, Ka=ka if route == 'oral' else None, F=f,
+                                  extra={'Q2': data.get('q2', 1.0), 'V2': data.get('v2', 50.0)})
+            model = ThreeCompartmentOral(params) if route == 'oral' else ThreeCompartmentIV(params)
+        else:
+            return jsonify({'error': f'Unknown model type: {model_type}'}), 400
+        
+        result = model.simulate(dose_mg=dose, route=route, t_end=t_end)
+        
+        t_central, c_central = result.get_central_compartment()
+        auc = result.get_auc()
+        
+        time_points = t_central.tolist()
+        concentrations = c_central.tolist()
+        
+        cmax = float(c_central.max())
+        tmax_idx = int(c_central.argmax())
+        tmax = float(t_central[tmax_idx])
+        
+        return jsonify({
+            'success': True,
+            'model_type': model_type,
+            'route': route,
+            'dose': dose,
+            'parameters': {
+                'clearance': cl,
+                'central_volume': vc,
+                'intercompartmental_cl': qp,
+                'peripheral_volume': vp,
+                'absorption_rate': ka if route == 'oral' else None,
+                'bioavailability': f
+            },
+            'simulation': {
+                'time': time_points,
+                'central_concentration': concentrations,
+            },
+            'pk_metrics': {
+                'cmax': round(cmax, 4),
+                'tmax': round(tmax, 2),
+                'auc_0_inf': round(auc, 4),
+                'half_life': round(0.693 * vc / cl, 2)
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/pk/ddi/predict', methods=['POST'])
+def pk_ddi_prediction():
+    """Predict drug-drug interactions using enhanced DDI module"""
+    try:
+        data = request.get_json()
+        
+        drug1 = data.get('drug1', '')
+        drug2 = data.get('drug2', '')
+        
+        if not drug1 or not drug2:
+            return jsonify({'error': 'Both drug1 and drug2 are required'}), 400
+        
+        from ddi_analysis_fix import analyze_ddi
+        result = analyze_ddi(drug1, drug2)
+        
+        return jsonify({
+            'success': True,
+            'drug1': drug1,
+            'drug2': drug2,
+            'interaction': result
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/research/articles', methods=['GET', 'POST'])
+def research_articles():
+    """Manage research article database"""
+    try:
+        from research_article_database import ResearchArticleDatabase
+        
+        db = ResearchArticleDatabase()
+        
+        if request.method == 'GET':
+            page = request.args.get('page', 1, type=int)
+            per_page = request.args.get('per_page', 20, type=int)
+            
+            articles = db.database['articles']
+            total = len(articles)
+            start = (page - 1) * per_page
+            end = start + per_page
+            
+            return jsonify({
+                'success': True,
+                'total': total,
+                'page': page,
+                'per_page': per_page,
+                'articles': articles[start:end]
+            })
+        else:
+            data = request.get_json()
+            article = db.add_article(
+                title=data.get('title'),
+                authors=data.get('authors'),
+                doi=data.get('doi'),
+                pmid=data.get('pmid'),
+                journal=data.get('journal'),
+                year=data.get('year'),
+                abstract=data.get('abstract'),
+                keywords=data.get('keywords'),
+                relevance_score=data.get('relevance_score'),
+                source_database=data.get('source_database'),
+                research_goal=data.get('research_goal')
+            )
+            db.save()
+            
+            return jsonify({
+                'success': True,
+                'article': article
+            })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ========== MISSING API ENDPOINTS FOR FRONTEND ==========
 
 # Virtual Screening Endpoints

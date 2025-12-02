@@ -3,13 +3,13 @@
 ## Overview
 PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and drug discovery platform. This is the complete, most recent version with all features enabled, including advanced drug discovery capabilities and quantum computing simulations.
 
-## Current Status (November 30, 2025)
+## Current Status (December 2, 2025)
 - ✅ **Status**: Fully operational with modern UI
-- ✅ **Version**: 4.3.0 Enterprise Enhanced
+- ✅ **Version**: 4.4.0 Enterprise Enhanced (GitHub Merged)
 - ✅ **RDKit**: Installed and working (version 2025.9.1)
 - ✅ **Server**: Running on port 5000
 - ✅ **Frontend**: Modern responsive UI with all features connected
-- ✅ **Advanced Features**: All 14 AI modules operational
+- ✅ **Advanced Features**: All 16 AI modules operational
 - ✅ **Quantum Computing**: Integrated with VQE, QAOA, and Grover's algorithms
 - ✅ **Retrosynthesis**: Chemical synthesis route planning
 - ✅ **Research Engine**: Autonomous 24/7 discovery engine with goal-based research
@@ -17,6 +17,9 @@ PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and dru
 - ✅ **Virtual Screening**: Enhanced with balanced pharmacophore scoring for all 16 receptor families
 - ✅ **Analog Generation**: Full RDKit-based analog generation from any SMILES input with score cards
 - ✅ **Compound Database**: 202 compounds (35 internal + 167 FDA approved drugs)
+- ✅ **PK/PBPK Models**: Advanced compartmental models (1, 2, 3-compartment + PBPK)
+- ✅ **Virtual Patient**: Patient population simulation for clinical trials
+- ✅ **Research Article DB**: Tracks all scanned research articles
 
 ## Key Features
 1. **AI-Powered Compound Analysis** - Advanced molecular analysis with ML algorithms
@@ -63,6 +66,18 @@ PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and dru
 │   ├── ddi_analysis_fix.py       # Drug-drug interactions
 │   ├── analog_generation_fix.py  # Compound analog generation
 │   ├── research_findings_fix.py  # Research intelligence
+│   ├── research_article_database.py  # Research article tracking ⭐ NEW
+│   ├── auth_db.py                # PostgreSQL authentication ⭐ NEW
+│   ├── pharmasight_pk/           # Advanced PK/PBPK module ⭐ NEW
+│   │   ├── models/
+│   │   │   ├── base.py           # PK base classes
+│   │   │   ├── one_compartment.py
+│   │   │   ├── two_compartment.py
+│   │   │   ├── three_compartment.py
+│   │   │   └── pbpk_minimal.py
+│   │   ├── virtual_patient.py    # Patient simulation
+│   │   ├── popPK.py              # Population PK
+│   │   └── ddi.py                # Enhanced DDI analysis
 │   └── data_export.py            # Export functionality
 ├── requirements.txt               # Python dependencies
 └── molecular_images/              # Generated molecule visualizations
@@ -118,6 +133,15 @@ The modern UI includes:
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/status` - Check authentication status
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/change-password` - Change password
+- `GET /api/admin/users` - List users (admin only)
+
+### Enhanced PK Modeling (NEW)
+- `POST /api/pk/compartmental` - Advanced compartmental PK simulation (1/2/3-compartment)
+- `POST /api/pk/ddi/predict` - Enhanced DDI prediction with CYP enzyme analysis
+- `GET /api/research/articles` - List scanned research articles
+- `POST /api/research/articles` - Add article to research database
 
 ## Dependencies Installation
 All dependencies are installed via:
@@ -166,7 +190,25 @@ Key packages installed:
 - ⚠️ **ZINC**: Framework implemented (not yet fully operational)
 - ⚠️ **OpenTargets**: Framework implemented (GraphQL integration pending)
 
-## Recent Changes (November 26, 2025)
+## Recent Changes (December 2, 2025)
+- ✅ Merged code from GitHub `integrated-platform` branch (viability scoring, research engine)
+- ✅ Merged code from GitHub `feature/pk-core-v2` branch (advanced PK/PBPK models)
+- ✅ Integrated enhanced PK models: One/Two/Three-Compartment IV and Oral
+- ✅ Added Minimal PBPK model for physiologically-based simulations
+- ✅ Integrated Virtual Patient simulation module
+- ✅ Integrated Population PK (popPK) modeling
+- ✅ Added Research Article Database for tracking scanned literature
+- ✅ Added new API endpoints for compartmental PK simulation
+- ✅ Updated authentication to use PostgreSQL with hashed passwords
+- ✅ Removed hardcoded credentials - now uses database authentication
+- ✅ Added user registration and admin panel endpoints
+
+## Changes (November 30, 2025)
+- ✅ Migrated authentication from hardcoded credentials to PostgreSQL
+- ✅ Implemented PBKDF2-SHA256 password hashing with werkzeug
+- ✅ Auto-generated secure admin credentials on startup
+
+## Changes (November 26, 2025)
 - ✅ Added Retrosynthesis Analysis feature with synthesis route planning
 - ✅ Implemented Autonomous Research Engine with editable research goals
 - ✅ Created Login/Authentication system with role-based access
