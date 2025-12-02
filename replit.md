@@ -143,6 +143,16 @@ The modern UI includes:
 - `GET /api/research/articles` - List scanned research articles
 - `POST /api/research/articles` - Add article to research database
 
+### Comprehensive Viability Analysis (NEW)
+- `POST /api/viability/analyze` - Full viability analysis (SA Score, QED, NP Score, Lipinski, FTO)
+- `POST /api/viability/batch` - Batch analysis with priority ranking
+- `POST /api/viability/np_score` - Natural Product-likeness Score calculation
+- `POST /api/viability/fto` - Freedom-to-Operate Score with Tanimoto similarity
+
+### Patent Document Generation (NEW)
+- `POST /api/patent/provisional` - Generate provisional patent draft from SMILES
+- `POST /api/patent/draft` - Generate formatted patent document text
+
 ## Dependencies Installation
 All dependencies are installed via:
 ```bash

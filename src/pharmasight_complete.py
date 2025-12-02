@@ -4731,9 +4731,9 @@ def viability_fto():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/patent/generate', methods=['POST'])
-def patent_generate():
-    """Generate provisional patent document draft"""
+@app.route('/api/patent/provisional', methods=['POST'])
+def patent_provisional():
+    """Generate provisional patent document draft from SMILES"""
     try:
         from comprehensive_viability import PatentDocumentGenerator
         
@@ -4763,8 +4763,8 @@ def patent_generate():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/patent/text', methods=['POST'])
-def patent_text():
+@app.route('/api/patent/draft', methods=['POST'])
+def patent_draft():
     """Generate formatted patent document text"""
     try:
         from comprehensive_viability import PatentDocumentGenerator
