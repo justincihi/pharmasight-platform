@@ -5540,6 +5540,254 @@ def batch_comprehensive_screening():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ========== ADVANCED ANALOG GENERATION ENDPOINTS ==========
+
+@app.route('/api/analogs/advanced', methods=['POST'])
+def advanced_analog_generation():
+    """
+    Generate optimized analogs using scaffold hopping, R-group enumeration,
+    and matched molecular pair analysis with multi-objective scoring.
+    """
+    try:
+        from advanced_analog_generator import AdvancedAnalogGenerator
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES is required'}), 400
+        
+        optimization_target = data.get('optimization_target', 'balanced')
+        num_analogs = min(data.get('num_analogs', 20), 50)
+        min_similarity = max(0.3, min(0.9, data.get('min_similarity', 0.4)))
+        therapeutic_area = data.get('therapeutic_area', None)
+        
+        generator = AdvancedAnalogGenerator()
+        result = generator.generate_optimized_analogs(
+            smiles=smiles,
+            optimization_target=optimization_target,
+            num_analogs=num_analogs,
+            min_similarity=min_similarity,
+            therapeutic_area=therapeutic_area
+        )
+        
+        if 'error' in result:
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analogs/scaffold-hop', methods=['POST'])
+def scaffold_hop_endpoint():
+    """Generate scaffold-hopped analogs"""
+    try:
+        from advanced_analog_generator import AdvancedAnalogGenerator
+        from rdkit import Chem
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        max_hops = min(data.get('max_hops', 5), 10)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES is required'}), 400
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return jsonify({'error': 'Invalid SMILES'}), 400
+        
+        generator = AdvancedAnalogGenerator()
+        hops = generator.scaffold_hop(mol, max_hops=max_hops)
+        
+        results = []
+        for hop in hops:
+            score = generator.multi_objective_score(hop['mol'])
+            results.append({
+                'smiles': hop['smiles'],
+                'original_scaffold': hop['original_scaffold'],
+                'new_scaffold': hop['new_scaffold'],
+                'similarity': round(hop['similarity'], 3),
+                'combined_score': score['combined'],
+                'properties': score['properties']
+            })
+        
+        results.sort(key=lambda x: -x['combined_score'])
+        
+        return jsonify({
+            'parent_smiles': Chem.MolToSmiles(mol),
+            'scaffold_hops': results,
+            'total_generated': len(results)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analogs/matched-pairs', methods=['POST'])
+def matched_pair_transform_endpoint():
+    """Apply matched molecular pair transformations"""
+    try:
+        from advanced_analog_generator import AdvancedAnalogGenerator
+        from rdkit import Chem
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        target_effect = data.get('target_effect', None)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES is required'}), 400
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return jsonify({'error': 'Invalid SMILES'}), 400
+        
+        generator = AdvancedAnalogGenerator()
+        transforms = generator.matched_molecular_pair_transform(mol, target_effect=target_effect)
+        
+        results = []
+        for t in transforms:
+            score = generator.multi_objective_score(t['mol'])
+            results.append({
+                'smiles': t['smiles'],
+                'transform_name': t['transform_name'],
+                'expected_effect': t['expected_effect'],
+                'similarity': round(t['similarity'], 3),
+                'combined_score': score['combined'],
+                'properties': score['properties']
+            })
+        
+        results.sort(key=lambda x: -x['combined_score'])
+        
+        return jsonify({
+            'parent_smiles': Chem.MolToSmiles(mol),
+            'transforms': results,
+            'total_generated': len(results),
+            'filter_effect': target_effect
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analogs/r-group', methods=['POST'])
+def r_group_enumeration_endpoint():
+    """Enumerate R-groups at specified positions"""
+    try:
+        from advanced_analog_generator import AdvancedAnalogGenerator
+        from rdkit import Chem
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        position_smarts = data.get('position_smarts', '[CH3]')
+        r_group_category = data.get('r_group_category', 'small_hydrophobic')
+        max_analogs = min(data.get('max_analogs', 10), 25)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES is required'}), 400
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return jsonify({'error': 'Invalid SMILES'}), 400
+        
+        generator = AdvancedAnalogGenerator()
+        
+        valid_categories = list(generator.R_GROUP_LIBRARY.keys())
+        if r_group_category not in valid_categories:
+            return jsonify({
+                'error': f'Invalid category. Valid options: {valid_categories}'
+            }), 400
+        
+        r_groups = generator.enumerate_r_groups(
+            mol, position_smarts, r_group_category, max_analogs
+        )
+        
+        results = []
+        for rg in r_groups:
+            score = generator.multi_objective_score(rg['mol'])
+            results.append({
+                'smiles': rg['smiles'],
+                'r_group': rg['r_group'],
+                'category': rg['category'],
+                'similarity': round(rg['similarity'], 3),
+                'combined_score': score['combined'],
+                'properties': score['properties']
+            })
+        
+        results.sort(key=lambda x: -x['combined_score'])
+        
+        return jsonify({
+            'parent_smiles': Chem.MolToSmiles(mol),
+            'position_smarts': position_smarts,
+            'r_group_category': r_group_category,
+            'available_categories': valid_categories,
+            'analogs': results,
+            'total_generated': len(results)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analogs/screen-series', methods=['POST'])
+def screen_analog_series_endpoint():
+    """Screen a series of analog SMILES with multi-objective scoring"""
+    try:
+        from advanced_analog_generator import AdvancedAnalogGenerator
+        
+        data = request.get_json()
+        smiles_list = data.get('smiles_list', [])
+        reference_smiles = data.get('reference_smiles', None)
+        
+        if not smiles_list:
+            return jsonify({'error': 'smiles_list is required'}), 400
+        
+        if len(smiles_list) > 100:
+            return jsonify({'error': 'Maximum 100 compounds per request'}), 400
+        
+        generator = AdvancedAnalogGenerator()
+        result = generator.screen_analog_series(smiles_list, reference_smiles)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/analogs/multi-objective', methods=['POST'])
+def multi_objective_scoring_endpoint():
+    """Calculate multi-objective score for a single compound"""
+    try:
+        from advanced_analog_generator import AdvancedAnalogGenerator
+        from rdkit import Chem
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        weights = data.get('weights', None)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES is required'}), 400
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return jsonify({'error': 'Invalid SMILES'}), 400
+        
+        generator = AdvancedAnalogGenerator()
+        
+        scaffold_framework, scaffold_generic = generator.extract_murcko_scaffold(mol)
+        brics_fragments = generator.decompose_brics(mol)
+        
+        score = generator.multi_objective_score(mol, weights=weights)
+        
+        return jsonify({
+            'smiles': Chem.MolToSmiles(mol),
+            'multi_objective_score': score,
+            'scaffold': {
+                'murcko_framework': scaffold_framework,
+                'generic_scaffold': scaffold_generic,
+                'brics_fragments': brics_fragments[:10]
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # ========== INTEGRATE ADVANCED DRUG DISCOVERY FEATURES ==========
 # Import and register new advanced features
 try:
