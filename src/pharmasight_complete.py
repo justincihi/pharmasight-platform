@@ -4952,6 +4952,225 @@ def sar_analyze():
     
     return jsonify(result)
 
+# ========== BIOTRANSFORMER METABOLISM PREDICTION ==========
+
+@app.route('/api/metabolism/predict', methods=['POST'])
+def predict_metabolism():
+    """
+    Predict small molecule metabolism using BioTransformer 3.0
+    
+    Modes:
+    - cyp450: CYP450 Phase I metabolism
+    - phase2: Phase II conjugation (glucuronidation, sulfation, etc.)
+    - gut: Gut microbiota metabolism
+    - allhuman: Combined human tissue + gut (recommended)
+    - superbio: Comprehensive 4-iteration prediction
+    - envmicro: Environmental microbial degradation
+    
+    Parameters:
+    - sync (bool): If True (default), wait for results. If False, return job_id for polling.
+    - quick_summary (bool): If True, use fast local heuristics (no external API call)
+    """
+    try:
+        from biotransformer_client import predict_metabolism_sync, get_metabolism_summary, submit_prediction
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        mode = data.get('mode', 'allhuman')
+        sync = data.get('sync', True)
+        max_wait = data.get('max_wait', 300)
+        quick_summary = data.get('quick_summary', False)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        if quick_summary:
+            result = get_metabolism_summary(smiles)
+            return jsonify(result)
+        
+        if sync:
+            result = predict_metabolism_sync(smiles, mode, max_wait)
+            if not result.get('success', False):
+                return jsonify(result), 400
+            return jsonify(result)
+        else:
+            result = submit_prediction(smiles, mode)
+            if result.get('status') == 'submitted':
+                return jsonify({
+                    'status': 'submitted',
+                    'job_id': result.get('query_id'),
+                    'mode': mode,
+                    'message': 'Use GET /api/metabolism/status/<job_id> to poll for results'
+                }), 202
+            elif result.get('status') == 'completed':
+                return jsonify({
+                    'status': 'completed',
+                    'cached': True,
+                    'result': result.get('result')
+                })
+            else:
+                return jsonify(result), 400
+    except ImportError:
+        return jsonify({'error': 'BioTransformer client not available'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/metabolism/status/<int:job_id>', methods=['GET'])
+def get_metabolism_status(job_id):
+    """Poll for async metabolism prediction status"""
+    try:
+        from biotransformer_client import get_prediction_status, parse_metabolites
+        
+        status = get_prediction_status(job_id)
+        
+        if status['status'] == 'completed':
+            result = status['result']
+            metabolites = parse_metabolites(result)
+            return jsonify({
+                'status': 'completed',
+                'job_id': job_id,
+                'metabolites': metabolites,
+                'metabolite_count': len(metabolites),
+                'raw_result': result
+            })
+        elif status['status'] == 'processing':
+            return jsonify({
+                'status': 'processing',
+                'job_id': job_id,
+                'message': 'Prediction still in progress. Poll again.'
+            }), 202
+        else:
+            return jsonify(status), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/metabolism/cyp450', methods=['POST'])
+def predict_cyp450_metabolism():
+    """Predict CYP450 Phase I metabolism"""
+    try:
+        from biotransformer_client import predict_cyp450
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        result = predict_cyp450(smiles)
+        
+        if not result.get('success', False):
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/metabolism/phase2', methods=['POST'])
+def predict_phase2_metabolism():
+    """Predict Phase II conjugation metabolism"""
+    try:
+        from biotransformer_client import predict_phase2
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        result = predict_phase2(smiles)
+        
+        if not result.get('success', False):
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/metabolism/gut', methods=['POST'])
+def predict_gut_metabolism():
+    """Predict gut microbiota metabolism"""
+    try:
+        from biotransformer_client import predict_gut_metabolism as predict_gut
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        result = predict_gut(smiles)
+        
+        if not result.get('success', False):
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/metabolism/comprehensive', methods=['POST'])
+def predict_comprehensive_metabolism():
+    """Comprehensive metabolism prediction (SUPERBIO - 4 iterations)"""
+    try:
+        from biotransformer_client import predict_comprehensive
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        max_wait = data.get('max_wait', 600)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        result = predict_comprehensive(smiles, max_wait)
+        
+        if not result.get('success', False):
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/metabolism/summary', methods=['POST'])
+def get_metabolism_summary_endpoint():
+    """Get quick metabolism summary using local heuristics (no external API)"""
+    try:
+        from biotransformer_client import get_metabolism_summary
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        result = get_metabolism_summary(smiles)
+        
+        if 'error' in result:
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/metabolism/environmental', methods=['POST'])
+def predict_environmental_metabolism():
+    """Predict environmental microbial degradation"""
+    try:
+        from biotransformer_client import predict_environmental
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        result = predict_environmental(smiles)
+        
+        if not result.get('success', False):
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ========== INTEGRATE ADVANCED DRUG DISCOVERY FEATURES ==========
 # Import and register new advanced features
 try:

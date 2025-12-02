@@ -153,6 +153,16 @@ The modern UI includes:
 - `POST /api/patent/provisional` - Generate provisional patent draft from SMILES
 - `POST /api/patent/draft` - Generate formatted patent document text
 
+### BioTransformer Metabolism Prediction (NEW)
+- `POST /api/metabolism/predict` - Main metabolism prediction (supports all modes)
+- `POST /api/metabolism/summary` - Quick local metabolism summary (no external API)
+- `GET /api/metabolism/status/<job_id>` - Poll for async prediction status
+- `POST /api/metabolism/cyp450` - CYP450 Phase I metabolism
+- `POST /api/metabolism/phase2` - Phase II conjugation reactions
+- `POST /api/metabolism/gut` - Gut microbiota metabolism
+- `POST /api/metabolism/comprehensive` - SUPERBIO 4-iteration comprehensive prediction
+- `POST /api/metabolism/environmental` - Environmental microbial degradation
+
 ## Dependencies Installation
 All dependencies are installed via:
 ```bash
