@@ -5309,6 +5309,237 @@ def therapeutic_potential_score():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/screening/comprehensive', methods=['POST'])
+def comprehensive_screening():
+    """
+    Comprehensive compound screening combining:
+    - Enhanced multi-receptor docking
+    - Viability analysis (SA Score, QED, NP Score, Lipinski)
+    - Safety assessment
+    - Lead potential evaluation
+    """
+    try:
+        from enhanced_docking_scorer import EnhancedDockingScorer
+        from comprehensive_viability import ComprehensiveViabilityAnalyzer
+        from rdkit import Chem
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        compound_name = data.get('name', '')
+        target_families = data.get('target_families', None)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return jsonify({'error': 'Invalid SMILES string'}), 400
+        
+        canonical_smiles = Chem.MolToSmiles(mol, canonical=True)
+        
+        docking_scorer = EnhancedDockingScorer()
+        docking_result = docking_scorer.calculate_enhanced_docking_score(
+            smiles,
+            target_families=target_families,
+            include_safety=True
+        )
+        
+        viability_analyzer = ComprehensiveViabilityAnalyzer()
+        viability_result = viability_analyzer.calculate_overall_viability(smiles)
+        
+        combined_score = calculate_combined_lead_score(
+            docking_result.get('lead_potential', {}),
+            viability_result
+        )
+        
+        return jsonify({
+            'compound': {
+                'name': compound_name or f"CPD_{hash(smiles) % 100000:05d}",
+                'smiles': smiles,
+                'canonical_smiles': canonical_smiles
+            },
+            'docking_analysis': {
+                'top_targets': docking_result.get('top_targets', []),
+                'affinity_profile': docking_result.get('affinity_profile', {}),
+                'therapeutic_potential': docking_result.get('therapeutic_potential', {}),
+                'safety_assessment': docking_result.get('safety_assessment', {}),
+                'lead_potential': docking_result.get('lead_potential', {})
+            },
+            'viability_analysis': viability_result,
+            'combined_assessment': combined_score,
+            'recommendations': generate_combined_recommendations(
+                docking_result, viability_result, combined_score
+            )
+        })
+    except Exception as e:
+        import traceback
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
+
+def calculate_combined_lead_score(docking_lead: dict, viability: dict) -> dict:
+    """Calculate combined lead score from docking and viability"""
+    docking_score = docking_lead.get('lead_score', 0.5)
+    activity_score = docking_lead.get('activity_score', 0.5)
+    safety_penalty = docking_lead.get('safety_penalty', 0)
+    
+    component_scores = viability.get('component_scores', {})
+    qed_score = component_scores.get('drug_likeness', 50) / 100
+    sa_normalized = component_scores.get('synthetic_accessibility', 50) / 100
+    lipinski_score = component_scores.get('lipinski_compliance', 75) / 100
+    fto_score = component_scores.get('patent_freedom', 50) / 100
+    
+    combined = (
+        activity_score * 0.25 +
+        qed_score * 0.2 +
+        sa_normalized * 0.15 +
+        lipinski_score * 0.15 +
+        fto_score * 0.15 +
+        (1 - safety_penalty) * 0.1
+    )
+    
+    if combined > 0.75:
+        classification = "Excellent Lead Candidate"
+        priority = "High"
+    elif combined > 0.6:
+        classification = "Promising Lead"
+        priority = "Medium-High"
+    elif combined > 0.45:
+        classification = "Moderate Potential"
+        priority = "Medium"
+    elif combined > 0.3:
+        classification = "Limited Potential"
+        priority = "Low"
+    else:
+        classification = "Not Recommended"
+        priority = "Very Low"
+    
+    return {
+        'combined_score': round(combined, 3),
+        'classification': classification,
+        'priority': priority,
+        'component_scores': {
+            'activity': round(activity_score, 3),
+            'drug_likeness': round(qed_score, 3),
+            'synthetic_accessibility': round(sa_normalized, 3),
+            'lipinski_compliance': round(lipinski_score, 3),
+            'freedom_to_operate': round(fto_score, 3),
+            'safety': round(1 - safety_penalty, 3)
+        }
+    }
+
+def generate_combined_recommendations(docking: dict, viability: dict, combined: dict) -> list:
+    """Generate combined recommendations from all analyses"""
+    recommendations = []
+    
+    score = combined.get('combined_score', 0)
+    components = combined.get('component_scores', {})
+    
+    if score >= 0.6:
+        recommendations.append("Overall favorable profile - proceed to in vitro validation")
+    
+    if components.get('activity', 0) > 0.7:
+        top_targets = docking.get('top_targets', [])
+        if top_targets:
+            target_names = [t['family'] for t in top_targets[:2]]
+            recommendations.append(f"Strong receptor affinity for {', '.join(target_names)}")
+    elif components.get('activity', 0) < 0.4:
+        recommendations.append("Low receptor affinity - consider scaffold modification")
+    
+    if components.get('safety', 0) < 0.85:
+        safety = docking.get('safety_assessment', {})
+        concerns = safety.get('concerns', [])
+        if concerns:
+            concern_list = [c['receptor'] for c in concerns[:2]]
+            recommendations.append(f"Safety concerns at {', '.join(concern_list)} - structural modification needed")
+    
+    if components.get('synthetic_accessibility', 0) < 0.5:
+        recommendations.append("Complex synthesis - consider simpler analogs")
+    
+    if components.get('drug_likeness', 0) < 0.4:
+        recommendations.append("Low drug-likeness - optimize physicochemical properties")
+    
+    if components.get('lipinski_compliance', 0) < 1.0:
+        lipinski = viability.get('lipinski', {})
+        violations = lipinski.get('violations', [])
+        if violations:
+            recommendations.append(f"Lipinski violations: {', '.join(violations[:2])}")
+    
+    if components.get('freedom_to_operate', 0) < 0.5:
+        recommendations.append("Low FTO score - patent landscape should be reviewed")
+    
+    if not recommendations:
+        recommendations.append("No significant concerns identified")
+    
+    return recommendations
+
+@app.route('/api/screening/batch', methods=['POST'])
+def batch_comprehensive_screening():
+    """Batch comprehensive screening for multiple compounds"""
+    try:
+        from enhanced_docking_scorer import EnhancedDockingScorer
+        from comprehensive_viability import ComprehensiveViabilityAnalyzer
+        from rdkit import Chem
+        
+        data = request.get_json()
+        compounds = data.get('compounds', [])
+        target_families = data.get('target_families', None)
+        
+        if not compounds:
+            return jsonify({'error': 'No compounds provided'}), 400
+        
+        if len(compounds) > 50:
+            return jsonify({'error': 'Maximum 50 compounds per batch'}), 400
+        
+        results = []
+        docking_scorer = EnhancedDockingScorer()
+        viability_analyzer = ComprehensiveViabilityAnalyzer()
+        
+        for compound in compounds:
+            smiles = compound.get('smiles', '')
+            name = compound.get('name', '')
+            
+            if not smiles:
+                results.append({'error': 'Missing SMILES', 'name': name})
+                continue
+            
+            mol = Chem.MolFromSmiles(smiles)
+            if mol is None:
+                results.append({'error': 'Invalid SMILES', 'name': name, 'smiles': smiles})
+                continue
+            
+            try:
+                docking_result = docking_scorer.calculate_enhanced_docking_score(
+                    smiles, target_families=target_families, include_safety=True
+                )
+                viability_result = viability_analyzer.calculate_overall_viability(smiles)
+                combined_score = calculate_combined_lead_score(
+                    docking_result.get('lead_potential', {}),
+                    viability_result
+                )
+                
+                results.append({
+                    'name': name or f"CPD_{hash(smiles) % 100000:05d}",
+                    'smiles': smiles,
+                    'combined_score': combined_score.get('combined_score'),
+                    'classification': combined_score.get('classification'),
+                    'priority': combined_score.get('priority'),
+                    'top_target': docking_result.get('top_targets', [{}])[0].get('family', 'Unknown'),
+                    'qed': viability_result.get('qed', {}).get('qed_score'),
+                    'safety_risk': docking_result.get('safety_assessment', {}).get('overall_risk', 'Unknown')
+                })
+            except Exception as e:
+                results.append({'error': str(e), 'name': name, 'smiles': smiles})
+        
+        results.sort(key=lambda x: x.get('combined_score', 0), reverse=True)
+        
+        return jsonify({
+            'total_compounds': len(compounds),
+            'successful': len([r for r in results if 'error' not in r]),
+            'failed': len([r for r in results if 'error' in r]),
+            'results': results
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ========== INTEGRATE ADVANCED DRUG DISCOVERY FEATURES ==========
 # Import and register new advanced features
 try:
