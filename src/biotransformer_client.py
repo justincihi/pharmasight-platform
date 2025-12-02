@@ -145,21 +145,43 @@ def submit_prediction(smiles: str, mode: str = 'ALLHUMAN', label: str = None) ->
     rate_limit_wait()
     
     try:
-        data = {
+        json_data = {
             'biotransformer_option': mode_upper,
-            'query_input': validation['canonical_smiles']
+            'query_input': validation['canonical_smiles'],
+            'task_type': 'PREDICTION',
+            'number_of_steps': 1
         }
         if label:
-            data['query_label'] = label
+            json_data['query_label'] = label
         
         response = requests.post(
             f"{BIOTRANSFORMER_API_BASE}/queries.json",
-            data=data,
-            headers={'Accept': 'application/json'},
-            timeout=30
+            json=json_data,
+            headers={
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            timeout=30,
+            allow_redirects=False
         )
         
-        if response.status_code == 200:
+        if response.status_code == 302:
+            location = response.headers.get('Location', '')
+            import re
+            match = re.search(r'/queries/(\d+)', location)
+            if match:
+                query_id = int(match.group(1))
+                return {
+                    'status': 'submitted',
+                    'query_id': query_id,
+                    'mode': mode_upper,
+                    'smiles': validation['canonical_smiles'],
+                    'message': 'Prediction submitted. Poll for results.'
+                }
+            else:
+                return {'error': 'Could not parse query ID from redirect', 'status': 'failed'}
+        
+        elif response.status_code == 200 or response.status_code == 201:
             result = response.json()
             query_id = result.get('id')
             if query_id:
@@ -217,6 +239,19 @@ def get_prediction_status(query_id: int) -> Dict[str, Any]:
                 return {
                     'status': 'failed',
                     'error': data['prediction_errors']
+                }
+            
+            bt_status = data.get('status', '').lower()
+            if bt_status == 'done' or 'predictions' in data:
+                return {
+                    'status': 'completed',
+                    'result': data
+                }
+            
+            if bt_status == 'in progress' or bt_status == 'queued':
+                return {
+                    'status': 'processing',
+                    'message': 'Prediction still in progress'
                 }
             
             if 'metabolites' in data or 'results' in data:
@@ -340,24 +375,48 @@ def predict_metabolism_sync(
 def parse_metabolites(result: Dict) -> List[Dict]:
     """Parse metabolites from BioTransformer response"""
     metabolites = []
+    seen_smiles = set()
     
-    raw_metabolites = result.get('metabolites', [])
-    if not raw_metabolites:
-        raw_metabolites = result.get('products', [])
+    predictions = result.get('predictions', [])
+    for prediction in predictions:
+        biotransformations = prediction.get('biotransformations', [])
+        for bt in biotransformations:
+            reaction_type = bt.get('reaction_type', '')
+            enzymes = bt.get('metabolic_enzymes', [])
+            biosystem = bt.get('biosystem', '')
+            
+            products = bt.get('products', [])
+            for product in products:
+                smiles = product.get('smiles', '')
+                if smiles and smiles not in seen_smiles:
+                    seen_smiles.add(smiles)
+                    metabolite = {
+                        'smiles': smiles,
+                        'name': product.get('title', 'Unknown'),
+                        'inchikey': product.get('inchikey', ''),
+                        'pubchem_cid': product.get('pubchem_cid', ''),
+                        'reaction_type': reaction_type,
+                        'enzymes': enzymes,
+                        'biosystem': biosystem,
+                    }
+                    metabolites.append(metabolite)
     
-    for met in raw_metabolites:
-        if isinstance(met, dict):
-            metabolite = {
-                'smiles': met.get('smiles', met.get('SMILES', '')),
-                'name': met.get('name', met.get('Common Name', 'Unknown')),
-                'inchikey': met.get('inchikey', met.get('InChIKey', '')),
-                'molecular_formula': met.get('molecular_formula', met.get('Molecular Formula', '')),
-                'molecular_weight': met.get('molecular_weight', met.get('Molecular Weight', 0)),
-                'reaction_type': met.get('reaction_type', met.get('Reaction', '')),
-                'enzyme': met.get('enzyme', met.get('Enzyme(s)', '')),
-                'biosystem': met.get('biosystem', met.get('Biosystem', '')),
-            }
-            metabolites.append(metabolite)
+    if not metabolites:
+        raw_metabolites = result.get('metabolites', [])
+        if not raw_metabolites:
+            raw_metabolites = result.get('products', [])
+        
+        for met in raw_metabolites:
+            if isinstance(met, dict):
+                metabolite = {
+                    'smiles': met.get('smiles', met.get('SMILES', '')),
+                    'name': met.get('name', met.get('Common Name', 'Unknown')),
+                    'inchikey': met.get('inchikey', met.get('InChIKey', '')),
+                    'reaction_type': met.get('reaction_type', met.get('Reaction', '')),
+                    'enzymes': met.get('metabolic_enzymes', []),
+                    'biosystem': met.get('biosystem', met.get('Biosystem', '')),
+                }
+                metabolites.append(metabolite)
     
     return metabolites
 
