@@ -5,7 +5,7 @@ PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and dru
 
 ## Current Status (December 2, 2025)
 - ✅ **Status**: Fully operational with modern UI
-- ✅ **Version**: 4.4.0 Enterprise Enhanced (GitHub Merged)
+- ✅ **Version**: 4.6.0 Enterprise Enhanced (BioTransformer Integration)
 - ✅ **RDKit**: Installed and working (version 2025.9.1)
 - ✅ **Server**: Running on port 5000
 - ✅ **Frontend**: Modern responsive UI with all features connected
@@ -211,6 +211,11 @@ Key packages installed:
 - ⚠️ **OpenTargets**: Framework implemented (GraphQL integration pending)
 
 ## Recent Changes (December 2, 2025)
+- ✅ Integrated BioTransformer 3.0 metabolism prediction (GPL v2.1 open source)
+- ✅ Added 7 new metabolism prediction endpoints (CYP450, Phase II, Gut, SUPERBIO, Environmental)
+- ✅ Implemented async/sync prediction modes with polling support
+- ✅ Added comprehensive viability analysis with NP Score and FTO scoring
+- ✅ Created patent document generator for provisional patent drafts
 - ✅ Merged code from GitHub `integrated-platform` branch (viability scoring, research engine)
 - ✅ Merged code from GitHub `feature/pk-core-v2` branch (advanced PK/PBPK models)
 - ✅ Integrated enhanced PK models: One/Two/Three-Compartment IV and Oral
