@@ -5171,6 +5171,144 @@ def predict_environmental_metabolism():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ========== ENHANCED MULTI-RECEPTOR DOCKING ==========
+
+@app.route('/api/docking/enhanced', methods=['POST'])
+def enhanced_docking_score():
+    """
+    Enhanced multi-receptor docking scoring with therapeutic weighting
+    
+    Features:
+    - Scores against 16 receptor families
+    - Therapeutic area relevance scoring
+    - Safety receptor assessment
+    - Lead potential evaluation
+    """
+    try:
+        from enhanced_docking_scorer import EnhancedDockingScorer
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        target_families = data.get('target_families', None)
+        include_safety = data.get('include_safety', True)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        scorer = EnhancedDockingScorer()
+        result = scorer.calculate_enhanced_docking_score(
+            smiles,
+            target_families=target_families,
+            include_safety=include_safety
+        )
+        
+        if 'error' in result:
+            return jsonify(result), 400
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/docking/profile', methods=['POST'])
+def receptor_affinity_profile():
+    """Get receptor family affinity profile for a compound"""
+    try:
+        from enhanced_docking_scorer import EnhancedDockingScorer
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        scorer = EnhancedDockingScorer()
+        result = scorer.calculate_enhanced_docking_score(smiles, include_safety=False)
+        
+        if 'error' in result:
+            return jsonify(result), 400
+        
+        return jsonify({
+            'smiles': result.get('canonical_smiles'),
+            'affinity_profile': result.get('affinity_profile'),
+            'top_targets': result.get('top_targets'),
+            'therapeutic_potential': result.get('therapeutic_potential')
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/docking/safety', methods=['POST'])
+def docking_safety_assessment():
+    """Assess binding to safety-critical receptors"""
+    try:
+        from enhanced_docking_scorer import EnhancedDockingScorer
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        scorer = EnhancedDockingScorer()
+        result = scorer.calculate_enhanced_docking_score(smiles, include_safety=True)
+        
+        if 'error' in result:
+            return jsonify(result), 400
+        
+        return jsonify({
+            'smiles': result.get('canonical_smiles'),
+            'safety_assessment': result.get('safety_assessment'),
+            'lead_potential': result.get('lead_potential'),
+            'recommendations': result.get('recommendations')
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/docking/therapeutic', methods=['POST'])
+def therapeutic_potential_score():
+    """Calculate therapeutic potential by therapeutic area"""
+    try:
+        from enhanced_docking_scorer import EnhancedDockingScorer
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        target_area = data.get('therapeutic_area', None)
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        scorer = EnhancedDockingScorer()
+        result = scorer.calculate_enhanced_docking_score(smiles)
+        
+        if 'error' in result:
+            return jsonify(result), 400
+        
+        therapeutic = result.get('therapeutic_potential', {})
+        
+        if target_area:
+            area_data = therapeutic.get('by_area', {}).get(target_area)
+            if area_data:
+                return jsonify({
+                    'smiles': result.get('canonical_smiles'),
+                    'therapeutic_area': target_area,
+                    'score': area_data['score'],
+                    'priority': area_data['priority'],
+                    'relevant_targets': result.get('top_targets')
+                })
+            else:
+                return jsonify({
+                    'error': f'No data for therapeutic area: {target_area}',
+                    'available_areas': list(therapeutic.get('by_area', {}).keys())
+                }), 400
+        
+        return jsonify({
+            'smiles': result.get('canonical_smiles'),
+            'therapeutic_potential': therapeutic,
+            'top_areas': therapeutic.get('top_areas', []),
+            'overall_potential': therapeutic.get('overall_potential')
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ========== INTEGRATE ADVANCED DRUG DISCOVERY FEATURES ==========
 # Import and register new advanced features
 try:
