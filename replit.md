@@ -75,12 +75,15 @@ The platform is built with a Python Flask backend serving a modern HTML5, CSS3, 
 - `POST /api/metabolism/gut` - Gut microbiota metabolism
 
 ## Recent Changes (December 2, 2025)
-- Added Advanced Analog Generator with scaffold hopping and matched molecular pairs
-- Implemented multi-objective optimization (activity, drug-likeness, safety, synthesizability)
-- Added R-group enumeration with 7 categories (polar, fluorinated, heterocyclic, etc.)
+- **Phase 3 Complete**: Advanced Analog Generator fully integrated with Enhanced Docking Scorer
+- Fixed docking integration with correct method calls and key access
+- Activity scores now computed from real receptor affinity profiles (0.63-0.82 vs default 0.5)
+- Top receptors correctly identified per compound class (Dopamine, GABA, Serotonin, etc.)
+- Safety penalties properly applied from 5-HT2B and other safety receptor assessments
+- Multi-objective optimization (activity 35%, drug-likeness 25%, safety 25%, synthesizability 15%)
+- R-group enumeration with 7 categories (polar, fluorinated, heterocyclic, etc.)
 - Created 6 new API endpoints for analog generation and optimization
-- Added Enhanced Multi-Receptor Docking Scorer with 16 receptor families
-- Implemented Comprehensive Screening Pipeline with combined lead scoring
-- Integrated BioTransformer 3.0 metabolism prediction
-- Added safety receptor assessment (5-HT2B, hERG, D2, H1, M1)
-- Created batch screening endpoint for up to 50 compounds
+- Enhanced Multi-Receptor Docking Scorer with 16 receptor families
+- Comprehensive Screening Pipeline with combined lead scoring
+- BioTransformer 3.0 metabolism prediction integration
+- Batch screening endpoint for up to 50 compounds
