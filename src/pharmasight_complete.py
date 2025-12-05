@@ -4174,6 +4174,35 @@ def user_login():
     
     return jsonify({'success': False, 'error': 'Invalid username or password'}), 401
 
+@app.route('/api/auth/admin-login', methods=['POST'])
+def admin_login():
+    """Admin login endpoint with enhanced verification"""
+    data = request.get_json()
+    username = data.get('username', '')
+    password = data.get('password', '')
+    twofa_code = data.get('twofa_code', '')
+    ip_address = request.remote_addr
+    
+    user = authenticate_user(username, password, ip_address)
+    
+    if user and user.role == 'admin':
+        login_user(user)
+        session['user'] = user.username
+        session['role'] = user.role
+        log_activity(user.username, 'admin_login', f'Admin login successful from {ip_address}')
+        return jsonify({
+            'success': True, 
+            'user': user.username, 
+            'role': user.role,
+            'email': user.email,
+            'admin': True
+        })
+    elif user and user.role != 'admin':
+        log_activity(username, 'admin_login_denied', 'Non-admin attempted admin login')
+        return jsonify({'success': False, 'error': 'User does not have admin privileges'}), 403
+    
+    return jsonify({'success': False, 'error': 'Invalid admin credentials'}), 401
+
 @app.route('/api/auth/register', methods=['POST'])
 def register_user():
     """User registration endpoint"""
