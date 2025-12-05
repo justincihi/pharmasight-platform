@@ -85,7 +85,24 @@ The platform is built with a Python Flask backend serving a modern HTML5, CSS3, 
 - `POST /api/toxicity/cyp450` - CYP450 enzyme inhibition profile (DDI risk)
 - `POST /api/toxicity/batch` - Batch toxicity screening for up to 50 compounds
 
+### Indication Prediction (Phase 6)
+- `POST /api/indication/predict` - Predict therapeutic indications from structure/receptor profile
+- `POST /api/indication/batch` - Batch indication prediction for up to 50 compounds
+- `POST /api/indication/dosage` - Estimate therapeutic dosage range from receptor affinity
+- `GET /api/indication/therapeutic-classes` - Get all therapeutic drug classes and receptor profiles
+- `GET /api/indication/receptor-map` - Get complete receptor-to-indication mapping
+
 ## Recent Changes (December 5, 2025)
+- **Phase 6 Complete**: Indication Prediction System implemented
+- Therapeutic indication prediction from compound structure and/or receptor binding profiles
+- Therapeutic class identification (Psychedelic, SSRI, Atypical Antipsychotic, etc.) with confidence scoring
+- Dosage estimation based on receptor affinity (potency classification)
+- Development considerations for regulatory, safety, and clinical pathways
+- Comprehensive receptor-to-indication mapping (40+ receptors, 10 therapeutic classes)
+- Batch indication prediction for up to 50 compounds
+- Created 5 new API endpoints for indication prediction
+
+### Earlier Changes (December 5, 2025)
 - **Phase 4 Complete**: Comprehensive toxicity profiling module implemented
 - hERG channel inhibition prediction with IC50 estimation and cardiac risk assessment
 - Hepatotoxicity (DILI) prediction with reactive metabolite alerts and severity scoring

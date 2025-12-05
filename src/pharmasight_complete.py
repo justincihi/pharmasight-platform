@@ -5261,6 +5261,180 @@ def toxicity_batch():
         'errors': errors if errors else None
     })
 
+# ========== INDICATION PREDICTION (Phase 6) ==========
+
+@app.route('/api/indication/predict', methods=['POST'])
+def predict_indications_endpoint():
+    """
+    Predict therapeutic indications from compound structure and/or receptor profile
+    
+    Request body:
+    - smiles (required): SMILES string of the compound
+    - receptor_profile (optional): Dict of receptor affinities {receptor: affinity_nM}
+    
+    Returns predicted therapeutic class, primary/secondary indications, 
+    dosage estimates, and development considerations
+    """
+    from indication_prediction import predict_indications
+    from rdkit import Chem as RdChem
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Request body is required'}), 400
+    
+    smiles = data.get('smiles', '')
+    if not smiles or not isinstance(smiles, str):
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    mol = RdChem.MolFromSmiles(smiles)
+    if mol is None:
+        return jsonify({'error': 'Invalid SMILES structure'}), 400
+    
+    receptor_profile = data.get('receptor_profile')
+    
+    result = predict_indications(smiles, receptor_profile)
+    
+    if 'error' in result:
+        return jsonify(result), 400
+    
+    return jsonify(result)
+
+@app.route('/api/indication/batch', methods=['POST'])
+def batch_predict_indications_endpoint():
+    """
+    Batch prediction of therapeutic indications for multiple compounds
+    
+    Request body:
+    - compounds (required): List of compound objects with 'smiles' and optional 'receptor_profile'
+    
+    Maximum 50 compounds per batch
+    """
+    from indication_prediction import batch_predict_indications
+    from rdkit import Chem as RdChem
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Request body is required'}), 400
+    
+    compounds = data.get('compounds', [])
+    
+    if not compounds:
+        return jsonify({'error': 'Compounds list is required'}), 400
+    
+    if not isinstance(compounds, list):
+        return jsonify({'error': 'Compounds must be a list'}), 400
+    
+    if len(compounds) > 50:
+        return jsonify({'error': 'Maximum 50 compounds per batch'}), 400
+    
+    valid_compounds = []
+    errors = []
+    
+    for i, compound in enumerate(compounds):
+        if not isinstance(compound, dict):
+            errors.append({'index': i, 'error': 'Compound must be an object'})
+            continue
+            
+        smiles = compound.get('smiles', '')
+        if not smiles or not isinstance(smiles, str):
+            errors.append({'index': i, 'error': 'Valid SMILES string required'})
+            continue
+        
+        mol = RdChem.MolFromSmiles(smiles)
+        if mol is None:
+            errors.append({'index': i, 'smiles': smiles[:50], 'error': 'Invalid SMILES structure'})
+            continue
+        
+        valid_compounds.append(compound)
+    
+    results = batch_predict_indications(valid_compounds)
+    
+    return jsonify({
+        'total_compounds': len(results),
+        'total_errors': len(errors),
+        'results': results,
+        'errors': errors if errors else None
+    })
+
+@app.route('/api/indication/dosage', methods=['POST'])
+def estimate_dosage_endpoint():
+    """
+    Estimate therapeutic dosage range based on receptor binding profile
+    
+    Request body:
+    - receptor_profile (required): Dict of receptor affinities {receptor: affinity_nM}
+    - therapeutic_class (optional): Predicted therapeutic class for context
+    
+    Returns potency class, estimated dose range, and reference compounds
+    """
+    from indication_prediction import estimate_dosage
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Request body is required'}), 400
+    
+    receptor_profile = data.get('receptor_profile', {})
+    
+    if not receptor_profile or not isinstance(receptor_profile, dict):
+        return jsonify({'error': 'Receptor profile dictionary is required'}), 400
+    
+    therapeutic_class = data.get('therapeutic_class')
+    
+    result = estimate_dosage(receptor_profile, therapeutic_class)
+    
+    return jsonify(result)
+
+@app.route('/api/indication/therapeutic-classes', methods=['GET'])
+def get_therapeutic_classes():
+    """
+    Get list of all therapeutic drug classes and their receptor profiles
+    
+    Returns the complete mapping of therapeutic classes to their 
+    primary and secondary receptor targets
+    """
+    from indication_prediction import predictor
+    
+    classes = []
+    for class_name, class_data in predictor.therapeutic_classes.items():
+        classes.append({
+            'name': class_name.replace('_', ' '),
+            'primary_receptors': class_data['primary'],
+            'secondary_receptors': class_data['secondary'],
+            'typical_indications': class_data['indications']
+        })
+    
+    return jsonify({
+        'therapeutic_classes': classes,
+        'total_classes': len(classes)
+    })
+
+@app.route('/api/indication/receptor-map', methods=['GET'])
+def get_receptor_indication_map():
+    """
+    Get the complete receptor-to-indication mapping
+    
+    Returns which therapeutic indications are associated with 
+    each receptor target
+    """
+    from indication_prediction import predictor
+    
+    receptor_map = []
+    for receptor, data in predictor.receptor_indication_map.items():
+        receptor_info = {
+            'receptor': receptor,
+            'weight': data.get('weight', 0.5),
+            'indications': {}
+        }
+        for key, value in data.items():
+            if key != 'weight' and isinstance(value, list):
+                receptor_info['indications'][key] = value
+        receptor_map.append(receptor_info)
+    
+    return jsonify({
+        'receptor_indication_map': receptor_map,
+        'total_receptors': len(receptor_map)
+    })
+
 # SAR Analysis Endpoint
 @app.route('/api/sar/analyze', methods=['POST'])
 def sar_analyze():
