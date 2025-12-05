@@ -21,7 +21,8 @@ from research_findings_fix import get_research_findings_with_hypotheses, search_
 from auth_db import (
     init_auth_tables, create_user, authenticate_user, get_user_by_id,
     change_password, get_all_users, delete_user, create_default_admin,
-    reset_user_password
+    reset_user_password, generate_totp_secret, generate_totp_qr_code,
+    verify_totp_code, enable_totp, disable_totp, get_totp_status, is_totp_required
 )
 
 import os
@@ -3361,9 +3362,11 @@ def quantum_optimize():
                         img.save(buffered, format="PNG")
                         png_base64 = base64.b64encode(buffered.getvalue()).decode()
                         
-                        # Calculate molecular fingerprint similarity
-                        fp1 = AllChem.GetMorganFingerprintAsBitVect(original_mol, 2)
-                        fp2 = AllChem.GetMorganFingerprintAsBitVect(opt_mol, 2)
+                        # Calculate molecular fingerprint similarity using modern generator API
+                        from rdkit.Chem import rdFingerprintGenerator
+                        fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+                        fp1 = fpgen.GetFingerprint(original_mol)
+                        fp2 = fpgen.GetFingerprint(opt_mol)
                         similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
                         
                         # Generate all chemical notations
@@ -3624,7 +3627,7 @@ def visualize_comparison():
     
     try:
         from rdkit import Chem
-        from rdkit.Chem import Draw, AllChem, DataStructs
+        from rdkit.Chem import Draw, AllChem, DataStructs, rdFingerprintGenerator
         import base64
         from io import BytesIO
         
@@ -3647,9 +3650,10 @@ def visualize_comparison():
         img.save(buffered, format="PNG")
         png_base64 = base64.b64encode(buffered.getvalue()).decode()
         
-        # Calculate similarity
-        fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2)
-        fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2)
+        # Calculate similarity using modern generator API
+        fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+        fp1 = fpgen.GetFingerprint(mol1)
+        fp2 = fpgen.GetFingerprint(mol2)
         similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
         
         # Find structural differences
@@ -4176,7 +4180,7 @@ def user_login():
 
 @app.route('/api/auth/admin-login', methods=['POST'])
 def admin_login():
-    """Admin login endpoint with enhanced verification"""
+    """Admin login endpoint with TOTP 2FA verification"""
     data = request.get_json()
     username = data.get('username', '')
     password = data.get('password', '')
@@ -4186,16 +4190,39 @@ def admin_login():
     user = authenticate_user(username, password, ip_address)
     
     if user and user.role == 'admin':
+        # Check if 2FA is required
+        if is_totp_required(user.id):
+            if not twofa_code:
+                return jsonify({
+                    'success': False, 
+                    'requires_2fa': True,
+                    'error': 'Two-factor authentication code required'
+                }), 401
+            
+            # Verify TOTP code
+            verify_result = verify_totp_code(user.id, twofa_code)
+            if not verify_result['success']:
+                log_activity(username, 'admin_login_2fa_failed', f'Invalid 2FA code from {ip_address}')
+                return jsonify({
+                    'success': False, 
+                    'error': 'Invalid two-factor authentication code'
+                }), 401
+        
         login_user(user)
         session['user'] = user.username
         session['role'] = user.role
         log_activity(user.username, 'admin_login', f'Admin login successful from {ip_address}')
+        
+        # Get 2FA status for response
+        totp_status = get_totp_status(user.id)
+        
         return jsonify({
             'success': True, 
             'user': user.username, 
             'role': user.role,
             'email': user.email,
-            'admin': True
+            'admin': True,
+            'totp_enabled': totp_status.get('enabled', False)
         })
     elif user and user.role != 'admin':
         log_activity(username, 'admin_login_denied', 'Non-admin attempted admin login')
@@ -4239,13 +4266,117 @@ def logout():
 def auth_status():
     """Check current authentication status"""
     if current_user.is_authenticated:
+        totp_status = get_totp_status(current_user.id)
         return jsonify({
             'authenticated': True,
             'user': current_user.username,
             'role': current_user.role,
-            'email': current_user.email
+            'email': current_user.email,
+            'totp_enabled': totp_status.get('enabled', False)
         })
     return jsonify({'authenticated': False})
+
+# ========== TWO-FACTOR AUTHENTICATION ENDPOINTS ==========
+
+@app.route('/api/auth/2fa/setup', methods=['POST'])
+@login_required
+def setup_2fa():
+    """Initialize 2FA setup - generates secret and QR code"""
+    result = generate_totp_secret(current_user.id)
+    
+    if not result['success']:
+        return jsonify(result), 400
+    
+    # Generate QR code
+    qr_code = generate_totp_qr_code(current_user.id, current_user.username)
+    
+    log_activity(current_user.username, '2fa_setup_initiated', '2FA setup started')
+    
+    return jsonify({
+        'success': True,
+        'secret': result['secret'],
+        'qr_code': qr_code,
+        'backup_codes': result['backup_codes'],
+        'message': 'Scan QR code with authenticator app, then verify with a code'
+    })
+
+@app.route('/api/auth/2fa/verify', methods=['POST'])
+@login_required
+def verify_2fa_setup():
+    """Verify and enable 2FA after initial setup"""
+    data = request.get_json()
+    code = data.get('code', '')
+    
+    if not code:
+        return jsonify({'success': False, 'error': 'Verification code required'}), 400
+    
+    result = enable_totp(current_user.id, code)
+    
+    if result['success']:
+        log_activity(current_user.username, '2fa_enabled', '2FA successfully enabled')
+    
+    return jsonify(result)
+
+@app.route('/api/auth/2fa/disable', methods=['POST'])
+@login_required
+def disable_2fa():
+    """Disable 2FA for the current user"""
+    data = request.get_json()
+    code = data.get('code', '')
+    password = data.get('password', '')
+    
+    # Require password verification to disable 2FA
+    from auth_db import authenticate_user
+    user = authenticate_user(current_user.username, password, request.remote_addr)
+    
+    if not user:
+        return jsonify({'success': False, 'error': 'Invalid password'}), 401
+    
+    # Verify current 2FA code
+    verify_result = verify_totp_code(current_user.id, code)
+    if not verify_result['success']:
+        return jsonify({'success': False, 'error': 'Invalid 2FA code'}), 401
+    
+    result = disable_totp(current_user.id)
+    
+    if result['success']:
+        log_activity(current_user.username, '2fa_disabled', '2FA disabled')
+    
+    return jsonify(result)
+
+@app.route('/api/auth/2fa/status', methods=['GET'])
+@login_required
+def get_2fa_status():
+    """Get current 2FA status for the user"""
+    status = get_totp_status(current_user.id)
+    return jsonify(status)
+
+@app.route('/api/auth/2fa/regenerate-backup-codes', methods=['POST'])
+@login_required
+def regenerate_backup_codes():
+    """Regenerate backup codes (requires 2FA verification)"""
+    data = request.get_json()
+    code = data.get('code', '')
+    
+    # Verify current 2FA code
+    verify_result = verify_totp_code(current_user.id, code)
+    if not verify_result['success']:
+        return jsonify({'success': False, 'error': 'Invalid 2FA code'}), 401
+    
+    # Generate new secret (which includes new backup codes)
+    result = generate_totp_secret(current_user.id)
+    
+    if result['success']:
+        # Re-enable with the same secret
+        enable_totp(current_user.id, code)
+        log_activity(current_user.username, '2fa_backup_codes_regenerated', 'Backup codes regenerated')
+        return jsonify({
+            'success': True,
+            'backup_codes': result['backup_codes'],
+            'message': 'New backup codes generated. Save these securely.'
+        })
+    
+    return jsonify(result), 400
 
 @app.route('/api/auth/change-password', methods=['POST'])
 @login_required
@@ -4917,9 +5048,11 @@ def lead_optimize():
                         img.save(buffered, format="PNG")
                         png_base64 = base64.b64encode(buffered.getvalue()).decode()
                         
-                        # Calculate similarity
-                        fp1 = AllChem.GetMorganFingerprintAsBitVect(original_mol, 2)
-                        fp2 = AllChem.GetMorganFingerprintAsBitVect(mod_mol, 2)
+                        # Calculate similarity using modern generator API
+                        from rdkit.Chem import rdFingerprintGenerator
+                        fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+                        fp1 = fpgen.GetFingerprint(original_mol)
+                        fp2 = fpgen.GetFingerprint(mod_mol)
                         similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
                         
                         # Add chemical notation formats
@@ -4963,6 +5096,170 @@ def off_target_predict():
         return jsonify(result), 400
     
     return jsonify(result)
+
+# ========== PHASE 4: TOXICITY AND SAFETY PROFILING ==========
+
+@app.route('/api/toxicity/full-profile', methods=['POST'])
+def toxicity_full_profile():
+    """Get comprehensive toxicity profile (hERG, hepatotoxicity, Ames, CYP450)"""
+    from toxicity_prediction import ToxicityProfiler
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    profiler = ToxicityProfiler()
+    result = profiler.get_full_profile(smiles)
+    
+    if 'error' in result:
+        return jsonify(result), 400
+    
+    log_activity('system', 'toxicity_profile', f'Full toxicity profile generated for {smiles[:30]}...')
+    return jsonify(result)
+
+@app.route('/api/toxicity/herg', methods=['POST'])
+def toxicity_herg():
+    """Predict hERG channel inhibition (cardiac toxicity risk)"""
+    from toxicity_prediction import HERGPredictor
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    predictor = HERGPredictor()
+    result = predictor.predict(smiles)
+    
+    return jsonify({
+        'smiles': smiles,
+        'prediction': result.prediction,
+        'probability': result.probability,
+        'confidence': result.confidence,
+        'risk_level': result.risk_level,
+        'details': result.details,
+        'recommendations': result.recommendations
+    })
+
+@app.route('/api/toxicity/hepatotoxicity', methods=['POST'])
+def toxicity_hepatotoxicity():
+    """Predict hepatotoxicity (liver toxicity risk)"""
+    from toxicity_prediction import HepatotoxicityPredictor
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    predictor = HepatotoxicityPredictor()
+    result = predictor.predict(smiles)
+    
+    return jsonify({
+        'smiles': smiles,
+        'prediction': result.prediction,
+        'probability': result.probability,
+        'confidence': result.confidence,
+        'risk_level': result.risk_level,
+        'details': result.details,
+        'recommendations': result.recommendations
+    })
+
+@app.route('/api/toxicity/ames', methods=['POST'])
+def toxicity_ames():
+    """Predict Ames test result (mutagenicity)"""
+    from toxicity_prediction import AmesTestPredictor
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    predictor = AmesTestPredictor()
+    result = predictor.predict(smiles)
+    
+    return jsonify({
+        'smiles': smiles,
+        'prediction': result.prediction,
+        'probability': result.probability,
+        'confidence': result.confidence,
+        'risk_level': result.risk_level,
+        'details': result.details,
+        'recommendations': result.recommendations
+    })
+
+@app.route('/api/toxicity/cyp450', methods=['POST'])
+def toxicity_cyp450():
+    """Predict CYP450 enzyme inhibition profile (drug-drug interaction potential)"""
+    from toxicity_prediction import CYP450InhibitionPredictor
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    predictor = CYP450InhibitionPredictor()
+    result = predictor.predict(smiles)
+    
+    if 'error' in result:
+        return jsonify(result), 400
+    
+    return jsonify(result)
+
+@app.route('/api/toxicity/batch', methods=['POST'])
+def toxicity_batch():
+    """Batch toxicity screening for multiple compounds"""
+    from toxicity_prediction import ToxicityProfiler
+    from rdkit import Chem as RdChem
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Request body is required'}), 400
+    
+    compounds = data.get('compounds', [])
+    
+    if not compounds:
+        return jsonify({'error': 'Compounds list is required'}), 400
+    
+    if not isinstance(compounds, list):
+        return jsonify({'error': 'Compounds must be a list'}), 400
+    
+    if len(compounds) > 50:
+        return jsonify({'error': 'Maximum 50 compounds per batch'}), 400
+    
+    profiler = ToxicityProfiler()
+    results = []
+    errors = []
+    
+    for i, compound in enumerate(compounds):
+        if not isinstance(compound, dict):
+            errors.append({'index': i, 'error': 'Compound must be an object'})
+            continue
+            
+        smiles = compound.get('smiles', '')
+        if not smiles or not isinstance(smiles, str):
+            errors.append({'index': i, 'error': 'Valid SMILES string required'})
+            continue
+        
+        mol = RdChem.MolFromSmiles(smiles)
+        if mol is None:
+            errors.append({'index': i, 'smiles': smiles[:50], 'error': 'Invalid SMILES structure'})
+            continue
+        
+        result = profiler.get_full_profile(smiles)
+        result['compound_id'] = compound.get('id', smiles[:20])
+        results.append(result)
+    
+    return jsonify({
+        'total_compounds': len(results),
+        'total_errors': len(errors),
+        'results': results,
+        'errors': errors if errors else None
+    })
 
 # SAR Analysis Endpoint
 @app.route('/api/sar/analyze', methods=['POST'])

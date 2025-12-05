@@ -11,6 +11,7 @@ from datetime import datetime
 import concurrent.futures
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors
+from rdkit.Chem import rdFingerprintGenerator
 from rdkit import DataStructs
 import sqlite3
 import hashlib
@@ -49,8 +50,9 @@ class VirtualScreeningPipeline:
         
         compound_id = compound_name or f"CPD_{hashlib.md5(smiles.encode()).hexdigest()[:8]}"
         
-        # Calculate molecular fingerprint
-        fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+        # Calculate molecular fingerprint using modern generator API
+        fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+        fp = fpgen.GetFingerprint(mol)
         
         screening_result = {
             "compound_id": compound_id,

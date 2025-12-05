@@ -2,8 +2,10 @@
 Enhanced Multi-Receptor Docking Scorer
 Provides advanced docking scoring with receptor family affinity profiling,
 therapeutic relevance weighting, and integration with viability analysis.
+Includes performance caching for repeated calculations.
 """
 
+import copy
 import numpy as np
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
@@ -11,6 +13,10 @@ from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors, Fragments
 from rdkit import DataStructs
 import json
+import hashlib
+from functools import lru_cache
+from datetime import datetime, timedelta
+import threading
 
 
 @dataclass
@@ -66,12 +72,81 @@ SAFETY_RECEPTORS = {
 }
 
 
-class EnhancedDockingScorer:
-    """Advanced multi-receptor docking scorer with therapeutic weighting"""
+class DockingCache:
+    """Thread-safe cache for docking results with TTL"""
     
-    def __init__(self):
+    def __init__(self, max_size: int = 1000, ttl_minutes: int = 60):
+        self._cache = {}
+        self._timestamps = {}
+        self._lock = threading.Lock()
+        self.max_size = max_size
+        self.ttl = timedelta(minutes=ttl_minutes)
+        self._hits = 0
+        self._misses = 0
+    
+    def _make_key(self, smiles: str, target_families: List[str] = None, include_safety: bool = True) -> str:
+        """Generate cache key from inputs"""
+        families_str = ','.join(sorted(target_families)) if target_families else 'all'
+        key_str = f"{smiles}|{families_str}|{include_safety}"
+        return hashlib.md5(key_str.encode()).hexdigest()
+    
+    def get(self, smiles: str, target_families: List[str] = None, include_safety: bool = True) -> Optional[Dict]:
+        """Get cached result if valid (deep copy to prevent mutation leaks)"""
+        key = self._make_key(smiles, target_families, include_safety)
+        with self._lock:
+            if key in self._cache:
+                if datetime.now() - self._timestamps[key] < self.ttl:
+                    self._hits += 1
+                    return copy.deepcopy(self._cache[key])
+                else:
+                    del self._cache[key]
+                    del self._timestamps[key]
+            self._misses += 1
+            return None
+    
+    def set(self, smiles: str, result: Dict, target_families: List[str] = None, include_safety: bool = True):
+        """Cache a result (deep copy to isolate from caller mutations)"""
+        key = self._make_key(smiles, target_families, include_safety)
+        with self._lock:
+            if len(self._cache) >= self.max_size:
+                oldest_key = min(self._timestamps, key=self._timestamps.get)
+                del self._cache[oldest_key]
+                del self._timestamps[oldest_key]
+            
+            self._cache[key] = copy.deepcopy(result)
+            self._timestamps[key] = datetime.now()
+    
+    def clear(self):
+        """Clear all cached results"""
+        with self._lock:
+            self._cache.clear()
+            self._timestamps.clear()
+    
+    def stats(self) -> Dict:
+        """Get cache statistics"""
+        with self._lock:
+            total = self._hits + self._misses
+            hit_rate = (self._hits / total * 100) if total > 0 else 0
+            return {
+                'size': len(self._cache),
+                'max_size': self.max_size,
+                'hits': self._hits,
+                'misses': self._misses,
+                'hit_rate': f"{hit_rate:.1f}%"
+            }
+
+
+_docking_cache = DockingCache(max_size=1000, ttl_minutes=60)
+
+
+class EnhancedDockingScorer:
+    """Advanced multi-receptor docking scorer with therapeutic weighting and caching"""
+    
+    def __init__(self, use_cache: bool = True):
         self.receptor_profiles = {}
         self.pharmacophore_weights = self._init_pharmacophore_weights()
+        self.use_cache = use_cache
+        self.cache = _docking_cache
         
     def _init_pharmacophore_weights(self) -> Dict:
         """Initialize pharmacophore feature weights for each receptor family"""
@@ -115,7 +190,7 @@ class EnhancedDockingScorer:
         include_safety: bool = True
     ) -> Dict:
         """
-        Calculate enhanced docking scores for a compound
+        Calculate enhanced docking scores for a compound with caching
         
         Args:
             smiles: SMILES string
@@ -125,6 +200,12 @@ class EnhancedDockingScorer:
         Returns:
             Dict with docking scores, profiles, and recommendations
         """
+        if self.use_cache:
+            cached_result = self.cache.get(smiles, target_families, include_safety)
+            if cached_result:
+                cached_result['from_cache'] = True
+                return cached_result
+        
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return {'error': 'Invalid SMILES string'}
@@ -150,7 +231,7 @@ class EnhancedDockingScorer:
             receptor_scores, safety_profile, features
         )
         
-        return {
+        result = {
             'smiles': smiles,
             'canonical_smiles': Chem.MolToSmiles(mol, canonical=True),
             'molecular_features': features,
@@ -162,8 +243,22 @@ class EnhancedDockingScorer:
             'top_targets': self._get_top_targets(receptor_scores, 5),
             'recommendations': self._generate_recommendations(
                 receptor_scores, safety_profile, therapeutic_scores
-            )
+            ),
+            'from_cache': False
         }
+        
+        if self.use_cache:
+            self.cache.set(smiles, result, target_families, include_safety)
+        
+        return result
+    
+    def get_cache_stats(self) -> Dict:
+        """Get cache performance statistics"""
+        return self.cache.stats()
+    
+    def clear_cache(self):
+        """Clear the docking results cache"""
+        self.cache.clear()
     
     def _extract_molecular_features(self, mol) -> Dict:
         """Extract comprehensive molecular features for scoring"""

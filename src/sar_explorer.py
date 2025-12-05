@@ -9,6 +9,8 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, Draw
 from rdkit.Chem import rdMolDescriptors, rdFMCS
+from rdkit.Chem import rdFingerprintGenerator
+from rdkit import DataStructs
 from typing import Dict, List, Tuple
 import base64
 from io import BytesIO
@@ -180,11 +182,10 @@ class SARExplorer:
                 mol2 = Chem.MolFromSmiles(sar_matrix[j]['smiles'])
                 
                 if mol1 and mol2:
-                    # Calculate similarity
-                    fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2)
-                    fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2)
-                    
-                    from rdkit import DataStructs
+                    # Calculate similarity using modern generator API
+                    fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+                    fp1 = fpgen.GetFingerprint(mol1)
+                    fp2 = fpgen.GetFingerprint(mol2)
                     similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
                     
                     # Check activity difference

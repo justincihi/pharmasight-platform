@@ -7,6 +7,7 @@ Uses RDKit to alter and modify molecular structures
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors
 from rdkit.Chem import Fragments, Lipinski
+from rdkit.Chem import rdFingerprintGenerator, DataStructs
 from typing import List, Optional, Tuple, Dict
 import random
 
@@ -259,16 +260,16 @@ class MolecularEditor:
 
             # Calculate properties and filter
             result_analogs = []
-            parent_fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+            fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+            parent_fp = fpgen.GetFingerprint(mol)
 
             for analog_smiles in analogs[:num_analogs * 2]:  # Generate extra for filtering
                 analog_mol = self.smiles_to_molecule(analog_smiles)
                 if analog_mol is None:
                     continue
 
-                # Calculate similarity
-                analog_fp = AllChem.GetMorganFingerprintAsBitVect(analog_mol, 2, nBits=2048)
-                from rdkit import DataStructs
+                # Calculate similarity using modern generator API
+                analog_fp = fpgen.GetFingerprint(analog_mol)
                 similarity = DataStructs.TanimotoSimilarity(parent_fp, analog_fp)
 
                 if similarity >= similarity_threshold:

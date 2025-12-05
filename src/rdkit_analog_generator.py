@@ -7,6 +7,7 @@ Generates molecular analogs from any valid SMILES input using various strategies
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors, DataStructs, Draw
 from rdkit.Chem import Fragments, Lipinski, rdFMCS
+from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit.Chem import RWMol
 from typing import List, Optional, Dict, Tuple
@@ -71,10 +72,11 @@ class RDKitAnalogGenerator:
             return {}
     
     def calculate_similarity(self, mol1: Chem.Mol, mol2: Chem.Mol) -> float:
-        """Calculate Tanimoto similarity between two molecules"""
+        """Calculate Tanimoto similarity between two molecules using modern generator API"""
         try:
-            fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=2048)
-            fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=2048)
+            fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+            fp1 = fpgen.GetFingerprint(mol1)
+            fp2 = fpgen.GetFingerprint(mol2)
             return round(DataStructs.TanimotoSimilarity(fp1, fp2), 3)
         except:
             return 0.0

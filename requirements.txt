@@ -39,3 +39,5 @@ scipy==1.16.2
 vina==1.2.7
 flask-login
 psycopg2-binary
+pyotp
+qrcode

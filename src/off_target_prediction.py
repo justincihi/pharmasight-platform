@@ -7,6 +7,7 @@ Predicts potential side effects based on unintended receptor binding
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, DataStructs
+from rdkit.Chem import rdFingerprintGenerator
 from typing import Dict, List, Tuple
 import json
 
@@ -178,7 +179,8 @@ class OffTargetPredictor:
         }
         
         # Generate molecular fingerprint
-        fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+        fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+        fp = fpgen.GetFingerprint(mol)
         
         # Calculate molecular properties
         props = self.calculate_safety_properties(mol)

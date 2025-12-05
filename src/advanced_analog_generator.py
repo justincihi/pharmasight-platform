@@ -9,6 +9,7 @@ Integrates with Enhanced Docking Scorer for target-aware analog design.
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors, rdMolDescriptors, DataStructs
 from rdkit.Chem import BRICS, rdFMCS, RWMol, Draw
+from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from rdkit.Chem.FilterCatalog import FilterCatalog, FilterCatalogParams
 from typing import List, Dict, Tuple, Optional, Set
@@ -135,10 +136,11 @@ class AdvancedAnalogGenerator:
             return []
     
     def calculate_fingerprint(self, mol: Chem.Mol, fp_type: str = 'morgan') -> Optional[object]:
-        """Calculate molecular fingerprint"""
+        """Calculate molecular fingerprint using modern RDKit generator API"""
         try:
             if fp_type == 'morgan':
-                return AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+                fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+                return fpgen.GetFingerprint(mol)
             elif fp_type == 'rdkit':
                 return Chem.RDKFingerprint(mol)
             elif fp_type == 'maccs':

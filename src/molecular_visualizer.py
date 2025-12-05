@@ -320,9 +320,11 @@ class MolecularVisualizer:
             return None
 
         try:
+            from rdkit import DataStructs
             if method == "morgan":
-                fp1 = AllChem.GetMorganFingerprintAsBitVect(mol1, 2, nBits=2048)
-                fp2 = AllChem.GetMorganFingerprintAsBitVect(mol2, 2, nBits=2048)
+                fpgen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+                fp1 = fpgen.GetFingerprint(mol1)
+                fp2 = fpgen.GetFingerprint(mol2)
             elif method == "rdkit":
                 fp1 = Chem.RDKFingerprint(mol1)
                 fp2 = Chem.RDKFingerprint(mol2)
@@ -333,7 +335,6 @@ class MolecularVisualizer:
                 print(f"Unknown method: {method}")
                 return None
 
-            from rdkit import DataStructs
             similarity = DataStructs.TanimotoSimilarity(fp1, fp2)
             return similarity
 
