@@ -9,7 +9,7 @@ channel = "stable-24_05"
 packages = ["cairo", "catch2", "comic-neue", "coordgenlibs", "eigen", "freetype", "glibcLocales", "inchi", "libxcrypt", "maeparser", "pkg-config", "rapidjson", "xsimd"]
 
 [deployment]
-run = ["python", "app.py"]
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--workers=2", "--timeout=120", "src.pharmasight_complete:app"]
 deploymentTarget = "autoscale"
 
 [env]
@@ -19,6 +19,10 @@ PORT = "5000"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 40801
+externalPort = 3003
 
 [[ports]]
 localPort = 41687
