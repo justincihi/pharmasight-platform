@@ -4,6 +4,14 @@ PharmaSight™ - Enterprise Drug Discovery Platform
 Complete implementation with all requested features
 """
 
+import sys
+import os
+
+# Add src directory to path for module imports in deployment
+src_dir = os.path.dirname(os.path.abspath(__file__))
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
+
 from flask import Flask, render_template_string, render_template, request, jsonify, session, send_file
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -24,8 +32,6 @@ from auth_db import (
     reset_user_password, generate_totp_secret, generate_totp_qr_code,
     verify_totp_code, enable_totp, disable_totp, get_totp_status, is_totp_required
 )
-
-import os
 
 app = Flask(__name__, 
              template_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'templates'),
