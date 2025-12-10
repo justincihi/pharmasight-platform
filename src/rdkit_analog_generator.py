@@ -471,3 +471,40 @@ rdkit_generator = RDKitAnalogGenerator()
 def generate_rdkit_analogs(smiles: str, num_analogs: int = 10, min_similarity: float = 0.5) -> Dict:
     """Convenience function for generating analogs"""
     return rdkit_generator.generate_analogs(smiles, num_analogs, min_similarity)
+
+
+def generate_novel_analogs(parent_smiles: str, parent_name: str = "Compound", num_analogs: int = 10) -> List[Dict]:
+    """
+    Generate novel analogs for autonomous research engine
+    
+    Args:
+        parent_smiles: SMILES string of parent compound
+        parent_name: Name of parent compound
+        num_analogs: Number of analogs to generate
+    
+    Returns:
+        List of analog dictionaries with patent status and opportunity scores
+    """
+    result = rdkit_generator.generate_analogs(parent_smiles, num_analogs)
+    
+    if not result.get('success'):
+        return []
+    
+    analogs = []
+    for analog in result.get('analogs', []):
+        patent_status = analog.get('patent_status', 'Unknown')
+        if 'Patent-Free' in patent_status or 'Novel' in patent_status:
+            patent_status = 'Patent-Free (Novel)'
+        
+        analogs.append({
+            'name': analog.get('name', f"{parent_name}_analog"),
+            'smiles': analog.get('smiles', ''),
+            'similarity': analog.get('similarity_score', 0),
+            'patent_status': patent_status,
+            'patent_opportunity_score': analog.get('patent_opportunity_score', 50),
+            'drug_likeness_score': analog.get('drug_likeness_score', 50),
+            'parent_name': parent_name,
+            'parent_smiles': parent_smiles
+        })
+    
+    return analogs

@@ -5441,6 +5441,150 @@ def get_receptor_indication_map():
         'total_receptors': len(receptor_map)
     })
 
+# ========== AUTONOMOUS RESEARCH ENGINE ==========
+
+@app.route('/api/research/run-cycle', methods=['POST'])
+def run_research_cycle():
+    """
+    Run an autonomous research cycle with specified goals
+    
+    Searches PubMed for relevant articles, adds to database,
+    and optionally screens for novel drug targets
+    
+    Parameters:
+    - goals (list): Research goals to investigate (optional, uses defaults if not provided)
+    - max_api_calls (int): Maximum API calls per session (default: 50)
+    - max_articles_per_search (int): Articles per search query (default: 5)
+    """
+    try:
+        from autonomous_research_engine import AutonomousResearchEngine, DEFAULT_RESEARCH_GOALS
+        
+        data = request.get_json() or {}
+        goals = data.get('goals', DEFAULT_RESEARCH_GOALS)
+        max_api_calls = data.get('max_api_calls', 50)
+        max_articles_per_search = data.get('max_articles_per_search', 5)
+        
+        engine = AutonomousResearchEngine(
+            max_api_calls_per_day=max_api_calls,
+            max_articles_per_search=max_articles_per_search
+        )
+        
+        summary = engine.run_daily_research_cycle(goals)
+        
+        return jsonify({
+            'success': True,
+            'summary': summary,
+            'message': 'Research cycle completed successfully'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/research/screen-targets', methods=['POST'])
+def screen_novel_targets():
+    """
+    Screen for novel drug targets using chemical similarity
+    
+    Parameters:
+    - smiles (str): SMILES string of compound to screen
+    - name (str): Name of the compound (optional)
+    """
+    try:
+        from autonomous_research_engine import AutonomousResearchEngine
+        
+        data = request.get_json()
+        smiles = data.get('smiles', '')
+        name = data.get('name', 'Compound')
+        
+        if not smiles:
+            return jsonify({'error': 'SMILES string is required'}), 400
+        
+        engine = AutonomousResearchEngine()
+        results = engine.screen_for_novel_targets(smiles, name)
+        
+        return jsonify({
+            'success': True,
+            'screening_results': results
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/research/search-pubmed', methods=['POST'])
+def search_pubmed():
+    """
+    Search PubMed for articles related to a query
+    
+    Parameters:
+    - query (str): Search query
+    - max_results (int): Maximum number of results (default: 10)
+    """
+    try:
+        from autonomous_research_engine import AutonomousResearchEngine
+        
+        data = request.get_json()
+        query = data.get('query', '')
+        max_results = data.get('max_results', 10)
+        
+        if not query:
+            return jsonify({'error': 'Search query is required'}), 400
+        
+        engine = AutonomousResearchEngine()
+        articles = engine._search_pubmed(query, max_results)
+        
+        return jsonify({
+            'success': True,
+            'query': query,
+            'articles': articles,
+            'total_found': len(articles)
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/research/goals', methods=['GET'])
+def get_default_research_goals():
+    """Get the default research goals for autonomous discovery"""
+    from autonomous_research_engine import DEFAULT_RESEARCH_GOALS
+    
+    return jsonify({
+        'default_goals': DEFAULT_RESEARCH_GOALS,
+        'total_goals': len(DEFAULT_RESEARCH_GOALS)
+    })
+
+
+@app.route('/api/research/session-logs', methods=['GET'])
+def get_research_session_logs():
+    """Get list of research session logs"""
+    import glob
+    
+    log_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'research_logs')
+    
+    if not os.path.exists(log_dir):
+        return jsonify({'logs': [], 'total': 0})
+    
+    log_files = glob.glob(os.path.join(log_dir, 'research_session_*.json'))
+    logs = []
+    
+    for log_file in sorted(log_files, reverse=True)[:20]:
+        try:
+            with open(log_file, 'r') as f:
+                log_data = json.load(f)
+                logs.append({
+                    'filename': os.path.basename(log_file),
+                    'session_start': log_data.get('session_start'),
+                    'articles_found': log_data.get('articles_found', 0),
+                    'analogs_generated': log_data.get('analogs_generated', 0),
+                    'api_calls_made': log_data.get('api_calls_made', 0)
+                })
+        except:
+            pass
+    
+    return jsonify({
+        'logs': logs,
+        'total': len(logs)
+    })
+
 # SAR Analysis Endpoint
 @app.route('/api/sar/analyze', methods=['POST'])
 def sar_analyze():

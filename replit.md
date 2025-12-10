@@ -3,12 +3,13 @@
 ## Overview
 PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and drug discovery platform. Its purpose is to accelerate drug discovery through advanced AI, quantum computing simulations, and comprehensive molecular analysis. Key capabilities include AI-powered compound analysis, virtual high-throughput screening, AI lead optimization, retrosynthesis, PKPD/PBPK modeling, and an autonomous research engine.
 
-## Current Status (December 5, 2025)
-- **Version**: 4.9.0 Enterprise Enhanced (Phase 4 Toxicity Profiling)
-- **Status**: Fully operational with modern UI
+## Current Status (December 10, 2025)
+- **Version**: 5.0.0 Enterprise Enhanced (Autonomous Research Engine)
+- **Status**: Fully operational with modern UI and autonomous research
 - **Server**: Running on port 5000
 - **RDKit**: Version 2025.9.1 installed and working (MorganGenerator API updated)
-- **Advanced Features**: 23 AI modules operational
+- **Advanced Features**: 24 AI modules operational
+- **Autonomous Research**: PubMed literature scanning with real-time API integration
 - **Authentication**: TOTP 2FA enabled for admin login
 
 ## User Preferences
@@ -23,12 +24,14 @@ The platform is built with a Python Flask backend serving a modern HTML5, CSS3, 
 
 ### Key Components
 - **pharmasight_complete.py**: Main application with all API endpoints
+- **autonomous_research_engine.py**: Autonomous PubMed research scanning and novel target discovery
 - **advanced_analog_generator.py**: Scaffold hopping, R-group enumeration, matched molecular pairs
 - **enhanced_docking_scorer.py**: Multi-receptor affinity profiling with therapeutic weighting and performance caching
 - **comprehensive_viability.py**: SA Score, QED, NP Score, Lipinski, FTO analysis
 - **virtual_screening_pipeline.py**: vHTS with 82 receptor targets
 - **biotransformer_client.py**: BioTransformer 3.0 metabolism prediction integration
 - **toxicity_prediction.py**: Phase 4 toxicity profiling (hERG, hepatotoxicity, Ames, CYP450)
+- **research_article_database.py**: Research article storage and retrieval
 
 ## Key Features
 1. **Advanced Analog Generation** - Scaffold hopping, R-group enumeration, matched molecular pair analysis
@@ -42,6 +45,7 @@ The platform is built with a Python Flask backend serving a modern HTML5, CSS3, 
 9. **PK/PBPK Modeling** - 1, 2, 3-compartment and PBPK models
 10. **Quantum Computing** - VQE, QAOA, Grover's algorithms
 11. **Toxicity Profiling** - hERG inhibition, hepatotoxicity, Ames mutagenicity, CYP450 inhibition
+12. **Autonomous Research Engine** - Daily PubMed scanning, literature analysis, novel target screening
 
 ## External Dependencies
 - **PubChem**: Real-time compound property retrieval
@@ -50,6 +54,7 @@ The platform is built with a Python Flask backend serving a modern HTML5, CSS3, 
 - **BioTransformer 3.0**: GPL v2.1 metabolism prediction
 - **Vina**: Molecular docking simulations
 - **PostgreSQL**: User authentication database
+- **PubMed/NCBI E-utilities**: Real-time research article search
 
 ## Recent API Endpoints
 ### Enhanced Docking
@@ -91,6 +96,22 @@ The platform is built with a Python Flask backend serving a modern HTML5, CSS3, 
 - `POST /api/indication/dosage` - Estimate therapeutic dosage range from receptor affinity
 - `GET /api/indication/therapeutic-classes` - Get all therapeutic drug classes and receptor profiles
 - `GET /api/indication/receptor-map` - Get complete receptor-to-indication mapping
+
+### Autonomous Research Engine (Phase 7)
+- `POST /api/research/run-cycle` - Run autonomous research cycle with research goals
+- `POST /api/research/screen-targets` - Screen for novel drug targets using chemical similarity
+- `POST /api/research/search-pubmed` - Search PubMed for articles related to a query
+- `GET /api/research/goals` - Get default research goals for autonomous discovery
+- `GET /api/research/session-logs` - Get list of research session logs
+
+## Recent Changes (December 10, 2025)
+- **Phase 7 Complete**: Autonomous Research Engine integrated from GitHub repository
+- PubMed literature scanning with NCBI E-utilities API (real research articles)
+- Novel target screening for patent-free compound opportunities
+- Session logging for audit trail and research tracking
+- Rate limiting and cost management (50 API calls/day default)
+- Default research goals: Psychedelics, NMDA antagonists, GABA modulators
+- Created 5 new API endpoints for autonomous research
 
 ## Recent Changes (December 5, 2025)
 - **Phase 6 Complete**: Indication Prediction System implemented
