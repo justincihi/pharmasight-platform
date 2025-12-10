@@ -5511,9 +5511,9 @@ def screen_novel_targets():
 
 
 @app.route('/api/research/search-pubmed', methods=['POST'])
-def search_pubmed():
+def search_pubmed_api():
     """
-    Search PubMed for articles related to a query
+    Search PubMed for articles related to a query using real NCBI API
     
     Parameters:
     - query (str): Search query
@@ -5535,22 +5535,12 @@ def search_pubmed():
         return jsonify({
             'success': True,
             'query': query,
+            'papers': articles,
             'articles': articles,
             'total_found': len(articles)
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/research/goals', methods=['GET'])
-def get_default_research_goals():
-    """Get the default research goals for autonomous discovery"""
-    from autonomous_research_engine import DEFAULT_RESEARCH_GOALS
-    
-    return jsonify({
-        'default_goals': DEFAULT_RESEARCH_GOALS,
-        'total_goals': len(DEFAULT_RESEARCH_GOALS)
-    })
 
 
 @app.route('/api/research/session-logs', methods=['GET'])
