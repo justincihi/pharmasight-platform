@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Molecular Viewer - PharmaSight</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/molstar/3.0.0/molstar.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .molecular-bg {
+            background-image: url('resources/hero-molecular.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #0D4F4C, #4A90A4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .viewer-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .control-panel {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        .compound-selector {
+            transition: all 0.3s ease;
+        }
+        .compound-selector:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(13, 79, 76, 0.15);
+        }
+        .compound-selector.selected {
+            border-color: #0D4F4C;
+            background-color: rgba(13, 79, 76, 0.05);
+        }
+        .viewer-3d {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 8px;
+            min-height: 500px;
+        }
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        .scroll-reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 w-full z-50 glass-effect border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl font-bold text-white">
+                        <span class="gradient-text">PharmaSight</span>
+                    </div>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="index.html" class="text-white hover:text-teal-200 transition-colors font-medium">Dashboard</a>
+                        <a href="molecular-viewer.html" class="text-white hover:text-teal-200 transition-colors font-medium border-b-2 border-teal-400">3D Viewer</a>
+                        <a href="comparison.html" class="text-white hover:text-teal-200 transition-colors font-medium">Compare</a>
+                        <a href="reports.html" class="text-white hover:text-teal-200 transition-colors font-medium">Reports</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="exportViewerImage()" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        Export Image
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        
+        <!-- Page Header -->
+        <section class="mb-8 scroll-reveal">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">3D Molecular Viewer</h1>
+            <p class="text-xl text-gray-600">Interactive 3D visualization of pharmaceutical compounds with advanced rendering options</p>
+        </section>
+
+        <!-- Main Viewer Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Compound Selector Sidebar -->
+            <div class="lg:col-span-1 scroll-reveal">
+                <div class="control-panel p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Select Compound</h3>
+                    <div id="compound-selector-list" class="space-y-3">
+                        <!-- Compound selectors will be generated here -->
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">Quick Filters</h4>
+                        <div class="space-y-2">
+                            <button onclick="filterByClass('HMG-CoA Reductase Inhibitor')" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                                Statins
+                            </button>
+                            <button onclick="filterByClass('ACE Inhibitor')" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                                ACE Inhibitors
+                            </button>
+                            <button onclick="filterByClass('Beta Blocker')" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                                Beta Blockers
+                            </button>
+                            <button onclick="filterByClass('NSAID')" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded">
+                                NSAIDs
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3D Viewer Main Area -->
+            <div class="lg:col-span-2 scroll-reveal">
+                <div class="viewer-container p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">3D Molecular Structure</h3>
+                        <div class="flex space-x-2">
+                            <button onclick="resetView()" class="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded transition-colors">
+                                Reset View
+                            </button>
+                            <button onclick="toggleSpin()" class="px-3 py-1 text-sm bg-teal-600 hover:bg-teal-700 text-white rounded transition-colors">
+                                Auto Spin
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="molecular-viewer" class="viewer-3d flex items-center justify-center">
+                        <div class="text-center text-gray-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                            <p class="text-lg font-medium">Select a compound to view 3D structure</p>
+                            <p class="text-sm">Choose from the list on the left</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Rendering Controls -->
+                    <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Rendering Style</label>
+                            <select id="render-style" onchange="updateRenderStyle()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                                <option value="ball-stick">Ball & Stick</option>
+                                <option value="space-fill">Space Filling</option>
+                                <option value="cartoon">Cartoon</option>
+                                <option value="wireframe">Wireframe</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Color Scheme</label>
+                            <select id="color-scheme" onchange="updateColorScheme()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                                <option value="element">By Element</option>
+                                <option value="hydrophobicity">By Hydrophobicity</option>
+                                <option value="charge">By Charge</option>
+                                <option value="chain">By Chain</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Background</label>
+                            <select id="background-style" onchange="updateBackground()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                                <option value="gradient">Gradient</option>
+                                <option value="white">White</option>
+                                <option value="black">Black</option>
+                                <option value="gray">Gray</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Quality</label>
+                            <select id="render-quality" onchange="updateQuality()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Properties Panel -->
+            <div class="lg:col-span-1 scroll-reveal">
+                <div class="control-panel p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Compound Properties</h3>
+                    
+                    <div id="compound-properties">
+                        <div class="text-center text-gray-500 py-8">
+                            <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <p class="text-sm">Select a compound to view properties</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Measurement Tools -->
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">Measurement Tools</h4>
+                        <div class="space-y-2">
+                            <button onclick="measureDistance()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                                📏 Distance Measurement
+                            </button>
+                            <button onclick="measureAngle()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                                📐 Angle Measurement
+                            </button>
+                            <button onclick="measureTorsion()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                                🌀 Torsion Angle
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Analysis Tools -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="text-md font-medium text-gray-900 mb-3">Analysis</h4>
+                        <div class="space-y-2">
+                            <button onclick="showSurface()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                                🌐 Molecular Surface
+                            </button>
+                            <button onclick="showElectrostatic()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                                ⚡ Electrostatic Map
+                            </button>
+                            <button onclick="showHydrophobic()" class="w-full text-left px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors">
+                                💧 Hydrophobicity
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <section class="mt-12 scroll-reveal">
+            <div class="viewer-container p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6">Structural Comparison</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-teal-400 transition-colors cursor-pointer" onclick="loadComparisonCompound(1)">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <p class="text-gray-500">Click to load first compound</p>
+                    </div>
+                    
+                    <div class="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-teal-400 transition-colors cursor-pointer" onclick="loadComparisonCompound(2)">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <p class="text-gray-500">Click to load second compound</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <button onclick="overlayStructures()" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg font-medium transition-colors mr-4">
+                        Overlay Structures
+                    </button>
+                    <button onclick="calculateRMSD()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                        Calculate RMSD
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400">&copy; 2025 PharmaSight Analysis Platform. Advanced molecular intelligence for drug discovery.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Molecular Viewer JavaScript
+        let compoundData = [];
+        let currentCompound = null;
+        let comparisonCompounds = [null, null];
+        let viewer = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCompoundData();
+            setupScrollReveal();
+        });
+
+        // Load compound data
+        async function loadCompoundData() {
+            try {
+                const response = await fetch('resources/compound-data.json');
+                compoundData = await response.json();
+                generateCompoundSelectors();
+            } catch (error) {
+                console.error('Error loading compound data:', error);
+            }
+        }
+
+        // Generate compound selectors
+        function generateCompoundSelectors() {
+            const container = document.getElementById('compound-selector-list');
+            
+            compoundData.forEach(compound => {
+                const selector = document.createElement('div');
+                selector.className = 'compound-selector p-3 border border-gray-200 rounded-lg cursor-pointer';
+                selector.dataset.compoundId = compound.id;
+                
+                selector.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="font-medium text-gray-900 text-sm">${compound.name}</h4>
+                            <p class="text-xs text-gray-500">${compound.therapeuticClass}</p>
+                        </div>
+                        <div class="text-xs text-gray-400">${compound.id}</div>
+                    </div>
+                `;
+                
+                selector.addEventListener('click', () => selectCompound(compound.id));
+                container.appendChild(selector);
+            });
+        }
+
+        // Select compound for 3D viewing
+        function selectCompound(compoundId) {
+            const compound = compoundData.find(c => c.id === compoundId);
+            if (!compound) return;
+
+            currentCompound = compound;
+            
+            // Update UI
+            document.querySelectorAll('.compound-selector').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`[data-compound-id="${compoundId}"]`).classList.add('selected');
+            
+            // Load 3D structure
+            load3DStructure(compound);
+            
+            // Update properties
+            updateProperties(compound);
+        }
+
+        // Load 3D structure (placeholder - would integrate with actual molecular viewer)
+        function load3DStructure(compound) {
+            const viewer = document.getElementById('molecular-viewer');
+            
+            // Simulate loading 3D structure
+            viewer.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="w-32 h-32 mx-auto mb-4 bg-gradient-to-br from-teal-400 to-blue-500 rounded-full flex items-center justify-center">
+                            <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">${compound.name}</h3>
+                        <p class="text-sm text-gray-600">3D molecular structure visualization</p>
+                        <p class="text-xs text-gray-500 mt-2">Interactive controls available</p>
+                    </div>
+                </div>
+            `;
+            
+            // Animate the viewer
+            anime({
+                targets: '#molecular-viewer',
+                opacity: [0, 1],
+                scale: [0.9, 1],
+                duration: 600,
+                easing: 'easeOutQuart'
+            });
+        }
+
+        // Update compound properties display
+        function updateProperties(compound) {
+            const container = document.getElementById('compound-properties');
+            
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <h4 class="font-semibold text-gray-900">${compound.name}</h4>
+                        <p class="text-sm text-gray-500">${compound.id}</p>
+                    </div>
+                    
+                    <div class="property-grid">
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xs text-gray-500">MW</div>
+                            <div class="font-semibold text-gray-900">${compound.molecularWeight.toFixed(1)}</div>
+                        </div>
+                        
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xs text-gray-500">LogP</div>
+                            <div class="font-semibold text-gray-900">${compound.logP.toFixed(2)}</div>
+                        </div>
+                        
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xs text-gray-500">IC50</div>
+                            <div class="font-semibold text-gray-900">${compound.ic50.toFixed(1)}</div>
+                        </div>
+                        
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xs text-gray-500">Score</div>
+                            <div class="font-semibold text-gray-900">${compound.drugScore.toFixed(2)}</div>
+                        </div>
+                        
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xs text-gray-500">HBD</div>
+                            <div class="font-semibold text-gray-900">${compound.hbd || 0}</div>
+                        </div>
+                        
+                        <div class="text-center p-3 bg-gray-50 rounded-lg">
+                            <div class="text-xs text-gray-500">HBA</div>
+                            <div class="font-semibold text-gray-900">${compound.hba || 0}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <div class="text-xs text-blue-600 font-medium mb-1">Target</div>
+                        <div class="text-sm text-blue-900">${compound.target}</div>
+                    </div>
+                    
+                    <div class="p-3 bg-green-50 rounded-lg">
+                        <div class="text-xs text-green-600 font-medium mb-1">Class</div>
+                        <div class="text-sm text-green-900">${compound.therapeuticClass}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Filter compounds by therapeutic class
+        function filterByClass(className) {
+            const selectors = document.querySelectorAll('.compound-selector');
+            
+            selectors.forEach(selector => {
+                const compoundId = selector.dataset.compoundId;
+                const compound = compoundData.find(c => c.id === compoundId);
+                
+                if (compound && compound.therapeuticClass === className) {
+                    selector.style.display = 'block';
+                } else {
+                    selector.style.display = 'none';
+                }
+            });
+        }
+
+        // Rendering control functions
+        function updateRenderStyle() {
+            const style = document.getElementById('render-style').value;
+            console.log('Updating render style to:', style);
+            // Would update actual molecular viewer
+        }
+
+        function updateColorScheme() {
+            const scheme = document.getElementById('color-scheme').value;
+            console.log('Updating color scheme to:', scheme);
+            // Would update actual molecular viewer
+        }
+
+        function updateBackground() {
+            const background = document.getElementById('background-style').value;
+            const viewer = document.getElementById('molecular-viewer');
+            
+            switch(background) {
+                case 'white':
+                    viewer.style.background = 'white';
+                    break;
+                case 'black':
+                    viewer.style.background = 'black';
+                    break;
+                case 'gray':
+                    viewer.style.background = 'gray';
+                    break;
+                default:
+                    viewer.style.background = 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
+            }
+        }
+
+        function updateQuality() {
+            const quality = document.getElementById('render-quality').value;
+            console.log('Updating render quality to:', quality);
+            // Would update actual molecular viewer
+        }
+
+        // Viewer control functions
+        function resetView() {
+            console.log('Resetting view');
+            // Would reset molecular viewer camera
+        }
+
+        function toggleSpin() {
+            console.log('Toggling auto spin');
+            // Would toggle auto-rotation in molecular viewer
+        }
+
+        // Measurement functions
+        function measureDistance() {
+            alert('Distance measurement tool activated. Click two atoms to measure distance.');
+        }
+
+        function measureAngle() {
+            alert('Angle measurement tool activated. Click three atoms to measure angle.');
+        }
+
+        function measureTorsion() {
+            alert('Torsion angle measurement tool activated. Click four atoms to measure torsion angle.');
+        }
+
+        // Analysis functions
+        function showSurface() {
+            alert('Molecular surface visualization enabled');
+        }
+
+        function showElectrostatic() {
+            alert('Electrostatic potential map enabled');
+        }
+
+        function showHydrophobic() {
+            alert('Hydrophobicity map enabled');
+        }
+
+        // Comparison functions
+        function loadComparisonCompound(index) {
+            if (!currentCompound) {
+                alert('Please select a primary compound first');
+                return;
+            }
+            
+            comparisonCompounds[index - 1] = currentCompound;
+            alert(`Loaded ${currentCompound.name} for comparison ${index}`);
+        }
+
+        function overlayStructures() {
+            if (!comparisonCompounds[0] || !comparisonCompounds[1]) {
+                alert('Please load two compounds for comparison');
+                return;
+            }
+            
+            alert(`Overlaying ${comparisonCompounds[0].name} and ${comparisonCompounds[1].name}`);
+        }
+
+        function calculateRMSD() {
+            if (!comparisonCompounds[0] || !comparisonCompounds[1]) {
+                alert('Please load two compounds for RMSD calculation');
+                return;
+            }
+            
+            // Simulate RMSD calculation
+            const rmsd = (Math.random() * 3).toFixed(2);
+            alert(`RMSD between ${comparisonCompounds[0].name} and ${comparisonCompounds[1].name}: ${rmsd} Å`);
+        }
+
+        function exportViewerImage() {
+            if (!currentCompound) {
+                alert('Please select a compound first');
+                return;
+            }
+            
+            alert(`Exporting 3D visualization of ${currentCompound.name} as high-resolution image`);
+        }
+
+        // Setup scroll reveal animations
+        function setupScrollReveal() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
+        }
+    </script>
+</body>
+</html>
