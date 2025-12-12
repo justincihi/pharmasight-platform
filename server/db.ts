@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, or, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, analogDiscoveries, testResults, notifications, InsertAnalogDiscovery, InsertTestResult, InsertNotification } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,196 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+/**
+ * Analog Discovery Queries
+ */
+export async function getAnalogDiscoveries(
+  limit: number = 50,
+  offset: number = 0,
+  filters?: { patentStatus?: string; minConfidence?: number }
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    // Cast to any to bypass strict type checking
+    const query = (db as any).select().from(analogDiscoveries);
+    
+    let finalQuery = query;
+    if (filters?.minConfidence !== undefined) {
+      const minConf = filters.minConfidence;
+      finalQuery = finalQuery.where((col: any) => col.confidenceScore >= minConf);
+    }
+    if (filters?.patentStatus) {
+      const status = filters.patentStatus;
+      finalQuery = finalQuery.where((col: any) => col.patentStatus === status);
+    }
+
+    return await finalQuery
+      .orderBy((col: any) => col.discoveredAt)
+      .limit(limit)
+      .offset(offset);
+  } catch (error) {
+    console.error("Error fetching analogs:", error);
+    return [];
+  }
+}
+
+export async function getAnalogById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await (db as any)
+    .select()
+    .from(analogDiscoveries)
+    .where((col: any) => col.id === id)
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function searchAnalogs(
+  searchQuery: string,
+  limit: number = 50
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Search by compound name or SMILES
+  return await (db as any)
+    .select()
+    .from(analogDiscoveries)
+    .where(
+      (col: any) =>
+        col.compoundName.like(`%${searchQuery}%`) ||
+        col.smiles.like(`%${searchQuery}%`)
+    )
+    .limit(limit);
+}
+
+export async function createAnalogDiscovery(
+  data: InsertAnalogDiscovery
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(analogDiscoveries).values(data);
+  
+  // Return the created record
+  const result = await (db as any)
+    .select()
+    .from(analogDiscoveries)
+    .where((col: any) => col.compoundId === data.compoundId)
+    .limit(1);
+
+  return result[0];
+}
+
+export async function getAnalyticsStats() {
+  const db = await getDb();
+  if (!db) return null;
+
+  const allAnalogs = await db.select().from(analogDiscoveries);
+  
+  const totalDiscovered = allAnalogs.length;
+  const highConfidence = allAnalogs.filter(
+    (a) => a.confidenceScore >= 85
+  ).length;
+  const patentFree = allAnalogs.filter(
+    (a) => a.patentStatus === "patent-free"
+  ).length;
+  const patented = allAnalogs.filter(
+    (a) => a.patentStatus === "patented"
+  ).length;
+
+  return {
+    totalDiscovered,
+    highConfidenceCount: highConfidence,
+    highConfidencePercentage: totalDiscovered > 0 
+      ? Math.round((highConfidence / totalDiscovered) * 100)
+      : 0,
+    patentFreeCount: patentFree,
+    patentedCount: patented,
+    patentFreePercentage: totalDiscovered > 0
+      ? Math.round((patentFree / totalDiscovered) * 100)
+      : 0,
+    averageConfidence: totalDiscovered > 0
+      ? Math.round(
+          allAnalogs.reduce((sum, a) => sum + a.confidenceScore, 0) /
+            totalDiscovered
+        )
+      : 0,
+  };
+}
+
+export async function getDiscoveryTimeline(days: number = 30) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  return await (db as any)
+    .select()
+    .from(analogDiscoveries)
+    .where((col: any) => col.discoveredAt >= cutoffDate)
+    .orderBy((col: any) => col.discoveredAt);
+}
+
+/**
+ * Test Results Queries
+ */
+export async function createTestResult(
+  data: InsertTestResult
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(testResults).values(data);
+  
+  const result = await (db as any)
+    .select()
+    .from(testResults)
+    .orderBy((col: any) => col.id)
+    .limit(1);
+
+  return result[0];
+}
+
+export async function getTestResults(analogId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await (db as any)
+    .select()
+    .from(testResults)
+    .where((col: any) => col.analogId === analogId);
+}
+
+/**
+ * Notification Queries
+ */
+export async function createNotification(
+  data: InsertNotification
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(notifications).values(data);
+}
+
+export async function getAdminNotifications(
+  userId: number,
+  limit: number = 20
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await (db as any)
+    .select()
+    .from(notifications)
+    .where((col: any) => col.userId === userId)
+    .orderBy((col: any) => col.createdAt)
+    .limit(limit);
+}
+
