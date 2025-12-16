@@ -5575,6 +5575,96 @@ def get_research_session_logs():
         'total': len(logs)
     })
 
+# ========== CHATBOT API ==========
+
+@app.route('/api/chat/message', methods=['POST'])
+def chat_message():
+    """
+    Handle chatbot messages and provide intelligent responses
+    with navigation assistance and compound analysis
+    """
+    data = request.get_json()
+    message = data.get('message', '').lower().strip()
+    
+    response = {
+        'response': '',
+        'action': None,
+        'params': {}
+    }
+    
+    # Navigation intents
+    if any(word in message for word in ['screen', 'screening', 'vhts', 'virtual']):
+        response['response'] = "I can help you with virtual screening! You can screen compounds against 82 receptor targets. Would you like me to take you to the Screening section?"
+        response['action'] = 'navigate'
+        response['params'] = {'section': 'screening'}
+    
+    elif any(word in message for word in ['research', 'literature', 'papers', 'pubmed']):
+        response['response'] = "Great! I can search PubMed for recent research articles. The Research Engine can scan literature on topics like psychedelics, GABA modulators, and more. Let me take you there."
+        response['action'] = 'navigate'
+        response['params'] = {'section': 'research'}
+    
+    elif any(word in message for word in ['toxicity', 'toxic', 'safety', 'herg', 'hepato']):
+        response['response'] = "I can help assess compound toxicity including hERG inhibition, hepatotoxicity, Ames mutagenicity, and CYP450 interactions. Navigate to Analysis > Toxicity for a full profile."
+        response['action'] = 'navigate'
+        response['params'] = {'section': 'analysis'}
+    
+    elif any(word in message for word in ['analog', 'analogs', 'scaffold', 'ip', 'patent']):
+        response['response'] = "The Analog Generator can create novel analogs through scaffold hopping, R-group enumeration, and matched molecular pairs. Let's go to Analogs/IP."
+        response['action'] = 'navigate'
+        response['params'] = {'section': 'analogs'}
+    
+    elif any(word in message for word in ['retro', 'synthesis', 'synthesize', 'route']):
+        response['response'] = "I can help plan synthesis routes! The Retrosynthesis module analyzes synthetic complexity and identifies building blocks. Taking you there now."
+        response['action'] = 'navigate'
+        response['params'] = {'section': 'retrosynthesis'}
+    
+    elif any(word in message for word in ['pk', 'pkpd', 'pbpk', 'pharmacokinetic', 'adme']):
+        response['response'] = "For pharmacokinetic modeling, we have 1/2/3-compartment models and PBPK simulations. Let me show you the PKPD section."
+        response['action'] = 'navigate'
+        response['params'] = {'section': 'pkpd'}
+    
+    elif any(word in message for word in ['ddi', 'interaction', 'drug-drug', 'cyp450']):
+        response['response'] = "Drug-drug interactions are critical for safety! I can help analyze CYP450 inhibition and metabolic interactions. Heading to DDI."
+        response['action'] = 'navigate'
+        response['params'] = {'section': 'ddi'}
+    
+    elif any(word in message for word in ['help', 'what can', 'features', 'capabilities']):
+        response['response'] = """PharmaSight has many powerful features:
+<ul>
+<li><b>Screening</b> - Virtual HTS against 82 receptors</li>
+<li><b>Research Engine</b> - AI literature scanning</li>
+<li><b>Analogs/IP</b> - Generate novel compounds</li>
+<li><b>Retrosynthesis</b> - Plan synthesis routes</li>
+<li><b>PKPD</b> - Pharmacokinetic modeling</li>
+<li><b>DDI</b> - Drug interaction analysis</li>
+<li><b>Analysis</b> - Toxicity & indication prediction</li>
+</ul>
+What would you like to explore?"""
+    
+    elif 'smiles' in message or 'cc(' in message or 'c1ccc' in message:
+        # Extract potential SMILES from message
+        import re
+        smiles_pattern = r'[A-Za-z0-9@+\-\[\]\(\)=#%\\\/\.]+(?:[A-Za-z0-9@+\-\[\]\(\)=#%\\\/\.]+)+'
+        matches = re.findall(smiles_pattern, message)
+        if matches:
+            smiles = max(matches, key=len)
+            response['response'] = f"I detected a potential SMILES: <code>{smiles}</code>. Would you like me to analyze this compound?"
+            response['params'] = {'smiles': smiles}
+    
+    else:
+        response['response'] = """I'm here to help you navigate PharmaSight! You can ask me about:
+<ul>
+<li>Virtual screening of compounds</li>
+<li>Research literature search</li>
+<li>Toxicity and safety assessment</li>
+<li>Analog generation</li>
+<li>Synthesis planning</li>
+<li>PK/ADME modeling</li>
+</ul>
+Just type what you're looking for!"""
+    
+    return jsonify(response)
+
 # SAR Analysis Endpoint
 @app.route('/api/sar/analyze', methods=['POST'])
 def sar_analyze():
