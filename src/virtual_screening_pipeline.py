@@ -81,7 +81,7 @@ class VirtualScreeningPipeline:
                     "family": receptor_data.get('family', 'Unknown'),
                     "binding_score": round(binding_score, 3),
                     "predicted_ki": self._score_to_ki(binding_score),
-                    "activity_type": self._predict_activity_type(binding_score)
+                    "activity_type": self._predict_activity_type(binding_score, mol, receptor_name, receptor_data)
                 }
                 
                 screening_result["receptor_hits"].append(hit_data)
@@ -357,18 +357,63 @@ class VirtualScreeningPipeline:
                     score += 0.08
                 
         elif family == 'Cannabinoid':
-            if aromatic_rings >= 1 and aliphatic_rings >= 1:
-                score += 0.18
-            if 3 <= logp <= 7:
-                score += 0.15
-            if 280 < mw < 500:
-                score += 0.10
-            if has_phenol:
-                score += 0.08
-            if rotatable_bonds >= 4:
-                score += 0.06
-            if 40 < tpsa < 80:
-                score += 0.05
+            # Cannabinoid-specific SMARTS patterns
+            # Classical cannabinoids (THC-type): dibenzopyran with alkyl chain
+            thc_core = Chem.MolFromSmarts('c1cc(O)c2c(c1)OC(C)(C)c1ccc(C)cc1-2')
+            # Synthetic cannabinoids: indole/indazole with N-alkyl chain
+            indole_cannabinoid = Chem.MolFromSmarts('c1ccc2[nH]c(C(=O))cc2c1')
+            indazole_cannabinoid = Chem.MolFromSmarts('c1ccc2[nH]nc(C(=O))c2c1')
+            # JWH-type: naphthoyl indole
+            naphthoyl_indole = Chem.MolFromSmarts('c1ccc2c(c1)cccc2C(=O)c1cn')
+            # Long alkyl chain (>=5 carbons) - common in cannabinoids
+            long_alkyl = Chem.MolFromSmarts('CCCCC')
+            # Adamantyl cannabinoids
+            adamantyl = Chem.MolFromSmarts('C12CC3CC(C1)CC(C2)C3')
+            
+            # Exclude patterns (benzodiazepines, other drug classes)
+            triazole_ring = Chem.MolFromSmarts('c1nncn1')  # Alprazolam triazole
+            diazepine = Chem.MolFromSmarts('C1=NC(*)N(*)C(*)=C(*)C1')  # Diazepine ring
+            benzodiazepine_core = Chem.MolFromSmarts('c1ccc2c(c1)C(c3ccccc3)=NCC(=O)N2')
+            
+            is_benzo_class = (
+                (triazole_ring and mol.HasSubstructMatch(triazole_ring) and has_halogen) or
+                (diazepine and mol.HasSubstructMatch(diazepine)) or
+                (benzodiazepine_core and mol.HasSubstructMatch(benzodiazepine_core))
+            )
+            
+            # If it's a benzodiazepine, significantly reduce cannabinoid score
+            if is_benzo_class:
+                score -= 0.3
+            else:
+                # Check for cannabinoid-specific patterns
+                has_cannabinoid_scaffold = (
+                    (thc_core and mol.HasSubstructMatch(thc_core)) or
+                    (indole_cannabinoid and mol.HasSubstructMatch(indole_cannabinoid)) or
+                    (indazole_cannabinoid and mol.HasSubstructMatch(indazole_cannabinoid)) or
+                    (naphthoyl_indole and mol.HasSubstructMatch(naphthoyl_indole)) or
+                    (adamantyl and mol.HasSubstructMatch(adamantyl))
+                )
+                
+                has_long_alkyl = long_alkyl and mol.HasSubstructMatch(long_alkyl)
+                
+                if has_cannabinoid_scaffold:
+                    score += 0.35
+                    if has_long_alkyl:
+                        score += 0.15
+                elif has_long_alkyl and aromatic_rings >= 1 and aliphatic_rings >= 1:
+                    score += 0.18  # Possible cannabinoid
+                    
+                # Property filters (more stringent)
+                if 4 <= logp <= 7:
+                    score += 0.08
+                if 300 < mw < 500:
+                    score += 0.05
+                if has_phenol:
+                    score += 0.06
+                if rotatable_bonds >= 5:
+                    score += 0.04
+                if 30 < tpsa < 70:
+                    score += 0.03
                 
         elif family == 'Muscarinic':
             if has_basic_nitrogen and (has_ether or total_rings >= 2):
@@ -443,18 +488,44 @@ class VirtualScreeningPipeline:
         elif family == 'Purinergic':
             if mw < 180 or mw > 550:
                 return 0.0
-            if num_heteroatoms >= 5 and total_rings >= 2:
-                score += 0.25
-            elif num_heteroatoms >= 4 and total_rings >= 2:
-                score += 0.15
-            if 220 < mw < 480:
-                score += 0.08
-            if -1 <= logp <= 2.5:
-                score += 0.10
-            if tpsa > 90:
-                score += 0.08
-            if hbd >= 2 and hba >= 4:
-                score += 0.06
+            
+            # Purinergic ligands have adenine/purine-like cores
+            purine_core = Chem.MolFromSmarts('c1ncc2[nH]cnc2n1')  # Purine core
+            adenine = Chem.MolFromSmarts('Nc1ncnc2[nH]cnc12')  # Adenine
+            xanthine = Chem.MolFromSmarts('O=c1[nH]c(=O)c2[nH]cnc2[nH]1')  # Caffeine-like
+            ribose = Chem.MolFromSmarts('OCC1OC(O)C(O)C1O')  # Ribose sugar
+            
+            # Exclude benzodiazepines
+            triazole_ring = Chem.MolFromSmarts('c1nncn1')
+            is_benzodiazepine = (triazole_ring and mol.HasSubstructMatch(triazole_ring) and 
+                                has_halogen and aromatic_rings >= 2)
+            
+            if is_benzodiazepine:
+                score -= 0.3  # Reduce score for benzos
+            else:
+                has_purine_scaffold = (
+                    (purine_core and mol.HasSubstructMatch(purine_core)) or
+                    (adenine and mol.HasSubstructMatch(adenine)) or
+                    (xanthine and mol.HasSubstructMatch(xanthine))
+                )
+                
+                if has_purine_scaffold:
+                    score += 0.35
+                    if ribose and mol.HasSubstructMatch(ribose):
+                        score += 0.15  # Nucleoside
+                elif num_heteroatoms >= 5 and total_rings >= 2:
+                    score += 0.15  # Possible purinergic ligand
+                elif num_heteroatoms >= 4 and total_rings >= 2:
+                    score += 0.08
+                    
+                if 220 < mw < 480:
+                    score += 0.05
+                if -1 <= logp <= 2.5:
+                    score += 0.08
+                if tpsa > 90:
+                    score += 0.05
+                if hbd >= 2 and hba >= 4:
+                    score += 0.05
                 
         elif family == 'Orexin':
             if mw < 320 or mw > 650:
@@ -530,16 +601,159 @@ class VirtualScreeningPipeline:
         else:
             return ">50 µM"
     
-    def _predict_activity_type(self, score: float) -> str:
-        """Predict if compound is agonist, antagonist, or modulator"""
-        if score > 0.85:
-            return "Strong binder (activity unknown)"
-        elif score > 0.7:
-            return "Moderate binder"
-        elif score > 0.5:
-            return "Weak binder"
+    def _predict_activity_type(self, score: float, mol=None, receptor_name: str = None, receptor_data: Dict = None) -> str:
+        """Predict if compound is agonist, antagonist, or modulator using structural analysis"""
+        
+        # If no molecular data, fall back to score-based classification
+        if mol is None or receptor_name is None:
+            if score > 0.85:
+                return "Strong binder"
+            elif score > 0.7:
+                return "Moderate binder"
+            elif score > 0.5:
+                return "Weak binder"
+            else:
+                return "Non-binder"
+        
+        # Get receptor-specific activity prediction
+        activity_type, confidence = self._classify_activity(mol, receptor_name, receptor_data or {})
+        
+        # Format output with confidence
+        strength = "Strong" if score > 0.85 else "Moderate" if score > 0.7 else "Weak"
+        if activity_type and confidence > 0.5:
+            return f"{strength} {activity_type} ({int(confidence*100)}%)"
         else:
-            return "Non-binder"
+            return f"{strength} binder"
+    
+    def _classify_activity(self, mol, receptor_name: str, receptor_data: Dict) -> Tuple[str, float]:
+        """Classify compound activity type based on structural features and receptor pharmacology"""
+        
+        # Activity-determining structural patterns
+        ACTIVITY_PATTERNS = {
+            # Agonist-favoring features
+            "agonist_features": {
+                "catechol": "[OH]c1ccc(O)cc1",  # Dopamine/adrenergic agonists
+                "phenethylamine": "c1ccccc1CCN",  # Monoamine agonists
+                "indole_tryptamine": "c1ccc2[nH]ccc2c1CCN",  # Serotonin agonists
+                "ergoline": "CN1CC(C=C2c3cccc4[nH]cc(c34)CC12)",  # Ergot alkaloids (5-HT agonists)
+                "imidazole_histamine": "c1c[nH]cn1CCN",  # Histamine agonists
+                "morphinan": "C12CCC3C(C1)C(O)=CC=C3Oc1ccc(O)cc12",  # Opioid agonists
+                "cannabinoid_agonist": "CCCCCc1cc(O)c2OC(C)(C)c3ccc(C)cc3c2c1",  # CB agonists
+            },
+            # Antagonist-favoring features  
+            "antagonist_features": {
+                "butyrophenone": "c1ccc(C(=O)CCCN)cc1",  # D2 antagonists
+                "benzamide": "c1ccc(C(=O)N)cc1OC",  # D2/5-HT antagonists
+                "phenothiazine": "c1ccc2c(c1)Nc1ccccc1S2",  # D2 antagonists
+                "diphenylmethyl": "c1ccccc1C(c2ccccc2)",  # H1 antagonists
+                "piperidine_aryl": "c1ccccc1C2CCNCC2",  # Typical antipsychotics
+                "quinolone": "c1cc2c(cc1)nc(=O)c(=O)[nH]2",  # Various antagonists
+                "biphenyl": "c1ccc(-c2ccccc2)cc1",  # AT1 antagonists
+            },
+            # Positive allosteric modulator features
+            "pam_features": {
+                "benzodiazepine": "c1ccc2c(c1)C(c3ccccc3)=NCC(=O)N2",  # GABA-A PAMs
+                "triazolo_benzo": "c1nncn1",  # Triazolobenzodiazepines
+                "barbiturate": "C1C(=O)NC(=O)NC1=O",  # GABA-A modulators
+                "neurosteroid": "CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34",  # GABA-A modulators
+            },
+            # Negative allosteric modulator features
+            "nam_features": {
+                "inverse_agonist": "c1ccc2c(c1)C(=O)c3ccccc3C2=O",  # Various inverse agonists
+            },
+            # Channel blocker features
+            "blocker_features": {
+                "arylcyclohexylamine": "c1ccccc1C1CCCCC1N",  # NMDA blockers (ketamine)
+                "adamantane": "C1C2CC3CC1CC(C2)C3",  # NMDA blockers (memantine)
+                "quaternary_ammonium": "[N+](C)(C)(C)C",  # nAChR blockers
+            }
+        }
+        
+        # Score each activity type
+        activity_scores = {
+            "agonist": 0.0,
+            "antagonist": 0.0,
+            "PAM": 0.0,  # Positive allosteric modulator
+            "NAM": 0.0,  # Negative allosteric modulator
+            "blocker": 0.0,
+        }
+        
+        # Check structural patterns
+        for pattern_name, smarts in ACTIVITY_PATTERNS["agonist_features"].items():
+            pattern = Chem.MolFromSmarts(smarts)
+            if pattern and mol.HasSubstructMatch(pattern):
+                activity_scores["agonist"] += 0.3
+                
+        for pattern_name, smarts in ACTIVITY_PATTERNS["antagonist_features"].items():
+            pattern = Chem.MolFromSmarts(smarts)
+            if pattern and mol.HasSubstructMatch(pattern):
+                activity_scores["antagonist"] += 0.3
+                
+        for pattern_name, smarts in ACTIVITY_PATTERNS["pam_features"].items():
+            pattern = Chem.MolFromSmarts(smarts)
+            if pattern and mol.HasSubstructMatch(pattern):
+                activity_scores["PAM"] += 0.4
+                
+        for pattern_name, smarts in ACTIVITY_PATTERNS["nam_features"].items():
+            pattern = Chem.MolFromSmarts(smarts)
+            if pattern and mol.HasSubstructMatch(pattern):
+                activity_scores["NAM"] += 0.4
+                
+        for pattern_name, smarts in ACTIVITY_PATTERNS["blocker_features"].items():
+            pattern = Chem.MolFromSmarts(smarts)
+            if pattern and mol.HasSubstructMatch(pattern):
+                activity_scores["blocker"] += 0.4
+        
+        # Use receptor-specific information
+        receptor_family = receptor_data.get("family", "")
+        receptor_type = receptor_data.get("type", "")
+        receptor_subtype = receptor_data.get("subtype", "")
+        
+        # Ion channels are typically blocked, not agonized/antagonized
+        if receptor_type == "Ion channel":
+            if "NMDA" in receptor_name or "Glutamate" in receptor_family:
+                activity_scores["blocker"] += 0.2
+            elif "GABA" in receptor_family:
+                activity_scores["PAM"] += 0.2  # Benzodiazepines are PAMs
+            elif "nAChR" in receptor_name or "Nicotinic" in receptor_family:
+                activity_scores["blocker"] += 0.1
+        
+        # GPCR coupling hints at activity type
+        if "Gi" in receptor_subtype or "Go" in receptor_subtype:
+            # Gi-coupled: agonism causes inhibition
+            activity_scores["agonist"] += 0.1
+        elif "Gs" in receptor_subtype:
+            # Gs-coupled: agonism causes activation
+            activity_scores["agonist"] += 0.1
+        elif "Gq" in receptor_subtype:
+            # Gq-coupled: agonism causes activation
+            activity_scores["agonist"] += 0.1
+        
+        # Molecular property-based hints
+        mw = Descriptors.MolWt(mol)
+        logp = Descriptors.MolLogP(mol)
+        hbd = Descriptors.NumHDonors(mol)
+        
+        # Larger, more lipophilic molecules tend to be antagonists
+        if mw > 400 and logp > 3:
+            activity_scores["antagonist"] += 0.15
+        # Smaller molecules with H-bond donors tend to be agonists
+        elif mw < 300 and hbd >= 2:
+            activity_scores["agonist"] += 0.15
+        
+        # Determine best activity type
+        best_activity = max(activity_scores, key=activity_scores.get)
+        best_score = activity_scores[best_activity]
+        
+        # Calculate confidence
+        total_score = sum(activity_scores.values())
+        confidence = best_score / max(total_score, 0.01) if total_score > 0 else 0
+        
+        # Only return prediction if we have meaningful evidence
+        if best_score < 0.2:
+            return None, 0.0
+            
+        return best_activity, min(confidence, 0.95)
     
     def _calculate_selectivity(self, hits: List[Dict]) -> Dict:
         """Calculate selectivity profile"""

@@ -5001,10 +5001,169 @@ def vhts_batch_screen():
     if not compounds:
         return jsonify({'error': 'Compounds list is required'}), 400
     
+    # Convert input to tuple format expected by batch_screen
+    compound_tuples = []
+    for c in compounds:
+        if isinstance(c, dict):
+            smiles = c.get('smiles', '')
+            name = c.get('name', c.get('compound_name', ''))
+            compound_tuples.append((smiles, name))
+        elif isinstance(c, str):
+            compound_tuples.append((c, ''))
+        elif isinstance(c, (list, tuple)) and len(c) >= 2:
+            compound_tuples.append((c[0], c[1]))
+    
     pipeline = VirtualScreeningPipeline()
-    results = pipeline.batch_screen(compounds)
+    results_list = pipeline.batch_screen(compound_tuples)
+    
+    # Wrap results in a dict with comparative analysis
+    results = {'results': results_list}
+    if results_list:
+        comparative = _generate_batch_comparison(results_list)
+        results['comparative_analysis'] = comparative
     
     return jsonify(results)
+
+def _generate_batch_comparison(results: list) -> dict:
+    """Generate comparative analysis for batch screening results"""
+    if not results:
+        return {}
+    
+    # Build receptor hit matrix
+    all_receptors = set()
+    for r in results:
+        for hit in r.get('receptor_hits', []):
+            all_receptors.add(hit['receptor'])
+    
+    # Create heatmap data
+    heatmap_data = []
+    for receptor in sorted(all_receptors):
+        row = {'receptor': receptor, 'family': ''}
+        for i, r in enumerate(results):
+            compound_id = r.get('compound_id', f'Compound_{i+1}')
+            score = 0
+            for hit in r.get('receptor_hits', []):
+                if hit['receptor'] == receptor:
+                    score = hit['binding_score']
+                    row['family'] = hit.get('family', '')
+                    break
+            row[compound_id] = round(score, 3)
+        heatmap_data.append(row)
+    
+    # Rank compounds by total binding
+    rankings = []
+    for i, r in enumerate(results):
+        compound_id = r.get('compound_id', f'Compound_{i+1}')
+        total_score = sum(h['binding_score'] for h in r.get('receptor_hits', []))
+        num_hits = len(r.get('receptor_hits', []))
+        rankings.append({
+            'compound_id': compound_id,
+            'smiles': r.get('smiles', ''),
+            'total_binding_score': round(total_score, 2),
+            'num_receptor_hits': num_hits,
+            'avg_binding_score': round(total_score / num_hits, 3) if num_hits > 0 else 0
+        })
+    
+    rankings.sort(key=lambda x: -x['total_binding_score'])
+    
+    return {
+        'heatmap_data': heatmap_data[:50],  # Limit rows for performance
+        'compound_rankings': rankings,
+        'total_receptors_hit': len(all_receptors),
+        'compounds_screened': len(results)
+    }
+
+# ChEMBL Validation Endpoints
+@app.route('/api/validation/chembl', methods=['POST'])
+def validate_against_chembl():
+    """Validate screening predictions against ChEMBL experimental data"""
+    from chembl_validation import ChEMBLValidator
+    from virtual_screening_pipeline import VirtualScreeningPipeline
+    
+    data = request.get_json()
+    smiles = data.get('smiles', '')
+    
+    if not smiles:
+        return jsonify({'error': 'SMILES string is required'}), 400
+    
+    # First screen the compound
+    pipeline = VirtualScreeningPipeline()
+    screening_result = pipeline.screen_compound(smiles)
+    
+    if 'error' in screening_result:
+        return jsonify(screening_result), 400
+    
+    # Validate against ChEMBL
+    validator = ChEMBLValidator()
+    validation_result = validator.validate_screening_results(screening_result)
+    
+    return jsonify({
+        'screening': screening_result,
+        'validation': validation_result
+    })
+
+@app.route('/api/validation/known_ligands', methods=['POST'])
+def get_known_ligands():
+    """Get known ligands for a receptor from ChEMBL"""
+    from chembl_validation import ChEMBLValidator
+    
+    data = request.get_json()
+    receptor = data.get('receptor', '')
+    limit = data.get('limit', 10)
+    
+    if not receptor:
+        return jsonify({'error': 'Receptor name is required'}), 400
+    
+    validator = ChEMBLValidator()
+    ligands = validator.get_known_ligands(receptor, limit)
+    
+    return jsonify({
+        'receptor': receptor,
+        'known_ligands': ligands,
+        'count': len(ligands)
+    })
+
+@app.route('/api/validation/accuracy_report', methods=['POST'])
+def generate_accuracy_report():
+    """Generate accuracy report for multiple compounds"""
+    from chembl_validation import ChEMBLValidator
+    from virtual_screening_pipeline import VirtualScreeningPipeline
+    
+    data = request.get_json()
+    compounds = data.get('compounds', [])
+    
+    if not compounds:
+        return jsonify({'error': 'Compounds list is required'}), 400
+    
+    pipeline = VirtualScreeningPipeline()
+    validator = ChEMBLValidator()
+    
+    reports = []
+    total_accuracy = 0
+    validated_count = 0
+    
+    for compound in compounds[:10]:  # Limit to 10 compounds
+        smiles = compound.get('smiles') if isinstance(compound, dict) else compound
+        screening = pipeline.screen_compound(smiles)
+        
+        if 'error' not in screening:
+            validation = validator.validate_screening_results(screening)
+            reports.append({
+                'smiles': smiles,
+                'validation': validation
+            })
+            
+            if validation.get('overall_accuracy') is not None:
+                total_accuracy += validation['overall_accuracy']
+                validated_count += 1
+    
+    overall = total_accuracy / validated_count if validated_count > 0 else None
+    
+    return jsonify({
+        'reports': reports,
+        'overall_platform_accuracy': round(overall, 3) if overall else None,
+        'compounds_validated': validated_count
+    })
 
 # Lead Optimization Endpoint
 @app.route('/api/lead_opt/optimize', methods=['POST'])
