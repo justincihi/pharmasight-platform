@@ -160,7 +160,7 @@ class VirtualScreeningPipeline:
             total_rings, rotatable_bonds, has_basic_nitrogen, has_phenol, has_ether,
             has_amine, has_amide, has_halogen, has_indole, has_benzene, has_piperidine,
             has_morpholine, has_furan, has_thiophene, has_pyridine, fraction_sp3,
-            num_heteroatoms, has_sulfur, receptor_type
+            num_heteroatoms, has_sulfur, receptor_type, receptor_name
         )
         
         base_score += pharmacophore_score
@@ -193,7 +193,7 @@ class VirtualScreeningPipeline:
                                   has_indole, has_benzene, has_piperidine,
                                   has_morpholine, has_furan, has_thiophene,
                                   has_pyridine, fraction_sp3, num_heteroatoms,
-                                  has_sulfur, receptor_type) -> float:
+                                  has_sulfur, receptor_type, receptor_name='') -> float:
         """Calculate pharmacophore-based score for each receptor family"""
         
         score = 0.0
@@ -273,16 +273,46 @@ class VirtualScreeningPipeline:
                     score += 0.08
                     
         elif family == 'Glutamate':
-            if hbd >= 2 and hba >= 4:
-                score += 0.20
-            if 100 < mw < 350:
-                score += 0.12
-            if -2 <= logp <= 2:
-                score += 0.12
-            if tpsa > 80:
-                score += 0.08
-            if has_amine and not has_benzene:
-                score += 0.08
+            
+            # NMDA channel blockers (arylcyclohexylamines like ketamine, methoxetamine, PCP)
+            arylcyclohexylamine = Chem.MolFromSmarts('[NX3;!$(N=*)][CH1]1[CH2][CH2][CH2][CH2][CH2]1')
+            phenylcyclohexyl = Chem.MolFromSmarts('c1ccccc1C1CCCCC1')
+            substituted_arylamine = Chem.MolFromSmarts('c1ccccc1[C;!$(C=O)]N')
+            
+            is_arylcyclohexylamine = (
+                (arylcyclohexylamine and mol.HasSubstructMatch(arylcyclohexylamine)) or
+                (phenylcyclohexyl and mol.HasSubstructMatch(phenylcyclohexyl)) or
+                (substituted_arylamine and mol.HasSubstructMatch(substituted_arylamine) and aliphatic_rings >= 1)
+            )
+            
+            if 'NMDA' in receptor_name or is_arylcyclohexylamine:
+                # Arylcyclohexylamine pharmacophore for NMDA channel blockers
+                if is_arylcyclohexylamine:
+                    score += 0.35
+                elif has_basic_nitrogen and aromatic_rings >= 1 and aliphatic_rings >= 1:
+                    score += 0.25
+                elif has_basic_nitrogen and aromatic_rings >= 1:
+                    score += 0.18
+                if has_ether and aromatic_rings >= 1:
+                    score += 0.12
+                if 180 < mw < 350:
+                    score += 0.10
+                if 1.5 <= logp <= 4.0:
+                    score += 0.08
+                if 20 < tpsa < 60:
+                    score += 0.05
+            else:
+                # Classic glutamate receptor ligands (amino acid-like)
+                if hbd >= 2 and hba >= 4:
+                    score += 0.20
+                if 100 < mw < 350:
+                    score += 0.12
+                if -2 <= logp <= 2:
+                    score += 0.12
+                if tpsa > 80:
+                    score += 0.08
+                if has_amine and not has_benzene:
+                    score += 0.08
                 
         elif family == 'Cannabinoid':
             if aromatic_rings >= 1 and aliphatic_rings >= 1:

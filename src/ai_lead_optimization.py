@@ -2,14 +2,18 @@
 """
 AI-Powered Lead Optimization Module
 Uses machine learning to suggest molecular modifications for improved binding
+Enhanced with specific molecular modifications and 2D structure visualization
 """
 
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import AllChem, Descriptors, Crippen
-from rdkit.Chem import rdMolDescriptors
+from rdkit.Chem import AllChem, Descriptors, Crippen, Draw
+from rdkit.Chem import rdMolDescriptors, rdFingerprintGenerator
+from rdkit import DataStructs
 from typing import Dict, List, Tuple
 import json
+import base64
+import io
 
 class AILeadOptimizer:
     """ML-based lead optimization suggestions"""
@@ -76,17 +80,233 @@ class AILeadOptimizer:
             ]
         }
     
+    def mol_to_base64_image(self, mol, size=(300, 200), highlight_atoms=None) -> str:
+        """Convert molecule to base64 encoded PNG image"""
+        try:
+            if highlight_atoms:
+                img = Draw.MolToImage(mol, size=size, highlightAtoms=highlight_atoms)
+            else:
+                img = Draw.MolToImage(mol, size=size)
+            
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            buffer.seek(0)
+            img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            return f"data:image/png;base64,{img_base64}"
+        except:
+            return ""
+    
+    def get_compound_specific_modifications(self, mol, smiles: str) -> List[Dict]:
+        """Analyze molecule structure and suggest specific, actionable modifications"""
+        modifications = []
+        
+        # Identify structural features
+        features = self._identify_structural_features(mol)
+        
+        # Arylcyclohexylamine modifications (ketamine-like compounds)
+        arylcyclohexyl_pattern = Chem.MolFromSmarts('c1ccccc1[C;!$(C=O)]N')
+        if arylcyclohexyl_pattern and mol.HasSubstructMatch(arylcyclohexyl_pattern):
+            modifications.extend(self._get_arylcyclohexylamine_mods(mol, smiles))
+        
+        # Aromatic ring modifications
+        if features.get('aromatic_rings', 0) >= 1:
+            modifications.extend(self._get_aromatic_mods(mol, smiles, features))
+        
+        # Amine modifications
+        if features.get('has_amine', False):
+            modifications.extend(self._get_amine_mods(mol, smiles, features))
+        
+        # Ether/alkoxy modifications
+        if features.get('has_ether', False):
+            modifications.extend(self._get_ether_mods(mol, smiles, features))
+        
+        # Alkyl chain modifications
+        if len(features.get('alkyl_chains', [])) >= 1:
+            modifications.extend(self._get_alkyl_mods(mol, smiles, features))
+        
+        return modifications
+    
+    def _identify_structural_features(self, mol) -> Dict:
+        """Identify key structural features of the molecule"""
+        from rdkit.Chem import Fragments
+        
+        return {
+            'aromatic_rings': rdMolDescriptors.CalcNumAromaticRings(mol),
+            'aliphatic_rings': rdMolDescriptors.CalcNumAliphaticRings(mol),
+            'has_amine': Fragments.fr_NH2(mol) + Fragments.fr_NH1(mol) + Fragments.fr_NH0(mol) > 0,
+            'has_ether': Fragments.fr_ether(mol) > 0,
+            'has_phenol': Fragments.fr_phenol(mol) > 0,
+            'has_halogen': Fragments.fr_halogen(mol) > 0,
+            'alkyl_chains': mol.GetSubstructMatches(Chem.MolFromSmarts('CC')) if Chem.MolFromSmarts('CC') else [],
+            'mw': Descriptors.MolWt(mol),
+            'logp': Crippen.MolLogP(mol)
+        }
+    
+    def _get_arylcyclohexylamine_mods(self, mol, smiles: str) -> List[Dict]:
+        """Modifications specific to arylcyclohexylamine scaffolds (ketamine, MXE, etc.)"""
+        mods = []
+        
+        # Ortho-methoxy substitution variations
+        mods.append({
+            "modification_type": "aromatic_substitution",
+            "name": "Move methoxy to meta position",
+            "description": "Shifting the methoxy group from ortho to meta position can alter receptor binding selectivity and metabolic stability",
+            "expected_effect": "May increase sigma receptor affinity while reducing NMDA potency",
+            "smarts_from": "COc1ccccc1",
+            "smarts_to": "c1cc(OC)ccc1",
+            "difficulty": "moderate"
+        })
+        
+        mods.append({
+            "modification_type": "aromatic_substitution", 
+            "name": "Add para-fluorine",
+            "description": "Adding fluorine at para position blocks CYP-mediated metabolism and may increase binding affinity",
+            "expected_effect": "Improved metabolic stability, potentially increased potency",
+            "smarts_from": "[cH:1]1[cH:2][c:3]([OC])[cH:4][cH:5][c:6]1",
+            "smarts_to": "[c:1]1[cH:2][c:3]([OC])[cH:4][c:5](F)[c:6]1",
+            "difficulty": "easy"
+        })
+        
+        mods.append({
+            "modification_type": "amine_modification",
+            "name": "N-ethyl to N-methyl",
+            "description": "Reducing N-alkyl chain length typically increases potency but may reduce duration of action",
+            "expected_effect": "Higher NMDA affinity, shorter duration",
+            "smarts_from": "NCC",
+            "smarts_to": "NC",
+            "difficulty": "easy"
+        })
+        
+        mods.append({
+            "modification_type": "amine_modification",
+            "name": "N-cyclopropyl substitution",
+            "description": "Cyclopropyl groups can improve metabolic stability while maintaining or increasing receptor affinity",
+            "expected_effect": "Improved metabolic stability, altered receptor profile",
+            "smarts_from": "[NH1:1]C",
+            "smarts_to": "[N:1]C1CC1",
+            "difficulty": "moderate"
+        })
+        
+        mods.append({
+            "modification_type": "ring_modification",
+            "name": "Replace phenyl with 2-thienyl",
+            "description": "Thienyl bioisostere can alter receptor selectivity and improve CNS penetration",
+            "expected_effect": "Different receptor binding profile, may reduce off-target effects",
+            "smarts_from": "c1ccccc1",
+            "smarts_to": "c1ccsc1",
+            "difficulty": "moderate"
+        })
+        
+        return mods
+    
+    def _get_aromatic_mods(self, mol, smiles: str, features: Dict) -> List[Dict]:
+        """Modifications for aromatic rings"""
+        mods = []
+        
+        if features.get('has_halogen', False):
+            mods.append({
+                "modification_type": "halogen_exchange",
+                "name": "Halogen exchange (Cl → F)",
+                "description": "Fluorine is smaller and more electronegative, often improving binding while reducing molecular weight",
+                "expected_effect": "Improved binding affinity, better metabolic stability",
+                "difficulty": "easy"
+            })
+        else:
+            mods.append({
+                "modification_type": "halogenation",
+                "name": "Add ortho-fluorine to aromatic ring",
+                "description": "Ortho-fluorine blocks metabolic hydroxylation and can improve potency through electronic effects",
+                "expected_effect": "Metabolic stability, potential potency increase",
+                "difficulty": "easy"
+            })
+        
+        mods.append({
+            "modification_type": "ring_replacement",
+            "name": "Phenyl to pyridyl replacement",
+            "description": "Pyridine can improve water solubility and alter receptor binding through hydrogen bond acceptance",
+            "expected_effect": "Improved solubility, altered receptor selectivity",
+            "difficulty": "moderate"
+        })
+        
+        return mods
+    
+    def _get_amine_mods(self, mol, smiles: str, features: Dict) -> List[Dict]:
+        """Modifications for amine groups"""
+        mods = []
+        
+        secondary_amine = Chem.MolFromSmarts('[NH1;!$(NC=O)]')
+        if secondary_amine and mol.HasSubstructMatch(secondary_amine):
+            mods.append({
+                "modification_type": "amine_modification",
+                "name": "Secondary amine methylation",
+                "description": "N-methylation typically increases lipophilicity and CNS penetration, may also affect receptor binding",
+                "expected_effect": "Improved CNS penetration, potentially altered receptor profile",
+                "difficulty": "easy"
+            })
+        
+        primary_amine = Chem.MolFromSmarts('[NH2]')
+        if primary_amine and mol.HasSubstructMatch(primary_amine):
+            mods.append({
+                "modification_type": "amine_modification",
+                "name": "Convert primary amine to dimethylamine",
+                "description": "Tertiary amines are more lipophilic and resistant to MAO metabolism",
+                "expected_effect": "Metabolic stability, altered receptor binding",
+                "difficulty": "easy"
+            })
+        
+        return mods
+    
+    def _get_ether_mods(self, mol, smiles: str, features: Dict) -> List[Dict]:
+        """Modifications for ether groups"""
+        return [
+            {
+                "modification_type": "ether_modification",
+                "name": "Methoxy to ethoxy",
+                "description": "Ethoxy groups are more lipophilic and may alter binding kinetics",
+                "expected_effect": "Increased lipophilicity, potentially slower onset",
+                "difficulty": "easy"
+            },
+            {
+                "modification_type": "ether_modification",
+                "name": "Methoxy to difluoromethoxy",
+                "description": "Difluoromethoxy blocks O-demethylation metabolism while maintaining similar electronic properties",
+                "expected_effect": "Significantly improved metabolic stability",
+                "difficulty": "moderate"
+            }
+        ]
+    
+    def _get_alkyl_mods(self, mol, smiles: str, features: Dict) -> List[Dict]:
+        """Modifications for alkyl chains"""
+        return [
+            {
+                "modification_type": "chain_modification",
+                "name": "Alkyl chain rigidification",
+                "description": "Converting flexible alkyl chains to cyclopropyl or cyclobutyl reduces conformational entropy, potentially improving binding",
+                "expected_effect": "Improved binding affinity, metabolic stability",
+                "difficulty": "moderate"
+            },
+            {
+                "modification_type": "chain_modification",
+                "name": "Alpha-deuteration",
+                "description": "Deuterium at alpha-carbon slows oxidative metabolism without affecting pharmacodynamics",
+                "expected_effect": "Extended half-life, reduced dosing frequency",
+                "difficulty": "moderate"
+            }
+        ]
+    
     def optimize_lead(self, smiles: str, target_profile: Dict = None) -> Dict:
-        """Generate optimization suggestions for a lead compound"""
+        """Generate optimization suggestions for a lead compound with 2D visualization"""
         mol = Chem.MolFromSmiles(smiles)
         if not mol:
             return {"error": "Invalid SMILES"}
         
         suggestions = {
             "original_smiles": smiles,
+            "original_structure_image": self.mol_to_base64_image(mol, size=(350, 250)),
             "optimization_strategies": [],
             "predicted_improvements": [],
             "modified_structures": [],
+            "specific_modifications": [],
             "admet_comparison": {}
         }
         
@@ -94,19 +314,67 @@ class AILeadOptimizer:
         current_props = self.calculate_properties(mol)
         suggestions["current_properties"] = current_props
         
-        # Identify optimization needs
+        # Get compound-specific modifications (the new, detailed suggestions)
+        specific_mods = self.get_compound_specific_modifications(mol, smiles)
+        suggestions["specific_modifications"] = specific_mods
+        
+        # Apply specific modifications to generate actual structures
+        for mod in specific_mods:
+            if "smarts_from" in mod and "smarts_to" in mod:
+                try:
+                    rxn_smarts = f"{mod['smarts_from']}>>{mod['smarts_to']}"
+                    rxn = AllChem.ReactionFromSmarts(rxn_smarts)
+                    if rxn:
+                        products = rxn.RunReactants((mol,))
+                        if products:
+                            product_mol = products[0][0]
+                            Chem.SanitizeMol(product_mol)
+                            product_smiles = Chem.MolToSmiles(product_mol)
+                            product_props = self.calculate_properties(product_mol)
+                            
+                            suggestions["modified_structures"].append({
+                                "smiles": product_smiles,
+                                "structure_image": self.mol_to_base64_image(product_mol, size=(300, 200)),
+                                "modification": mod["name"],
+                                "modification_type": mod["modification_type"],
+                                "description": mod["description"],
+                                "expected_effect": mod.get("expected_effect", ""),
+                                "difficulty": mod.get("difficulty", "moderate"),
+                                "properties": product_props,
+                                "property_changes": {
+                                    "mw_change": round(product_props["mw"] - current_props["mw"], 2),
+                                    "logp_change": round(product_props["logp"] - current_props["logp"], 2),
+                                    "tpsa_change": round(product_props["tpsa"] - current_props["tpsa"], 2)
+                                }
+                            })
+                except Exception as e:
+                    # If reaction fails, still include the suggestion without structure
+                    suggestions["modified_structures"].append({
+                        "smiles": None,
+                        "structure_image": None,
+                        "modification": mod["name"],
+                        "modification_type": mod["modification_type"],
+                        "description": mod["description"],
+                        "expected_effect": mod.get("expected_effect", ""),
+                        "difficulty": mod.get("difficulty", "moderate"),
+                        "properties": None,
+                        "requires_synthesis": True
+                    })
+        
+        # Also identify optimization needs based on properties
         needs = self.identify_optimization_needs(current_props, target_profile)
         
-        # Generate modifications for each need
+        # Generate strategies for each need
         for need in needs:
             strategy = self.generate_optimization_strategy(mol, need)
             suggestions["optimization_strategies"].append(strategy)
             
-            # Generate modified molecules
+            # Try to apply rule-based modifications
             for modification in strategy["modifications"]:
                 try:
                     modified_mol = self.apply_modification(mol, modification)
-                    if modified_mol:
+                    if modified_mol and Chem.MolToSmiles(modified_mol) != smiles:
+                        Chem.SanitizeMol(modified_mol)
                         modified_smiles = Chem.MolToSmiles(modified_mol)
                         modified_props = self.calculate_properties(modified_mol)
                         
@@ -114,22 +382,30 @@ class AILeadOptimizer:
                             current_props, modified_props, need
                         )
                         
-                        suggestions["modified_structures"].append({
-                            "smiles": modified_smiles,
-                            "modification": modification["description"],
-                            "properties": modified_props,
-                            "improvement_score": improvement,
-                            "strategy": need
-                        })
+                        # Avoid duplicates
+                        existing_smiles = [m.get("smiles") for m in suggestions["modified_structures"]]
+                        if modified_smiles not in existing_smiles:
+                            suggestions["modified_structures"].append({
+                                "smiles": modified_smiles,
+                                "structure_image": self.mol_to_base64_image(modified_mol, size=(300, 200)),
+                                "modification": modification["description"],
+                                "modification_type": modification.get("type", "general"),
+                                "description": modification["description"],
+                                "expected_effect": f"Addresses: {need}",
+                                "difficulty": "easy",
+                                "properties": modified_props,
+                                "improvement_score": improvement,
+                                "strategy": need
+                            })
                 except:
                     continue
         
-        # Rank suggestions
+        # Sort by those with actual structures first, then by improvement score
         suggestions["modified_structures"] = sorted(
-            suggestions["modified_structures"],
-            key=lambda x: x["improvement_score"],
+            [m for m in suggestions["modified_structures"] if m.get("smiles")],
+            key=lambda x: x.get("improvement_score", 0.5),
             reverse=True
-        )[:10]  # Top 10 suggestions
+        )[:15]  # Top 15 suggestions
         
         # Predict overall improvements
         suggestions["predicted_improvements"] = self.predict_improvements(
@@ -311,20 +587,31 @@ class AILeadOptimizer:
         improvements = []
         
         if modifications:
-            avg_qed = np.mean([m["properties"]["qed"] for m in modifications])
-            if avg_qed > 0.7:
-                improvements.append("Significantly improved drug-likeness")
+            # Filter to only include modifications with properties
+            mods_with_props = [m for m in modifications if m.get("properties")]
             
-            avg_sa = np.mean([m["properties"]["synthetic_accessibility"] for m in modifications])
-            if avg_sa < 4:
-                improvements.append("Highly synthetically accessible analogs")
+            if mods_with_props:
+                avg_qed = np.mean([m["properties"]["qed"] for m in mods_with_props])
+                if avg_qed > 0.7:
+                    improvements.append("Significantly improved drug-likeness")
+                
+                avg_sa = np.mean([m["properties"]["synthetic_accessibility"] for m in mods_with_props])
+                if avg_sa < 4:
+                    improvements.append("Highly synthetically accessible analogs")
             
-            # Check for improved properties
+            # Check for best modification
             best_mod = modifications[0]
-            improvements.append(
-                f"Best modification: {best_mod['modification']} "
-                f"(score: {best_mod['improvement_score']:.2f})"
-            )
+            mod_name = best_mod.get('modification', 'Unknown')
+            
+            if 'improvement_score' in best_mod:
+                improvements.append(
+                    f"Best modification: {mod_name} "
+                    f"(score: {best_mod['improvement_score']:.2f})"
+                )
+            else:
+                improvements.append(f"Top suggestion: {mod_name}")
+                if best_mod.get('expected_effect'):
+                    improvements.append(f"Expected effect: {best_mod['expected_effect']}")
         
         return improvements
     
