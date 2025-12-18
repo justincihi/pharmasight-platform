@@ -3,13 +3,14 @@
 ## Overview
 PharmaSight™ is an enterprise-grade AI-powered pharmaceutical research and drug discovery platform. Its purpose is to accelerate drug discovery through advanced AI, quantum computing simulations, and comprehensive molecular analysis. Key capabilities include AI-powered compound analysis, virtual high-throughput screening, AI lead optimization, retrosynthesis, PKPD/PBPK modeling, and an autonomous research engine.
 
-## Current Status (December 10, 2025)
-- **Version**: 5.0.0 Enterprise Enhanced (Autonomous Research Engine)
-- **Status**: Fully operational with modern UI and autonomous research
+## Current Status (December 18, 2025)
+- **Version**: 5.1.0 Enterprise Enhanced (Activity Classification & ChEMBL Validation)
+- **Status**: Fully operational with modern UI, autonomous research, and experimental validation
 - **Server**: Running on port 5000
 - **RDKit**: Version 2025.9.1 installed and working (MorganGenerator API updated)
-- **Advanced Features**: 24 AI modules operational
+- **Advanced Features**: 26 AI modules operational
 - **Autonomous Research**: PubMed literature scanning with real-time API integration
+- **ChEMBL Integration**: Experimental validation with Ki/IC50 comparison
 - **Authentication**: TOTP 2FA enabled for admin login
 
 ## User Preferences
@@ -32,6 +33,7 @@ The platform is built with a Python Flask backend serving a modern HTML5, CSS3, 
 - **biotransformer_client.py**: BioTransformer 3.0 metabolism prediction integration
 - **toxicity_prediction.py**: Phase 4 toxicity profiling (hERG, hepatotoxicity, Ames, CYP450)
 - **research_article_database.py**: Research article storage and retrieval
+- **chembl_validation.py**: ChEMBL experimental data comparison and validation
 
 ## Key Features
 1. **Advanced Analog Generation** - Scaffold hopping, R-group enumeration, matched molecular pair analysis
@@ -103,6 +105,20 @@ The platform is built with a Python Flask backend serving a modern HTML5, CSS3, 
 - `POST /api/research/search-pubmed` - Search PubMed for articles related to a query
 - `GET /api/research/goals` - Get default research goals for autonomous discovery
 - `GET /api/research/session-logs` - Get list of research session logs
+
+## Recent Changes (December 18, 2025)
+- **Phase 8 Complete**: Activity Type Classification & Experimental Validation
+- Activity type prediction using SMARTS patterns (agonist/antagonist/PAM/blocker)
+- Ketamine correctly classified as NMDA blocker (95% confidence)
+- Alprazolam correctly classified as GABA-A PAM (66% confidence)
+- Off-target calibration: Cannabinoid/purinergic pharmacophores refined to reduce false positives
+- ChEMBL validation module with experimental Ki/IC50 comparison and caching
+- Batch screening enhanced with comparative analysis, heatmap data, and compound rankings
+- Created `src/chembl_validation.py` module for experimental data integration
+
+### ChEMBL Validation Endpoints
+- `POST /api/validation/known_ligands` - Get known ligands for a receptor from ChEMBL
+- `POST /api/validation/compare_prediction` - Compare predicted binding to experimental data
 
 ## Recent Changes (December 10, 2025)
 - **Phase 7 Complete**: Autonomous Research Engine integrated from GitHub repository
