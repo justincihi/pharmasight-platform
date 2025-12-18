@@ -256,16 +256,58 @@ class VirtualScreeningPipeline:
                 
         elif family == 'GABA':
             if receptor_type == 'Ion channel':
-                if has_amide or (hbd >= 2 and hba >= 3):
-                    score += 0.22
-                if 150 < mw < 400:
-                    score += 0.10
-                if -1 <= logp <= 3:
-                    score += 0.10
-                if 50 < tpsa < 120:
-                    score += 0.08
+                # Benzodiazepine detection (positive allosteric modulators at GABA-A)
+                # Classic 1,4-benzodiazepine core: benzene fused to 7-membered diazepine
+                benzo_core = Chem.MolFromSmarts('c1ccc2c(c1)C(=NC(=O)CN2)c3ccccc3')  # Classic benzo
+                triazolobenzo = Chem.MolFromSmarts('c1ccc2c(c1)C3=NCC(=O)N2c4nncn34')  # Triazolam-type
+                imidazobenzo = Chem.MolFromSmarts('c1ccc2c(c1)C3=NCCn4c3nc2c4')  # Imidazobenzodiazepine
+                fused_benzo = Chem.MolFromSmarts('c1ccc2c(c1)C(c3ccccc3)=NC(*)N2')  # General fused benzo
+                halogenated_benzo = Chem.MolFromSmarts('[F,Cl,Br]c1ccc2c(c1)C(*)=NC(*)N2')  # Halogenated
+                triazolo_general = Chem.MolFromSmarts('c1nncn1')  # Triazole ring (alprazolam)
+                diazepine_ring = Chem.MolFromSmarts('C1=NC(*)N(*)C(*)=C(*)C1')  # 7-membered with 2 N
+                
+                is_benzodiazepine = (
+                    (benzo_core and mol.HasSubstructMatch(benzo_core)) or
+                    (triazolobenzo and mol.HasSubstructMatch(triazolobenzo)) or
+                    (imidazobenzo and mol.HasSubstructMatch(imidazobenzo)) or
+                    (fused_benzo and mol.HasSubstructMatch(fused_benzo)) or
+                    (halogenated_benzo and mol.HasSubstructMatch(halogenated_benzo)) or
+                    (triazolo_general and mol.HasSubstructMatch(triazolo_general) and total_rings >= 4 and has_halogen)
+                )
+                
+                # Benzodiazepine-like features: fused ring system, halogen, multiple aromatic rings
+                benzo_like_features = (
+                    total_rings >= 3 and 
+                    aromatic_rings >= 2 and 
+                    has_halogen and 
+                    hba >= 2 and
+                    250 < mw < 450
+                )
+                
+                if is_benzodiazepine:
+                    score += 0.40  # Strong match for benzodiazepines
+                    if has_halogen:
+                        score += 0.10
+                    if 280 < mw < 400:
+                        score += 0.08
+                    if 1.5 <= logp <= 4.0:
+                        score += 0.06
+                elif benzo_like_features:
+                    score += 0.28  # Good match for benzo-like compounds
+                    if 40 < tpsa < 90:
+                        score += 0.08
+                elif has_amide or (hbd >= 2 and hba >= 3):
+                    score += 0.22  # Other GABA-A ligands (barbiturates, etc.)
+                    if 150 < mw < 400:
+                        score += 0.10
+                    if -1 <= logp <= 3:
+                        score += 0.10
+                    if 50 < tpsa < 120:
+                        score += 0.08
+                
+                # General GABA-A properties
                 if has_halogen and aromatic_rings >= 1:
-                    score += 0.08
+                    score += 0.05
             else:
                 if has_basic_nitrogen and aromatic_rings >= 1:
                     score += 0.18
