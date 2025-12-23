@@ -201,6 +201,141 @@ export const appRouter = router({
         return getAdminNotifications(ctx.user.id, input.limit);
       }),
   }),
+
+  // Scheduler control routes (admin only)
+  scheduler: router({
+    status: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { getSchedulerStatus } = await import('./autonomousScheduler');
+      return getSchedulerStatus();
+    }),
+
+    runNow: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { runSchedulerNow } = await import('./autonomousScheduler');
+      await runSchedulerNow();
+      return { success: true, message: 'Scheduler task executed successfully' };
+    }),
+
+    start: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { startScheduler } = await import('./autonomousScheduler');
+      startScheduler();
+      return { success: true, message: 'Scheduler started' };
+    }),
+
+    stop: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { stopScheduler } = await import('./autonomousScheduler');
+      stopScheduler();
+      return { success: true, message: 'Scheduler stopped' };
+    }),
+  }),
+
+  // Python cheminformatics integration
+  cheminformatics: router({
+    validateChEMBL: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { smiles: '' };
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { validateWithChEMBL } = await import('./pythonBridge');
+        return validateWithChEMBL(input.smiles);
+      }),
+
+    predictADMET: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { smiles: '' };
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { predictADMET } = await import('./pythonBridge');
+        return predictADMET(input.smiles);
+      }),
+
+    runDocking: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { ligandSmiles: '', receptorPDB: '' };
+        const obj = val as Record<string, unknown>;
+        return {
+          ligandSmiles: typeof obj.ligandSmiles === 'string' ? obj.ligandSmiles : '',
+          receptorPDB: typeof obj.receptorPDB === 'string' ? obj.receptorPDB : '',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { runMolecularDocking } = await import('./pythonBridge');
+        return runMolecularDocking(input.ligandSmiles, input.receptorPDB);
+      }),
+
+    predictToxicity: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { smiles: '' };
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { predictToxicity } = await import('./pythonBridge');
+        return predictToxicity(input.smiles);
+      }),
+
+    simulatePKPD: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { smiles: '', dose: 0, route: 'oral' };
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          dose: typeof obj.dose === 'number' ? obj.dose : 0,
+          route: typeof obj.route === 'string' ? obj.route : 'oral',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { simulatePKPD } = await import('./pythonBridge');
+        return simulatePKPD(input.smiles, input.dose, input.route);
+      }),
+
+    generateAnalogs: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { parentSmiles: '', numAnalogs: 10 };
+        const obj = val as Record<string, unknown>;
+        return {
+          parentSmiles: typeof obj.parentSmiles === 'string' ? obj.parentSmiles : '',
+          numAnalogs: typeof obj.numAnalogs === 'number' ? obj.numAnalogs : 10,
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { generateAnalogs } = await import('./pythonBridge');
+        return generateAnalogs(input.parentSmiles, input.numAnalogs);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
