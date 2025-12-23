@@ -62,3 +62,14 @@
 - [ ] Test all cheminformatics integrations
 - [x] Verify admin access controls
 - [ ] Create checkpoint for deployment
+
+## Autonomous Research Scheduler Integration
+- [ ] Create manus-December branch and push to GitHub
+- [ ] Set up daily scheduler to run autonomous research engine
+- [ ] Configure automatic import of new discoveries to database
+- [ ] Implement admin notification system for high-confidence analogs (>85%)
+- [ ] Add email/in-app notification delivery
+- [ ] Test scheduler runs correctly on schedule
+- [ ] Pull latest code from PharmaSight-Platform Replit-December branch
+- [ ] Merge and integrate new modules from platform repo
+- [ ] Verify all integrations work together
