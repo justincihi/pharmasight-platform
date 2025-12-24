@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Beaker, AlertCircle } from "lucide-react";
+import { Download, Beaker, FileText } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import type { AnalogDiscovery } from "../types";
 
 interface AnalogCardProps {
@@ -10,6 +12,34 @@ interface AnalogCardProps {
 }
 
 export function AnalogCard({ analog, onRunTest }: AnalogCardProps) {
+  const handleExport = async (format: 'smiles' | 'sdf' | 'pdf') => {
+    try {
+      let data;
+      if (format === 'smiles') {
+        data = await trpc.export.smiles.useQuery({ analogId: analog.id }).data;
+      } else if (format === 'sdf') {
+        data = await trpc.export.sdf.useQuery({ analogId: analog.id }).data;
+      } else {
+        data = await trpc.export.pdf.useQuery({ analogId: analog.id }).data;
+      }
+
+      if (data) {
+        const blob = new Blob([data.content], { type: data.mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success(`Exported ${analog.compoundName} as ${format.toUpperCase()}`);
+      }
+    } catch (error) {
+      toast.error(`Export failed: ${error}`);
+    }
+  };
+
   const getConfidenceBadgeColor = (score: number) => {
     if (score >= 90) return "bg-green-100 text-green-800";
     if (score >= 80) return "bg-blue-100 text-blue-800";
@@ -99,25 +129,31 @@ export function AnalogCard({ analog, onRunTest }: AnalogCardProps) {
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-3 border-t">
+        {/* Export Buttons */}
+        <div className="grid grid-cols-3 gap-2 pt-3 border-t">
           <Button
             size="sm"
-            variant="default"
-            className="flex-1"
-            onClick={() => onRunTest?.(analog.id, "export")}
+            variant="outline"
+            onClick={() => handleExport('smiles')}
           >
-            <Download className="w-4 h-4 mr-2" />
-            Export SMILES
+            <Download className="w-4 h-4 mr-1" />
+            SMILES
           </Button>
           <Button
             size="sm"
             variant="outline"
-            className="flex-1"
-            onClick={() => onRunTest?.(analog.id, "3d-structure")}
+            onClick={() => handleExport('sdf')}
           >
-            <Beaker className="w-4 h-4 mr-2" />
-            3D Structure
+            <Beaker className="w-4 h-4 mr-1" />
+            SDF
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleExport('pdf')}
+          >
+            <FileText className="w-4 h-4 mr-1" />
+            PDF
           </Button>
         </div>
       </CardContent>

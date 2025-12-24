@@ -240,6 +240,133 @@ export const appRouter = router({
     }),
   }),
 
+  // Multi-LLM Chat Integration
+  chat: router({
+    send: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { message: '', provider: undefined, history: [] };
+        const obj = val as Record<string, unknown>;
+        return {
+          message: typeof obj.message === 'string' ? obj.message : '',
+          provider: typeof obj.provider === 'string' ? obj.provider : undefined,
+          history: Array.isArray(obj.history) ? obj.history : [],
+        };
+      })
+      .mutation(async ({ input }) => {
+        const { callLLM } = await import('./multiLLM');
+        const { getAnalogDiscoveries } = await import('./db');
+
+        // Get recent analogs for context
+        const recentAnalogs = await getAnalogDiscoveries(10, 0, {});
+
+        const systemPrompt = `You are PharmaSight AI Assistant, an expert in pharmaceutical drug discovery and cheminformatics.
+
+You have access to a database of ${recentAnalogs.length} analog discoveries with detailed information including:
+- Chemical structures (SMILES notation)
+- Safety, efficacy, and confidence scores
+- Patent status
+- Therapeutic potential
+- Market value estimates
+
+You can help users:
+1. Explore and analyze discovered analogs
+2. Run cheminformatics analyses (ADMET, docking, toxicity, PK/PD)
+3. Generate new analog suggestions
+4. Research latest pharmaceutical developments
+5. Explain drug mechanisms and properties
+
+Provide accurate, scientific responses with specific data when available.`;
+
+        const response = await callLLM(
+          [
+            { role: 'system', content: systemPrompt },
+            ...input.history.map((msg: any) => ({
+              role: msg.role,
+              content: msg.content,
+            })),
+            { role: 'user', content: input.message },
+          ],
+          input.provider as any
+        );
+
+        return {
+          content: response.content,
+          provider: response.provider,
+          model: response.model,
+        };
+      }),
+
+    getProviders: publicProcedure.query(async () => {
+      const { getAvailableProviders } = await import('./multiLLM');
+      return getAvailableProviders();
+    }),
+  }),
+
+  // Export functionality
+  export: router({
+    smiles: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input }) => {
+        const { getAnalogById } = await import('./db');
+        const { exportSMILES } = await import('./exportUtils');
+
+        const analog = await getAnalogById(input.analogId);
+        if (!analog) throw new Error('Analog not found');
+
+        return {
+          filename: `${analog.compoundName}.smi`,
+          content: exportSMILES(analog),
+          mimeType: 'text/plain',
+        };
+      }),
+
+    sdf: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input }) => {
+        const { getAnalogById } = await import('./db');
+        const { exportSDF } = await import('./exportUtils');
+
+        const analog = await getAnalogById(input.analogId);
+        if (!analog) throw new Error('Analog not found');
+
+        return {
+          filename: `${analog.compoundName}.sdf`,
+          content: exportSDF(analog),
+          mimeType: 'chemical/x-mdl-sdfile',
+        };
+      }),
+
+    pdf: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input }) => {
+        const { getAnalogById } = await import('./db');
+        const { generatePDF } = await import('./exportUtils');
+
+        const analog = await getAnalogById(input.analogId);
+        if (!analog) throw new Error('Analog not found');
+
+        const content = await generatePDF(analog);
+
+        return {
+          filename: `${analog.compoundName}_report.${typeof content === 'string' ? 'html' : 'pdf'}`,
+          content: typeof content === 'string' ? content : content.toString('base64'),
+          mimeType: typeof content === 'string' ? 'text/html' : 'application/pdf',
+        };
+      }),
+  }),
+
   // Python cheminformatics integration
   cheminformatics: router({
     validateChEMBL: protectedProcedure

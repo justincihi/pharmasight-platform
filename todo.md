@@ -73,3 +73,19 @@
 - [x] Pull latest code from PharmaSight-Platform Replit-December branch
 - [x] Merge and integrate new modules from platform repo (9 Python modules)
 - [x] Verify all integrations work together (14 tests passing)
+
+## Multi-LLM Integration & App Improvements
+- [ ] Set up Perplexity API integration for research queries
+- [ ] Set up Gemini API integration for multimodal analysis
+- [ ] Create unified LLM router that switches between OpenAI/Perplexity/Gemini
+- [ ] Update chatbot to use multi-LLM capabilities
+- [ ] Build compound testing interface page
+- [ ] Add test result visualization components
+- [x] Implement SMILES export functionality
+- [x] Implement SDF 3D structure export
+- [x] Implement PDF report generation (HTML fallback)
+- [x] Create analog detail page with full data display
+- [x] Add external resource links (PubChem, ChEMBL)
+- [ ] Add synthesis route suggestions (future enhancement)
+- [ ] Add related analogs discovery (future enhancement)
+- [ ] Test all new features end-to-end
