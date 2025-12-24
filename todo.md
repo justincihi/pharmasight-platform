@@ -111,3 +111,15 @@
 - [x] Connect scheduler to real autonomous research engine modules
 - [x] Set up automatic daily imports from research engine
 - [x] Test all new features end-to-end (24 tests passing)
+
+## Synthesis Route Planner (Current Sprint)
+- [x] Create retrosynthesis AI backend using multi-LLM integration
+- [x] Generate step-by-step synthetic routes from target SMILES
+- [x] Calculate reagent costs and availability
+- [x] Estimate synthesis feasibility scores
+- [x] Build synthesis route planner UI component
+- [x] Add interactive reaction step visualization
+- [x] Display reagent information and costs
+- [x] Add synthesis planner to analog detail page
+- [x] Test route generation for all analog types
+- [ ] Create checkpoint with synthesis planner feature

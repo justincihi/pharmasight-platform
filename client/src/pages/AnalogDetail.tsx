@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Download, Beaker, FileText, ExternalLink } from "lucide-react";
+import { ArrowLeft, Download, Beaker, FileText, ExternalLink, FlaskConical } from "lucide-react";
+import SynthesisRoutePlanner from "@/components/SynthesisRoutePlanner";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -144,23 +145,36 @@ export default function AnalogDetail() {
             </CardContent>
           </Card>
 
-          {/* Test Results */}
+          {/* Tabs for Test Results and Synthesis */}
           <Card>
-            <CardHeader>
-              <CardTitle>Cheminformatics Test Results</CardTitle>
-              <CardDescription>
-                {testResults?.length || 0} test(s) completed
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {testResults && testResults.length > 0 ? (
-                <Tabs defaultValue={testResults[0]?.testType || "admet"}>
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="admet">ADMET</TabsTrigger>
-                    <TabsTrigger value="docking">Docking</TabsTrigger>
-                    <TabsTrigger value="toxicity">Toxicity</TabsTrigger>
-                    <TabsTrigger value="pkpd">PK/PD</TabsTrigger>
-                  </TabsList>
+            <CardContent className="pt-6">
+              <Tabs defaultValue="tests">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="tests">
+                    <Beaker className="mr-2 h-4 w-4" />
+                    Test Results
+                  </TabsTrigger>
+                  <TabsTrigger value="synthesis">
+                    <FlaskConical className="mr-2 h-4 w-4" />
+                    Synthesis Routes
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="tests" className="space-y-4 mt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Cheminformatics Test Results</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {testResults?.length || 0} test(s) completed
+                    </p>
+                  </div>
+                  {testResults && testResults.length > 0 ? (
+                    <Tabs defaultValue={testResults[0]?.testType || "admet"}>
+                      <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="admet">ADMET</TabsTrigger>
+                        <TabsTrigger value="docking">Docking</TabsTrigger>
+                        <TabsTrigger value="toxicity">Toxicity</TabsTrigger>
+                        <TabsTrigger value="pkpd">PK/PD</TabsTrigger>
+                      </TabsList>
 
                   {testResults.map((result: any) => (
                     <TabsContent key={result.id} value={result.testType} className="space-y-4">
@@ -182,19 +196,28 @@ export default function AnalogDetail() {
                       </div>
                     </TabsContent>
                   ))}
-                </Tabs>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No test results available yet.</p>
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={() => setLocation("/testing")}
-                  >
-                    Run Tests
-                  </Button>
-                </div>
-              )}
+                    </Tabs>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>No test results available yet.</p>
+                      <Button
+                        variant="outline"
+                        className="mt-4"
+                        onClick={() => setLocation("/testing")}
+                      >
+                        Run Tests
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="synthesis" className="mt-6">
+                  <SynthesisRoutePlanner
+                    smiles={analog.smiles}
+                    compoundName={analog.compoundName}
+                  />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </div>

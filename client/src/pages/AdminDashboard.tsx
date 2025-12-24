@@ -72,15 +72,15 @@ export default function AdminDashboard() {
               <label className="text-sm font-medium text-gray-700 block mb-2">
                 Patent Status
               </label>
-              <Select value={patentFilter || ""} onValueChange={(val) => {
-                setPatentFilter(val || undefined);
+              <Select value={patentFilter || "all"} onValueChange={(val) => {
+                setPatentFilter(val === "all" ? undefined : val);
                 setPage(0);
               }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="patent-free">Patent-Free</SelectItem>
                   <SelectItem value="patent-opportunity">Patent Opportunity</SelectItem>
                   <SelectItem value="patented">Patented</SelectItem>
@@ -92,15 +92,15 @@ export default function AdminDashboard() {
               <label className="text-sm font-medium text-gray-700 block mb-2">
                 Minimum Confidence
               </label>
-              <Select value={confidenceFilter?.toString() || ""} onValueChange={(val) => {
-                setConfidenceFilter(val ? parseInt(val) : undefined);
+              <Select value={confidenceFilter?.toString() || "all"} onValueChange={(val) => {
+                setConfidenceFilter(val === "all" ? undefined : parseInt(val));
                 setPage(0);
               }}>
                 <SelectTrigger>
                   <SelectValue placeholder="Any confidence" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any Confidence</SelectItem>
+                  <SelectItem value="all">Any Confidence</SelectItem>
                   <SelectItem value="85">85%+</SelectItem>
                   <SelectItem value="90">90%+</SelectItem>
                   <SelectItem value="95">95%+</SelectItem>

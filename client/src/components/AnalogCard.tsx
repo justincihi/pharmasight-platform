@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import { Download, Beaker, FileText, Box } from "lucide-react";
 import { useState } from "react";
 import { MoleculeViewer3D } from "./MoleculeViewer3D";
@@ -62,7 +63,9 @@ export function AnalogCard({ analog, onRunTest }: AnalogCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-xl mb-1">{analog.compoundName}</CardTitle>
+            <Link href={`/admin/analog/${analog.id}`}>
+              <CardTitle className="text-xl mb-1 hover:text-primary cursor-pointer transition-colors">{analog.compoundName}</CardTitle>
+            </Link>
             <p className="text-sm text-gray-600">Parent: {analog.parentCompound}</p>
           </div>
           <Badge className={getConfidenceBadgeColor(analog.confidenceScore)}>

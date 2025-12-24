@@ -481,6 +481,27 @@ Provide accurate, scientific responses with specific data when available.`;
         return runBatchAnalysis(input.analogIds, input.tests, getAnalogById);
       }),
   }),
+
+  // Synthesis route planning
+  synthesis: router({
+    generateRoutes: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { smiles: '', compoundName: '', numRoutes: 2 };
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          compoundName: typeof obj.compoundName === 'string' ? obj.compoundName : '',
+          numRoutes: typeof obj.numRoutes === 'number' ? obj.numRoutes : 2,
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { generateSynthesisRoutes } = await import('./retrosynthesis');
+        return generateSynthesisRoutes(input.smiles, input.compoundName, input.numRoutes);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
