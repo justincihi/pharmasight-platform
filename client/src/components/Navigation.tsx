@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Home, LayoutDashboard, BarChart3, TestTube2, LogOut } from "lucide-react";
+import { Home, LayoutDashboard, BarChart3, TestTube2, Layers, LogOut } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ export function Navigation() {
     { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: true },
     { path: "/analytics", label: "Analytics", icon: BarChart3, adminOnly: true },
     { path: "/testing", label: "Testing", icon: TestTube2, adminOnly: true },
+    { path: "/batch", label: "Batch", icon: Layers, adminOnly: true },
   ];
 
   const isActive = (path: string) => {

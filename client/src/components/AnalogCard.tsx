@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Beaker, FileText } from "lucide-react";
+import { Download, Beaker, FileText, Box } from "lucide-react";
+import { useState } from "react";
+import { MoleculeViewer3D } from "./MoleculeViewer3D";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import type { AnalogDiscovery } from "../types";
@@ -12,6 +14,8 @@ interface AnalogCardProps {
 }
 
 export function AnalogCard({ analog, onRunTest }: AnalogCardProps) {
+  const [show3D, setShow3D] = useState(false);
+
   const handleExport = async (format: 'smiles' | 'sdf' | 'pdf') => {
     try {
       let data;
@@ -129,8 +133,29 @@ export function AnalogCard({ analog, onRunTest }: AnalogCardProps) {
           </div>
         )}
 
-        {/* Export Buttons */}
-        <div className="grid grid-cols-3 gap-2 pt-3 border-t">
+        {/* 3D Structure Viewer */}
+        {show3D && (
+          <div className="border-t pt-3">
+            <MoleculeViewer3D
+              smiles={analog.smiles}
+              compoundName={analog.compoundName}
+              width={350}
+              height={250}
+            />
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2 pt-3 border-t">
+          <Button
+            size="sm"
+            variant={show3D ? "default" : "outline"}
+            onClick={() => setShow3D(!show3D)}
+            className="col-span-2"
+          >
+            <Box className="w-4 h-4 mr-1" />
+            {show3D ? "Hide" : "View"} 3D Structure
+          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -146,14 +171,6 @@ export function AnalogCard({ analog, onRunTest }: AnalogCardProps) {
           >
             <Beaker className="w-4 h-4 mr-1" />
             SDF
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => handleExport('pdf')}
-          >
-            <FileText className="w-4 h-4 mr-1" />
-            PDF
           </Button>
         </div>
       </CardContent>

@@ -1,12 +1,16 @@
 import { spawn } from "child_process";
-import { join } from "path";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 
 /**
  * Python Bridge for Cheminformatics
  * Executes Python scripts from the python_modules directory
  */
 
-const PYTHON_MODULES_PATH = join(__dirname, "python_modules");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const PYTHON_MODULES_PATH = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules";
 
 interface PythonResult {
   success: boolean;

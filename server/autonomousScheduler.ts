@@ -1,5 +1,6 @@
 import { CronJob } from "cron";
 import { importAutonomousDiscoveries } from "./importDiscoveries";
+import { runAutonomousResearch } from "./runAutonomousResearch";
 import { getDb } from "./db";
 import { analogDiscoveries } from "../drizzle/schema";
 import { desc, gte, and, eq } from "drizzle-orm";
@@ -31,7 +32,18 @@ async function runScheduledTask() {
   console.log(`[Scheduler] Running autonomous research import at ${new Date().toISOString()}`);
 
   try {
-    // Step 1: Import new discoveries from autonomous research engine
+    // Step 1: Run autonomous research engine to discover new analogs
+    console.log("[Scheduler] Running autonomous research engine...");
+    const researchResult = await runAutonomousResearch();
+    
+    if (!researchResult.success) {
+      console.error("[Scheduler] Research engine failed:", researchResult.error);
+      return;
+    }
+    
+    console.log(`[Scheduler] Research engine discovered ${researchResult.discoveries?.length || 0} new compounds`);
+    
+    // Step 2: Import discoveries into database
     const importResult = await importAutonomousDiscoveries();
     
     if (!importResult.success) {

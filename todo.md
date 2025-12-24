@@ -88,7 +88,7 @@
 - [x] Add external resource links (PubChem, ChEMBL)
 - [ ] Add synthesis route suggestions (future enhancement)
 - [ ] Add related analogs discovery (future enhancement)
-- [ ] Test all new features end-to-end
+- [x] Test all new features end-to-end (24 tests passing)
 
 ## Bug Fixes & Data Import (Current Sprint)
 - [x] Debug chatbot - not responding to user queries
@@ -98,3 +98,16 @@
 - [x] Import analog discoveries (15 compounds from patent portfolio)
 - [x] Verify all features work with real data (24 tests passing)
 - [x] Test complete user flow from home to detail pages
+
+## Advanced Features (Current Sprint)
+- [x] Integrate 3Dmol.js library for 3D molecular visualization
+- [x] Add 3D structure viewer to AnalogCard component
+- [ ] Add interactive 3D viewer to AnalogDetail page
+- [x] Implement SMILES to 3D coordinate conversion (via PubChem API)
+- [x] Build batch analysis interface for selecting multiple analogs
+- [x] Create parallel processing backend for batch cheminformatics tests
+- [x] Add progress tracking for batch operations
+- [x] Implement downloadable batch reports (CSV)
+- [x] Connect scheduler to real autonomous research engine modules
+- [x] Set up automatic daily imports from research engine
+- [x] Test all new features end-to-end (24 tests passing)

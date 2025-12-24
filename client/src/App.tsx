@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import AdminDashboard from "./pages/AdminDashboard";
 import Analytics from "./pages/Analytics";
 import CompoundTesting from "./pages/CompoundTesting";
+import BatchAnalysis from "./pages/BatchAnalysis";
 import AnalogDetail from "./pages/AnalogDetail";
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
       <Route path={"/admin/dashboard"} component={AdminDashboard} />
            <Route path="/analytics" component={Analytics} />
       <Route path="/testing" component={CompoundTesting} />
+      <Route path="/batch" component={BatchAnalysis} />
       <Route path="/analog/:id" component={AnalogDetail} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

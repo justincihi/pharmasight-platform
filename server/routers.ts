@@ -462,6 +462,24 @@ Provide accurate, scientific responses with specific data when available.`;
         const { generateAnalogs } = await import('./pythonBridge');
         return generateAnalogs(input.parentSmiles, input.numAnalogs);
       }),
+
+    runBatch: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogIds: [], tests: [] };
+        const obj = val as Record<string, unknown>;
+        return {
+          analogIds: Array.isArray(obj.analogIds) ? obj.analogIds.filter((id): id is number => typeof id === 'number') : [],
+          tests: Array.isArray(obj.tests) ? obj.tests.filter((t): t is string => typeof t === 'string') : [],
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { runBatchAnalysis } = await import('./batchAnalysis');
+        const { getAnalogById } = await import('./db');
+        return runBatchAnalysis(input.analogIds, input.tests, getAnalogById);
+      }),
   }),
 });
 
