@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Send, MessageCircle, Loader2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -32,6 +34,23 @@ export function ChatbotInterface() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const chatMutation = trpc.chat.send.useMutation({
+    onSuccess: (response: any) => {
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: response.response,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+      setIsLoading(false);
+    },
+    onError: (error: any) => {
+      toast.error(`Chat error: ${error.message}`);
+      setIsLoading(false);
+    },
+  });
+
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
 
@@ -47,17 +66,12 @@ export function ChatbotInterface() {
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: `I'm processing your request: "${text}". In a production environment, this would connect to the backend cheminformatics engine to provide real-time analysis and insights about your analog discoveries.`,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsLoading(false);
-    }, 1000);
+    // Call backend LLM API
+    chatMutation.mutate({
+      message: text,
+      provider: "openai", // Default to OpenAI, can be made configurable
+      history: messages.map(m => ({ role: m.role, content: m.content })),
+    });
   };
 
   return (

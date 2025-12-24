@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { Navigation } from "./components/Navigation";
 import Home from "./pages/Home";
 import AdminDashboard from "./pages/AdminDashboard";
 import Analytics from "./pages/Analytics";
@@ -13,7 +14,9 @@ import AnalogDetail from "./pages/AnalogDetail";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
+    <>
+      <Navigation />
+      <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/admin/dashboard"} component={AdminDashboard} />
            <Route path="/analytics" component={Analytics} />
@@ -23,6 +26,7 @@ function Router() {
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
 

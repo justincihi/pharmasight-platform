@@ -3,6 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { ChatbotInterface } from "@/components/ChatbotInterface";
 import { getLoginUrl } from "@/const";
+import { Link } from "wouter";
 import {
   Beaker,
   Database,
@@ -192,9 +193,11 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
-            <Button variant="outline" size="sm">
-              Dashboard
-            </Button>
+            <Link href="/admin/dashboard">
+              <Button variant="outline" size="sm">
+                Dashboard
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -212,15 +215,21 @@ export default function Home() {
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h3 className="font-semibold text-gray-900 mb-4">Quick Access</h3>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
-                  View All Analogs
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  Analytics Dashboard
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  Run Analysis
-                </Button>
+                <Link href="/admin/dashboard">
+                  <Button variant="outline" className="w-full justify-start">
+                    View All Analogs
+                  </Button>
+                </Link>
+                <Link href="/analytics">
+                  <Button variant="outline" className="w-full justify-start">
+                    Analytics Dashboard
+                  </Button>
+                </Link>
+                <Link href="/testing">
+                  <Button variant="outline" className="w-full justify-start">
+                    Run Analysis
+                  </Button>
+                </Link>
               </div>
             </div>
 
@@ -229,9 +238,11 @@ export default function Home() {
               <p className="text-sm text-gray-600 mb-4">
                 Check the analytics dashboard for the latest analog discoveries and their properties.
               </p>
-              <Button size="sm" className="w-full">
-                View Analytics
-              </Button>
+              <Link href="/analytics">
+                <Button size="sm" className="w-full">
+                  View Analytics
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
