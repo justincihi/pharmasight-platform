@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, FlaskConical, DollarSign, Clock, TrendingUp, ChevronRight, AlertCircle, GitCompare } from "lucide-react";
+import { Loader2, FlaskConical, DollarSign, Clock, TrendingUp, ChevronRight, AlertCircle, GitCompare, Download, FileText } from "lucide-react";
 
 interface SynthesisStep {
   stepNumber: number;
@@ -70,6 +70,58 @@ export default function SynthesisRoutePlanner({ smiles, compoundName }: Synthesi
     },
   });
 
+  const handleExportCSV = (format: 'summary' | 'detailed' | 'comparison') => {
+    const routesToExport = compareMode ? selectedRoutes.map(i => routes[i]) : routes;
+    const csv = format === 'detailed' 
+      ? generateDetailedCSV(routesToExport)
+      : format === 'comparison'
+      ? generateComparisonCSV(routesToExport)
+      : generateSummaryCSV(routesToExport);
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `synthesis-routes-${format}-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const generateSummaryCSV = (routeList: typeof routes) => {
+    const headers = ['Route ID', 'Target', 'Steps', 'Cost', 'Yield', 'Feasibility', 'Difficulty', 'Time'];
+    const rows = routeList.map(r => [
+      r.routeId, r.targetName, r.totalSteps, `$${r.totalCost}`, r.overallYield, 
+      r.feasibilityScore, r.difficulty, r.estimatedTime
+    ]);
+    return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  };
+
+  const generateDetailedCSV = (routeList: typeof routes) => {
+    const headers = ['Route', 'Step', 'Reaction', 'Reagents', 'Yield', 'Cost', 'Difficulty'];
+    const rows: string[] = [];
+    routeList.forEach((route, idx) => {
+      route.steps.forEach(step => {
+        rows.push([
+          `Route ${idx + 1}`, step.stepNumber, step.reaction, 
+          step.reagents.join('; '), step.yield, `$${step.estimatedCost}`, step.difficulty
+        ].join(','));
+      });
+    });
+    return [headers.join(','), ...rows].join('\n');
+  };
+
+  const generateComparisonCSV = (routeList: typeof routes) => {
+    const headers = ['Metric', ...routeList.map((_, i) => `Route ${i + 1}`)];
+    const metrics = [
+      ['Feasibility', ...routeList.map(r => r.feasibilityScore)],
+      ['Cost', ...routeList.map(r => `$${r.totalCost}`)],
+      ['Yield', ...routeList.map(r => r.overallYield)],
+      ['Steps', ...routeList.map(r => r.totalSteps)],
+      ['Time', ...routeList.map(r => r.estimatedTime)],
+    ];
+    return [headers.join(','), ...metrics.map(m => m.join(','))].join('\n');
+  };
+
   const handleGenerate = () => {
     generateMutation.mutate({
       smiles,
@@ -88,6 +140,28 @@ export default function SynthesisRoutePlanner({ smiles, compoundName }: Synthesi
           </p>
         </div>
         <div className="flex gap-2">
+          {routes.length > 0 && (
+            <>
+              <Button
+                onClick={() => handleExportCSV('summary')}
+                variant="outline"
+                size="lg"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export CSV
+              </Button>
+              {compareMode && (
+                <Button
+                  onClick={() => handleExportCSV('comparison')}
+                  variant="outline"
+                  size="lg"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Export Comparison
+                </Button>
+              )}
+            </>
+          )}
           {routes.length >= 2 && (
             <Button
               onClick={() => {

@@ -501,6 +501,45 @@ Provide accurate, scientific responses with specific data when available.`;
         const { generateSynthesisRoutes } = await import('./retrosynthesis');
         return generateSynthesisRoutes(input.smiles, input.compoundName, input.numRoutes);
       }),
+
+    exportCSV: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { routes: [], format: 'summary' };
+        const obj = val as Record<string, unknown>;
+        return {
+          routes: Array.isArray(obj.routes) ? obj.routes : [],
+          format: typeof obj.format === 'string' ? obj.format : 'summary',
+        };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { generateRoutesCSV, generateDetailedRoutesCSV, generateComparisonCSV } = await import('./exportRoutes');
+        
+        if (input.format === 'detailed') {
+          return { csv: generateDetailedRoutesCSV(input.routes as any[]) };
+        } else if (input.format === 'comparison') {
+          return { csv: generateComparisonCSV(input.routes as any[]) };
+        }
+        return { csv: generateRoutesCSV(input.routes as any[]) };
+      }),
+
+    exportMarkdown: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { routes: [] };
+        const obj = val as Record<string, unknown>;
+        return {
+          routes: Array.isArray(obj.routes) ? obj.routes : [],
+        };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { generateRoutesMarkdown } = await import('./exportRoutes');
+        return { markdown: generateRoutesMarkdown(input.routes as any[]) };
+      }),
   }),
 });
 

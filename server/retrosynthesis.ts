@@ -1,4 +1,5 @@
 import { invokeLLM } from "./_core/llm";
+import { notifySynthesisRoutes } from "./notifications";
 
 /**
  * Retrosynthesis AI Module
@@ -187,6 +188,22 @@ Return the response as a JSON array of synthesis routes.`;
       targetName: compoundName,
     }));
 
+    // Send notification about generated routes
+    if (routes.length > 0) {
+      const bestRoute = routes.reduce((best, route) => 
+        route.feasibilityScore > best.feasibilityScore ? route : best
+      , routes[0]);
+      const lowestCost = Math.min(...routes.map(r => r.totalCost));
+      
+      notifySynthesisRoutes({
+        compoundId: compoundName,
+        compoundName: compoundName,
+        routeCount: routes.length,
+        bestFeasibility: bestRoute.feasibilityScore,
+        lowestCost: Math.round(lowestCost),
+      }).catch(err => console.error('[Notification] Failed to send synthesis route notification:', err));
+    }
+    
     return routes;
   } catch (error) {
     console.error("[Retrosynthesis] Error generating routes:", error);
