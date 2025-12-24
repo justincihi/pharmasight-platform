@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, FlaskConical, DollarSign, Clock, TrendingUp, ChevronRight, AlertCircle } from "lucide-react";
+import { Loader2, FlaskConical, DollarSign, Clock, TrendingUp, ChevronRight, AlertCircle, GitCompare } from "lucide-react";
 
 interface SynthesisStep {
   stepNumber: number;
@@ -58,6 +58,8 @@ const difficultyLabels = {
 export default function SynthesisRoutePlanner({ smiles, compoundName }: SynthesisRoutePlannerProps) {
   const [routes, setRoutes] = useState<SynthesisRoute[]>([]);
   const [selectedRoute, setSelectedRoute] = useState<number | null>(null);
+  const [compareMode, setCompareMode] = useState(false);
+  const [selectedRoutes, setSelectedRoutes] = useState<number[]>([]);
 
   const generateMutation = trpc.synthesis.generateRoutes.useMutation({
     onSuccess: (data) => {
@@ -85,23 +87,42 @@ export default function SynthesisRoutePlanner({ smiles, compoundName }: Synthesi
             AI-powered retrosynthesis for {compoundName}
           </p>
         </div>
-        <Button
-          onClick={handleGenerate}
-          disabled={generateMutation.isPending}
-          size="lg"
-        >
-          {generateMutation.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating Routes...
-            </>
-          ) : (
-            <>
-              <FlaskConical className="mr-2 h-4 w-4" />
-              Generate Synthesis Routes
-            </>
+        <div className="flex gap-2">
+          {routes.length >= 2 && (
+            <Button
+              onClick={() => {
+                setCompareMode(!compareMode);
+                if (!compareMode) {
+                  setSelectedRoutes([0, 1]);
+                } else {
+                  setSelectedRoutes([]);
+                }
+              }}
+              variant={compareMode ? "default" : "outline"}
+              size="lg"
+            >
+              <GitCompare className="mr-2 h-4 w-4" />
+              {compareMode ? "Exit Compare" : "Compare Routes"}
+            </Button>
           )}
-        </Button>
+          <Button
+            onClick={handleGenerate}
+            disabled={generateMutation.isPending}
+            size="lg"
+          >
+            {generateMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating Routes...
+              </>
+            ) : (
+              <>
+                <FlaskConical className="mr-2 h-4 w-4" />
+                Generate Synthesis Routes
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {generateMutation.isError && (
@@ -114,54 +135,143 @@ export default function SynthesisRoutePlanner({ smiles, compoundName }: Synthesi
       )}
 
       {routes.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Route Selection Sidebar */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Available Routes</h3>
-            {routes.map((route, index) => (
-              <Card
-                key={route.routeId}
-                className={`cursor-pointer transition-all ${
-                  selectedRoute === index
-                    ? "ring-2 ring-primary"
-                    : "hover:shadow-md"
-                }`}
-                onClick={() => setSelectedRoute(index)}
-              >
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">
-                    Route {index + 1}
-                  </CardTitle>
-                  <CardDescription className="flex items-center gap-2">
-                    <Badge className={difficultyColors[route.difficulty]}>
-                      {difficultyLabels[route.difficulty]}
-                    </Badge>
-                    <span className="text-sm">
-                      Score: {route.feasibilityScore}/100
-                    </span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Steps:</span>
-                    <span className="font-medium">{route.totalSteps}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Cost:</span>
-                    <span className="font-medium">${route.totalCost.toFixed(0)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Yield:</span>
-                    <span className="font-medium">{route.overallYield}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Time:</span>
-                    <span className="font-medium">{route.estimatedTime}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+        compareMode ? (
+          /* Comparison View */
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Route Comparison</CardTitle>
+                <CardDescription>Side-by-side comparison of synthesis routes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-6">
+                  {selectedRoutes.map((routeIndex) => {
+                    const route = routes[routeIndex];
+                    return (
+                      <div key={routeIndex} className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold">Route {routeIndex + 1}</h3>
+                          <Badge className={difficultyColors[route.difficulty]}>
+                            {difficultyLabels[route.difficulty]}
+                          </Badge>
+                        </div>
+                        
+                        {/* Metrics Comparison */}
+                        <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Feasibility Score</span>
+                            <span className="font-bold text-lg">{route.feasibilityScore}/100</span>
+                          </div>
+                          <Separator />
+                          <div className="flex justify-between">
+                            <span className="text-sm text-muted-foreground">Total Steps</span>
+                            <span className="font-medium">{route.totalSteps}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-muted-foreground">Total Cost</span>
+                            <span className="font-medium">${route.totalCost.toFixed(0)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-muted-foreground">Overall Yield</span>
+                            <span className="font-medium">{route.overallYield}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-muted-foreground">Estimated Time</span>
+                            <span className="font-medium">{route.estimatedTime}</span>
+                          </div>
+                        </div>
+
+                        {/* Starting Materials */}
+                        <div>
+                          <h4 className="font-semibold mb-2">Starting Materials</h4>
+                          <div className="space-y-2">
+                            {route.startingMaterials.map((material, idx) => (
+                              <div key={idx} className="flex justify-between items-center text-sm p-2 bg-background rounded">
+                                <span>{material.name}</span>
+                                <Badge variant={material.availability === "commercial" ? "default" : "outline"}>
+                                  ${material.cost}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Steps Summary */}
+                        <div>
+                          <h4 className="font-semibold mb-2">Synthesis Steps</h4>
+                          <div className="space-y-2">
+                            {route.steps.map((step) => (
+                              <div key={step.stepNumber} className="p-3 bg-background rounded border">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="font-medium text-sm">Step {step.stepNumber}: {step.reaction}</span>
+                                  <Badge className={difficultyColors[step.difficulty]} variant="outline">
+                                    {difficultyLabels[step.difficulty]}
+                                  </Badge>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                                  <div>Yield: {step.yield}</div>
+                                  <div>Cost: ${step.estimatedCost}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Route Selection Sidebar */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Available Routes</h3>
+              {routes.map((route, index) => (
+                <Card
+                  key={route.routeId}
+                  className={`cursor-pointer transition-all ${
+                    selectedRoute === index
+                      ? "ring-2 ring-primary"
+                      : "hover:shadow-md"
+                  }`}
+                  onClick={() => setSelectedRoute(index)}
+                >
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">
+                      Route {index + 1}
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-2">
+                      <Badge className={difficultyColors[route.difficulty]}>
+                        {difficultyLabels[route.difficulty]}
+                      </Badge>
+                      <span className="text-sm">
+                        Score: {route.feasibilityScore}/100
+                      </span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Steps:</span>
+                      <span className="font-medium">{route.totalSteps}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Cost:</span>
+                      <span className="font-medium">${route.totalCost.toFixed(0)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Yield:</span>
+                      <span className="font-medium">{route.overallYield}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Time:</span>
+                      <span className="font-medium">{route.estimatedTime}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
           {/* Route Details */}
           {selectedRoute !== null && routes[selectedRoute] && (
@@ -319,7 +429,8 @@ export default function SynthesisRoutePlanner({ smiles, compoundName }: Synthesi
               </Card>
             </div>
           )}
-        </div>
+          </div>
+        )
       )}
     </div>
   );

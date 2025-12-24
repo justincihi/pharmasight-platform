@@ -123,3 +123,19 @@
 - [x] Add synthesis planner to analog detail page
 - [x] Test route generation for all analog types
 - [ ] Create checkpoint with synthesis planner feature
+
+## Enhancement Features (Current Sprint)
+- [x] Add interactive 3D molecular viewer to analog detail page
+- [x] Implement persistent 3D structure display with rotation controls
+- [x] Add molecular property tooltips on 3D viewer
+- [x] Build real-time scheduler dashboard page
+- [x] Display autonomous research engine status and health
+- [x] Show scheduled run times and last execution results
+- [x] Add discovery queue monitoring
+- [x] Implement synthesis route comparison tool
+- [x] Create side-by-side route comparison view
+- [x] Add interactive filtering by cost, time, yield, feasibility
+- [x] Highlight differences between routes
+- [x] Test all new features end-to-end
+- [ ] Create checkpoint with enhancements
+- [ ] Push changes to GitHub repository (manus-December branch)

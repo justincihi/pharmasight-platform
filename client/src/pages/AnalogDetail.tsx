@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Download, Beaker, FileText, ExternalLink, FlaskConical } from "lucide-react";
+import { ArrowLeft, Download, Beaker, FileText, ExternalLink, FlaskConical, Box } from "lucide-react";
 import SynthesisRoutePlanner from "@/components/SynthesisRoutePlanner";
+import { MoleculeViewer3D } from "@/components/MoleculeViewer3D";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -114,11 +115,22 @@ export default function AnalogDetail() {
           <Card>
             <CardHeader>
               <CardTitle>Chemical Structure</CardTitle>
-              <CardDescription>SMILES Notation</CardDescription>
+              <CardDescription>Interactive 3D Visualization</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="bg-slate-900 text-slate-100 p-4 rounded font-mono text-sm overflow-x-auto">
-                {analog.smiles}
+            <CardContent className="space-y-4">
+              {/* 3D Molecular Viewer */}
+              <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg p-6 border border-slate-200">
+                <MoleculeViewer3D smiles={analog.smiles} />
+              </div>
+              
+              {/* SMILES Notation */}
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
+                  SMILES Notation
+                </label>
+                <div className="bg-slate-900 text-slate-100 p-4 rounded font-mono text-sm overflow-x-auto">
+                  {analog.smiles}
+                </div>
               </div>
             </CardContent>
           </Card>
