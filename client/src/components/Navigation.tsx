@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Home, LayoutDashboard, BarChart3, TestTube2, Layers, LogOut, Calendar } from "lucide-react";
+import { Home, LayoutDashboard, BarChart3, TestTube2, Layers, LogOut, Calendar, Package } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ export function Navigation() {
     { path: "/testing", label: "Testing", icon: TestTube2, adminOnly: true },
     { path: "/batch", label: "Batch", icon: Layers, adminOnly: true },
     { path: "/admin/scheduler", label: "Scheduler", icon: Calendar, adminOnly: true },
+    { path: "/admin/batch", label: "Batch Ops", icon: Package, adminOnly: true },
   ];
 
   const isActive = (path: string) => {

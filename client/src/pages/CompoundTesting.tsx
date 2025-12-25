@@ -39,16 +39,17 @@ export default function CompoundTesting() {
     },
   });
 
-  const toxicityMutation = trpc.analog.runToxicity.useMutation({
-    onSuccess: () => {
-      toast.success("Toxicity prediction completed successfully");
-      setActiveTest(null);
-    },
-    onError: (error: any) => {
-      toast.error(`Toxicity prediction failed: ${error.message}`);
-      setActiveTest(null);
-    },
-  });
+  // Toxicity mutation temporarily disabled
+  // const toxicityMutation = trpc.analog.runToxicity.useMutation({
+  //   onSuccess: () => {
+  //     toast.success("Toxicity prediction completed successfully");
+  //     setActiveTest(null);
+  //   },
+  //   onError: (error: any) => {
+  //     toast.error(`Toxicity prediction failed: ${error.message}`);
+  //     setActiveTest(null);
+  //   },
+  // });
 
   const pkpdMutation = trpc.cheminformatics.simulatePKPD.useMutation({
     onSuccess: () => {
@@ -104,10 +105,11 @@ export default function CompoundTesting() {
     if (!analog) return;
 
     setActiveTest("toxicity");
-    toxicityMutation.mutate({
-      analogId: selectedAnalog,
-      smiles: analog.smiles,
-    });
+    // toxicityMutation.mutate({
+    //   analogId: selectedAnalog,
+    // });
+    toast.info("Toxicity testing temporarily disabled");
+    setActiveTest(null);
   };
 
   const runPKPD = () => {

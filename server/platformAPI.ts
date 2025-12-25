@@ -7,6 +7,7 @@ import type { Express, Request, Response } from "express";
 import { getDb } from "./db";
 import { analogDiscoveries } from "../drizzle/schema";
 import { eq, desc } from "drizzle-orm";
+import { syncToMasterFile } from "./masterFileSync";
 
 /**
  * Register platform API routes
@@ -78,6 +79,9 @@ export function registerPlatformAPI(app: Express) {
         }
       }
 
+      // Sync to master file after import
+      await syncToMasterFile();
+      
       res.json({
         success: true,
         imported: imported.length,

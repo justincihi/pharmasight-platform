@@ -12,6 +12,7 @@ import CompoundTesting from "./pages/CompoundTesting";
 import BatchAnalysis from "./pages/BatchAnalysis";
 import AnalogDetail from "./pages/AnalogDetail";
 import SchedulerDashboard from "./pages/SchedulerDashboard";
+import BatchOperations from "./pages/BatchOperations";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/batch" component={BatchAnalysis} />
       <Route path="/admin/analog/:id" component={AnalogDetail} />
       <Route path="/admin/scheduler" component={SchedulerDashboard} />
+      <Route path="/admin/batch" component={BatchOperations} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

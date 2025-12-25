@@ -130,34 +130,7 @@ export const appRouter = router({
         return result;
       }),
 
-    runToxicity: protectedProcedure
-      .input((val: unknown) => {
-        if (typeof val !== 'object' || val === null) return { analogId: 0, smiles: '' };
-        const obj = val as Record<string, unknown>;
-        return {
-          analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
-          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
-        };
-      })
-      .mutation(async ({ input, ctx }) => {
-        if (ctx.user?.role !== 'admin') {
-          throw new Error('Unauthorized: Admin access required');
-        }
-        const { createTestResult } = await import('./db');
-        const result = await createTestResult({
-          analogId: input.analogId,
-          testType: 'toxicity',
-          testStatus: 'completed',
-          results: JSON.stringify({
-            acuteToxicity: 'Low',
-            chronictoxicity: 'Minimal',
-            genotoxicity: 'Negative',
-            carcinogenicity: 'Negative',
-          }),
-          runBy: ctx.user.id,
-        });
-        return result;
-      }),
+
   }),
 
   // Analytics routes
