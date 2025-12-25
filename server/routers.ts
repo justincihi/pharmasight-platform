@@ -130,6 +130,69 @@ export const appRouter = router({
         return result;
       }),
 
+    bulkApprove: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogIds: [] };
+        const obj = val as Record<string, unknown>;
+        return {
+          analogIds: Array.isArray(obj.analogIds) ? obj.analogIds.filter(id => typeof id === 'number') : [],
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { sql } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new Error('Database connection failed');
+        
+        for (const id of input.analogIds) {
+          await db
+            .update(analogDiscoveries)
+            .set({
+              approvalStatus: 'approved',
+              approvedBy: ctx.user.openId,
+              approvedAt: new Date(),
+            })
+            .where(sql`${analogDiscoveries.id} = ${id}`);
+        }
+        
+        return { success: true, count: input.analogIds.length };
+      }),
+
+    bulkReject: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogIds: [] };
+        const obj = val as Record<string, unknown>;
+        return {
+          analogIds: Array.isArray(obj.analogIds) ? obj.analogIds.filter(id => typeof id === 'number') : [],
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { sql } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new Error('Database connection failed');
+        
+        for (const id of input.analogIds) {
+          await db
+            .update(analogDiscoveries)
+            .set({
+              approvalStatus: 'rejected',
+              approvedBy: ctx.user.openId,
+              approvedAt: new Date(),
+            })
+            .where(sql`${analogDiscoveries.id} = ${id}`);
+        }
+        
+        return { success: true, count: input.analogIds.length };
+      }),
 
   }),
 

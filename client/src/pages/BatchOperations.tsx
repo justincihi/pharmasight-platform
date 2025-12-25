@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Download, Filter } from "lucide-react";
+import { Download, Filter, CheckCircle, XCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 
@@ -49,6 +49,44 @@ export default function BatchOperations() {
     } else {
       setSelectedAnalogs([...selectedAnalogs, id]);
     }
+  };
+
+  const bulkApproveMutation = trpc.analog.bulkApprove.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Successfully approved ${data.count} analog(s)`);
+      setSelectedAnalogs([]);
+      setSelectAll(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to approve analogs: ${error.message}`);
+    },
+  });
+
+  const bulkRejectMutation = trpc.analog.bulkReject.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Successfully rejected ${data.count} analog(s)`);
+      setSelectedAnalogs([]);
+      setSelectAll(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to reject analogs: ${error.message}`);
+    },
+  });
+
+  const handleBulkApprove = () => {
+    if (selectedAnalogs.length === 0) {
+      toast.error("Please select analogs to approve");
+      return;
+    }
+    bulkApproveMutation.mutate({ analogIds: selectedAnalogs });
+  };
+
+  const handleBulkReject = () => {
+    if (selectedAnalogs.length === 0) {
+      toast.error("Please select analogs to reject");
+      return;
+    }
+    bulkRejectMutation.mutate({ analogIds: selectedAnalogs });
   };
 
   const handleExportSelected = () => {
@@ -199,9 +237,26 @@ export default function BatchOperations() {
         <CardContent>
           <div className="flex flex-wrap gap-2">
             <Button
-              onClick={handleExportSelected}
+              onClick={() => handleBulkApprove()}
               disabled={selectedAnalogs.length === 0}
               variant="default"
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Approve Selected ({selectedAnalogs.length})
+            </Button>
+            <Button
+              onClick={() => handleBulkReject()}
+              disabled={selectedAnalogs.length === 0}
+              variant="destructive"
+            >
+              <XCircle className="mr-2 h-4 w-4" />
+              Reject Selected ({selectedAnalogs.length})
+            </Button>
+            <Button
+              onClick={handleExportSelected}
+              disabled={selectedAnalogs.length === 0}
+              variant="outline"
             >
               <Download className="mr-2 h-4 w-4" />
               Export Selected ({selectedAnalogs.length})

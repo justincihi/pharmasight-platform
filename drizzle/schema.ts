@@ -68,6 +68,11 @@ export const analogDiscoveries = mysqlTable("analog_discoveries", {
   discoveryMethod: varchar("discovery_method", { length: 128 }),
   discoveredAt: timestamp("discovered_at").defaultNow().notNull(),
   
+  // Approval workflow
+  approvalStatus: mysqlEnum("approval_status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  approvedBy: varchar("approved_by", { length: 128 }), // user openId who approved/rejected
+  approvedAt: timestamp("approved_at"),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
