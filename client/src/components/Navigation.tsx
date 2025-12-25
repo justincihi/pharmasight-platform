@@ -44,12 +44,12 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/">
-            <a className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <div className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">PS</span>
               </div>
               <span className="font-bold text-lg">PharmaSight™</span>
-            </a>
+            </div>
           </Link>
 
           {/* Navigation Links */}
@@ -65,16 +65,14 @@ export function Navigation() {
 
               return (
                 <Link key={item.path} href={item.path}>
-                  <a>
-                    <Button
-                      variant={active ? "default" : "ghost"}
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Icon className="w-4 h-4" />
-                      {item.label}
-                    </Button>
-                  </a>
+                  <Button
+                    variant={active ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Icon className="w-4 h-4" />
+                    {item.label}
+                  </Button>
                 </Link>
               );
             })}
