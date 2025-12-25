@@ -5,23 +5,40 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Download } from "lucide-react";
+import { Download, Filter } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export default function BatchOperations() {
   const [selectedAnalogs, setSelectedAnalogs] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [patentFilter, setPatentFilter] = useState<string>("all");
+  const [minConfidence, setMinConfidence] = useState<number>(0);
+  const [parentFilter, setParentFilter] = useState<string>("all");
 
-  // Fetch all analogs
+  // Fetch all analogs with filters
   const { data: analogs, isLoading } = trpc.analog.list.useQuery({
-    limit: 1000, // Get all analogs
-    offset: 0
+    limit: 1000,
+    offset: 0,
+    patentStatus: patentFilter !== "all" ? patentFilter : undefined,
+    minConfidence: minConfidence > 0 ? minConfidence : undefined,
   });
+
+  // Get unique parent compounds for filter
+  const parentCompounds: string[] = Array.from(
+    new Set(analogs?.analogs?.map((a: any) => a.parentCompound) || [])
+  ) as string[];
+
+  // Filter by parent compound on client side
+  const filteredAnalogs = analogs?.analogs?.filter((a: any) => 
+    parentFilter === "all" || a.parentCompound === parentFilter
+  ) || [];
 
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedAnalogs([]);
     } else {
-      setSelectedAnalogs(analogs?.analogs.map((a: any) => a.id) || []);
+      setSelectedAnalogs(filteredAnalogs?.map((a: any) => a.id) || []);
     }
     setSelectAll(!selectAll);
   };
@@ -118,12 +135,65 @@ export default function BatchOperations() {
         </p>
       </div>
 
+      {/* Filters */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="w-5 h-5" />
+            Filters
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Patent Status</label>
+              <Select value={patentFilter} onValueChange={setPatentFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="patent_free">Patent-Free</SelectItem>
+                  <SelectItem value="patent_opportunity">Patent Opportunity</SelectItem>
+                  <SelectItem value="patented">Patented</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Parent Compound</label>
+              <Select value={parentFilter} onValueChange={setParentFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All compounds" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Compounds</SelectItem>
+                  {parentCompounds.map((parent: string) => (
+                    <SelectItem key={parent} value={parent}>{parent}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Min Confidence (%)</label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={minConfidence}
+                onChange={(e) => setMinConfidence(parseInt(e.target.value) || 0)}
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Action Bar */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Bulk Actions</CardTitle>
           <CardDescription>
-            {selectedAnalogs.length} of {analogs?.analogs?.length || 0} analogs selected
+            {selectedAnalogs.length} of {filteredAnalogs?.length || 0} analogs selected
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -151,7 +221,7 @@ export default function BatchOperations() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>All Analogs ({analogs?.analogs?.length || 0})</CardTitle>
+            <CardTitle>All Analogs ({filteredAnalogs?.length || 0})</CardTitle>
             <div className="flex items-center gap-2">
               <Checkbox
                 id="select-all"
@@ -166,7 +236,7 @@ export default function BatchOperations() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2 max-h-[600px] overflow-y-auto">
-            {analogs?.analogs?.map((analog: any) => (
+            {filteredAnalogs?.map((analog: any) => (
               <div
                 key={analog.id}
                 className={`flex items-center gap-4 p-4 rounded-lg border ${

@@ -166,4 +166,20 @@
 - [x] Add bulk export functionality
 - [x] Test all features end-to-end
 - [x] Create final checkpoint
+- [x] Push to GitHub repository (manus-December branch)
+
+## Bug Fixes & New Features (Current Sprint)
+- [x] Fix dashboard chatbot not responding
+- [x] Verify chat integration with multi-LLM backend
+- [x] Configure OpenAI API key as backend environment variable (built-in available)
+- [x] Configure Gemini API key as backend environment variable
+- [x] Configure Perplexity API key as backend environment variable (SONAR_API_KEY)
+- [x] Connect chatbot to configured API keys
+- [x] Fix export SMILES/SDF errors (React minified error 321)
+- [x] Add website link to PharmaSight Platform in navigation
+- [x] Implement advanced filtering in Batch Operations (patent status, confidence, parent compound)
+- [x] Create analog comparison view with side-by-side evaluation
+- [x] Add visual property charts to comparison view
+- [x] Test all fixes and new features (29 tests passing)
+- [ ] Create final checkpoint
 - [ ] Push to GitHub repository (manus-December branch)

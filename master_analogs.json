@@ -2480,5 +2480,22 @@
     "marketValue": "$10M",
     "discoveryMethod": "test",
     "discoveredAt": "2025-12-25T04:47:20.000Z"
+  },
+  {
+    "compoundId": "TEST-1766645905487",
+    "compoundName": "Test Compound",
+    "smiles": "CC(C)C",
+    "parentCompound": "Test Parent",
+    "mechanismOfAction": "Test mechanism",
+    "keyDifferences": "Test differences",
+    "confidence": 85,
+    "similarity": 90,
+    "safetyScore": 80,
+    "efficacyScore": 85,
+    "drugLikenessScore": 90,
+    "patentStatus": "patent-free",
+    "marketValue": "$10M",
+    "discoveryMethod": "test",
+    "discoveredAt": "2025-12-25T06:58:25.000Z"
   }
 ]

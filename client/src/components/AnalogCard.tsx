@@ -6,6 +6,9 @@ import { Download, Beaker, FileText, Box } from "lucide-react";
 import { useState } from "react";
 import { MoleculeViewer3D } from "./MoleculeViewer3D";
 import { trpc } from "@/lib/trpc";
+import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import type { AppRouter } from '../../../server/routers';
+import SuperJSON from 'superjson';
 import { toast } from "sonner";
 import type { AnalogDiscovery } from "../types";
 
@@ -19,13 +22,22 @@ export function AnalogCard({ analog, onRunTest }: AnalogCardProps) {
 
   const handleExport = async (format: 'smiles' | 'sdf' | 'pdf') => {
     try {
+      const client = createTRPCClient<AppRouter>({
+        links: [
+          httpBatchLink({
+            url: '/api/trpc',
+            transformer: SuperJSON,
+          }),
+        ],
+      });
+
       let data;
       if (format === 'smiles') {
-        data = await trpc.export.smiles.useQuery({ analogId: analog.id }).data;
+        data = await client.export.smiles.query({ analogId: analog.id });
       } else if (format === 'sdf') {
-        data = await trpc.export.sdf.useQuery({ analogId: analog.id }).data;
+        data = await client.export.sdf.query({ analogId: analog.id });
       } else {
-        data = await trpc.export.pdf.useQuery({ analogId: analog.id }).data;
+        data = await client.export.pdf.query({ analogId: analog.id });
       }
 
       if (data) {

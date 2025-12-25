@@ -1,5 +1,8 @@
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import type { AppRouter } from '../../../server/routers';
+import SuperJSON from 'superjson';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,13 +47,22 @@ export default function AnalogDetail() {
 
   const handleExport = async (format: 'smiles' | 'sdf' | 'pdf') => {
     try {
+      const client = createTRPCClient<AppRouter>({
+        links: [
+          httpBatchLink({
+            url: '/api/trpc',
+            transformer: SuperJSON,
+          }),
+        ],
+      });
+
       let data;
       if (format === 'smiles') {
-        data = await trpc.export.smiles.useQuery({ analogId }).data;
+        data = await client.export.smiles.query({ analogId });
       } else if (format === 'sdf') {
-        data = await trpc.export.sdf.useQuery({ analogId }).data;
+        data = await client.export.sdf.query({ analogId });
       } else {
-        data = await trpc.export.pdf.useQuery({ analogId }).data;
+        data = await client.export.pdf.query({ analogId });
       }
 
       if (data) {

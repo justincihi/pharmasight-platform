@@ -119,9 +119,9 @@ async function callClaude(messages: LLMMessage[]): Promise<LLMResponse> {
  * Perplexity (for research queries)
  */
 async function callPerplexity(messages: LLMMessage[]): Promise<LLMResponse> {
-  const apiKey = process.env.PERPLEXITY_API_KEY;
+  const apiKey = process.env.SONAR_API_KEY;
   if (!apiKey) {
-    throw new Error("PERPLEXITY_API_KEY not found in environment");
+    throw new Error("SONAR_API_KEY not found in environment");
   }
 
   const response = await fetch("https://api.perplexity.ai/chat/completions", {
@@ -170,7 +170,7 @@ export async function callLLM(
       lastMessage.includes("recent studies") ||
       lastMessage.includes("clinical trials")
     ) {
-      provider = process.env.PERPLEXITY_API_KEY ? "perplexity" : "gemini";
+      provider = process.env.SONAR_API_KEY ? "perplexity" : "gemini";
     }
     // Use Gemini for multimodal or long context
     else if (
@@ -228,7 +228,7 @@ export function getAvailableProviders(): LLMProvider[] {
 
   if (process.env.GEMINI_API_KEY) providers.push("gemini");
   if (process.env.ANTHROPIC_API_KEY) providers.push("claude");
-  if (process.env.PERPLEXITY_API_KEY) providers.push("perplexity");
+  if (process.env.SONAR_API_KEY) providers.push("perplexity");
 
   return providers;
 }

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Home, LayoutDashboard, BarChart3, TestTube2, Layers, LogOut, Calendar, Package } from "lucide-react";
+import { Home, LayoutDashboard, BarChart3, TestTube2, Layers, LogOut, Calendar, Package, ExternalLink, GitCompare } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -23,7 +23,15 @@ export function Navigation() {
     { path: "/batch", label: "Batch", icon: Layers, adminOnly: true },
     { path: "/admin/scheduler", label: "Scheduler", icon: Calendar, adminOnly: true },
     { path: "/admin/batch", label: "Batch Ops", icon: Package, adminOnly: true },
+    { path: "/admin/compare", label: "Compare", icon: GitCompare, adminOnly: true },
   ];
+
+  const externalLink = {
+    url: "https://replit.com/@justincihi/PharmaSight-Platform",
+    label: "Platform",
+    icon: ExternalLink,
+    adminOnly: true,
+  };
 
   const isActive = (path: string) => {
     if (path === "/") return location === "/";
@@ -70,6 +78,21 @@ export function Navigation() {
                 </Link>
               );
             })}
+
+            {/* External Platform Link */}
+            {externalLink.adminOnly && (!isAuthenticated || user?.role !== "admin") ? null : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                asChild
+              >
+                <a href={externalLink.url} target="_blank" rel="noopener noreferrer">
+                  <externalLink.icon className="w-4 h-4" />
+                  {externalLink.label}
+                </a>
+              </Button>
+            )}
 
             {/* User Menu */}
             {isAuthenticated && (

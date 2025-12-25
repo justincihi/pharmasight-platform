@@ -39,7 +39,7 @@ export function ChatbotInterface() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: response.response,
+        content: response.content || response.response || "No response",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
