@@ -288,34 +288,53 @@ export const appRouter = router({
           history: Array.isArray(obj.history) ? obj.history : [],
         };
       })
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const { callLLM } = await import('./multiLLM');
-        const { getAnalogDiscoveries } = await import('./db');
+        const { getAnalogDiscoveries, getAllTestResults, saveChatMessage, getChatHistory } = await import('./db');
 
-        // Get recent analogs for context
-        const recentAnalogs = await getAnalogDiscoveries(10, 0, {});
+        // Get ALL analogs for full context (not just 10)
+        const allAnalogs = await getAnalogDiscoveries(1000, 0, {});
+        
+        // Get all test results
+        const testResults = await getAllTestResults();
+
+        // Build comprehensive analog summary
+        const analogSummary = allAnalogs.slice(0, 20).map((a: any) => 
+          `${a.compoundId}: ${a.compoundName} (${a.parentCompound}) - Safety: ${a.safetyScore}/100, Efficacy: ${a.efficacyScore}/100, Confidence: ${a.confidenceScore}%, Patent: ${a.patentStatus}`
+        ).join('\n');
 
         const systemPrompt = `You are PharmaSight AI Assistant, an expert in pharmaceutical drug discovery and cheminformatics.
 
-You have access to a database of ${recentAnalogs.length} analog discoveries with detailed information including:
+You have access to the COMPLETE database of ${allAnalogs.length} analog discoveries and ${testResults.length} test results with detailed information including:
 - Chemical structures (SMILES notation)
 - Safety, efficacy, and confidence scores
-- Patent status
-- Therapeutic potential
+- Patent status and therapeutic potential
 - Market value estimates
+- ADMET predictions, toxicity assessments, and docking results
+
+Recent analogs in database:
+${analogSummary}
 
 You can help users:
-1. Explore and analyze discovered analogs
-2. Run cheminformatics analyses (ADMET, docking, toxicity, PK/PD)
+1. Explore and analyze ALL discovered analogs (not just recent ones)
+2. Query test results and cheminformatics analyses
 3. Generate new analog suggestions
 4. Research latest pharmaceutical developments
 5. Explain drug mechanisms and properties
+6. Track analog discovery history and trends
 
-Provide accurate, scientific responses with specific data when available.`;
+When users ask about analogs, test results, or discoveries, query the FULL database. Provide accurate, scientific responses with specific data when available.`;
 
+        // Load chat history for context
+        const chatHistory = await getChatHistory(ctx.user.id, 20);
+        
         const response = await callLLM(
           [
             { role: 'system', content: systemPrompt },
+            ...chatHistory.map((msg: any) => ({
+              role: msg.role,
+              content: msg.content,
+            })),
             ...input.history.map((msg: any) => ({
               role: msg.role,
               content: msg.content,
@@ -324,6 +343,22 @@ Provide accurate, scientific responses with specific data when available.`;
           ],
           input.provider as any
         );
+
+        // Save user message
+        await saveChatMessage({
+          userId: ctx.user.id,
+          role: 'user',
+          content: input.message,
+          provider: input.provider || null,
+        });
+
+        // Save assistant response
+        await saveChatMessage({
+          userId: ctx.user.id,
+          role: 'assistant',
+          content: response.content,
+          provider: response.provider,
+        });
 
         return {
           content: response.content,

@@ -36,6 +36,13 @@
       "when": 1766647566378,
       "tag": "0004_safe_starfox",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1766650237010,
+      "tag": "0005_wide_captain_america",
+      "breakpoints": true
     }
   ]
 }

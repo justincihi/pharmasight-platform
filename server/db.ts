@@ -1,6 +1,6 @@
 import { eq, or, like } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, analogDiscoveries, testResults, notifications, InsertAnalogDiscovery, InsertTestResult, InsertNotification } from "../drizzle/schema";
+import { InsertUser, users, analogDiscoveries, testResults, notifications, chatMessages, InsertAnalogDiscovery, InsertTestResult, InsertNotification, InsertChatMessage } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -255,6 +255,16 @@ export async function getTestResults(analogId: number) {
     .where((col: any) => col.analogId === analogId);
 }
 
+export async function getAllTestResults() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await (db as any)
+    .select()
+    .from(testResults)
+    .orderBy((col: any) => col.createdAt);
+}
+
 /**
  * Notification Queries
  */
@@ -277,6 +287,33 @@ export async function getAdminNotifications(
   return await (db as any)
     .select()
     .from(notifications)
+    .where((col: any) => col.userId === userId)
+    .orderBy((col: any) => col.createdAt)
+    .limit(limit);
+}
+
+/**
+ * Chat Message Queries
+ */
+export async function saveChatMessage(
+  data: InsertChatMessage
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(chatMessages).values(data);
+}
+
+export async function getChatHistory(
+  userId: number,
+  limit: number = 50
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await (db as any)
+    .select()
+    .from(chatMessages)
     .where((col: any) => col.userId === userId)
     .orderBy((col: any) => col.createdAt)
     .limit(limit);
