@@ -1,0 +1,130 @@
+# Google Cloud Build configuration for PharmaSight Platform
+# This file defines the build and deployment process for both Flask and Admin applications
+
+steps:
+  # Build Flask Application Docker Image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-flask-app'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/pharmasight-flask:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/pharmasight-flask:latest'
+      - '-f'
+      - 'Dockerfile'
+      - '.'
+    
+  # Build Admin Dashboard Docker Image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-admin-dashboard'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/pharmasight-admin:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/pharmasight-admin:latest'
+      - '-f'
+      - 'admin-dashboard/Dockerfile'
+      - './admin-dashboard'
+    
+  # Push Flask Application Image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-flask-app'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/pharmasight-flask:$COMMIT_SHA'
+    waitFor: ['build-flask-app']
+    
+  # Push Flask Latest Tag
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-flask-latest'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/pharmasight-flask:latest'
+    waitFor: ['build-flask-app']
+    
+  # Push Admin Dashboard Image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-admin-dashboard'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/pharmasight-admin:$COMMIT_SHA'
+    waitFor: ['build-admin-dashboard']
+    
+  # Push Admin Latest Tag
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-admin-latest'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/pharmasight-admin:latest'
+    waitFor: ['build-admin-dashboard']
+    
+  # Deploy Flask Application to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-flask-app'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pharmasight-app'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/pharmasight-flask:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '300'
+      - '--max-instances'
+      - '10'
+      - '--set-env-vars'
+      - 'FLASK_ENV=production,PORT=5000'
+    waitFor: ['push-flask-app']
+    
+  # Deploy Admin Dashboard to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-admin-dashboard'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pharmasight-admin'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/pharmasight-admin:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '1Gi'
+      - '--cpu'
+      - '1'
+      - '--timeout'
+      - '60'
+      - '--max-instances'
+      - '5'
+      - '--set-env-vars'
+      - 'NODE_ENV=production,PORT=3000'
+    waitFor: ['push-admin-dashboard']
+
+# Store images in Google Container Registry
+images:
+  - 'gcr.io/$PROJECT_ID/pharmasight-flask:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/pharmasight-flask:latest'
+  - 'gcr.io/$PROJECT_ID/pharmasight-admin:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/pharmasight-admin:latest'
+
+# Build timeout
+timeout: '1800s'
+
+# Build options
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
