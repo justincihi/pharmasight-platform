@@ -51,7 +51,11 @@ except Exception as e:
     }))
 `;
 
-    const python = spawn("python3", ["-c", pythonScript]);
+    // Use venv Python if available to avoid SRE module mismatch
+    const venvPython = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules/venv/bin/python3";
+    const pythonCmd = existsSync(venvPython) ? venvPython : "python3";
+    
+    const python = spawn(pythonCmd, ["-c", pythonScript]);
 
     let stdout = "";
     let stderr = "";
