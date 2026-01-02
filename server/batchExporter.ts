@@ -32,7 +32,7 @@ interface ExportResult {
 /**
  * Export analogs to CSV format
  */
-async function exportToCSV(analogs: any[]): Promise<string> {
+export async function exportToCSV(analogs: any[]): Promise<string> {
   const headers = [
     "Compound ID",
     "Compound Name",
@@ -88,7 +88,7 @@ async function exportToCSV(analogs: any[]): Promise<string> {
 /**
  * Export analogs to SDF format using Python RDKit
  */
-async function exportToSDF(analogs: any[]): Promise<string> {
+export async function exportToSDF(analogs: any[]): Promise<string> {
   return new Promise((resolve, reject) => {
     const tmpFile = join(tmpdir(), `pharmasight-export-${randomBytes(8).toString("hex")}.sdf`);
 

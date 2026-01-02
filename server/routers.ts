@@ -103,31 +103,62 @@ export const appRouter = router({
 
     runDocking: protectedProcedure
       .input((val: unknown) => {
-        if (typeof val !== 'object' || val === null) return { analogId: 0, smiles: '', target: '' };
+        if (typeof val !== 'object' || val === null) return { analogId: 0, smiles: '', target: 'NMDA' };
         const obj = val as Record<string, unknown>;
         return {
           analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
           smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
-          target: typeof obj.target === 'string' ? obj.target : '',
+          target: typeof obj.target === 'string' ? obj.target : 'NMDA',
         };
       })
       .mutation(async ({ input, ctx }) => {
         if (ctx.user?.role !== 'admin') {
           throw new Error('Unauthorized: Admin access required');
         }
+        
+        // Import molecular docking wrapper
+        const { runMolecularDocking } = await import('./molecularDockingWrapper');
+        
+        // Run docking
+        const dockingResult = await runMolecularDocking(input.smiles, input.analogId.toString());
+        
+        // Normalize binding affinity to 0-100 score
+        // Typical range: -12 to -3 kcal/mol
+        // More negative = better binding
+        const affinity = dockingResult.binding_affinity || 0;
+        const normalizedScore = Math.max(0, Math.min(100, Math.round(((-affinity + 3) / 9) * 100)));
+        
+        // Update analog with docking results
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        
+        if (db) {
+          await db.update(analogDiscoveries)
+            .set({
+              bindingAffinity: affinity.toString(),
+              dockingScore: normalizedScore,
+              dockingTarget: input.target + ' Receptor',
+            })
+            .where(eq(analogDiscoveries.id, input.analogId));
+        }
+        
+        // Create test result record
         const { createTestResult } = await import('./db');
         const result = await createTestResult({
           analogId: input.analogId,
           testType: 'docking',
           testStatus: 'completed',
-          results: JSON.stringify({
-            bindingAffinity: -8.5,
-            rmsd: 1.2,
-            interactions: ['hydrogen-bond', 'pi-stacking'],
-          }),
+          results: JSON.stringify(dockingResult),
           runBy: ctx.user.id,
         });
-        return result;
+        
+        return {
+          ...result,
+          dockingScore: normalizedScore,
+          bindingAffinity: affinity,
+        };
       }),
 
     bulkApprove: protectedProcedure

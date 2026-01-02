@@ -216,7 +216,7 @@
 - [x] Allow users to select focus areas (CNS, oncology, cardiovascular, etc.)
 - [x] Test all features with manual research runs
 - [x] Verify diversity scoring and trend detection working correctly
-- [ ] Create checkpoint and push to GitHub
+- [ ] Create checkpoint
 
 ## Ketamine Analog SDF Processing Pipeline (Current Sprint)
 - [x] Create SDF parsing module with RDKit (Chem.SDMolSupplier)
@@ -241,3 +241,27 @@
 - [x] Add export button to Analytics page with filtering options
 - [x] Test all new features
 - [ ] Create checkpoint and push to GitHub
+
+## Molecular Docking Integration (Current Sprint)
+- [x] Install AutoDock Vina in sandbox environment
+- [x] Download NMDA receptor PDB structure files
+- [x] Create Python docking module for automated docking
+- [x] Integrate docking scores into analog database schema
+- [x] Add docking procedure to tRPC router
+- [ ] Display docking results in analog detail view
+
+## SDF Upload UI (Current Sprint)
+- [x] Create drag-and-drop file upload component
+- [x] Add SDF upload card to Dashboard page
+- [x] Implement file validation and preview
+- [x] Connect upload to importFromSDF backend
+- [x] Show upload progress and results
+- [ ] Add batch upload support for multiple SDF files
+
+## Compound Comparison Tool (Current Sprint)
+- [x] Create comparison page with analog selection UI
+- [x] Build side-by-side ADMET comparison view
+- [x] Add radar chart visualization for molecular properties
+- [x] Implement property comparison table
+- [ ] Add export comparison report functionality
+- [x] Create navigation link in Dashboard sidebar

@@ -43,6 +43,13 @@
       "when": 1766650237010,
       "tag": "0005_wide_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1767356139054,
+      "tag": "0006_soft_boomer",
+      "breakpoints": true
     }
   ]
 }

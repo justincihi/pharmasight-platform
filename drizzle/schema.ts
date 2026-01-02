@@ -59,6 +59,11 @@ export const analogDiscoveries = mysqlTable("analog_discoveries", {
   hBondDonors: int("h_bond_donors"),
   hBondAcceptors: int("h_bond_acceptors"),
   
+  // Docking scores
+  bindingAffinity: varchar("binding_affinity", { length: 64 }), // kcal/mol
+  dockingScore: int("docking_score"), // 0-100 normalized score
+  dockingTarget: varchar("docking_target", { length: 128 }), // e.g., "NMDA Receptor"
+  
   // External database IDs
   pubchemCid: varchar("pubchem_cid", { length: 64 }),
   chemblId: varchar("chembl_id", { length: 64 }),

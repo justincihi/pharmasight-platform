@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalogCard } from "@/components/AnalogCard";
+import SDFUploader from "@/components/SDFUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -45,6 +46,9 @@ export default function AdminDashboard() {
             Manage and analyze pharmaceutical analog compounds
           </p>
         </div>
+        
+        {/* SDF Uploader */}
+        <SDFUploader />
 
         {/* Search and Filters */}
         <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
