@@ -274,6 +274,48 @@ export const appRouter = router({
       stopScheduler();
       return { success: true, message: 'Scheduler stopped' };
     }),
+    
+    getResearchGoals: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { getResearchGoals } = await import('./researchGoalsManager');
+      return getResearchGoals();
+    }),
+    
+    saveResearchGoals: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { goals: [] };
+        const obj = val as Record<string, unknown>;
+        return {
+          goals: Array.isArray(obj.goals) ? obj.goals.filter(g => typeof g === 'string') : [],
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { saveResearchGoals } = await import('./researchGoalsManager');
+        await saveResearchGoals(input.goals);
+        return { success: true };
+      }),
+    
+    getMedicalTrends: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { getMedicalTrends } = await import('./medicalTrendsAnalyzer');
+      return getMedicalTrends();
+    }),
+    
+    refreshMedicalTrends: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { refreshMedicalTrends } = await import('./medicalTrendsAnalyzer');
+      await refreshMedicalTrends();
+      return { success: true };
+    }),
   }),
 
   // Multi-LLM Chat Integration

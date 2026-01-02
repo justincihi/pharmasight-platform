@@ -202,3 +202,18 @@
 - [x] Implement SMILES uniqueness checking in analog generation
 - [x] Add diversity mechanisms to ensure varied molecular structures
 - [x] Test research engine produces unique discoveries
+
+## Research Engine Enhancements (Current Sprint)
+- [x] Expand parent compound library to 50+ diverse pharmaceutical scaffolds
+- [x] Add antibiotics, antivirals, kinase inhibitors, immunosuppressants, etc.
+- [x] Implement structural diversity scoring with Tanimoto distance calculations
+- [x] Add diversity threshold filtering to prevent similar discoveries
+- [x] Build editable research goals UI in Scheduler Dashboard
+- [x] Implement save/load functionality for custom research goals
+- [x] Create AI-powered medical trend analysis using Perplexity API
+- [x] Automatically identify high-value targets from recent breakthroughs
+- [x] Add therapeutic area filtering to scheduler configuration
+- [x] Allow users to select focus areas (CNS, oncology, cardiovascular, etc.)
+- [x] Test all features with manual research runs
+- [x] Verify diversity scoring and trend detection working correctly
+- [ ] Create checkpoint and push to GitHub
