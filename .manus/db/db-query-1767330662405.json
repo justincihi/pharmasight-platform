@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as total FROM analog_discoveries WHERE discovered_by = 'autonomous_system' AND discovered_at > NOW() - INTERVAL 5 MINUTE",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZWrHs2nQutWeV7.ec074e332390 --database o8A9Pr4pqVWFTwAoQ2BaGp --execute SELECT COUNT(*) as total FROM analog_discoveries WHERE discovered_by = 'autonomous_system' AND discovered_at > NOW() - INTERVAL 5 MINUTE",
+  "rows": [
+    {
+      "total": "6"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\n6\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}
