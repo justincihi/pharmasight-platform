@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { dockingRouter } from './dockingRouter';
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -239,6 +240,43 @@ export const appRouter = router({
         }
         const { importFromSDF } = await import('./sdfImporter');
         return importFromSDF(input.sdfPath);
+      }),
+    
+    generateSynthesisRoute: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { compoundName: '', smiles: '' };
+        const obj = val as Record<string, unknown>;
+        return {
+          compoundName: typeof obj.compoundName === 'string' ? obj.compoundName : '',
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { generateSynthesisRoute } = await import('./synthesisRouteOptimizer');
+        return generateSynthesisRoute(input.compoundName, input.smiles);
+      }),
+    
+    optimizeSynthesisRoute: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { route: null, goal: 'cost' as const };
+        const obj = val as Record<string, unknown>;
+        return {
+          route: obj.route,
+          goal: (obj.goal === 'yield' || obj.goal === 'time' ? obj.goal : 'cost') as 'cost' | 'yield' | 'time',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        if (!input.route) {
+          throw new Error('Route is required');
+        }
+        const { optimizeSynthesisRoute } = await import('./synthesisRouteOptimizer');
+        return optimizeSynthesisRoute(input.route as any, input.goal);
       }),
 
   }),
@@ -720,6 +758,9 @@ When users ask about analogs, test results, or discoveries, query the FULL datab
         return { markdown: generateRoutesMarkdown(input.routes as any[]) };
       }),
   }),
+
+  // Docking queue routes
+  docking: dockingRouter,
 
   // Info Hub routes
   infohub: router({

@@ -15,7 +15,8 @@ export default function SDFUploader() {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
 
   const importMutation = trpc.analog.importFromSDF.useMutation();
 
@@ -34,63 +35,84 @@ export default function SDFUploader() {
     setIsDragging(false);
 
     const files = Array.from(e.dataTransfer.files);
-    const sdfFile = files.find(f => f.name.endsWith('.sdf'));
+    const sdfFiles = files.filter(f => f.name.endsWith('.sdf'));
 
-    if (sdfFile) {
-      setSelectedFile(sdfFile);
+    if (sdfFiles.length > 0) {
+      setSelectedFiles(prev => [...prev, ...sdfFiles]);
       setUploadResult(null);
     } else {
-      alert('❌ Please drop a valid SDF file (.sdf extension)');
+      alert('❌ Please drop valid SDF files (.sdf extension)');
     }
   }, []);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.name.endsWith('.sdf')) {
-      setSelectedFile(file);
-      setUploadResult(null);
-    } else {
-      alert('❌ Please select a valid SDF file (.sdf extension)');
+    const files = e.target.files;
+    if (files) {
+      const sdfFiles = Array.from(files).filter(f => f.name.endsWith('.sdf'));
+      if (sdfFiles.length > 0) {
+        setSelectedFiles(prev => [...prev, ...sdfFiles]);
+        setUploadResult(null);
+      } else {
+        alert('❌ Please select valid SDF files (.sdf extension)');
+      }
     }
   }, []);
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (selectedFiles.length === 0) return;
 
     setIsUploading(true);
     setUploadResult(null);
+    setUploadProgress({});
+
+    let totalImported = 0;
+    const allAnalogs: any[] = [];
 
     try {
-      // Read file content
-      const text = await selectedFile.text();
+      for (const file of selectedFiles) {
+        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
 
-      // Save to temporary location (in production, upload to server)
-      // For now, we'll pass the content directly
-      const blob = new Blob([text], { type: 'chemical/x-mdl-sdfile' });
-      const formData = new FormData();
-      formData.append('file', blob, selectedFile.name);
+        // Read file content
+        const text = await file.text();
 
-      // Upload file to server
-      const response = await fetch('/api/upload-sdf', {
-        method: 'POST',
-        body: formData,
-      });
+        // Save to temporary location
+        const blob = new Blob([text], { type: 'chemical/x-mdl-sdfile' });
+        const formData = new FormData();
+        formData.append('file', blob, file.name);
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
+        setUploadProgress(prev => ({ ...prev, [file.name]: 50 }));
+
+        // Upload file to server
+        const response = await fetch('/api/upload-sdf', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Upload failed for ${file.name}`);
+        }
+
+        const { filePath } = await response.json();
+
+        // Import SDF via tRPC
+        const result = await importMutation.mutateAsync({ sdfPath: filePath });
+
+        totalImported += result.imported || 0;
+        allAnalogs.push(...(result.analogs || []));
+
+        setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
       }
 
-      const { filePath } = await response.json();
-
-      // Import SDF via tRPC
-      const result = await importMutation.mutateAsync({ sdfPath: filePath });
-
-      setUploadResult(result as UploadResult);
+      setUploadResult({
+        success: true,
+        imported: totalImported,
+        analogs: allAnalogs,
+      });
     } catch (error: any) {
       setUploadResult({
         success: false,
-        imported: 0,
-        analogs: [],
+        imported: totalImported,
+        analogs: allAnalogs,
         error: error.message,
       });
     } finally {
@@ -99,8 +121,9 @@ export default function SDFUploader() {
   };
 
   const handleClear = () => {
-    setSelectedFile(null);
+    setSelectedFiles([]);
     setUploadResult(null);
+    setUploadProgress({});
   };
 
   return (
@@ -123,16 +146,25 @@ export default function SDFUploader() {
           className={`
             border-2 border-dashed rounded-lg p-8 text-center transition-colors
             ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'}
-            ${selectedFile ? 'border-green-500 bg-green-50' : ''}
+            ${selectedFiles.length > 0 ? 'border-green-500 bg-green-50' : ''}
           `}
         >
-          {selectedFile ? (
-            <div className="space-y-2">
+          {selectedFiles.length > 0 ? (
+            <div className="space-y-3">
               <FileText className="w-12 h-12 mx-auto text-green-600" />
-              <p className="font-semibold text-gray-900">{selectedFile.name}</p>
-              <p className="text-sm text-gray-600">
-                {(selectedFile.size / 1024).toFixed(2)} KB
+              <p className="font-semibold text-gray-900">
+                {selectedFiles.length} file{selectedFiles.length > 1 ? 's' : ''} selected
               </p>
+              <div className="max-h-32 overflow-y-auto space-y-1 text-sm text-gray-600">
+                {selectedFiles.map((f, idx) => (
+                  <div key={idx} className="flex justify-between items-center px-2">
+                    <span>{f.name}</span>
+                    <span className="text-xs">
+                      {uploadProgress[f.name] !== undefined ? `${uploadProgress[f.name]}%` : ''}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="space-y-2">
@@ -143,6 +175,7 @@ export default function SDFUploader() {
               <input
                 type="file"
                 accept=".sdf"
+                multiple
                 onChange={handleFileSelect}
                 className="hidden"
                 id="sdf-file-input"
@@ -157,7 +190,7 @@ export default function SDFUploader() {
         </div>
 
         {/* Action Buttons */}
-        {selectedFile && !uploadResult && (
+        {selectedFiles.length > 0 && !uploadResult && (
           <div className="flex gap-2">
             <Button
               onClick={handleUpload}

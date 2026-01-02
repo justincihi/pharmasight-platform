@@ -1,4 +1,5 @@
-import { useParams, useLocation } from "wouter";
+import { useLocation, useParams } from "wouter";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '../../../server/routers';
@@ -9,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Download, Beaker, FileText, ExternalLink, FlaskConical, Box } from "lucide-react";
 import SynthesisRoutePlanner from "@/components/SynthesisRoutePlanner";
+import SynthesisRouteViewer from "@/components/SynthesisRouteViewer";
 import { MoleculeViewer3D } from "@/components/MoleculeViewer3D";
 import MolecularViewer from "@/components/MolecularViewer";
 import DockingPoseViewer from "@/components/DockingPoseViewer";
@@ -19,10 +21,48 @@ export default function AnalogDetail() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const analogId = parseInt(params.id || "0");
+  const [synthesisRoute, setSynthesisRoute] = useState<any>(null);
+  const [isGeneratingRoute, setIsGeneratingRoute] = useState(false);
 
   const { data: analog, isLoading } = trpc.analog.getById.useQuery({ id: analogId });
+  const generateRouteMutation = trpc.analog.generateSynthesisRoute.useMutation();
+  const optimizeRouteMutation = trpc.analog.optimizeSynthesisRoute.useMutation();
   // Test results will be added later
   const testResults: any[] = [];
+
+  const handleGenerateRoute = async () => {
+    if (!analog) return;
+    setIsGeneratingRoute(true);
+    try {
+      const route = await generateRouteMutation.mutateAsync({
+        compoundName: analog.compoundName,
+        smiles: analog.smiles,
+      });
+      setSynthesisRoute(route);
+      toast.success('Synthesis route generated successfully');
+    } catch (error: any) {
+      toast.error(`Failed to generate route: ${error.message}`);
+    } finally {
+      setIsGeneratingRoute(false);
+    }
+  };
+
+  const handleOptimizeRoute = async (goal: 'cost' | 'yield' | 'time') => {
+    if (!synthesisRoute) return;
+    setIsGeneratingRoute(true);
+    try {
+      const optimized = await optimizeRouteMutation.mutateAsync({
+        route: synthesisRoute,
+        goal,
+      });
+      setSynthesisRoute(optimized);
+      toast.success(`Route optimized for ${goal}`);
+    } catch (error: any) {
+      toast.error(`Failed to optimize route: ${error.message}`);
+    } finally {
+      setIsGeneratingRoute(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -257,10 +297,30 @@ export default function AnalogDetail() {
                 </TabsContent>
 
                 <TabsContent value="synthesis" className="mt-6">
-                  <SynthesisRoutePlanner
-                    smiles={analog.smiles}
-                    compoundName={analog.compoundName}
-                  />
+                  {!synthesisRoute ? (
+                    <div className="text-center py-12">
+                      <FlaskConical className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">Generate Synthesis Route</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Use AI to generate a step-by-step synthesis route with cost and yield estimates
+                      </p>
+                      <Button onClick={handleGenerateRoute} disabled={isGeneratingRoute}>
+                        {isGeneratingRoute ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          'Generate Route'
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <SynthesisRouteViewer
+                      route={synthesisRoute}
+                      onOptimize={handleOptimizeRoute}
+                    />
+                  )}
                 </TabsContent>
               </Tabs>
             </CardContent>

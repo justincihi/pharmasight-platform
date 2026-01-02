@@ -16,6 +16,7 @@ import BatchOperations from "./pages/BatchOperations";
 import AnalogComparison from "./pages/AnalogComparison";
 import CompareAnalogs from "./pages/CompareAnalogs";
 import InfoHub from "./pages/InfoHub";
+import DockingQueue from "./pages/DockingQueue";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/admin/compare" component={AnalogComparison} />
       <Route path="/compare" component={CompareAnalogs} />
       <Route path="/admin/info" component={InfoHub} />
+      <Route path="/admin/docking-queue" component={DockingQueue} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -292,3 +292,28 @@
 - [x] Create alerts for expiring patents on high-value analogs
 - [ ] Add freedom-to-operate analysis dashboard
 - [x] Test all features and create checkpoint
+
+## Docking Queue Dashboard (Current Sprint)
+- [x] Create dedicated docking queue dashboard page
+- [x] Display real-time queue status (pending, running, completed, failed)
+- [x] Show binding affinity comparisons across NMDA/5-HT2A/D2 targets
+- [x] Add sortable tables for completed docking jobs
+- [x] Implement queue management controls (pause, resume, clear)
+- [x] Add filtering by target receptor and status
+
+## Batch SDF Processing (Current Sprint)
+- [x] Extend SDF uploader to handle multiple files simultaneously
+- [x] Implement file validation and size checks for batch uploads
+- [x] Add progress tracking UI with per-file status
+- [x] Automatically queue each uploaded analog for docking
+- [x] Automatically run ADMET analysis on batch uploads
+- [x] Display batch processing results summary
+
+## Synthesis Route Optimization (Current Sprint)
+- [x] Research and integrate retrosynthesis AI algorithms
+- [x] Create synthesis route generator module
+- [x] Build step-by-step synthetic pathway visualization
+- [x] Add reagent cost estimation and availability checking
+- [x] Implement yield prediction for each synthesis step
+- [x] Integrate with analog detail view
+- [x] Test all features and create checkpoint
