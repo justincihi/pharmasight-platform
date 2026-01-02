@@ -193,6 +193,22 @@ export const appRouter = router({
         
         return { success: true, count: input.analogIds.length };
       }),
+    
+    importFromSDF: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { sdfPath: '' };
+        const obj = val as Record<string, unknown>;
+        return {
+          sdfPath: typeof obj.sdfPath === 'string' ? obj.sdfPath : '',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { importFromSDF } = await import('./sdfImporter');
+        return importFromSDF(input.sdfPath);
+      }),
 
   }),
 
@@ -218,6 +234,25 @@ export const appRouter = router({
         }
         const { getDiscoveryTimeline } = await import('./db');
         return getDiscoveryTimeline(input.days);
+      }),
+    
+    export: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          return { format: 'csv' as const, filters: {} };
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          format: (obj.format === 'sdf' ? 'sdf' : 'csv') as 'csv' | 'sdf',
+          filters: typeof obj.filters === 'object' ? obj.filters as any : {},
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { exportAnalogs } = await import('./batchExporter');
+        return exportAnalogs(input);
       }),
   }),
 

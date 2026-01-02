@@ -217,3 +217,27 @@
 - [x] Test all features with manual research runs
 - [x] Verify diversity scoring and trend detection working correctly
 - [ ] Create checkpoint and push to GitHub
+
+## Ketamine Analog SDF Processing Pipeline (Current Sprint)
+- [x] Create SDF parsing module with RDKit (Chem.SDMolSupplier)
+- [x] Extract properties from SDF (SMILES, patent-free, scores, descriptions)
+- [x] Generate 2D/3D coordinates from SMILES for molecules without coordinates
+- [x] Write fixed SDF files suitable for AutoDock Vina
+- [x] Compute molecular descriptors (cLogP, TPSA, basicity, HBD/HBA)
+- [x] Integrate descriptors with existing ADMET module
+- [x] Adapt ADMET explainer agent for NMDA antagonists
+- [x] Store SDF properties in analog database with proper typing
+- [x] Generate LLM-powered mechanism and value explanations
+- [x] Create ligand → descriptors → JSON pipeline
+- [x] Test with ketamine analog SDF file
+
+## Backend Enhancements (Current Sprint)
+- [x] Connect therapeutic area filtering to backend discovery engine
+- [x] Filter parent compound library based on selected therapeutic areas
+- [x] Build discovery timeline visualization chart
+- [x] Add date grouping and therapeutic area color coding
+- [x] Implement batch export to CSV functionality
+- [x] Implement batch export to SDF functionality
+- [x] Add export button to Analytics page with filtering options
+- [x] Test all new features
+- [ ] Create checkpoint and push to GitHub
