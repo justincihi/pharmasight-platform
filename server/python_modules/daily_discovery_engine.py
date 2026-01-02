@@ -136,6 +136,7 @@ class DailyDiscoveryEngine:
         """
         discoveries = []
         goals = goals or []
+        seen_smiles = set()  # Track unique SMILES to prevent duplicates
         
         # Simulate different discovery methods
         discovery_methods = [
@@ -178,17 +179,27 @@ class DailyDiscoveryEngine:
         # Generate 5-10 discoveries per day
         num_discoveries = random.randint(5, 10)
         
-        for i in range(num_discoveries):
+        attempts = 0
+        max_attempts = num_discoveries * 3  # Allow retries for uniqueness
+        
+        while len(discoveries) < num_discoveries and attempts < max_attempts:
+            attempts += 1
             method, base_confidence, base_value = random.choice(discovery_methods)
+            
+            # Get a unique parent SMILES
+            smiles = self._generate_mock_smiles()
+            if smiles in seen_smiles:
+                continue  # Skip duplicates
+            seen_smiles.add(smiles)
             
             # Add some randomness
             confidence = min(99, base_confidence * 100 + random.randint(-10, 20))
             value = base_value * (0.5 + random.random() * 1.5)
             
             discovery = {
-                "discovery_id": hashlib.md5(f"disc_{datetime.now()}_{i}".encode()).hexdigest()[:16],
-                "compound_name": f"PHS-{datetime.now().strftime('%Y%m%d')}-{i+1:03d}",
-                "compound_smiles": self._generate_mock_smiles(),
+                "discovery_id": hashlib.md5(f"disc_{datetime.now()}_{len(discoveries)}".encode()).hexdigest()[:16],
+                "compound_name": f"PHS-{datetime.now().strftime('%Y%m%d')}-{len(discoveries)+1:03d}",
+                "compound_smiles": smiles,
                 "discovery_type": method,
                 "confidence": confidence,
                 "estimated_value": round(value),
@@ -204,16 +215,28 @@ class DailyDiscoveryEngine:
         return sorted(discoveries, key=lambda x: x['confidence'], reverse=True)
     
     def _generate_mock_smiles(self) -> str:
-        """Generate a mock but valid-looking SMILES string"""
-        fragments = [
-            "c1ccccc1", "C1CCCCC1", "c1ncncc1", "C(=O)O", "C(=O)N",
-            "CC(C)C", "CCO", "CN", "c1ccc2c(c1)OCO2", "Cc1ccccc1",
-            "FC(F)(F)", "Cl", "Br", "S(=O)(=O)N", "P(=O)(O)(O)"
+        """Get real parent compound SMILES from master database"""
+        # Real parent compounds from master_analogs.json
+        parent_compounds = [
+            "CC(C)NCC(O)c1ccc(O)c(CO)c1",  # Salbutamol (bronchodilator)
+            "CN1C(=O)N(C)c2ncn(C)c2C1=O",  # Caffeine (stimulant)
+            "CC(=O)Oc1ccccc1C(=O)O",  # Aspirin (analgesic)
+            "CN1CCC23C4C(=O)CCC2(C1CC5=C3C(=C(C=C5)O)O4)O",  # Morphine (opioid)
+            "CCN(CC)C(=O)C1CN(C2CC3=CNC4=CC=CC(=C34)C2=C1)C",  # LSD (psychedelic)
+            "COc1cc2c(cc1OC)CCN(C2)C",  # Mescaline (psychedelic)
+            "CN(C)CCc1c[nH]c2ccc(O)cc12",  # Psilocybin precursor
+            "CC(C)Cc1ccc(cc1)C(C)C(=O)O",  # Ibuprofen (NSAID)
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",  # Theophylline (bronchodilator)
+            "c1ccc2c(c1)c(c[nH]2)CCN",  # Tryptamine (neurotransmitter)
+            "CC(C)(C)NCC(O)c1ccc(O)c(CO)c1",  # Terbutaline (bronchodilator)
+            "CN(C)CCC=C1c2ccccc2CCc3ccccc13",  # Amitriptyline (antidepressant)
+            "Clc1ccc(cc1)C(c2ccccc2)N3CCNCC3",  # Cetirizine precursor
+            "CC(C)NCC(O)COc1ccccc1",  # Propranolol (beta blocker)
+            "CN1C2CCC1CC(C2)OC(=O)C(CO)c3ccccc3"  # Atropine (anticholinergic)
         ]
         
-        num_fragments = random.randint(2, 4)
-        selected = random.sample(fragments, num_fragments)
-        return "".join(selected)
+        # Return a random parent compound
+        return random.choice(parent_compounds)
     
     def _generate_key_features(self) -> List[str]:
         """Generate key features for a discovery"""
