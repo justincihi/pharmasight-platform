@@ -14,6 +14,7 @@ import AnalogDetail from "./pages/AnalogDetail";
 import SchedulerDashboard from "./pages/SchedulerDashboard";
 import BatchOperations from "./pages/BatchOperations";
 import AnalogComparison from "./pages/AnalogComparison";
+import InfoHub from "./pages/InfoHub";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/admin/scheduler" component={SchedulerDashboard} />
       <Route path="/admin/batch" component={BatchOperations} />
       <Route path="/admin/compare" component={AnalogComparison} />
+      <Route path="/admin/info" component={InfoHub} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

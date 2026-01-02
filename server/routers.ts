@@ -612,6 +612,66 @@ When users ask about analogs, test results, or discoveries, query the FULL datab
         return { markdown: generateRoutesMarkdown(input.routes as any[]) };
       }),
   }),
+
+  // Info Hub routes
+  infohub: router({
+    listVideos: protectedProcedure.query(async () => {
+      // Return empty array for now - will implement storage later
+      return [];
+    }),
+    listPdfs: protectedProcedure.query(async () => {
+      // Return empty array for now - will implement storage later
+      return [];
+    }),
+    uploadVideo: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          title: typeof obj.title === 'string' ? obj.title : '',
+          url: typeof obj.url === 'string' ? obj.url : '',
+          description: typeof obj.description === 'string' ? obj.description : '',
+        };
+      })
+      .mutation(async ({ input }) => {
+        // TODO: Implement file storage
+        return { success: true, id: Date.now() };
+      }),
+    uploadPdf: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          title: typeof obj.title === 'string' ? obj.title : '',
+          url: typeof obj.url === 'string' ? obj.url : '',
+          description: typeof obj.description === 'string' ? obj.description : '',
+        };
+      })
+      .mutation(async ({ input }) => {
+        // TODO: Implement file storage
+        return { success: true, id: Date.now() };
+      }),
+    deleteVideo: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { id: typeof obj.id === 'number' ? obj.id : 0 };
+      })
+      .mutation(async ({ input }) => {
+        // TODO: Implement file deletion
+        return { success: true };
+      }),
+    deletePdf: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { id: typeof obj.id === 'number' ? obj.id : 0 };
+      })
+      .mutation(async ({ input }) => {
+        // TODO: Implement file deletion
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

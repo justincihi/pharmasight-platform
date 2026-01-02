@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Home, LayoutDashboard, BarChart3, TestTube2, Layers, LogOut, Calendar, Package, ExternalLink, GitCompare } from "lucide-react";
+import { Home, LayoutDashboard, BarChart3, TestTube2, Layers, LogOut, Calendar, Package, ExternalLink, GitCompare, FileText } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -24,6 +24,7 @@ export function Navigation() {
     { path: "/admin/scheduler", label: "Scheduler", icon: Calendar, adminOnly: true },
     { path: "/admin/batch", label: "Batch Ops", icon: Package, adminOnly: true },
     { path: "/admin/compare", label: "Compare", icon: GitCompare, adminOnly: true },
+    { path: "/admin/info", label: "Info Hub", icon: FileText, adminOnly: true },
   ];
 
   const externalLink = {

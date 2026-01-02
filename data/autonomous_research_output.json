@@ -1,14 +1,81 @@
 [
   {
-    "discovery_id": "f48570ef969362e7",
-    "compound_name": "PHS-20260102-006",
-    "compound_smiles": "CNC(=O)NCCOFC(F)(F)",
-    "discovery_type": "AI Structure-Based Design",
-    "confidence": 90,
-    "estimated_value": 28306054,
+    "discovery_id": "4421181522966311",
+    "compound_name": "PHS-20260102-005",
+    "compound_smiles": "P(=O)(O)(O)Cc1ccccc1c1ncncc1",
+    "discovery_type": "Fragment-Based Discovery",
+    "confidence": 94,
+    "estimated_value": 37986302,
+    "therapeutic_area": "CNS Disorders",
+    "mechanism": "Enzyme Inhibitor",
+    "timestamp": "2026-01-02T00:32:31.102287",
+    "key_features": [
+      "Low CYP inhibition",
+      "Excellent oral bioavailability"
+    ],
+    "next_steps": [
+      "Proceed to lead optimization",
+      "Initiate ADMET profiling",
+      "File provisional patent",
+      "Start synthesis planning"
+    ]
+  },
+  {
+    "discovery_id": "4708c418a730c2d0",
+    "compound_name": "PHS-20260102-002",
+    "compound_smiles": "P(=O)(O)(O)S(=O)(=O)NBr",
+    "discovery_type": "Fragment-Based Discovery",
+    "confidence": 91,
+    "estimated_value": 23359280,
+    "therapeutic_area": "CNS Disorders",
+    "mechanism": "RNA Targeting",
+    "timestamp": "2026-01-02T00:32:31.102173",
+    "key_features": [
+      "Novel scaffold",
+      "Low CYP inhibition",
+      "Favorable safety profile",
+      "Excellent oral bioavailability"
+    ],
+    "next_steps": [
+      "Proceed to lead optimization",
+      "Initiate ADMET profiling",
+      "File provisional patent",
+      "Start synthesis planning"
+    ]
+  },
+  {
+    "discovery_id": "6d8940fa244e77fd",
+    "compound_name": "PHS-20260102-008",
+    "compound_smiles": "CC(C)CFC(F)(F)C(=O)OC(=O)N",
+    "discovery_type": "Repurposing Analysis",
+    "confidence": 87,
+    "estimated_value": 8902524,
+    "therapeutic_area": "Oncology",
+    "mechanism": "RNA Targeting",
+    "timestamp": "2026-01-02T00:32:31.102454",
+    "key_features": [
+      "High metabolic stability",
+      "Novel scaffold",
+      "High selectivity (>1000x)",
+      "BBB penetrant"
+    ],
+    "next_steps": [
+      "Validate with secondary assays",
+      "Perform selectivity screening",
+      "Optimize key properties",
+      "Conduct IP landscape analysis"
+    ]
+  },
+  {
+    "discovery_id": "3ccfb6c8784284a2",
+    "compound_name": "PHS-20260102-004",
+    "compound_smiles": "P(=O)(O)(O)CCO",
+    "discovery_type": "Repurposing Analysis",
+    "confidence": 78,
+    "estimated_value": 10460650,
     "therapeutic_area": "Psychedelic Therapy",
     "mechanism": "Enzyme Inhibitor",
-    "timestamp": "2026-01-02T00:10:55.308116",
+    "timestamp": "2026-01-02T00:32:31.102257",
     "key_features": [
       "Favorable safety profile",
       "BBB penetrant",
@@ -23,17 +90,18 @@
     ]
   },
   {
-    "discovery_id": "e6663ff30a1791df",
-    "compound_name": "PHS-20260102-005",
-    "compound_smiles": "CC(C)Cc1ccccc1",
-    "discovery_type": "Fragment-Based Discovery",
-    "confidence": 89,
-    "estimated_value": 33337497,
-    "therapeutic_area": "Metabolic Diseases",
-    "mechanism": "Enzyme Inhibitor",
-    "timestamp": "2026-01-02T00:10:55.308096",
+    "discovery_id": "44c81f241ce6028b",
+    "compound_name": "PHS-20260102-001",
+    "compound_smiles": "c1ccc2c(c1)OCO2c1ncncc1CC(C)CC(=O)O",
+    "discovery_type": "Repurposing Analysis",
+    "confidence": 77,
+    "estimated_value": 11985841,
+    "therapeutic_area": "Psychedelic Therapy",
+    "mechanism": "Receptor Antagonist",
+    "timestamp": "2026-01-02T00:32:31.102112",
     "key_features": [
-      "Excellent oral bioavailability",
+      "High metabolic stability",
+      "Long half-life (>24h)",
       "Patent-free chemical space"
     ],
     "next_steps": [
@@ -44,65 +112,41 @@
     ]
   },
   {
-    "discovery_id": "a15915fa90dce6b8",
-    "compound_name": "PHS-20260102-004",
-    "compound_smiles": "CCOc1ncncc1c1ccccc1",
-    "discovery_type": "Natural Product Derivative",
-    "confidence": 72,
-    "estimated_value": 14628669,
-    "therapeutic_area": "Metabolic Diseases",
-    "mechanism": "PROTAC",
-    "timestamp": "2026-01-02T00:10:55.308074",
+    "discovery_id": "8581e694c737d952",
+    "compound_name": "PHS-20260102-003",
+    "compound_smiles": "C(=O)Oc1ncncc1C(=O)N",
+    "discovery_type": "Virtual High-Throughput Screening",
+    "confidence": 47,
+    "estimated_value": 6494066,
+    "therapeutic_area": "Psychedelic Therapy",
+    "mechanism": "RNA Targeting",
+    "timestamp": "2026-01-02T00:32:31.102227",
+    "key_features": [
+      "High selectivity (>1000x)",
+      "Low CYP inhibition"
+    ],
+    "next_steps": [
+      "Additional virtual screening",
+      "Structure-activity relationship study",
+      "Refine predictive models",
+      "Explore alternative scaffolds"
+    ]
+  },
+  {
+    "discovery_id": "60076d0f267fd664",
+    "compound_name": "PHS-20260102-007",
+    "compound_smiles": "C(=O)NCc1ccccc1",
+    "discovery_type": "Virtual High-Throughput Screening",
+    "confidence": 44,
+    "estimated_value": 4216795,
+    "therapeutic_area": "CNS Disorders",
+    "mechanism": "Allosteric Modulator",
+    "timestamp": "2026-01-02T00:32:31.102415",
     "key_features": [
       "Patent-free chemical space",
-      "High selectivity (>1000x)",
-      "Excellent oral bioavailability"
-    ],
-    "next_steps": [
-      "Validate with secondary assays",
-      "Perform selectivity screening",
-      "Optimize key properties",
-      "Conduct IP landscape analysis"
-    ]
-  },
-  {
-    "discovery_id": "ba919076a6ba27a6",
-    "compound_name": "PHS-20260102-003",
-    "compound_smiles": "c1ccccc1C(=O)OCc1ccccc1",
-    "discovery_type": "Analog Screening",
-    "confidence": 64,
-    "estimated_value": 9364324,
-    "therapeutic_area": "Oncology",
-    "mechanism": "Epigenetic Modulator",
-    "timestamp": "2026-01-02T00:10:55.308051",
-    "key_features": [
-      "BBB penetrant",
-      "High selectivity (>1000x)",
-      "Novel scaffold",
-      "Excellent oral bioavailability"
-    ],
-    "next_steps": [
-      "Additional virtual screening",
-      "Structure-activity relationship study",
-      "Refine predictive models",
-      "Explore alternative scaffolds"
-    ]
-  },
-  {
-    "discovery_id": "efa4bdc90cad468c",
-    "compound_name": "PHS-20260102-001",
-    "compound_smiles": "CNCl",
-    "discovery_type": "Analog Screening",
-    "confidence": 57,
-    "estimated_value": 5577310,
-    "therapeutic_area": "Oncology",
-    "mechanism": "Ion Channel Modulator",
-    "timestamp": "2026-01-02T00:10:55.307974",
-    "key_features": [
-      "Potent activity (IC50 < 10nM)",
+      "Favorable safety profile",
       "Excellent oral bioavailability",
-      "Long half-life (>24h)",
-      "High selectivity (>1000x)"
+      "BBB penetrant"
     ],
     "next_steps": [
       "Additional virtual screening",
@@ -112,19 +156,19 @@
     ]
   },
   {
-    "discovery_id": "a284fca5d3205136",
-    "compound_name": "PHS-20260102-002",
-    "compound_smiles": "c1ccc2c(c1)OCO2Cc1ccccc1",
+    "discovery_id": "443e69498ce757bf",
+    "compound_name": "PHS-20260102-006",
+    "compound_smiles": "c1ccccc1Cc1ccccc1CNc1ncncc1",
     "discovery_type": "Virtual High-Throughput Screening",
-    "confidence": 40,
-    "estimated_value": 8621570,
-    "therapeutic_area": "Psychedelic Therapy",
-    "mechanism": "Allosteric Modulator",
-    "timestamp": "2026-01-02T00:10:55.308015",
+    "confidence": 43,
+    "estimated_value": 6341643,
+    "therapeutic_area": "Metabolic Diseases",
+    "mechanism": "Enzyme Inhibitor",
+    "timestamp": "2026-01-02T00:32:31.102315",
     "key_features": [
       "Favorable safety profile",
-      "Potent activity (IC50 < 10nM)",
-      "Low CYP inhibition"
+      "BBB penetrant",
+      "Potent activity (IC50 < 10nM)"
     ],
     "next_steps": [
       "Additional virtual screening",
