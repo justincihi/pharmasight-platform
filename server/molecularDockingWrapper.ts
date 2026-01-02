@@ -23,9 +23,9 @@ interface DockingResult {
 }
 
 /**
- * Run molecular docking for a compound against NMDA receptor
+ * Run molecular docking for a compound against specified receptor target
  */
-export async function runMolecularDocking(smiles: string, compoundId: string): Promise<DockingResult> {
+export async function runMolecularDocking(smiles: string, compoundId: string, target: string = 'NMDA'): Promise<DockingResult> {
   return new Promise((resolve, reject) => {
     // Use the existing Python module which has mock docking
     const pythonScript = join(__dirname, 'python_modules', 'molecular_docking.py');

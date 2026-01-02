@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Download, Beaker, FileText, ExternalLink, FlaskConical, Box } from "lucide-react";
 import SynthesisRoutePlanner from "@/components/SynthesisRoutePlanner";
 import { MoleculeViewer3D } from "@/components/MoleculeViewer3D";
+import MolecularViewer from "@/components/MolecularViewer";
+import DockingPoseViewer from "@/components/DockingPoseViewer";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -131,9 +133,28 @@ export default function AnalogDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               {/* 3D Molecular Viewer */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg p-6 border border-slate-200">
-                <MoleculeViewer3D smiles={analog.smiles} />
-              </div>
+              <MolecularViewer
+                smiles={analog.smiles}
+                sdfData={analog.sdfData}
+                title="3D Molecular Structure"
+                height={500}
+                showControls={true}
+                showInteractions={false}
+              />
+
+              {/* Docking Pose Viewer */}
+              {analog.bindingAffinity && (
+                <div className="mt-6">
+                  <DockingPoseViewer
+                    ligandPDB={analog.ligandPDB}
+                    receptorPDB={analog.receptorPDB}
+                    bindingAffinity={analog.bindingAffinity}
+                    dockingScore={analog.dockingScore || undefined}
+                    target={analog.dockingTarget || 'NMDA Receptor'}
+                    height={600}
+                  />
+                </div>
+              )}
               
               {/* SMILES Notation */}
               <div>

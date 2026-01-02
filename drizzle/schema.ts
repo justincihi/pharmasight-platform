@@ -135,3 +135,30 @@ export const chatMessages = mysqlTable("chat_messages", {
 
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
+/**
+ * Docking queue table - manages automated docking jobs for multiple targets
+ */
+export const dockingQueue = mysqlTable("docking_queue", {
+  id: int("id").autoincrement().primaryKey(),
+  analogId: int("analog_id").notNull(),
+  target: varchar("target", { length: 100 }).notNull(), // 'NMDA', '5-HT2A', 'D2'
+  status: mysqlEnum("status", ["pending", "running", "completed", "failed"]).default("pending").notNull(),
+  priority: int("priority").default(5).notNull(), // 1-10, higher = more important
+  
+  // Results
+  bindingAffinity: varchar("binding_affinity", { length: 50 }),
+  dockingScore: int("docking_score"),
+  ligandPDB: text("ligand_pdb"),
+  receptorPDB: text("receptor_pdb"),
+  
+  // Metadata
+  errorMessage: text("error_message"),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DockingQueueEntry = typeof dockingQueue.$inferSelect;
+export type NewDockingQueueEntry = typeof dockingQueue.$inferInsert;

@@ -50,6 +50,13 @@
       "when": 1767356139054,
       "tag": "0006_soft_boomer",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1767356939936,
+      "tag": "0007_curly_tana_nile",
+      "breakpoints": true
     }
   ]
 }

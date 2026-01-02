@@ -265,3 +265,30 @@
 - [x] Implement property comparison table
 - [ ] Add export comparison report functionality
 - [x] Create navigation link in Dashboard sidebar
+
+## 3D Molecular Visualization (Current Sprint)
+- [x] Install and configure 3Dmol.js viewer library
+- [x] Create 3D molecular viewer component for analog structures
+- [x] Integrate viewer into analog detail view
+- [x] Add docking pose visualization with protein-ligand complex
+- [x] Implement interaction highlighting (H-bonds, pi-stacking, hydrophobic)
+- [x] Add export functionality for molecular images
+
+## Automated Docking Queue (Current Sprint)
+- [x] Create background job queue system for docking tasks
+- [x] Download additional receptor PDB files (5-HT2A, D2)
+- [x] Implement multi-target docking workflow
+- [x] Add docking job status tracking in database
+- [ ] Create docking queue management UI
+- [x] Automatically dock newly discovered analogs
+- [x] Store and compare results across multiple targets
+
+## Patent Search Integration (Current Sprint)
+- [x] Research and integrate USPTO API for patent searches
+- [x] Research and integrate EPO (Espacenet) API
+- [x] Create patent search module with SMILES-based queries
+- [ ] Add patent status checking to analog import workflow
+- [x] Build patent expiration monitoring system
+- [x] Create alerts for expiring patents on high-value analogs
+- [ ] Add freedom-to-operate analysis dashboard
+- [x] Test all features and create checkpoint
