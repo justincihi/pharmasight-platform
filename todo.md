@@ -317,3 +317,17 @@
 - [x] Implement yield prediction for each synthesis step
 - [x] Integrate with analog detail view
 - [x] Test all features and create checkpoint
+
+
+## Metabolite Prediction System (Current Sprint)
+- [x] Research BioTransformer API and installation requirements
+- [x] Create RDKit-based metabolite prediction module with CYP450 rules
+- [x] Implement Phase I metabolism (oxidation, reduction, hydrolysis)
+- [x] Implement Phase II metabolism (glucuronidation, sulfation, GSH conjugation)
+- [x] Add metabolite database schema (parent_analog_id, metabolite_smiles, phase, probability)
+- [x] Build RDKit pipeline integration for metabolite processing
+- [x] Create metabolite visualization UI in analog detail view
+- [x] Automatically feed metabolites into ADMET analysis
+- [x] Automatically queue metabolites for docking
+- [x] Add metabolite comparison and ranking
+- [x] Test complete metabolism prediction workflow

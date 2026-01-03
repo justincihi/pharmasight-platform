@@ -162,3 +162,25 @@ export const dockingQueue = mysqlTable("docking_queue", {
 
 export type DockingQueueEntry = typeof dockingQueue.$inferSelect;
 export type NewDockingQueueEntry = typeof dockingQueue.$inferInsert;
+
+/**
+ * Metabolites table - stores predicted metabolites for each analog
+ */
+export const metabolites = mysqlTable("metabolites", {
+  id: int("id").autoincrement().primaryKey(),
+  parentAnalogId: int("parent_analog_id").notNull(),
+  smiles: text("smiles").notNull(),
+  transformation: varchar("transformation", { length: 255 }).notNull(),
+  phase: mysqlEnum("phase", ["Phase I", "Phase II"]).notNull(),
+  enzyme: varchar("enzyme", { length: 64 }).notNull(),
+  probability: varchar("probability", { length: 20 }).notNull(),
+  molecularWeight: varchar("molecular_weight", { length: 20 }),
+  logP: varchar("log_p", { length: 20 }),
+  metabolicStabilityScore: int("metabolic_stability_score"),
+  admetScore: int("admet_score"),
+  dockingScore: int("docking_score"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Metabolite = typeof metabolites.$inferSelect;
+export type InsertMetabolite = typeof metabolites.$inferInsert;

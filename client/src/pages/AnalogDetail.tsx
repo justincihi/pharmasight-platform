@@ -14,6 +14,7 @@ import SynthesisRouteViewer from "@/components/SynthesisRouteViewer";
 import { MoleculeViewer3D } from "@/components/MoleculeViewer3D";
 import MolecularViewer from "@/components/MolecularViewer";
 import DockingPoseViewer from "@/components/DockingPoseViewer";
+import { MetaboliteViewer } from "@/components/MetaboliteViewer";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -234,10 +235,14 @@ export default function AnalogDetail() {
           <Card>
             <CardContent className="pt-6">
               <Tabs defaultValue="tests">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="tests">
                     <Beaker className="mr-2 h-4 w-4" />
                     Test Results
+                  </TabsTrigger>
+                  <TabsTrigger value="metabolites">
+                    <Box className="mr-2 h-4 w-4" />
+                    Metabolites
                   </TabsTrigger>
                   <TabsTrigger value="synthesis">
                     <FlaskConical className="mr-2 h-4 w-4" />
@@ -294,6 +299,10 @@ export default function AnalogDetail() {
                       </Button>
                     </div>
                   )}
+                </TabsContent>
+
+                <TabsContent value="metabolites" className="mt-6">
+                  <MetaboliteViewer analogId={analogId} />
                 </TabsContent>
 
                 <TabsContent value="synthesis" className="mt-6">

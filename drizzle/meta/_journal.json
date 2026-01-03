@@ -57,6 +57,13 @@
       "when": 1767356939936,
       "tag": "0007_curly_tana_nile",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1767417959399,
+      "tag": "0008_organic_kate_bishop",
+      "breakpoints": true
     }
   ]
 }

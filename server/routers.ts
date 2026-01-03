@@ -278,6 +278,54 @@ export const appRouter = router({
         const { optimizeSynthesisRoute } = await import('./synthesisRouteOptimizer');
         return optimizeSynthesisRoute(input.route as any, input.goal);
       }),
+    
+    predictMetabolites: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getDb } = await import('./db');
+        const db = await getDb();
+        if (!db) throw new Error('Database connection failed');
+        
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        
+        // Get analog SMILES
+        const analog = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.id, input.analogId)).limit(1);
+        if (!analog || analog.length === 0) {
+          throw new Error('Analog not found');
+        }
+        
+        const { predictMetabolites, storeMetabolites } = await import('./metabolitePredictorWrapper');
+        
+        try {
+          const result = await predictMetabolites(analog[0].smiles, 10);
+          await storeMetabolites(input.analogId, result.metabolites);
+          return result;
+        } catch (error: any) {
+          throw new Error(`Metabolite prediction failed: ${error.message}`);
+        }
+      }),
+    
+    getMetabolites: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getMetabolitesForAnalog } = await import('./metabolitePredictorWrapper');
+        return await getMetabolitesForAnalog(input.analogId);
+      }),
 
   }),
 
