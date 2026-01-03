@@ -331,3 +331,54 @@
 - [x] Automatically queue metabolites for docking
 - [x] Add metabolite comparison and ranking
 - [x] Test complete metabolism prediction workflow
+
+## Production-Ready Features (Final Sprint Before Publishing)
+
+### Lens.org Patent Search Integration
+- [x] Replace USPTO/EPO with Lens.org API for comprehensive patent search
+- [x] Implement chemical structure-based patent queries
+- [x] Add citation network analysis for patent families
+- [x] Build freedom-to-operate dashboard with global coverage
+
+### ChEMBL Bioactivity Validation
+- [x] Integrate ChEMBL API for known bioactivity queries
+- [x] Retrieve IC50/Ki values for similar compounds
+- [x] Cross-validate docking predictions with experimental data
+- [ ] Display known activities in analog detail view
+
+### SwissADME Integration
+- [ ] Add SwissADME API for complementary ADMET predictions
+- [ ] Implement BBB permeability prediction
+- [ ] Add P-glycoprotein substrate prediction
+- [ ] Calculate Lipinski/Veber rule violations
+- [ ] Cross-validate with existing NMDA-specific ADMET
+
+### PubChem Duplicate Checking
+- [ ] Integrate PubChem API for structure searches
+- [ ] Check CID/SID before adding analogs to database
+- [ ] Prevent rediscovery of known compounds
+- [ ] Add "Known Compound" badge to UI
+
+### Automated Metabolite Workflows
+- [ ] Auto-queue predicted metabolites for ADMET analysis
+- [ ] Auto-queue metabolites for multi-target docking
+- [ ] Build metabolite prioritization algorithm
+- [ ] Add batch metabolite processing
+
+### BioRender Integration
+- [ ] Connect to existing BioRender API in Manus connectors
+- [ ] Auto-generate mechanism-of-action diagrams
+- [ ] Create receptor-ligand interaction schematics
+- [ ] Add diagram export to analog detail view
+
+### PDF Report Generation
+- [ ] Build comprehensive PDF report template
+- [ ] Include ADMET data, docking results, synthesis routes
+- [ ] Add patent status and freedom-to-operate analysis
+- [ ] Include molecular structures and mechanism diagrams
+- [ ] Create investor-ready presentation format
+
+### Final Testing & Publishing
+- [ ] Test all 7 new integrations
+- [ ] Create final checkpoint
+- [ ] Publish to production
