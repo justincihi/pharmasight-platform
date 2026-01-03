@@ -347,23 +347,24 @@
 - [ ] Display known activities in analog detail view
 
 ### SwissADME Integration
-- [ ] Add SwissADME API for complementary ADMET predictions
-- [ ] Implement BBB permeability prediction
-- [ ] Add P-glycoprotein substrate prediction
-- [ ] Calculate Lipinski/Veber rule violations
-- [ ] Cross-validate with existing NMDA-specific ADMET
+- [x] Add SwissADME API for complementary ADMET predictions
+- [x] Implement BBB permeability prediction
+- [x] Add P-glycoprotein substrate prediction
+- [x] Calculate Lipinski/Veber rule violations
+- [x] Cross-validate with existing NMDA-specific ADMET
 
 ### PubChem Duplicate Checking
-- [ ] Integrate PubChem API for structure searches
-- [ ] Check CID/SID before adding analogs to database
-- [ ] Prevent rediscovery of known compounds
+- [x] Integrate PubChem API for structure searches
+- [x] Check CID/SID before adding analogs to database
+- [x] Prevent rediscovery of known compounds
+- [x] Add novelty scoring system (0-100)
 - [ ] Add "Known Compound" badge to UI
 
 ### Automated Metabolite Workflows
-- [ ] Auto-queue predicted metabolites for ADMET analysis
-- [ ] Auto-queue metabolites for multi-target docking
-- [ ] Build metabolite prioritization algorithm
-- [ ] Add batch metabolite processing
+- [x] Auto-queue predicted metabolites for ADMET analysis
+- [x] Auto-queue metabolites for multi-target docking
+- [x] Build metabolite prioritization algorithm
+- [x] Add batch metabolite processing
 
 ### BioRender Integration
 - [ ] Connect to existing BioRender API in Manus connectors
