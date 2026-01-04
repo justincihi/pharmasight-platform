@@ -144,3 +144,8 @@ Focus on areas like: novel therapeutic targets, emerging drug classes, breakthro
     throw error;
   }
 }
+
+/**
+ * Alias for refreshMedicalTrends for backward compatibility
+ */
+export const analyzeMedicalTrends = refreshMedicalTrends;

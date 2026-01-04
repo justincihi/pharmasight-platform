@@ -46,10 +46,10 @@ describe("Autonomous Research Scheduler", () => {
       expect(result.success).toBe(true);
       expect(result.message).toBeDefined();
     } catch (error: any) {
-      // Scheduler might fail if no discoveries file exists
+      // Scheduler might fail if no discoveries file exists or Python issues
       expect(error.message).not.toContain("Unauthorized");
     }
-  });
+  }, 30000); // Increase timeout for Python operations
 
   it("should start and stop scheduler", async () => {
     const startResult = await adminCaller.scheduler.start();

@@ -141,26 +141,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Video Placeholder */}
-          <div className="bg-white rounded-xl border border-gray-200 p-8 mb-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              See PharmaSight in Action
-            </h2>
-            <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <div className="w-0 h-0 border-l-8 border-l-transparent border-r-0 border-t-5 border-t-transparent border-b-5 border-b-transparent ml-1" />
-                </div>
-                <p className="text-gray-600 font-medium">
-                  Video demo coming soon
-                </p>
-                <p className="text-gray-500 text-sm mt-2">
-                  Sign in to access the full platform
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* CTA */}
           <div className="text-center">
             <p className="text-gray-600 mb-6">
@@ -179,29 +159,9 @@ export default function Home() {
     );
   }
 
-  // Authenticated view
+  // Authenticated view - Navigation is handled by Navigation component in App.tsx
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Microscope className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">PharmaSight™</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
-            <Link href="/admin/dashboard">
-              <Button variant="outline" size="sm">
-                Dashboard
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

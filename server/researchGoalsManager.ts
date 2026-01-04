@@ -52,3 +52,8 @@ export async function saveResearchGoals(goals: string[]): Promise<void> {
     throw error;
   }
 }
+
+/**
+ * Alias for getResearchGoals for backward compatibility
+ */
+export const loadResearchGoals = getResearchGoals;
