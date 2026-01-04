@@ -1,0 +1,309 @@
+import DashboardLayout from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2, Download } from "lucide-react";
+import { useState } from "react";
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { trpc } from "@/lib/trpc";
+
+export default function Analytics() {
+  const { data: stats, isLoading: statsLoading } = trpc.analytics.getStats.useQuery();
+  const { data: timeline, isLoading: timelineLoading } = trpc.analytics.getTimeline.useQuery({ days: 30 });
+  const exportMutation = trpc.analytics.export.useMutation();
+  const [isExporting, setIsExporting] = useState(false);
+  
+  const handleExport = async (format: 'csv' | 'sdf') => {
+    setIsExporting(true);
+    try {
+      const result = await exportMutation.mutateAsync({ format, filters: {} });
+      if (result.success && result.filePath) {
+        alert(`✅ Successfully exported ${result.count} analogs to ${format.toUpperCase()}\n\nFile: ${result.filePath}`);
+        // Trigger download
+        window.open(`/api/download?path=${encodeURIComponent(result.filePath)}`, '_blank');
+      } else {
+        alert(`❌ Export failed: ${result.error || "Unknown error"}`);
+      }
+    } catch (error: any) {
+      alert(`❌ Export error: ${error.message}`);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Prepare chart data
+  const patentData = stats ? [
+    { name: "Patent-Free", value: stats.patentFreeCount, color: "#10b981" },
+    { name: "Patented", value: stats.patentedCount, color: "#ef4444" },
+  ] : [];
+
+  const confidenceData = stats ? [
+    { name: "85%+ Confidence", value: stats.highConfidenceCount, color: "#3b82f6" },
+    { name: "Below 85%", value: stats.totalDiscovered - stats.highConfidenceCount, color: "#d1d5db" },
+  ] : [];
+
+  // Group timeline data by date and therapeutic area
+  const timelineData = timeline
+    ? (() => {
+        const grouped: Record<string, Record<string, number>> = {};
+        timeline.forEach((item: any) => {
+          const date = new Date(item.discoveredAt).toLocaleDateString();
+          const area = item.therapeuticArea || 'Unknown';
+          if (!grouped[date]) grouped[date] = {};
+          grouped[date][area] = (grouped[date][area] || 0) + 1;
+        });
+        
+        // Convert to array format for recharts
+        return Object.entries(grouped).map(([date, areas]) => ({
+          date,
+          ...areas,
+          total: Object.values(areas).reduce((sum: number, val: number) => sum + val, 0),
+        }));
+      })()
+    : [];
+  
+  // Get unique therapeutic areas for chart legend
+  const therapeuticAreas = timeline
+    ? Array.from(new Set(timeline.map((item: any) => item.therapeuticArea || 'Unknown')))
+    : [];
+  
+  // Color palette for therapeutic areas
+  const areaColors: Record<string, string> = {
+    'Oncology': '#ef4444',
+    'CNS Disorders': '#8b5cf6',
+    'Metabolic Diseases': '#f59e0b',
+    'Infectious Diseases': '#10b981',
+    'Rare Diseases': '#ec4899',
+    'Immunology': '#06b6d4',
+    'Cardiovascular': '#f97316',
+    'Respiratory': '#14b8a6',
+    'Pain Management': '#6366f1',
+    'Psychedelic Therapy': '#a855f7',
+    'Unknown': '#9ca3af',
+  };
+
+  if (statsLoading || timelineLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+            <p className="text-gray-600 mt-1">
+              Discovery statistics and performance metrics
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => handleExport('csv')}
+              disabled={isExporting}
+              variant="outline"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button
+              onClick={() => handleExport('sdf')}
+              disabled={isExporting}
+              variant="outline"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export SDF
+            </Button>
+          </div>
+        </div>
+
+        {/* Key Metrics */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Total Discovered
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.totalDiscovered}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">analogs</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  High Confidence (85%+)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-green-600">
+                  {stats.highConfidencePercentage}%
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats.highConfidenceCount} compounds
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Patent-Free
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-blue-600">
+                  {stats.patentFreePercentage}%
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats.patentFreeCount} compounds
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Avg Confidence
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-purple-600">
+                  {stats.averageConfidence}%
+                </p>
+                <p className="text-xs text-gray-500 mt-1">across all analogs</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Patent Status Pie Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Patent Status Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={patentData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: ${value}`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {patentData.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Confidence Level Pie Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Confidence Level Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={confidenceData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: ${value}`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {confidenceData.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Discovery Timeline by Therapeutic Area */}
+        {timelineData.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Discovery Timeline by Therapeutic Area (Last 30 Days)</CardTitle>
+              <p className="text-sm text-gray-600 mt-1">
+                Daily discoveries grouped by therapeutic focus area
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={timelineData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="date" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis label={{ value: 'Discoveries', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
+                            <p className="font-semibold text-gray-900 mb-2">
+                              {payload[0].payload.date}
+                            </p>
+                            {payload.map((entry: any, index: number) => (
+                              <p key={index} className="text-sm" style={{ color: entry.color }}>
+                                {entry.name}: {entry.value}
+                              </p>
+                            ))}
+                            <p className="text-sm font-semibold text-gray-900 mt-1 pt-1 border-t">
+                              Total: {payload[0].payload.total}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  {(therapeuticAreas as string[]).map((area: string) => (
+                    <Bar 
+                      key={area}
+                      dataKey={area}
+                      stackId="a"
+                      fill={areaColors[area] || '#9ca3af'}
+                      name={area}
+                    />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}
