@@ -3347,5 +3347,39 @@
     "marketValue": "$10M",
     "discoveryMethod": "test",
     "discoveredAt": "2026-01-04T04:54:57.000Z"
+  },
+  {
+    "compoundId": "428a0b64da04e326",
+    "compoundName": "PHS-20260103-003",
+    "smiles": "CNCCC(Oc1ccc(cc1)C(F)(F)F)c2ccccc2",
+    "parentCompound": "Psychedelic Therapy",
+    "mechanismOfAction": "",
+    "keyDifferences": "BBB penetrant, Potent activity (IC50 < 10nM)",
+    "confidence": 66,
+    "similarity": 1,
+    "safetyScore": 85,
+    "efficacyScore": 85,
+    "drugLikenessScore": 100,
+    "patentStatus": "patent-opportunity",
+    "marketValue": "22743509",
+    "discoveryMethod": "unknown",
+    "discoveredAt": "2026-01-04T04:54:58.000Z"
+  },
+  {
+    "compoundId": "TEST-1767617915800",
+    "compoundName": "Test Compound",
+    "smiles": "CC(C)C",
+    "parentCompound": "Test Parent",
+    "mechanismOfAction": "Test mechanism",
+    "keyDifferences": "Test differences",
+    "confidence": 85,
+    "similarity": 90,
+    "safetyScore": 80,
+    "efficacyScore": 85,
+    "drugLikenessScore": 90,
+    "patentStatus": "patent-free",
+    "marketValue": "$10M",
+    "discoveryMethod": "test",
+    "discoveredAt": "2026-01-05T12:58:35.000Z"
   }
 ]

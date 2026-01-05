@@ -105,3 +105,9 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+# Python virtual environment
+server/python_modules/venv/
+*.pyc
+__pycache__/
+
