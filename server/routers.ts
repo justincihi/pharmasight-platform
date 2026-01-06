@@ -327,6 +327,68 @@ export const appRouter = router({
         return await getMetabolitesForAnalog(input.analogId);
       }),
 
+    createFromOptimization: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          return { parentId: 0, optimizedSmiles: '', modification: '', category: '' };
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          parentId: typeof obj.parentId === 'number' ? obj.parentId : 0,
+          optimizedSmiles: typeof obj.optimizedSmiles === 'string' ? obj.optimizedSmiles : '',
+          modification: typeof obj.modification === 'string' ? obj.modification : '',
+          category: typeof obj.category === 'string' ? obj.category : '',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new Error('Database connection failed');
+        
+        // Get parent analog
+        const parent = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.id, input.parentId));
+        if (!parent || parent.length === 0) {
+          throw new Error('Parent analog not found');
+        }
+        
+        const parentAnalog = parent[0];
+        const nextGeneration = (parentAnalog.optimizationGeneration || 1) + 1;
+        
+        // Generate unique compound ID
+        const timestamp = Date.now().toString(36);
+        const compoundId = `${parentAnalog.compoundId}-OPT${nextGeneration}-${timestamp}`;
+        
+        // Create new analog from optimization
+        await db.insert(analogDiscoveries).values({
+          compoundId,
+          compoundName: `${parentAnalog.compoundName} (Optimized Gen ${nextGeneration})`,
+          smiles: input.optimizedSmiles,
+          parentCompound: parentAnalog.parentCompound,
+          safetyScore: parentAnalog.safetyScore,
+          efficacyScore: parentAnalog.efficacyScore,
+          confidenceScore: parentAnalog.confidenceScore,
+          similarityScore: parentAnalog.similarityScore,
+          drugLikenessScore: parentAnalog.drugLikenessScore,
+          patentStatus: 'patent-opportunity' as const,
+          discoveredBy: 'optimization-engine',
+          discoveredAt: new Date(),
+          parentAnalogId: input.parentId,
+          optimizationGeneration: nextGeneration,
+          optimizationTarget: input.category,
+          optimizationNotes: input.modification,
+        });
+        
+        // Get the newly created analog
+        const newAnalog = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.compoundId, compoundId));
+        return newAnalog[0];
+      }),
+
   }),
 
   // Analytics routes

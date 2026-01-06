@@ -488,3 +488,38 @@
 - [ ] Write tests for optimization engine
 - [ ] Test lead tracker functionality
 - [ ] Create checkpoint with Phase I & II features
+
+
+## Advanced Analysis Integration (Completed)
+
+### Analog Detail Page Integration
+- [x] Add "Run Advanced Analysis" button to analog detail pages
+- [x] Display toxicity profile card when analysis is run
+- [x] Show synthetic accessibility badge with score
+- [x] Display optimization suggestions panel
+- [ ] Cache analysis results in database to avoid re-running (future enhancement)
+
+### Batch Analysis Workflow
+- [x] Add "Analyze Selected" button to discoveries table
+- [x] Create batch analysis modal/page (BatchAnalysisModal component)
+- [x] Show progress indicator for batch operations
+- [x] Display results in sortable table format
+- [x] Export batch analysis results to CSV
+- [x] Add checkboxes to analog cards for selection
+- [x] Add Select All/Deselect All functionality
+
+### Optimization Workflow
+- [x] Add "Create Optimized Analog" button to optimization suggestions
+- [x] Create new analog from optimized SMILES (createFromOptimization endpoint)
+- [x] Automatically set parentAnalogId and optimizationGeneration
+- [x] Copy relevant properties from parent analog
+- [x] Show success notification with link to new analog
+- [x] Update lead optimization tracker automatically
+- [x] Generate unique compound IDs for optimized analogs
+
+### Testing
+- [x] Test advanced analysis on analog detail page (78 tests passing)
+- [x] Test batch analysis with multiple analogs (UI tested)
+- [x] Test optimization workflow end-to-end (UI tested)
+- [x] Verify lineage tracking works correctly (LeadOptimization page)
+- [x] Create checkpoint with all integrations

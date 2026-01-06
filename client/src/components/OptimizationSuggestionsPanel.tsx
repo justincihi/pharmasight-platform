@@ -147,7 +147,7 @@ export function OptimizationSuggestionsPanel({
                       className="flex items-center gap-1"
                     >
                       <ArrowRight className="h-3 w-3" />
-                      Apply Modification
+                      Create Optimized Analog
                     </Button>
                   )}
                   {onViewDetails && (
