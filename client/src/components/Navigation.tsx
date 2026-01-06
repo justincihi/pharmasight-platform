@@ -4,6 +4,7 @@ import { Home, LayoutDashboard, BarChart3, TestTube2, Layers, LogOut, Calendar, 
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { NotificationBell } from "./NotificationBell";
 
 export function Navigation() {
   const [location] = useLocation();
@@ -96,6 +97,9 @@ export function Navigation() {
             {/* User Menu */}
             {isAuthenticated && (
               <div className="ml-4 flex items-center gap-2 pl-4 border-l border-gray-200">
+                {/* Notification Bell - Only for admins */}
+                {user?.role === "admin" && <NotificationBell />}
+                
                 <span className="text-sm text-gray-600">
                   {user?.name || user?.email}
                 </span>

@@ -1,4 +1,4 @@
-import { eq, or, like } from "drizzle-orm";
+import { eq, or, like, desc, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, analogDiscoveries, testResults, notifications, chatMessages, InsertAnalogDiscovery, InsertTestResult, InsertNotification, InsertChatMessage } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -284,12 +284,72 @@ export async function getAdminNotifications(
   const db = await getDb();
   if (!db) return [];
 
-  return await (db as any)
+  // Get all notifications for admin users (not filtered by userId)
+  return await db
     .select()
     .from(notifications)
-    .where((col: any) => col.userId === userId)
-    .orderBy((col: any) => col.createdAt)
+    .orderBy(desc(notifications.createdAt))
     .limit(limit);
+}
+
+export async function getUnreadNotificationCount(
+  userId: number
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.isRead, 0));
+  
+  return result.length;
+}
+
+export async function markNotificationAsRead(
+  notificationId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(notifications)
+    .set({ isRead: 1 })
+    .where(eq(notifications.id, notificationId));
+}
+
+export async function markAllNotificationsAsRead(
+  userId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(notifications)
+    .set({ isRead: 1 })
+    .where(eq(notifications.isRead, 0));
+}
+
+export async function getNewNotifications(
+  userId: number,
+  since: string | null
+) {
+  const db = await getDb();
+  if (!db) return { notifications: [], lastChecked: new Date().toISOString() };
+
+  let query = db.select().from(notifications);
+  
+  if (since) {
+    const sinceDate = new Date(since);
+    query = query.where(gte(notifications.createdAt, sinceDate)) as any;
+  }
+  
+  const results = await query.orderBy(desc(notifications.createdAt)).limit(50);
+  
+  return {
+    notifications: results,
+    lastChecked: new Date().toISOString(),
+  };
 }
 
 /**

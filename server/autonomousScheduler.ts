@@ -124,7 +124,7 @@ function generateNotificationContent(discoveries: any[]): string {
 }
 
 /**
- * Log notifications to database
+ * Log notifications to database for real-time display
  */
 async function logNotifications(db: any, discoveries: any[]) {
   const { notifications } = await import("../drizzle/schema");
@@ -132,11 +132,14 @@ async function logNotifications(db: any, discoveries: any[]) {
   for (const discovery of discoveries) {
     try {
       await db.insert(notifications).values({
+        userId: 1, // Admin user ID
         analogId: discovery.id,
-        type: "high_confidence_discovery",
-        message: `New high-confidence analog discovered: ${discovery.compoundName} (${discovery.confidenceScore}% confidence)`,
-        sentAt: new Date(),
+        title: `🔬 High-Confidence Discovery: ${discovery.compoundName}`,
+        message: `New high-confidence analog discovered: ${discovery.compoundName} (${discovery.confidenceScore}% confidence). Parent: ${discovery.parentCompound}. Safety: ${discovery.safetyScore}/100. Efficacy: ${discovery.efficacyScore}/100.`,
+        notificationType: "high-confidence" as const,
+        isRead: 0,
       });
+      console.log(`[Scheduler] Logged notification for ${discovery.compoundName}`);
     } catch (error) {
       console.error(`[Scheduler] Failed to log notification for ${discovery.compoundName}:`, error);
     }

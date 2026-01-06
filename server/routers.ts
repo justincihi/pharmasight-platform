@@ -373,8 +373,9 @@ export const appRouter = router({
       }),
   }),
 
-  // Notifications routes
+  // Notifications routes - Real-time notification system
   notifications: router({
+    // Get recent notifications
     getRecent: protectedProcedure
       .input((val: unknown) => {
         if (typeof val !== 'object' || val === null) return { limit: 20 };
@@ -387,6 +388,60 @@ export const appRouter = router({
         }
         const { getAdminNotifications } = await import('./db');
         return getAdminNotifications(ctx.user.id, input.limit);
+      }),
+    
+    // Get unread count for badge
+    getUnreadCount: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getUnreadNotificationCount } = await import('./db');
+        return getUnreadNotificationCount(ctx.user.id);
+      }),
+    
+    // Mark notification as read
+    markAsRead: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { notificationId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { notificationId: typeof obj.notificationId === 'number' ? obj.notificationId : 0 };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { markNotificationAsRead } = await import('./db');
+        await markNotificationAsRead(input.notificationId);
+        return { success: true };
+      }),
+    
+    // Mark all notifications as read
+    markAllAsRead: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { markAllNotificationsAsRead } = await import('./db');
+        await markAllNotificationsAsRead(ctx.user.id);
+        return { success: true };
+      }),
+    
+    // Poll for new notifications (real-time polling endpoint)
+    pollNew: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { since: null };
+        const obj = val as Record<string, unknown>;
+        return { 
+          since: typeof obj.since === 'string' ? obj.since : null 
+        };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getNewNotifications } = await import('./db');
+        return getNewNotifications(ctx.user.id, input.since);
       }),
   }),
 
