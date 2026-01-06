@@ -1067,6 +1067,83 @@ When users ask about analogs, test results, or discoveries, query the FULL datab
         return { success: true };
       }),
   }),
+
+  // Advanced molecular analysis (Phase I & II)
+  advancedAnalysis: router({
+    // Run comprehensive analysis (toxicity + SA + optimization)
+    comprehensive: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runComprehensiveAnalysis } = await import('./advancedAnalysis');
+        return runComprehensiveAnalysis(input.smiles);
+      }),
+
+    // Run toxicity profiling only
+    toxicity: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runToxicityAnalysis } = await import('./advancedAnalysis');
+        return runToxicityAnalysis(input.smiles);
+      }),
+
+    // Run synthetic accessibility analysis only
+    syntheticAccessibility: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runSAAnalysis } = await import('./advancedAnalysis');
+        return runSAAnalysis(input.smiles);
+      }),
+
+    // Get structure optimization suggestions
+    optimize: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          targetProperty: typeof obj.targetProperty === 'string' ? obj.targetProperty : undefined,
+        };
+      })
+      .mutation(async ({ input }) => {
+        const { runOptimizationAnalysis } = await import('./advancedAnalysis');
+        return runOptimizationAnalysis(input.smiles, input.targetProperty);
+      }),
+
+    // Run iterative optimization
+    iterativeOptimize: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          targetProperty: typeof obj.targetProperty === 'string' ? obj.targetProperty : 'reduce_lipophilicity',
+          iterations: typeof obj.iterations === 'number' ? obj.iterations : 3,
+        };
+      })
+      .mutation(async ({ input }) => {
+        const { runIterativeOptimization } = await import('./advancedAnalysis');
+        return runIterativeOptimization(input.smiles, input.targetProperty, input.iterations);
+      }),
+
+    // Check Python environment status
+    checkEnvironment: protectedProcedure.query(async () => {
+      const { checkPythonEnvironment } = await import('./advancedAnalysis');
+      const isAvailable = await checkPythonEnvironment();
+      return { available: isAvailable };
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

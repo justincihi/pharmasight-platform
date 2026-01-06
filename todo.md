@@ -451,3 +451,40 @@
 - [x] Add bookmark toggle to notification dropdown
 - [x] Write tests for bookmark functionality (16 tests passing)
 - [x] Create checkpoint with bookmark feature
+
+
+## Phase I & II: Advanced Molecular Analysis (Completed)
+
+### Python Environment Setup
+- [x] Install RDKit and cheminformatics dependencies (RDKit 2025.09.3)
+- [x] Set up requirements.txt for Python packages
+- [x] Test SDF file parsing with RDKit
+- [x] Verify all molecular processing functions work
+
+### Phase I: Core Analysis Features
+- [x] Implement detailed toxicity profiling (hERG, hepatotoxicity, carcinogenicity, mutagenicity)
+- [x] Add synthetic accessibility (SA) score calculation (1-10 scale)
+- [x] Enhance metabolite prediction with Phase I/II metabolism (already existed)
+- [x] Create database schema for storing analysis results (toxicityProfile, syntheticAccessibility, metabolites fields)
+- [x] Add tRPC endpoints for new analysis features (advancedAnalysis router)
+
+### Phase II: Molecular Optimization
+- [x] Implement AI-driven structure optimization engine (6 optimization categories)
+- [x] Create fragment-based design suggestions (included in optimizer)
+- [x] Add scaffold hopping functionality (included in optimizer)
+- [x] Build lead optimization tracker with version history (parentAnalogId, optimizationGeneration fields)
+- [x] Add comparison views for optimization iterations (LeadOptimization page)
+
+### UI Components
+- [x] Add toxicity profile cards to analog detail pages (ToxicityProfileCard component)
+- [x] Create synthetic accessibility indicator (SyntheticAccessibilityBadge component)
+- [x] Build lead optimization dashboard (LeadOptimization page with lineage tracking)
+- [x] Add structure optimization suggestions panel (OptimizationSuggestionsPanel component)
+- [x] Create comparison view for optimization history (integrated in LeadOptimization page)
+
+### Testing & Documentation
+- [ ] Write tests for toxicity profiling
+- [ ] Write tests for SA score calculation
+- [ ] Write tests for optimization engine
+- [ ] Test lead tracker functionality
+- [ ] Create checkpoint with Phase I & II features

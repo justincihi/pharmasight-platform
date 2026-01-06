@@ -73,6 +73,17 @@ export const analogDiscoveries = mysqlTable("analog_discoveries", {
   discoveryMethod: varchar("discovery_method", { length: 128 }),
   discoveredAt: timestamp("discovered_at").defaultNow().notNull(),
   
+  // Lead optimization tracking
+  parentAnalogId: int("parent_analog_id"), // ID of the parent analog this was optimized from
+  optimizationGeneration: int("optimization_generation").default(1), // Generation number (1 = original, 2 = first optimization, etc.)
+  optimizationTarget: varchar("optimization_target", { length: 128 }), // What property was being optimized
+  optimizationNotes: text("optimization_notes"), // Notes about the optimization
+  
+  // Advanced analysis results (JSON)
+  toxicityProfile: text("toxicity_profile"), // JSON: hERG, hepatotoxicity, mutagenicity, carcinogenicity
+  syntheticAccessibility: text("synthetic_accessibility"), // JSON: SA score, difficulty, estimated steps
+  metabolites: text("metabolites"), // JSON: predicted metabolites
+  
   // Approval workflow
   approvalStatus: mysqlEnum("approval_status", ["pending", "approved", "rejected"]).default("pending").notNull(),
   approvedBy: varchar("approved_by", { length: 128 }), // user openId who approved/rejected
