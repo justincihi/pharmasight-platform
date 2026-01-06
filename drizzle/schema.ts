@@ -184,3 +184,21 @@ export const metabolites = mysqlTable("metabolites", {
 
 export type Metabolite = typeof metabolites.$inferSelect;
 export type InsertMetabolite = typeof metabolites.$inferInsert;
+
+/**
+ * Bookmarks table - allows users to save/bookmark important discoveries
+ */
+export const bookmarks = mysqlTable("bookmarks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(), // user who bookmarked
+  analogId: int("analog_id"), // bookmarked analog discovery (optional)
+  notificationId: int("notification_id"), // bookmarked notification (optional)
+  title: varchar("title", { length: 255 }).notNull(),
+  notes: text("notes"), // user's personal notes about this bookmark
+  category: mysqlEnum("category", ["high-priority", "review-later", "promising", "archived"]).default("review-later").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Bookmark = typeof bookmarks.$inferSelect;
+export type InsertBookmark = typeof bookmarks.$inferInsert;

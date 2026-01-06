@@ -441,3 +441,13 @@
 - [x] Connect notifications to autonomous research scheduler
 - [x] Test notification flow end-to-end (12 tests passing)
 - [x] Create checkpoint with notification feature
+
+
+## Bookmark/Save Feature for Discoveries (Completed)
+- [x] Add bookmarks table to database schema (with categories: high-priority, review-later, promising, archived)
+- [x] Create tRPC endpoints for bookmark CRUD operations (getAll, create, update, delete, toggle, isBookmarked)
+- [x] Add bookmark icon to notification items (with toggle functionality)
+- [x] Create dedicated Bookmarks page to view saved discoveries (/bookmarks)
+- [x] Add bookmark toggle to notification dropdown
+- [x] Write tests for bookmark functionality (16 tests passing)
+- [x] Create checkpoint with bookmark feature

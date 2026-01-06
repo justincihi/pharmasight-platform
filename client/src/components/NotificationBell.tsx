@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Bell, Check, CheckCheck, X, FlaskConical, FileText, AlertTriangle, Info } from "lucide-react";
+import { Bell, Check, CheckCheck, FlaskConical, FileText, AlertTriangle, Info, Bookmark, BookmarkCheck } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Link } from "wouter";
 
 interface Notification {
   id: number;
@@ -23,8 +24,10 @@ interface Notification {
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const [lastChecked, setLastChecked] = useState<string | null>(null);
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<number>>(new Set());
   
   const previousCountRef = useRef<number>(0);
+  const utils = trpc.useUtils();
 
   // Get unread count for badge
   const { data: unreadCount = 0, refetch: refetchCount } = trpc.notifications.getUnreadCount.useQuery(
@@ -52,6 +55,23 @@ export function NotificationBell() {
     }
   );
 
+  // Get user's bookmarks to check which notifications are bookmarked
+  const { data: bookmarks = [] } = trpc.bookmarks.getAll.useQuery(
+    { limit: 100 },
+    {
+      enabled: isOpen,
+    }
+  );
+
+  // Update bookmarked IDs when bookmarks change
+  useEffect(() => {
+    const ids = new Set<number>();
+    bookmarks.forEach((b: any) => {
+      if (b.analogId) ids.add(b.analogId);
+    });
+    setBookmarkedIds(ids);
+  }, [bookmarks]);
+
   // Mark as read mutation
   const markAsReadMutation = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
@@ -66,6 +86,28 @@ export function NotificationBell() {
       refetchCount();
       refetchNotifications();
       toast.success("All notifications marked as read");
+    },
+  });
+
+  // Bookmark toggle mutation
+  const toggleBookmarkMutation = trpc.bookmarks.toggle.useMutation({
+    onSuccess: (result, variables) => {
+      if (result.bookmarked) {
+        setBookmarkedIds(prev => {
+          const newSet = new Set(prev);
+          newSet.add(variables.analogId);
+          return newSet;
+        });
+        toast.success("Discovery saved to bookmarks");
+      } else {
+        setBookmarkedIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(variables.analogId);
+          return newSet;
+        });
+        toast.success("Removed from bookmarks");
+      }
+      utils.bookmarks.getAll.invalidate();
     },
   });
 
@@ -92,7 +134,7 @@ export function NotificationBell() {
       setLastChecked(newNotificationsData.lastChecked);
     }
     previousCountRef.current = unreadCount;
-  }, [newNotificationsData, unreadCount, toast]);
+  }, [newNotificationsData, unreadCount]);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -148,6 +190,16 @@ export function NotificationBell() {
     markAllAsReadMutation.mutate();
   };
 
+  const handleToggleBookmark = (notification: Notification, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (notification.analogId) {
+      toggleBookmarkMutation.mutate({
+        analogId: notification.analogId,
+        title: notification.title,
+      });
+    }
+  };
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -165,20 +217,33 @@ export function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
+      <PopoverContent className="w-96 p-0" align="end">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h3 className="font-semibold">Notifications</h3>
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto py-1 px-2 text-xs text-muted-foreground hover:text-foreground"
-              onClick={handleMarkAllAsRead}
-            >
-              <CheckCheck className="h-3 w-3 mr-1" />
-              Mark all read
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            <Link href="/bookmarks">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto py-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setIsOpen(false)}
+              >
+                <Bookmark className="h-3 w-3 mr-1" />
+                Saved
+              </Button>
+            </Link>
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto py-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={handleMarkAllAsRead}
+              >
+                <CheckCheck className="h-3 w-3 mr-1" />
+                Mark all read
+              </Button>
+            )}
+          </div>
         </div>
         <div className="max-h-[400px] overflow-y-auto">
           {notifications.length === 0 ? (
@@ -189,67 +254,102 @@ export function NotificationBell() {
             </div>
           ) : (
             <div className="divide-y">
-              {(notifications as Notification[]).map((notification) => (
-                <div
-                  key={notification.id}
-                  className={cn(
-                    "flex gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors",
-                    notification.isRead === 0 && "bg-blue-50/50 dark:bg-blue-950/20"
-                  )}
-                  onClick={() => {
-                    if (notification.isRead === 0) {
-                      markAsReadMutation.mutate({ notificationId: notification.id });
-                    }
-                    // Navigate to analog if applicable
-                    if (notification.analogId) {
-                      window.location.href = `/analog/${notification.analogId}`;
-                    }
-                  }}
-                >
-                  <div className="flex-shrink-0 mt-1">
-                    {getNotificationIconComponent(notification.notificationType)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className={cn(
-                        "text-sm truncate",
-                        notification.isRead === 0 && "font-medium"
-                      )}>
-                        {notification.title}
-                      </p>
-                      {notification.isRead === 0 && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-5 w-5 flex-shrink-0"
-                          onClick={(e) => handleMarkAsRead(notification.id, e)}
-                        >
-                          <Check className="h-3 w-3" />
-                        </Button>
-                      )}
+              {(notifications as Notification[]).map((notification) => {
+                const isBookmarked = notification.analogId ? bookmarkedIds.has(notification.analogId) : false;
+                
+                return (
+                  <div
+                    key={notification.id}
+                    className={cn(
+                      "flex gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors",
+                      notification.isRead === 0 && "bg-blue-50/50 dark:bg-blue-950/20"
+                    )}
+                    onClick={() => {
+                      if (notification.isRead === 0) {
+                        markAsReadMutation.mutate({ notificationId: notification.id });
+                      }
+                      // Navigate to analog if applicable
+                      if (notification.analogId) {
+                        window.location.href = `/analog/${notification.analogId}`;
+                      }
+                    }}
+                  >
+                    <div className="flex-shrink-0 mt-1">
+                      {getNotificationIconComponent(notification.notificationType)}
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                      {notification.message}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatTimeAgo(notification.createdAt)}
-                    </p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className={cn(
+                          "text-sm truncate",
+                          notification.isRead === 0 && "font-medium"
+                        )}>
+                          {notification.title}
+                        </p>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {/* Bookmark button */}
+                          {notification.analogId && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className={cn(
+                                "h-6 w-6",
+                                isBookmarked && "text-yellow-500"
+                              )}
+                              onClick={(e) => handleToggleBookmark(notification, e)}
+                              title={isBookmarked ? "Remove from bookmarks" : "Save to bookmarks"}
+                            >
+                              {isBookmarked ? (
+                                <BookmarkCheck className="h-3.5 w-3.5" />
+                              ) : (
+                                <Bookmark className="h-3.5 w-3.5" />
+                              )}
+                            </Button>
+                          )}
+                          {/* Mark as read button */}
+                          {notification.isRead === 0 && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={(e) => handleMarkAsRead(notification.id, e)}
+                              title="Mark as read"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                        {notification.message}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatTimeAgo(notification.createdAt)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
         {notifications.length > 0 && (
-          <div className="border-t px-4 py-2">
+          <div className="border-t px-4 py-2 flex gap-2">
+            <Link href="/bookmarks" className="flex-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs"
+                onClick={() => setIsOpen(false)}
+              >
+                <Bookmark className="h-3 w-3 mr-1" />
+                View Saved ({bookmarks.length})
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               size="sm"
-              className="w-full text-xs"
-              onClick={() => {
-                setIsOpen(false);
-                // Could navigate to a full notifications page
-              }}
+              className="flex-1 text-xs"
+              onClick={() => setIsOpen(false)}
             >
               View all notifications
             </Button>

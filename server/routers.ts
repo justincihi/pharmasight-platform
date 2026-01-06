@@ -445,6 +445,149 @@ export const appRouter = router({
       }),
   }),
 
+  // Bookmarks routes - save/bookmark important discoveries
+  bookmarks: router({
+    // Get all user's bookmarks
+    getAll: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { limit: 50 };
+        const obj = val as Record<string, unknown>;
+        return { limit: typeof obj.limit === 'number' ? obj.limit : 50 };
+      })
+      .query(async ({ input, ctx }) => {
+        const { getUserBookmarks } = await import('./db');
+        return getUserBookmarks(ctx.user!.id, input.limit);
+      }),
+
+    // Create a new bookmark
+    create: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : null,
+          notificationId: typeof obj.notificationId === 'number' ? obj.notificationId : null,
+          title: typeof obj.title === 'string' ? obj.title : 'Untitled Bookmark',
+          notes: typeof obj.notes === 'string' ? obj.notes : null,
+          category: typeof obj.category === 'string' ? obj.category : 'review-later',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { createBookmark } = await import('./db');
+        const result = await createBookmark({
+          userId: ctx.user!.id,
+          analogId: input.analogId,
+          notificationId: input.notificationId,
+          title: input.title,
+          notes: input.notes,
+          category: input.category as any,
+        });
+        return { success: true, bookmarkId: result.id };
+      }),
+
+    // Update a bookmark
+    update: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          bookmarkId: typeof obj.bookmarkId === 'number' ? obj.bookmarkId : 0,
+          title: typeof obj.title === 'string' ? obj.title : undefined,
+          notes: typeof obj.notes === 'string' ? obj.notes : undefined,
+          category: typeof obj.category === 'string' ? obj.category : undefined,
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { getBookmarkById, updateBookmark } = await import('./db');
+        
+        // Verify ownership
+        const bookmark = await getBookmarkById(input.bookmarkId);
+        if (!bookmark || bookmark.userId !== ctx.user!.id) {
+          throw new Error('Bookmark not found or access denied');
+        }
+        
+        const updateData: any = {};
+        if (input.title) updateData.title = input.title;
+        if (input.notes !== undefined) updateData.notes = input.notes;
+        if (input.category) updateData.category = input.category;
+        
+        await updateBookmark(input.bookmarkId, updateData);
+        return { success: true };
+      }),
+
+    // Delete a bookmark
+    delete: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { bookmarkId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { bookmarkId: typeof obj.bookmarkId === 'number' ? obj.bookmarkId : 0 };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { getBookmarkById, deleteBookmark } = await import('./db');
+        
+        // Verify ownership
+        const bookmark = await getBookmarkById(input.bookmarkId);
+        if (!bookmark || bookmark.userId !== ctx.user!.id) {
+          throw new Error('Bookmark not found or access denied');
+        }
+        
+        await deleteBookmark(input.bookmarkId);
+        return { success: true };
+      }),
+
+    // Check if an analog is bookmarked
+    isBookmarked: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input, ctx }) => {
+        const { isAnalogBookmarked } = await import('./db');
+        return isAnalogBookmarked(ctx.user!.id, input.analogId);
+      }),
+
+    // Toggle bookmark for an analog
+    toggle: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
+          title: typeof obj.title === 'string' ? obj.title : 'Saved Discovery',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { isAnalogBookmarked, getBookmarkByAnalogId, createBookmark, deleteBookmark } = await import('./db');
+        
+        const isBookmarked = await isAnalogBookmarked(ctx.user!.id, input.analogId);
+        
+        if (isBookmarked) {
+          // Remove bookmark
+          const bookmark = await getBookmarkByAnalogId(ctx.user!.id, input.analogId);
+          if (bookmark) {
+            await deleteBookmark(bookmark.id);
+          }
+          return { bookmarked: false };
+        } else {
+          // Add bookmark
+          await createBookmark({
+            userId: ctx.user!.id,
+            analogId: input.analogId,
+            title: input.title,
+            category: 'review-later',
+          });
+          return { bookmarked: true };
+        }
+      }),
+  }),
+
   // Scheduler control routes (admin only)
   scheduler: router({
     status: protectedProcedure.query(async ({ ctx }) => {
