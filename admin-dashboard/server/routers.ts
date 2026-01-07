@@ -327,6 +327,68 @@ export const appRouter = router({
         return await getMetabolitesForAnalog(input.analogId);
       }),
 
+    createFromOptimization: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          return { parentId: 0, optimizedSmiles: '', modification: '', category: '' };
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          parentId: typeof obj.parentId === 'number' ? obj.parentId : 0,
+          optimizedSmiles: typeof obj.optimizedSmiles === 'string' ? obj.optimizedSmiles : '',
+          modification: typeof obj.modification === 'string' ? obj.modification : '',
+          category: typeof obj.category === 'string' ? obj.category : '',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new Error('Database connection failed');
+        
+        // Get parent analog
+        const parent = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.id, input.parentId));
+        if (!parent || parent.length === 0) {
+          throw new Error('Parent analog not found');
+        }
+        
+        const parentAnalog = parent[0];
+        const nextGeneration = (parentAnalog.optimizationGeneration || 1) + 1;
+        
+        // Generate unique compound ID
+        const timestamp = Date.now().toString(36);
+        const compoundId = `${parentAnalog.compoundId}-OPT${nextGeneration}-${timestamp}`;
+        
+        // Create new analog from optimization
+        await db.insert(analogDiscoveries).values({
+          compoundId,
+          compoundName: `${parentAnalog.compoundName} (Optimized Gen ${nextGeneration})`,
+          smiles: input.optimizedSmiles,
+          parentCompound: parentAnalog.parentCompound,
+          safetyScore: parentAnalog.safetyScore,
+          efficacyScore: parentAnalog.efficacyScore,
+          confidenceScore: parentAnalog.confidenceScore,
+          similarityScore: parentAnalog.similarityScore,
+          drugLikenessScore: parentAnalog.drugLikenessScore,
+          patentStatus: 'patent-opportunity' as const,
+          discoveredBy: 'optimization-engine',
+          discoveredAt: new Date(),
+          parentAnalogId: input.parentId,
+          optimizationGeneration: nextGeneration,
+          optimizationTarget: input.category,
+          optimizationNotes: input.modification,
+        });
+        
+        // Get the newly created analog
+        const newAnalog = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.compoundId, compoundId));
+        return newAnalog[0];
+      }),
+
   }),
 
   // Analytics routes
@@ -373,8 +435,9 @@ export const appRouter = router({
       }),
   }),
 
-  // Notifications routes
+  // Notifications routes - Real-time notification system
   notifications: router({
+    // Get recent notifications
     getRecent: protectedProcedure
       .input((val: unknown) => {
         if (typeof val !== 'object' || val === null) return { limit: 20 };
@@ -387,6 +450,203 @@ export const appRouter = router({
         }
         const { getAdminNotifications } = await import('./db');
         return getAdminNotifications(ctx.user.id, input.limit);
+      }),
+    
+    // Get unread count for badge
+    getUnreadCount: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getUnreadNotificationCount } = await import('./db');
+        return getUnreadNotificationCount(ctx.user.id);
+      }),
+    
+    // Mark notification as read
+    markAsRead: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { notificationId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { notificationId: typeof obj.notificationId === 'number' ? obj.notificationId : 0 };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { markNotificationAsRead } = await import('./db');
+        await markNotificationAsRead(input.notificationId);
+        return { success: true };
+      }),
+    
+    // Mark all notifications as read
+    markAllAsRead: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { markAllNotificationsAsRead } = await import('./db');
+        await markAllNotificationsAsRead(ctx.user.id);
+        return { success: true };
+      }),
+    
+    // Poll for new notifications (real-time polling endpoint)
+    pollNew: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { since: null };
+        const obj = val as Record<string, unknown>;
+        return { 
+          since: typeof obj.since === 'string' ? obj.since : null 
+        };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getNewNotifications } = await import('./db');
+        return getNewNotifications(ctx.user.id, input.since);
+      }),
+  }),
+
+  // Bookmarks routes - save/bookmark important discoveries
+  bookmarks: router({
+    // Get all user's bookmarks
+    getAll: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { limit: 50 };
+        const obj = val as Record<string, unknown>;
+        return { limit: typeof obj.limit === 'number' ? obj.limit : 50 };
+      })
+      .query(async ({ input, ctx }) => {
+        const { getUserBookmarks } = await import('./db');
+        return getUserBookmarks(ctx.user!.id, input.limit);
+      }),
+
+    // Create a new bookmark
+    create: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : null,
+          notificationId: typeof obj.notificationId === 'number' ? obj.notificationId : null,
+          title: typeof obj.title === 'string' ? obj.title : 'Untitled Bookmark',
+          notes: typeof obj.notes === 'string' ? obj.notes : null,
+          category: typeof obj.category === 'string' ? obj.category : 'review-later',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { createBookmark } = await import('./db');
+        const result = await createBookmark({
+          userId: ctx.user!.id,
+          analogId: input.analogId,
+          notificationId: input.notificationId,
+          title: input.title,
+          notes: input.notes,
+          category: input.category as any,
+        });
+        return { success: true, bookmarkId: result.id };
+      }),
+
+    // Update a bookmark
+    update: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          bookmarkId: typeof obj.bookmarkId === 'number' ? obj.bookmarkId : 0,
+          title: typeof obj.title === 'string' ? obj.title : undefined,
+          notes: typeof obj.notes === 'string' ? obj.notes : undefined,
+          category: typeof obj.category === 'string' ? obj.category : undefined,
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { getBookmarkById, updateBookmark } = await import('./db');
+        
+        // Verify ownership
+        const bookmark = await getBookmarkById(input.bookmarkId);
+        if (!bookmark || bookmark.userId !== ctx.user!.id) {
+          throw new Error('Bookmark not found or access denied');
+        }
+        
+        const updateData: any = {};
+        if (input.title) updateData.title = input.title;
+        if (input.notes !== undefined) updateData.notes = input.notes;
+        if (input.category) updateData.category = input.category;
+        
+        await updateBookmark(input.bookmarkId, updateData);
+        return { success: true };
+      }),
+
+    // Delete a bookmark
+    delete: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { bookmarkId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { bookmarkId: typeof obj.bookmarkId === 'number' ? obj.bookmarkId : 0 };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { getBookmarkById, deleteBookmark } = await import('./db');
+        
+        // Verify ownership
+        const bookmark = await getBookmarkById(input.bookmarkId);
+        if (!bookmark || bookmark.userId !== ctx.user!.id) {
+          throw new Error('Bookmark not found or access denied');
+        }
+        
+        await deleteBookmark(input.bookmarkId);
+        return { success: true };
+      }),
+
+    // Check if an analog is bookmarked
+    isBookmarked: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input, ctx }) => {
+        const { isAnalogBookmarked } = await import('./db');
+        return isAnalogBookmarked(ctx.user!.id, input.analogId);
+      }),
+
+    // Toggle bookmark for an analog
+    toggle: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
+          title: typeof obj.title === 'string' ? obj.title : 'Saved Discovery',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { isAnalogBookmarked, getBookmarkByAnalogId, createBookmark, deleteBookmark } = await import('./db');
+        
+        const isBookmarked = await isAnalogBookmarked(ctx.user!.id, input.analogId);
+        
+        if (isBookmarked) {
+          // Remove bookmark
+          const bookmark = await getBookmarkByAnalogId(ctx.user!.id, input.analogId);
+          if (bookmark) {
+            await deleteBookmark(bookmark.id);
+          }
+          return { bookmarked: false };
+        } else {
+          // Add bookmark
+          await createBookmark({
+            userId: ctx.user!.id,
+            analogId: input.analogId,
+            title: input.title,
+            category: 'review-later',
+          });
+          return { bookmarked: true };
+        }
       }),
   }),
 
@@ -868,6 +1128,83 @@ When users ask about analogs, test results, or discoveries, query the FULL datab
         // TODO: Implement file deletion
         return { success: true };
       }),
+  }),
+
+  // Advanced molecular analysis (Phase I & II)
+  advancedAnalysis: router({
+    // Run comprehensive analysis (toxicity + SA + optimization)
+    comprehensive: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runComprehensiveAnalysis } = await import('./advancedAnalysis');
+        return runComprehensiveAnalysis(input.smiles);
+      }),
+
+    // Run toxicity profiling only
+    toxicity: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runToxicityAnalysis } = await import('./advancedAnalysis');
+        return runToxicityAnalysis(input.smiles);
+      }),
+
+    // Run synthetic accessibility analysis only
+    syntheticAccessibility: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runSAAnalysis } = await import('./advancedAnalysis');
+        return runSAAnalysis(input.smiles);
+      }),
+
+    // Get structure optimization suggestions
+    optimize: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          targetProperty: typeof obj.targetProperty === 'string' ? obj.targetProperty : undefined,
+        };
+      })
+      .mutation(async ({ input }) => {
+        const { runOptimizationAnalysis } = await import('./advancedAnalysis');
+        return runOptimizationAnalysis(input.smiles, input.targetProperty);
+      }),
+
+    // Run iterative optimization
+    iterativeOptimize: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          targetProperty: typeof obj.targetProperty === 'string' ? obj.targetProperty : 'reduce_lipophilicity',
+          iterations: typeof obj.iterations === 'number' ? obj.iterations : 3,
+        };
+      })
+      .mutation(async ({ input }) => {
+        const { runIterativeOptimization } = await import('./advancedAnalysis');
+        return runIterativeOptimization(input.smiles, input.targetProperty, input.iterations);
+      }),
+
+    // Check Python environment status
+    checkEnvironment: protectedProcedure.query(async () => {
+      const { checkPythonEnvironment } = await import('./advancedAnalysis');
+      const isAvailable = await checkPythonEnvironment();
+      return { available: isAvailable };
+    }),
   }),
 });
 

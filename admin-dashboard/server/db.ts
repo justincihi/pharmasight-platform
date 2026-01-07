@@ -1,6 +1,6 @@
-import { eq, or, like } from "drizzle-orm";
+import { eq, or, like, desc, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, analogDiscoveries, testResults, notifications, chatMessages, InsertAnalogDiscovery, InsertTestResult, InsertNotification, InsertChatMessage } from "../drizzle/schema";
+import { InsertUser, users, analogDiscoveries, testResults, notifications, chatMessages, bookmarks, InsertAnalogDiscovery, InsertTestResult, InsertNotification, InsertChatMessage, InsertBookmark } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -284,12 +284,72 @@ export async function getAdminNotifications(
   const db = await getDb();
   if (!db) return [];
 
-  return await (db as any)
+  // Get all notifications for admin users (not filtered by userId)
+  return await db
     .select()
     .from(notifications)
-    .where((col: any) => col.userId === userId)
-    .orderBy((col: any) => col.createdAt)
+    .orderBy(desc(notifications.createdAt))
     .limit(limit);
+}
+
+export async function getUnreadNotificationCount(
+  userId: number
+): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db
+    .select()
+    .from(notifications)
+    .where(eq(notifications.isRead, 0));
+  
+  return result.length;
+}
+
+export async function markNotificationAsRead(
+  notificationId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(notifications)
+    .set({ isRead: 1 })
+    .where(eq(notifications.id, notificationId));
+}
+
+export async function markAllNotificationsAsRead(
+  userId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(notifications)
+    .set({ isRead: 1 })
+    .where(eq(notifications.isRead, 0));
+}
+
+export async function getNewNotifications(
+  userId: number,
+  since: string | null
+) {
+  const db = await getDb();
+  if (!db) return { notifications: [], lastChecked: new Date().toISOString() };
+
+  let query = db.select().from(notifications);
+  
+  if (since) {
+    const sinceDate = new Date(since);
+    query = query.where(gte(notifications.createdAt, sinceDate)) as any;
+  }
+  
+  const results = await query.orderBy(desc(notifications.createdAt)).limit(50);
+  
+  return {
+    notifications: results,
+    lastChecked: new Date().toISOString(),
+  };
 }
 
 /**
@@ -319,3 +379,96 @@ export async function getChatHistory(
     .limit(limit);
 }
 
+
+/**
+ * Bookmark Queries
+ */
+export async function createBookmark(data: InsertBookmark) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(bookmarks).values(data);
+  return { id: result[0].insertId };
+}
+
+export async function getUserBookmarks(userId: number, limit: number = 50) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.userId, userId))
+    .orderBy(desc(bookmarks.createdAt))
+    .limit(limit);
+}
+
+export async function getBookmarkById(bookmarkId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.id, bookmarkId))
+    .limit(1);
+
+  return results[0] || null;
+}
+
+export async function updateBookmark(
+  bookmarkId: number,
+  data: Partial<{ title: string; notes: string; category: string }>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(bookmarks)
+    .set(data as any)
+    .where(eq(bookmarks.id, bookmarkId));
+}
+
+export async function deleteBookmark(bookmarkId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(bookmarks).where(eq(bookmarks.id, bookmarkId));
+}
+
+export async function isAnalogBookmarked(userId: number, analogId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const results = await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.userId, userId))
+    .limit(100);
+
+  return results.some((b: any) => b.analogId === analogId);
+}
+
+export async function getBookmarkByAnalogId(userId: number, analogId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const results = await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.userId, userId))
+    .limit(100);
+
+  return results.find((b: any) => b.analogId === analogId) || null;
+}
+
+export async function getBookmarksByCategory(userId: number, category: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(bookmarks)
+    .where(eq(bookmarks.userId, userId))
+    .orderBy(desc(bookmarks.createdAt));
+}

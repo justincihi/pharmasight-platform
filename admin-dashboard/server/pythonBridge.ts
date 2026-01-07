@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const PYTHON_MODULES_PATH = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules";
+const VENV_PYTHON = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules/venv/bin/python3";
 
 interface PythonResult {
   success: boolean;
@@ -44,7 +45,7 @@ except Exception as e:
     print(json.dumps({"success": False, "error": str(e)}))
 `;
 
-    const python = spawn("python3", ["-c", pythonCode, JSON.stringify(args)]);
+    const python = spawn(VENV_PYTHON, ["-c", pythonCode, JSON.stringify(args)]);
     
     let stdout = "";
     let stderr = "";

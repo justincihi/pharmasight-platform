@@ -17,6 +17,9 @@ import DockingPoseViewer from "@/components/DockingPoseViewer";
 import { MetaboliteViewer } from "@/components/MetaboliteViewer";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import ToxicityProfileCard from "@/components/ToxicityProfileCard";
+import { SyntheticAccessibilityBadge } from "@/components/SyntheticAccessibilityBadge";
+import OptimizationSuggestionsPanel from "@/components/OptimizationSuggestionsPanel";
 
 export default function AnalogDetail() {
   const params = useParams();
@@ -24,10 +27,14 @@ export default function AnalogDetail() {
   const analogId = parseInt(params.id || "0");
   const [synthesisRoute, setSynthesisRoute] = useState<any>(null);
   const [isGeneratingRoute, setIsGeneratingRoute] = useState(false);
+  const [advancedAnalysis, setAdvancedAnalysis] = useState<any>(null);
+  const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
 
   const { data: analog, isLoading } = trpc.analog.getById.useQuery({ id: analogId });
   const generateRouteMutation = trpc.analog.generateSynthesisRoute.useMutation();
   const optimizeRouteMutation = trpc.analog.optimizeSynthesisRoute.useMutation();
+  const runAnalysisMutation = trpc.advancedAnalysis.comprehensive.useMutation();
+  const createOptimizedMutation = trpc.analog.createFromOptimization.useMutation();
   // Test results will be added later
   const testResults: any[] = [];
 
@@ -147,6 +154,30 @@ export default function AnalogDetail() {
           </div>
 
           <div className="flex gap-2">
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={async () => {
+                if (!analog?.smiles) return;
+                setIsRunningAnalysis(true);
+                try {
+                  const result = await runAnalysisMutation.mutateAsync({ smiles: analog.smiles });
+                  setAdvancedAnalysis(result);
+                  toast.success('Advanced analysis complete');
+                } catch (error: any) {
+                  toast.error(`Analysis failed: ${error.message}`);
+                } finally {
+                  setIsRunningAnalysis(false);
+                }
+              }}
+              disabled={isRunningAnalysis}
+            >
+              {isRunningAnalysis ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Running Analysis...</>
+              ) : (
+                <><FlaskConical className="mr-2 h-4 w-4" />Run Advanced Analysis</>
+              )}
+            </Button>
             <Button variant="outline" size="sm" onClick={() => handleExport('smiles')}>
               <Download className="mr-2 h-4 w-4" />
               SMILES
@@ -208,6 +239,52 @@ export default function AnalogDetail() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Advanced Analysis Results */}
+          {advancedAnalysis && advancedAnalysis.status === 'success' && (
+            <>
+              {/* Toxicity Profile */}
+              <ToxicityProfileCard profile={advancedAnalysis.toxicity_profile} />
+
+              {/* Synthetic Accessibility */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Synthetic Accessibility</CardTitle>
+                  <CardDescription>Estimated synthesis difficulty and complexity</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SyntheticAccessibilityBadge 
+                    saData={advancedAnalysis.synthetic_accessibility} 
+                    showDetails={true}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Optimization Suggestions */}
+              {advancedAnalysis.optimization_suggestions && advancedAnalysis.optimization_suggestions.length > 0 && (
+                <OptimizationSuggestionsPanel 
+                  suggestions={advancedAnalysis.optimization_suggestions}
+                  onApplySuggestion={async (suggestion) => {
+                    try {
+                      const newAnalog = await createOptimizedMutation.mutateAsync({
+                        parentId: analogId,
+                        optimizedSmiles: suggestion.optimized_smiles,
+                        modification: suggestion.modification,
+                        category: suggestion.category,
+                      });
+                      toast.success(`Created optimized analog: ${newAnalog.compoundName}`);
+                      setLocation(`/admin/analog/${newAnalog.id}`);
+                    } catch (error: any) {
+                      toast.error(`Failed to create analog: ${error.message}`);
+                    }
+                  }}
+                  onViewDetails={(suggestion) => {
+                    console.log('View details:', suggestion);
+                  }}
+                />
+              )}
+            </>
+          )}
 
           {/* Therapeutic Information */}
           <Card>

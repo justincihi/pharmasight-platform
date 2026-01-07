@@ -1,0 +1,45 @@
+{
+  "query": "SELECT compound_id, compound_name, smiles, confidence_score, created_at FROM analog_discoveries ORDER BY created_at DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZWrHs2nQutWeV7.ec074e332390 --database o8A9Pr4pqVWFTwAoQ2BaGp --execute SELECT compound_id, compound_name, smiles, confidence_score, created_at FROM analog_discoveries ORDER BY created_at DESC LIMIT 5",
+  "rows": [
+    {
+      "compound_id": "50b2ebbcb151d1b9",
+      "compound_name": "PHS-20260102-002",
+      "smiles": "Cc1ccccc1FC(F)(F)Br",
+      "confidence_score": "69",
+      "created_at": "2026-01-02 06:21:01"
+    },
+    {
+      "compound_id": "04d88211325b9952",
+      "compound_name": "PHS-20260102-001",
+      "smiles": "ClBrC(=O)O",
+      "confidence_score": "85",
+      "created_at": "2026-01-02 06:21:01"
+    },
+    {
+      "compound_id": "941b14b13fe1bef8",
+      "compound_name": "PHS-20260102-003",
+      "smiles": "CCOc1ccc2c(c1)OCO2c1ccccc1",
+      "confidence_score": "75",
+      "created_at": "2026-01-02 06:21:01"
+    },
+    {
+      "compound_id": "3a2faad9f926f3d0",
+      "compound_name": "PHS-20260102-004",
+      "smiles": "Brc1ccc2c(c1)OCO2",
+      "confidence_score": "85",
+      "created_at": "2026-01-02 06:21:01"
+    },
+    {
+      "compound_id": "b1de74356ddf54de",
+      "compound_name": "PHS-20260102-005",
+      "smiles": "CCOS(=O)(=O)NCN",
+      "confidence_score": "67",
+      "created_at": "2026-01-02 06:21:01"
+    }
+  ],
+  "messages": [],
+  "stdout": "compound_id\tcompound_name\tsmiles\tconfidence_score\tcreated_at\n50b2ebbcb151d1b9\tPHS-20260102-002\tCc1ccccc1FC(F)(F)Br\t69\t2026-01-02 06:21:01\n04d88211325b9952\tPHS-20260102-001\tClBrC(=O)O\t85\t2026-01-02 06:21:01\n941b14b13fe1bef8\tPHS-20260102-003\tCCOc1ccc2c(c1)OCO2c1ccccc1\t75\t2026-01-02 06:21:01\n3a2faad9f926f3d0\tPHS-20260102-004\tBrc1ccc2c(c1)OCO2\t85\t2026-01-02 06:21:01\nb1de74356ddf54de\tPHS-20260102-005\tCCOS(=O)(=O)NCN\t67\t2026-01-02 06:21:01\n",
+  "stderr": "",
+  "execution_time_ms": 60
+}

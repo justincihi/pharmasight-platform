@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, email, name, role FROM user WHERE email = 'justincihi@gmail.com'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZWrHs2nQutWeV7.ec074e332390 --database o8A9Pr4pqVWFTwAoQ2BaGp --execute SELECT id, email, name, role FROM user WHERE email = 'justincihi@gmail.com'",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'o8a9pr4pqvwftwaoq2bagp.user' doesn't exist"
+  ]
+}

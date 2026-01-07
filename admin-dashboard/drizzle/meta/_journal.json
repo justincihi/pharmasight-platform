@@ -64,6 +64,20 @@
       "when": 1767417959399,
       "tag": "0008_organic_kate_bishop",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1767685364458,
+      "tag": "0009_gigantic_vulcan",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1767701922467,
+      "tag": "0010_light_madame_masque",
+      "breakpoints": true
     }
   ]
 }
