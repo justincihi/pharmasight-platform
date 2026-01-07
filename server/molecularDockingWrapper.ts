@@ -30,9 +30,9 @@ export async function runMolecularDocking(smiles: string, compoundId: string, ta
     // Use the existing Python module which has mock docking
     const pythonScript = join(__dirname, 'python_modules', 'molecular_docking.py');
     
-    // For now, use mock docking results since the Python module already has this functionality
-    // In production, you would call the actual docking script
-    const python = spawn('python3', ['-c', `
+    // Use the venv Python that has RDKit installed
+    const venvPython = join(__dirname, 'python_modules', 'venv', 'bin', 'python3');
+    const python = spawn(venvPython, ['-c', `
 import sys
 import json
 sys.path.insert(0, '${join(__dirname, 'python_modules')}')

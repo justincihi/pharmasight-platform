@@ -523,3 +523,14 @@
 - [x] Test optimization workflow end-to-end (UI tested)
 - [x] Verify lineage tracking works correctly (LeadOptimization page)
 - [x] Create checkpoint with all integrations
+
+
+## Cheminformatics Workflow Bug Fixes (Completed)
+- [x] Fix molecular docking "string did not match expected pattern" error (use venv Python with RDKit)
+- [x] Fix toxicity testing "temporarily disabled" issue (enabled advancedAnalysis.toxicity endpoint)
+- [x] Fix PK/PD simulation "string did not match expected pattern" error (added simulate_pkpd wrapper, fixed numpy.trapz deprecation)
+- [x] Fix pythonBridge to use venv Python instead of system python3
+- [x] Fix molecularDockingWrapper to use venv Python
+- [ ] Test all workflows on mobile (pending user testing)
+- [ ] Verify error handling and user feedback (pending user testing)
+- [ ] Create checkpoint with fixes
