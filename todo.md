@@ -585,3 +585,14 @@
 - [ ] Update API documentation
 - [ ] Create user guide for new features
 - [ ] Create checkpoint with all enhancements
+
+
+## Perplexity API & Autonomous Research Fixes (Completed)
+- [x] Diagnose Perplexity API key configuration issue (401 Unauthorized - invalid key)
+- [x] Verify SONAR_API_KEY is accessible in server environment (YES)
+- [x] Add Gemini fallback when Perplexity fails
+- [x] Update medicalTrendsAnalyzer to try Perplexity first, fallback to Gemini
+- [ ] Fix autonomous research engine manual run button (pending test)
+- [ ] Fix autonomous research engine refresh functionality (pending test)
+- [ ] Test medical trends refresh with Gemini fallback
+- [ ] Create checkpoint with fixes
