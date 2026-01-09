@@ -8,6 +8,11 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
+  --color-gradient-from: var(--gradient-from);
+  --color-gradient-to: var(--gradient-to);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -76,6 +81,10 @@
   --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.623 0.214 259.815);
+  --glass: oklch(1 0 0 / 40%);
+  --glass-border: oklch(1 0 0 / 20%);
+  --gradient-from: oklch(0.7 0.25 250);
+  --gradient-to: oklch(0.65 0.22 280);
 }
 
 .dark {
@@ -98,6 +107,10 @@
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
+  --glass: oklch(0.21 0.006 285.885 / 60%);
+  --glass-border: oklch(1 0 0 / 15%);
+  --gradient-from: oklch(0.45 0.2 250);
+  --gradient-to: oklch(0.4 0.18 280);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.488 0.243 264.376);
   --chart-1: var(--color-blue-300);
@@ -174,4 +187,51 @@
       max-width: 1280px; /* Standard content width */
     }
   }
+}
+/* Glass Morphism Utilities */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: oklch(from var(--glass) l c h / 70%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
+}
+
+.bg-gradient-radial {
+  background: radial-gradient(circle at top right, var(--gradient-from), var(--gradient-to));
+}
+
+/* Animated Gradient */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.bg-gradient-animated {
+  background: linear-gradient(270deg, var(--gradient-from), var(--gradient-to), var(--gradient-from));
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Shimmer Effect for Loading */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 10%), transparent);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
 }

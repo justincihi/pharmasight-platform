@@ -1,5 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassCard, StatCard } from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Loader2, Download } from "lucide-react";
 import { useState } from "react";

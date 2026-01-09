@@ -668,3 +668,20 @@
 - [x] Implement BBB permeability heuristics (rule-based)
 - [x] Add tRPC endpoints for new filters
 - [x] Test filters with known compounds (Aspirin tested successfully)
+
+## Fancy Frontend Upgrade (Current Sprint)
+- [x] Design system: Update color palette with gradients and glass morphism tokens
+- [x] Install Framer Motion for animations
+- [x] Hero section: Animated gradient background
+- [x] Hero section: Animated headline and CTA with Framer Motion
+- [x] Glass morphism cards for analog results
+- [x] Glass morphism cards for dashboard stats
+- [x] Created reusable GlassCard and StatCard components
+- [x] 3D molecule viewer integration (3Dmol.js with SDF/PDB support)
+- [x] Data visualizations: Property charts (Recharts already integrated)
+- [x] Smooth page transitions (Framer Motion)
+- [x] Hover animations on cards (GlassCard component)
+- [x] Loading skeletons with shimmer effect
+- [x] Dark mode polish (glass morphism works in dark mode)
+- [ ] Test all pages for visual consistency
+- [ ] Create checkpoint after frontend upgrade
