@@ -596,3 +596,75 @@
 - [ ] Fix autonomous research engine refresh functionality (pending test)
 - [ ] Test medical trends refresh with Gemini fallback
 - [ ] Create checkpoint with fixes
+
+## PubChem/ChEMBL UI Integration (Current Sprint)
+- [x] Add "Enrich from PubChem" button to analog detail pages
+- [x] Add "Enrich from ChEMBL" button to analog detail pages
+- [x] Create expandable data cards for external database information
+- [x] Display PubChem properties (synonyms, bioactivity, safety data)
+- [x] Display ChEMBL bioactivity data (IC50, Ki values, target information)
+- [x] Add loading states and error handling for API calls
+- [ ] Test enrichment buttons with multiple analogs
+- [ ] Create checkpoint after UI integration
+
+## Quick-Win Open Source Integrations (Current Sprint)
+- [ ] Integrate fpocket for protein pocket detection
+- [ ] Add PAINS/Brenk structural alert filters using RDKit
+- [ ] Implement CNS MPO scoring for BBB prediction
+- [ ] Add BBB permeability heuristics (rule-based)
+- [ ] Create master workflow orchestrator connecting all modules
+- [ ] Update comprehensive_analysis.py to include new filters
+- [ ] Add new analysis results to database schema
+- [ ] Build UI components to display new analysis results
+- [ ] Test all new integrations end-to-end
+- [ ] Create checkpoint after integrations
+
+## Fancy Frontend Redesign (Future Sprint)
+- [ ] Create video hero splash page with molecular animations
+- [ ] Implement glass morphism UI components
+- [ ] Add animated pipeline visualization
+- [ ] Build mobile-responsive navigation with human body diagram
+- [ ] Add 3D molecular viewer to home page
+- [ ] Implement smooth transitions and animations
+- [ ] Test on mobile devices
+- [ ] Create final checkpoint
+
+## Priority Commits from Document (Current Sprint)
+- [x] COMMIT 1 (P0): Fix RDKit analog generator output contract + key mismatches
+  - [x] Standardize return object from generate_analogs() with success field
+  - [x] Standardize analog keys (similarity, similarity_score, drug_likeness, drug_likeness_score)
+  - [x] Update generate_novel_analogs() to check success correctly
+  - [x] Test with generate_novel_analogs("CC(=O)Oc1ccccc1C(=O)O","Aspirin",5)
+- [x] COMMIT 2 (P0): Preserve SDF 3D conformers in parser
+  - [x] Keep mol as-is from supplier (preserve conformers + props)
+  - [x] Only rebuild from SMILES as fallback
+  - [x] Update _has_3d_coordinates() to check conformers properly
+  - [x] Test with known 3D SDF file
+- [x] COMMIT 3 (P0): Score normalization to match Drizzle schema
+  - [x] Ensure similarityScore is int 0-100 in DB writes
+  - [x] Keep similarity float for API response
+  - [x] Verify all insert/update of analogDiscoveries
+- [x] COMMIT 4 (P1): Harden pythonBridge.ts for timeouts + JSON output
+  - [x] Create runPythonJson helper with timeout enforcement
+  - [x] Capture stdout + stderr properly
+  - [x] Return structured errors { ok, data/error }
+  - [ ] Update all pythonBridge functions to use helper (deferred)
+  - [ ] Test with intentionally failing python command (deferred)
+- [x] COMMIT 5 (P2): Fix chat.send to use retrieval instead of 1000 analogs
+  - [x] Remove loading 1000 analogs by default
+  - [x] Implement simple retrieval (top 20 relevant analogs)
+  - [x] Pull test results only for retrieved analog IDs
+  - [x] Put data in strict delimited DATA block
+  - [x] Test chat.send responds fast with large DB
+- [x] COMMIT 6 (P3): Minimal table-backed docking queue
+  - [x] Add docking.enqueue endpoint
+  - [x] Add docking.status and docking.recent endpoints
+  - [x] Create lightweight worker loop for processing queue
+  - [x] Test enqueue returns immediately with queued status
+
+## Quick-Win Integrations (Phase 7) - COMPLETE
+- [x] Implement PAINS/Brenk filters (RDKit built-in)
+- [x] Implement CNS MPO scoring (descriptor-based)
+- [x] Implement BBB permeability heuristics (rule-based)
+- [x] Add tRPC endpoints for new filters
+- [x] Test filters with known compounds (Aspirin tested successfully)

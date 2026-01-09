@@ -107,7 +107,7 @@ export async function importFromMasterFile(): Promise<{ success: boolean; import
           mechanismOfAction: analog.mechanismOfAction,
           keyDifferences: analog.keyDifferences,
           confidenceScore: analog.confidence,
-          similarityScore: analog.similarity,
+          similarityScore: typeof analog.similarity === 'number' && analog.similarity <= 1 ? Math.round(analog.similarity * 100) : analog.similarity,
           safetyScore: analog.safetyScore,
           efficacyScore: analog.efficacyScore,
           drugLikenessScore: analog.drugLikenessScore,

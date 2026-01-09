@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import ToxicityProfileCard from "@/components/ToxicityProfileCard";
 import { SyntheticAccessibilityBadge } from "@/components/SyntheticAccessibilityBadge";
 import OptimizationSuggestionsPanel from "@/components/OptimizationSuggestionsPanel";
+import { EnrichmentCard } from "@/components/EnrichmentCard";
 
 export default function AnalogDetail() {
   const params = useParams();
@@ -535,34 +536,20 @@ export default function AnalogDetail() {
             </Card>
           )}
 
-          {/* External Resources */}
-          <Card>
-            <CardHeader>
-              <CardTitle>External Resources</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <a
-                  href={`https://pubchem.ncbi.nlm.nih.gov/#query=${encodeURIComponent(analog.smiles)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Search PubChem
-                </a>
-              </Button>
-              <Button variant="outline" className="w-full justify-start" asChild>
-                <a
-                  href={`https://www.ebi.ac.uk/chembl/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Search ChEMBL
-                </a>
-              </Button>
-            </CardContent>
-          </Card>
+          {/* External Database Enrichment */}
+          <EnrichmentCard
+            smiles={analog.smiles}
+            source="pubchem"
+            title="PubChem Data"
+            description="Fetch compound properties, synonyms, and bioactivity data from PubChem"
+          />
+
+          <EnrichmentCard
+            smiles={analog.smiles}
+            source="chembl"
+            title="ChEMBL Bioactivity"
+            description="Fetch bioactivity data, IC50/Ki values, and target information from ChEMBL"
+          />
         </div>
       </div>
     </div>

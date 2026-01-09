@@ -51,11 +51,12 @@ class SDFProcessor:
                 print(f"Warning: No SMILES found for molecule {idx}, skipping")
                 continue
             
-            # Rebuild molecule from SMILES (handles empty structures)
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                print(f"Warning: Could not rebuild molecule {idx} from SMILES: {smiles}")
-                continue
+            # ONLY rebuild from SMILES if mol is None or invalid (preserves conformers!)
+            if mol is None or mol.GetNumAtoms() == 0:
+                mol = Chem.MolFromSmiles(smiles)
+                if mol is None:
+                    print(f"Warning: Could not rebuild molecule {idx} from SMILES: {smiles}")
+                    continue
             
             # Check if molecule has 3D coordinates
             has_3d_coords = self._has_3d_coordinates(mol)
@@ -77,8 +78,12 @@ class SDFProcessor:
     def _has_3d_coordinates(self, mol: Chem.Mol) -> bool:
         """Check if molecule has 3D coordinates"""
         try:
+            # First check if molecule has any conformers
+            if mol.GetNumConformers() == 0:
+                return False
+            
             conf = mol.GetConformer()
-            # Check if all Z coordinates are not zero (indicates 3D)
+            # Check if Z coordinates have non-zero variance (indicates 3D)
             positions = conf.GetPositions()
             z_coords = positions[:, 2]
             return not all(abs(z) < 0.001 for z in z_coords)

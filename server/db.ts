@@ -92,6 +92,26 @@ export async function getUserByOpenId(openId: string) {
 /**
  * Analog Discovery Queries
  */
+
+/**
+ * Get test results for specific analog IDs
+ */
+export async function getTestResultsByAnalogIds(analogIds: number[]) {
+  const db = await getDb();
+  if (!db || analogIds.length === 0) return [];
+
+  try {
+    const results = await (db as any)
+      .select()
+      .from(testResults)
+      .where((col: any) => analogIds.includes(col.analogId));
+    return results;
+  } catch (error) {
+    console.error("Error fetching test results by analog IDs:", error);
+    return [];
+  }
+}
+
 export async function getAnalogDiscoveries(
   limit: number = 50,
   offset: number = 0,

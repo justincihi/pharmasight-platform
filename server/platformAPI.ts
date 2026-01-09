@@ -59,7 +59,7 @@ export function registerPlatformAPI(app: Express) {
               mechanismOfAction: discovery.mechanismOfAction || "",
               keyDifferences: discovery.keyDifferences || "",
               confidenceScore: discovery.confidence || 0,
-              similarityScore: discovery.similarity || 0,
+              similarityScore: typeof discovery.similarity === 'number' && discovery.similarity <= 1 ? Math.round(discovery.similarity * 100) : (discovery.similarity || 0),
               safetyScore: discovery.safetyScore || 0,
               efficacyScore: discovery.efficacyScore || 0,
               drugLikenessScore: discovery.drugLikenessScore || 100,

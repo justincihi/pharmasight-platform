@@ -1,10 +1,26 @@
 import { protectedProcedure, router } from './_core/trpc';
-import { getDockingQueueStatus, getAnalogDockingResults } from './dockingQueueManager';
+import { getDockingQueueStatus, getAnalogDockingResults, queueAnalogForDocking } from './dockingQueueManager';
 import { getDb } from './db';
 import { dockingQueue } from '../drizzle/schema';
 import { eq, and } from 'drizzle-orm';
 
 export const dockingRouter = router({
+  enqueue: protectedProcedure
+    .input((val: unknown) => {
+      if (typeof val !== 'object' || val === null) return { analogId: 0, priority: 5 };
+      const obj = val as Record<string, unknown>;
+      return {
+        analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
+        priority: typeof obj.priority === 'number' ? obj.priority : 5,
+      };
+    })
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      await queueAnalogForDocking(input.analogId, input.priority);
+      return { success: true, message: 'Analog queued for docking' };
+    }),
   getQueueStatus: protectedProcedure.query(async ({ ctx }) => {
     if (ctx.user?.role !== 'admin') {
       throw new Error('Unauthorized: Admin access required');

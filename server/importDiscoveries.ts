@@ -164,7 +164,7 @@ export async function importAutonomousDiscoveries(): Promise<{
           confidenceScore: discovery.confidence || 0,
           safetyScore: 85, // Default for autonomous discoveries
           efficacyScore: 85, // Default for autonomous discoveries
-          similarityScore: 0.85, // Default
+          similarityScore: 85, // Default (int 0-100)
           drugLikenessScore: 100,
           patentStatus: discovery.key_features?.includes("Patent-free") ? "patent-free" : "patent-opportunity",
           marketValue: discovery.estimated_value || 0,

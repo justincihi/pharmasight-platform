@@ -316,7 +316,7 @@ class RDKitAnalogGenerator:
         """
         valid, parent_mol, canonical = self.validate_smiles(smiles)
         if not valid:
-            return {'error': f'Invalid SMILES: {canonical}'}
+            return {'success': False, 'error': f'Invalid SMILES: {canonical}'}
         
         parent_props = self.calculate_properties(parent_mol)
         parent_drug_score, parent_violations = self.assess_drug_likeness(parent_props)
@@ -356,6 +356,7 @@ class RDKitAnalogGenerator:
                             'name': f'{strategy_name}-Analog-{analog_hash.upper()}',
                             'smiles': analog_smiles,
                             'similarity': similarity,
+                            'similarity_score': round(similarity * 100),
                             'modification_strategy': strategy_name,
                             'molecular_weight': props.get('molecular_weight', 0),
                             'logp': props.get('logp', 0),
@@ -363,6 +364,7 @@ class RDKitAnalogGenerator:
                             'hba': props.get('hba', 0),
                             'tpsa': props.get('tpsa', 0),
                             'drug_likeness': drug_score,
+                            'drug_likeness_score': drug_score,
                             'lipinski_violations': violations,
                             'safety_score': min(95, drug_score + random.randint(-5, 10)),
                             'efficacy_score': random.randint(65, 95),
@@ -400,6 +402,7 @@ class RDKitAnalogGenerator:
                     'name': f'Bioisostere-Analog-{analog_hash.upper()}',
                     'smiles': variant_smiles,
                     'similarity': similarity,
+                    'similarity_score': round(similarity * 100),
                     'modification_strategy': 'Bioisostere Replacement',
                     'molecular_weight': props.get('molecular_weight', 0),
                     'logp': props.get('logp', 0),
@@ -407,6 +410,7 @@ class RDKitAnalogGenerator:
                     'hba': props.get('hba', 0),
                     'tpsa': props.get('tpsa', 0),
                     'drug_likeness': drug_score,
+                    'drug_likeness_score': drug_score,
                     'lipinski_violations': violations,
                     'safety_score': min(95, drug_score + random.randint(-5, 10)),
                     'efficacy_score': random.randint(65, 95),
@@ -427,6 +431,7 @@ class RDKitAnalogGenerator:
         avg_similarity = sum(a['similarity'] for a in final_analogs) / len(final_analogs) if final_analogs else 0
         
         return {
+            'success': True,
             'parent_compound': {
                 'smiles': canonical,
                 'properties': parent_props,
