@@ -685,3 +685,14 @@
 - [x] Dark mode polish (glass morphism works in dark mode)
 - [ ] Test all pages for visual consistency
 - [ ] Create checkpoint after frontend upgrade
+
+## Authenticated Dashboard UI Update (Current Sprint)
+- [x] Update Analytics Dashboard with GlassCard and StatCard components
+- [x] Update chart containers with glass morphism
+- [ ] Update AnalogDetail pages with glass cards
+- [ ] Add 3D Molecule Viewer to AnalogDetail pages
+- [ ] Add Drug Filter cards (PAINS/Brenk, CNS MPO, BBB) to AnalogDetail
+- [ ] Update DashboardLayout sidebar with glass morphism
+- [ ] Update authenticated Home page chatbot interface with glass cards
+- [ ] Test all dashboard pages for visual consistency
+- [ ] Create checkpoint after dashboard update

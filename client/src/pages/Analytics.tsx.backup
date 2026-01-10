@@ -2,7 +2,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlassCard, StatCard } from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
-import { Loader2, Download, Beaker, TrendingUp, Shield, CheckCircle } from "lucide-react";
+import { Loader2, Download } from "lucide-react";
 import { useState } from "react";
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { trpc } from "@/lib/trpc";
@@ -136,36 +136,56 @@ export default function Analytics() {
 
             <StatCard
               title="High Confidence (85%+)"
-              value={`${stats.highConfidencePercentage}%`}
-              description={`${stats.highConfidenceCount} compounds`}
-              icon={<CheckCircle className="w-6 h-6 text-white" />}
-              gradient="from-green-500 to-emerald-500"
-            />
+              value={stats.highConfidenceCount}
+              description="high-quality analogs"
+                  {stats.highConfidencePercentage}%
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats.highConfidenceCount} compounds
+                </p>
+              </CardContent>
+            </Card>
 
-            <StatCard
-              title="Patent-Free"
-              value={`${stats.patentFreePercentage}%`}
-              description={`${stats.patentFreeCount} compounds`}
-              icon={<Shield className="w-6 h-6 text-white" />}
-              gradient="from-indigo-500 to-blue-500"
-            />
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Patent-Free
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-blue-600">
+                  {stats.patentFreePercentage}%
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {stats.patentFreeCount} compounds
+                </p>
+              </CardContent>
+            </Card>
 
-            <StatCard
-              title="Avg Confidence"
-              value={`${stats.averageConfidence}%`}
-              description="across all analogs"
-              icon={<TrendingUp className="w-6 h-6 text-white" />}
-              gradient="from-purple-500 to-pink-500"
-            />
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  Avg Confidence
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold text-purple-600">
+                  {stats.averageConfidence}%
+                </p>
+                <p className="text-xs text-gray-500 mt-1">across all analogs</p>
+              </CardContent>
+            </Card>
           </div>
         )}
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Patent Status Pie Chart */}
-          <GlassCard className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Patent Status Distribution</h3>
-            <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Patent Status Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -185,13 +205,15 @@ export default function Analytics() {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
-          </GlassCard>
+            </CardContent>
+          </Card>
 
           {/* Confidence Level Pie Chart */}
-          <GlassCard className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Confidence Level Distribution</h3>
-            <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Confidence Level Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -211,18 +233,20 @@ export default function Analytics() {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
-          </GlassCard>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Discovery Timeline by Therapeutic Area */}
         {timelineData.length > 0 && (
-          <GlassCard className="p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-2">Discovery Timeline by Therapeutic Area (Last 30 Days)</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Daily discoveries grouped by therapeutic focus area
-            </p>
-            <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Discovery Timeline by Therapeutic Area (Last 30 Days)</CardTitle>
+              <p className="text-sm text-gray-600 mt-1">
+                Daily discoveries grouped by therapeutic focus area
+              </p>
+            </CardHeader>
+            <CardContent>
               <ResponsiveContainer width="100%" height={400}>
                 <BarChart data={timelineData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -267,8 +291,8 @@ export default function Analytics() {
                   ))}
                 </BarChart>
               </ResponsiveContainer>
-            </div>
-          </GlassCard>
+            </CardContent>
+          </Card>
         )}
       </div>
     </DashboardLayout>
