@@ -696,3 +696,12 @@
 - [ ] Update authenticated Home page chatbot interface with glass cards
 - [ ] Test all dashboard pages for visual consistency
 - [ ] Create checkpoint after dashboard update
+
+## DashboardLayout Sidebar Update (Current Sprint)
+- [x] Apply glass morphism to sidebar background
+- [x] Update navigation items with hover effects
+- [x] Add active state indicators with gradient accents
+- [x] Update user profile section with glass card
+- [x] Ensure sidebar works in both light and dark mode
+- [ ] Test sidebar responsiveness
+- [ ] Create checkpoint after sidebar update
