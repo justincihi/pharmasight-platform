@@ -11,6 +11,10 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 import sys
 import os
+try:
+    from google import genai
+except ImportError:
+    import google.generativeai as genai
 
 src_dir = os.path.dirname(os.path.abspath(__file__))
 if src_dir not in sys.path:
@@ -39,6 +43,14 @@ class AutonomousResearchEngine:
             "analogs_generated": 0,
             "errors": []
         }
+        
+        # Initialize AI APIs
+        self.perplexity_api_key = os.getenv('SONAR_API_KEY')
+        self.gemini_api_key = os.getenv('GEMINI_API_KEY')
+        
+        # Configure Gemini
+        if self.gemini_api_key:
+            genai.configure(api_key=self.gemini_api_key)
     
     def run_daily_research_cycle(self, research_goals: List[str]) -> Dict:
         """
@@ -216,6 +228,68 @@ class AutonomousResearchEngine:
         except Exception as e:
             print(f"   ⚠️  Error parsing PubMed results: {str(e)}")
             return []
+    
+    def analyze_with_ai(self, query: str, context: str = "") -> Dict:
+        """
+        Use Perplexity (with Gemini fallback) for AI-powered research analysis
+        
+        Args:
+            query: Research question
+            context: Additional context for the query
+        
+        Returns:
+            Dictionary with analysis results
+        """
+        prompt = f"{context}\n\n{query}" if context else query
+        
+        # Try Perplexity first
+        if self.perplexity_api_key:
+            try:
+                response = requests.post(
+                    "https://api.perplexity.ai/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {self.perplexity_api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": "sonar-pro",
+                        "messages": [{"role": "user", "content": prompt}],
+                        "temperature": 0.2,
+                        "max_tokens": 2000
+                    },
+                    timeout=30
+                )
+                response.raise_for_status()
+                data = response.json()
+                return {
+                    "success": True,
+                    "source": "perplexity",
+                    "content": data['choices'][0]['message']['content'],
+                    "citations": data.get('citations', [])
+                }
+            except Exception as e:
+                print(f"   ⚠️  Perplexity API error: {str(e)}")
+        
+        # Fallback to Gemini
+        if self.gemini_api_key:
+            try:
+                model = genai.GenerativeModel('gemini-2.0-flash-exp')
+                response = model.generate_content(prompt)
+                return {
+                    "success": True,
+                    "source": "gemini",
+                    "content": response.text,
+                    "citations": []
+                }
+            except Exception as e:
+                print(f"   ⚠️  Gemini API error: {str(e)}")
+        
+        return {
+            "success": False,
+            "source": None,
+            "content": "No AI API available",
+            "citations": []
+        }
     
     def screen_for_novel_targets(self, compound_smiles: str, compound_name: str) -> Dict:
         """

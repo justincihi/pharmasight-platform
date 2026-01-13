@@ -21,6 +21,7 @@ import ToxicityProfileCard from "@/components/ToxicityProfileCard";
 import { SyntheticAccessibilityBadge } from "@/components/SyntheticAccessibilityBadge";
 import OptimizationSuggestionsPanel from "@/components/OptimizationSuggestionsPanel";
 import { EnrichmentCard } from "@/components/EnrichmentCard";
+import { DrugFilterCard } from "@/components/DrugFilterCard";
 
 export default function AnalogDetail() {
   const params = useParams();
@@ -535,6 +536,12 @@ export default function AnalogDetail() {
               </CardContent>
             </Card>
           )}
+
+          {/* Drug Filters & Scores */}
+          <DrugFilterCard
+            smiles={analog.smiles}
+            compoundName={analog.compoundName}
+          />
 
           {/* External Database Enrichment */}
           <EnrichmentCard
