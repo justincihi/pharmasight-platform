@@ -12,6 +12,7 @@ import CompoundTesting from "./pages/CompoundTesting";
 import BatchAnalysis from "./pages/BatchAnalysis";
 import AnalogDetail from "./pages/AnalogDetail";
 import SchedulerDashboard from "./pages/SchedulerDashboard";
+import Scheduler from "./pages/Scheduler";
 import BatchOperations from "./pages/BatchOperations";
 import AnalogComparison from "./pages/AnalogComparison";
 import CompareAnalogs from "./pages/CompareAnalogs";
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/batch" component={BatchAnalysis} />
       <Route path="/admin/analog/:id" component={AnalogDetail} />
       <Route path="/admin/scheduler" component={SchedulerDashboard} />
+      <Route path="/scheduler" component={Scheduler} />
       <Route path="/admin/batch" component={BatchOperations} />
       <Route path="/admin/compare" component={AnalogComparison} />
       <Route path="/compare" component={CompareAnalogs} />
