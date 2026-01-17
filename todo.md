@@ -1,10 +1,18 @@
 # PharmaSight Admin Dashboard TODO
 
-## Autonomous Research Engine Fix (Current Sprint)
+## Menu Function Fixes (URGENT - After Sandbox Reset)
+- [x] Fix __dirname errors in advancedAnalysis.ts
+- [x] Fix __dirname errors in metabolitePredictorWrapper.ts
+- [x] Verify medicalTrendsAnalyzer.ts API key access (already correct)
+- [x] Create Python venv and install scipy/numpy/rdkit/google-generativeai
+- [x] Test all menu functions (Analytics, Testing, Scheduler)
+- [ ] Create checkpoint after fixes
+
+## Autonomous Research Engine Fix (Completed)
 - [x] Check autonomous_research_engine.py for Perplexity/Gemini integration
 - [x] Add Gemini as fallback when Perplexity fails
 - [x] Test autonomous research with sample compound
-- [ ] Verify scheduler triggers research correctly
+- [x] Verify scheduler triggers research correctly
 
 ## Drug Filter Cards (Next)
 - [x] Add PAINS/Brenk filter card to AnalogDetail

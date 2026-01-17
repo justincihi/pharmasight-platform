@@ -1,5 +1,9 @@
-import { spawn } from 'child_process';
+import { exec, spawn } from 'child_process';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);;
 
 const PYTHON_VENV = path.join(__dirname, 'python_modules', 'venv', 'bin', 'python');
 const ANALYSIS_SCRIPT = path.join(__dirname, 'python_modules', 'comprehensive_analysis.py');
@@ -89,15 +93,15 @@ function runPythonScript(command: string, smiles: string, ...args: string[]): Pr
     let stdout = '';
     let stderr = '';
     
-    python.stdout.on('data', (data) => {
+    python.stdout.on('data', (data: Buffer) => {
       stdout += data.toString();
     });
     
-    python.stderr.on('data', (data) => {
+    python.stderr.on('data', (data: Buffer) => {
       stderr += data.toString();
     });
     
-    python.on('close', (code) => {
+    python.on('close', (code: number | null) => {
       if (code !== 0) {
         reject(new Error(`Python script failed: ${stderr}`));
         return;
@@ -111,7 +115,7 @@ function runPythonScript(command: string, smiles: string, ...args: string[]): Pr
       }
     });
     
-    python.on('error', (err) => {
+    python.on('error', (err: Error) => {
       reject(new Error(`Failed to spawn Python process: ${err.message}`));
     });
   });
