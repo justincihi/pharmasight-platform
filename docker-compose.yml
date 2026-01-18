@@ -137,6 +137,29 @@ services:
     networks:
       - pharmasight-network
 
+  research-engine:
+    build: ./services/research-engine
+    ports:
+      - "8006:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@db:5432/${POSTGRES_DB:-pharmasight_db}
+      - REDIS_URL=redis://redis:6379/0
+      - PUBMED_API_KEY=${PUBMED_API_KEY:-}
+      - PUBCHEM_API_KEY=${PUBCHEM_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
   api-gateway:
     build: ./services/api-gateway
     ports:
