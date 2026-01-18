@@ -1,0 +1,604 @@
+{
+  "database_name": "PharmaSight\u2122 Research Article Database",
+  "description": "Public database of all research articles scanned by autonomous research engine",
+  "created": "2025-11-10T19:45:38.668523",
+  "last_updated": "2025-11-10T19:47:52.332774",
+  "total_articles": 26,
+  "articles": [
+    {
+      "article_id": "ART-00001",
+      "title": "Psilocybin for treatment-resistant depression: fMRI-measured brain mechanisms",
+      "authors": [
+        "Carhart-Harris RL",
+        "Bolstridge M",
+        "Day CMJ",
+        "Rucker J",
+        "Watts R"
+      ],
+      "doi": "10.1038/s41598-017-13282-7",
+      "pmid": null,
+      "journal": "Scientific Reports",
+      "year": 2017,
+      "abstract": null,
+      "url": null,
+      "keywords": [
+        "psilocybin",
+        "depression",
+        "fMRI",
+        "5-HT2A receptor"
+      ],
+      "relevance_score": 95.0,
+      "scan_date": "2025-11-10T19:45:38.668573",
+      "source_database": "PubMed",
+      "research_goal": "Novel 5-HT2A Partial Agonist Discovery for Treatment-Resistant Depression",
+      "added_to_database": "2025-11-10T19:45:38.668575"
+    },
+    {
+      "article_id": "ART-00002",
+      "title": "Ketamine and other NMDA antagonists: early clinical trials and possible mechanisms in depression",
+      "authors": [
+        "Zarate CA Jr",
+        "Singh JB",
+        "Carlson PJ",
+        "Brutsche NE",
+        "Ameli R"
+      ],
+      "doi": "10.1176/appi.ajp.2006.05081283",
+      "pmid": "16816223",
+      "journal": "American Journal of Psychiatry",
+      "year": 2006,
+      "abstract": null,
+      "url": null,
+      "keywords": [
+        "ketamine",
+        "NMDA",
+        "depression",
+        "rapid antidepressant"
+      ],
+      "relevance_score": 98.0,
+      "scan_date": "2025-11-10T19:45:38.668582",
+      "source_database": "PubMed",
+      "research_goal": "NMDA Receptor Subtype-Selective Antagonist for Rapid Antidepressant Action",
+      "added_to_database": "2025-11-10T19:45:38.668583"
+    },
+    {
+      "article_id": "ART-00003",
+      "title": "MDMA-assisted therapy for severe PTSD: a randomized, double-blind, placebo-controlled phase 3 study",
+      "authors": [
+        "Mitchell JM",
+        "Bogenschutz M",
+        "Lilienstein A",
+        "Harrison C",
+        "Kleiman S"
+      ],
+      "doi": "10.1038/s41591-021-01336-3",
+      "pmid": "33972795",
+      "journal": "Nature Medicine",
+      "year": 2021,
+      "abstract": null,
+      "url": null,
+      "keywords": [
+        "MDMA",
+        "PTSD",
+        "psychotherapy",
+        "serotonin",
+        "oxytocin"
+      ],
+      "relevance_score": 92.0,
+      "scan_date": "2025-11-10T19:45:38.668588",
+      "source_database": "PubMed",
+      "research_goal": "Entactogen Development for PTSD Treatment",
+      "added_to_database": "2025-11-10T19:45:38.668590"
+    },
+    {
+      "article_id": "ART-00004",
+      "title": "Kava lactones and the kava-kava controversy",
+      "authors": [
+        "Teschke R",
+        "Sarris J",
+        "Schweitzer I"
+      ],
+      "doi": "10.1016/j.phymed.2011.07.005",
+      "pmid": null,
+      "journal": "Phytomedicine",
+      "year": 2011,
+      "abstract": null,
+      "url": null,
+      "keywords": [
+        "kava",
+        "kavain",
+        "anxiolytic",
+        "GABA",
+        "safety"
+      ],
+      "relevance_score": 88.0,
+      "scan_date": "2025-11-10T19:45:38.668594",
+      "source_database": "PubMed",
+      "research_goal": "Novel Anxiolytic Development from Natural Products",
+      "added_to_database": "2025-11-10T19:45:38.668595"
+    },
+    {
+      "article_id": "ART-00005",
+      "title": "Muscimol as a potent and selective orthosteric agonist of GABAA receptors",
+      "authors": [
+        "Johnston GA"
+      ],
+      "doi": "10.1111/j.1476-5381.2012.02144.x",
+      "pmid": null,
+      "journal": "British Journal of Pharmacology",
+      "year": 2013,
+      "abstract": null,
+      "url": null,
+      "keywords": [
+        "muscimol",
+        "GABA-A",
+        "agonist",
+        "anxiolytic",
+        "sleep"
+      ],
+      "relevance_score": 90.0,
+      "scan_date": "2025-11-10T19:45:38.668599",
+      "source_database": "PubMed",
+      "research_goal": "GABA-A Receptor Subtype-Selective Agonist Development",
+      "added_to_database": "2025-11-10T19:45:38.668601"
+    },
+    {
+      "article_id": "ART-00006",
+      "title": "Mescaline: A Global History of the First Psychedelic",
+      "authors": [
+        "Jay M"
+      ],
+      "doi": "10.1080/02791072.2019.1606472",
+      "pmid": null,
+      "journal": "Journal of Psychoactive Drugs",
+      "year": 2019,
+      "abstract": null,
+      "url": null,
+      "keywords": [
+        "mescaline",
+        "psychedelic",
+        "5-HT2A",
+        "history",
+        "peyote"
+      ],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:45:38.668605",
+      "source_database": "PubMed",
+      "research_goal": "Psychedelic Analog Development for Depression and Addiction",
+      "added_to_database": "2025-11-10T19:45:38.668606"
+    },
+    {
+      "article_id": "ART-00007",
+      "title": "Structure of a Hallucinogen-Activated Gq-Coupled 5-HT(2A) Serotonin Receptor.",
+      "authors": [
+        "Kim K",
+        "Che T",
+        "Panova O",
+        "DiBerto JF",
+        "Lyu J"
+      ],
+      "doi": "10.1016/j.cell.2020.08.024",
+      "pmid": "32946782",
+      "journal": "Cell",
+      "year": 2020,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:40.993593",
+      "source_database": "PubMed",
+      "research_goal": "psilocybin 5-HT2A receptor depression treatment",
+      "added_to_database": "2025-11-10T19:47:40.993612"
+    },
+    {
+      "article_id": "ART-00008",
+      "title": "Increased global integration in the brain after psilocybin therapy for depression.",
+      "authors": [
+        "Daws RE",
+        "Timmermann C",
+        "Giribaldi B",
+        "Sexton JD",
+        "Wall MB"
+      ],
+      "doi": "10.1038/s41591-022-01744-z",
+      "pmid": "35411074",
+      "journal": "Nature medicine",
+      "year": 2022,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:40.993623",
+      "source_database": "PubMed",
+      "research_goal": "psilocybin 5-HT2A receptor depression treatment",
+      "added_to_database": "2025-11-10T19:47:40.993624"
+    },
+    {
+      "article_id": "ART-00009",
+      "title": "Serotonin 2A Receptor (5-HT(2A)R) Agonists: Psychedelics and Non-Hallucinogenic Analogues as Emerging Antidepressants.",
+      "authors": [
+        "Duan W",
+        "Cao D",
+        "Wang S",
+        "Cheng J"
+      ],
+      "doi": "10.1021/acs.chemrev.3c00375",
+      "pmid": "38033123",
+      "journal": "Chemical reviews",
+      "year": 2024,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:40.993630",
+      "source_database": "PubMed",
+      "research_goal": "psilocybin 5-HT2A receptor depression treatment",
+      "added_to_database": "2025-11-10T19:47:40.993632"
+    },
+    {
+      "article_id": "ART-00010",
+      "title": "Molecular mechanisms of rapid-acting antidepressants: New perspectives for developing antidepressants.",
+      "authors": [
+        "Chen T",
+        "Cheng L",
+        "Ma J",
+        "Yuan J",
+        "Pi C"
+      ],
+      "doi": "10.1016/j.phrs.2023.106837",
+      "pmid": "37379962",
+      "journal": "Pharmacological research",
+      "year": 2023,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:40.993638",
+      "source_database": "PubMed",
+      "research_goal": "psilocybin 5-HT2A receptor depression treatment",
+      "added_to_database": "2025-11-10T19:47:40.993639"
+    },
+    {
+      "article_id": "ART-00011",
+      "title": "Psychedelic effects of psilocybin correlate with serotonin 2A receptor occupancy and plasma psilocin levels.",
+      "authors": [
+        "Madsen MK",
+        "Fisher PM",
+        "Burmester D",
+        "Dyssegaard A",
+        "Stenb\u00e6k DS"
+      ],
+      "doi": "10.1038/s41386-019-0324-9",
+      "pmid": "30685771",
+      "journal": "Neuropsychopharmacology : official publication of the American College of Neuropsychopharmacology",
+      "year": 2019,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:40.993645",
+      "source_database": "PubMed",
+      "research_goal": "psilocybin 5-HT2A receptor depression treatment",
+      "added_to_database": "2025-11-10T19:47:40.993647"
+    },
+    {
+      "article_id": "ART-00012",
+      "title": "mTOR-dependent synapse formation underlies the rapid antidepressant effects of NMDA antagonists.",
+      "authors": [
+        "Li N",
+        "Lee B",
+        "Liu RJ",
+        "Banasr M",
+        "Dwyer JM"
+      ],
+      "doi": "10.1126/science.1190287",
+      "pmid": "20724638",
+      "journal": "Science (New York, N.Y.)",
+      "year": 2010,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:44.245149",
+      "source_database": "PubMed",
+      "research_goal": "ketamine NMDA antagonist rapid antidepressant",
+      "added_to_database": "2025-11-10T19:47:44.245165"
+    },
+    {
+      "article_id": "ART-00013",
+      "title": "NMDA Receptor Activation-Dependent Antidepressant-Relevant Behavioral and Synaptic Actions of Ketamine.",
+      "authors": [
+        "Zanos P",
+        "Brown KA",
+        "Georgiou P",
+        "Yuan P",
+        "Zarate CA Jr"
+      ],
+      "doi": "10.1523/JNEUROSCI.1316-22.2022",
+      "pmid": "36596696",
+      "journal": "The Journal of neuroscience : the official journal of the Society for Neuroscience",
+      "year": 2023,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:44.245180",
+      "source_database": "PubMed",
+      "research_goal": "ketamine NMDA antagonist rapid antidepressant",
+      "added_to_database": "2025-11-10T19:47:44.245181"
+    },
+    {
+      "article_id": "ART-00014",
+      "title": "Ketamine for depression.",
+      "authors": [
+        "Jelen LA",
+        "Stone JM"
+      ],
+      "doi": "10.1080/09540261.2020.1854194",
+      "pmid": "33569971",
+      "journal": "International review of psychiatry (Abingdon, England)",
+      "year": 2021,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:44.245191",
+      "source_database": "PubMed",
+      "research_goal": "ketamine NMDA antagonist rapid antidepressant",
+      "added_to_database": "2025-11-10T19:47:44.245193"
+    },
+    {
+      "article_id": "ART-00015",
+      "title": "Ketamine and the neurobiology of depression: Toward next-generation rapid-acting antidepressant treatments.",
+      "authors": [
+        "Krystal JH",
+        "Kaye AP",
+        "Jefferson S",
+        "Girgenti MJ",
+        "Wilkinson ST"
+      ],
+      "doi": "10.1073/pnas.2305772120",
+      "pmid": "38011560",
+      "journal": "Proceedings of the National Academy of Sciences of the United States of America",
+      "year": 2023,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:44.245199",
+      "source_database": "PubMed",
+      "research_goal": "ketamine NMDA antagonist rapid antidepressant",
+      "added_to_database": "2025-11-10T19:47:44.245200"
+    },
+    {
+      "article_id": "ART-00016",
+      "title": "NMDA receptor blockade at rest triggers rapid behavioural antidepressant responses.",
+      "authors": [
+        "Autry AE",
+        "Adachi M",
+        "Nosyreva E",
+        "Na ES",
+        "Los MF"
+      ],
+      "doi": "10.1038/nature10130",
+      "pmid": "21677641",
+      "journal": "Nature",
+      "year": 2011,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:44.245206",
+      "source_database": "PubMed",
+      "research_goal": "ketamine NMDA antagonist rapid antidepressant",
+      "added_to_database": "2025-11-10T19:47:44.245207"
+    },
+    {
+      "article_id": "ART-00017",
+      "title": "MDMA-assisted psychotherapy for PTSD: Are memory reconsolidation and fear extinction underlying mechanisms?",
+      "authors": [
+        "Feduccia AA",
+        "Mithoefer MC"
+      ],
+      "doi": "10.1016/j.pnpbp.2018.03.003",
+      "pmid": "29524515",
+      "journal": "Progress in neuro-psychopharmacology & biological psychiatry",
+      "year": 2018,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:47.450379",
+      "source_database": "PubMed",
+      "research_goal": "MDMA PTSD therapy serotonin oxytocin",
+      "added_to_database": "2025-11-10T19:47:47.450400"
+    },
+    {
+      "article_id": "ART-00018",
+      "title": "MDMA-Based Psychotherapy in Treatment-Resistant Post-Traumatic Stress Disorder (PTSD): A Brief Narrative Overview of Current Evidence.",
+      "authors": [
+        "Riaz K",
+        "Suneel S",
+        "Hamza Bin Abdul Malik M",
+        "Kashif T",
+        "Ullah I"
+      ],
+      "doi": "10.3390/diseases11040159",
+      "pmid": "37987270",
+      "journal": "Diseases (Basel, Switzerland)",
+      "year": 2023,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:47.450410",
+      "source_database": "PubMed",
+      "research_goal": "MDMA PTSD therapy serotonin oxytocin",
+      "added_to_database": "2025-11-10T19:47:47.450411"
+    },
+    {
+      "article_id": "ART-00019",
+      "title": "The potential dangers of using MDMA for psychotherapy.",
+      "authors": [
+        "Parrott AC"
+      ],
+      "doi": "10.1080/02791072.2014.873690",
+      "pmid": "24830184",
+      "journal": "Journal of psychoactive drugs",
+      "year": 2014,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:47.450417",
+      "source_database": "PubMed",
+      "research_goal": "MDMA PTSD therapy serotonin oxytocin",
+      "added_to_database": "2025-11-10T19:47:47.450419"
+    },
+    {
+      "article_id": "ART-00020",
+      "title": "3,4-methylenedioxymethamphetamine (MDMA): current perspectives.",
+      "authors": [
+        "Meyer JS"
+      ],
+      "doi": "10.2147/SAR.S37258",
+      "pmid": "24648791",
+      "journal": "Substance abuse and rehabilitation",
+      "year": 2013,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:47.450424",
+      "source_database": "PubMed",
+      "research_goal": "MDMA PTSD therapy serotonin oxytocin",
+      "added_to_database": "2025-11-10T19:47:47.450426"
+    },
+    {
+      "article_id": "ART-00021",
+      "title": "A Neuroanatomic and Pathophysiologic Framework for Novel Pharmacological Approaches to the Treatment of Post-traumatic Stress Disorder.",
+      "authors": [
+        "Norred MA",
+        "Zuschlag ZD",
+        "Hamner MB"
+      ],
+      "doi": "10.1007/s40265-023-01983-5",
+      "pmid": "38413493",
+      "journal": "Drugs",
+      "year": 2024,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:47.450431",
+      "source_database": "PubMed",
+      "research_goal": "MDMA PTSD therapy serotonin oxytocin",
+      "added_to_database": "2025-11-10T19:47:47.450432"
+    },
+    {
+      "article_id": "ART-00022",
+      "title": "A Method to Quantify Drosophila Behavioral Activities Induced by GABA(A) Agonist Muscimol.",
+      "authors": [
+        "Karim MR"
+      ],
+      "doi": "10.21769/BioProtoc.3982",
+      "pmid": "34124286",
+      "journal": "Bio-protocol",
+      "year": 2021,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:52.332718",
+      "source_database": "PubMed",
+      "research_goal": "muscimol GABA-A agonist sleep anxiety",
+      "added_to_database": "2025-11-10T19:47:52.332740"
+    },
+    {
+      "article_id": "ART-00023",
+      "title": "GABA(A) agonists and partial agonists: THIP (Gaboxadol) as a non-opioid analgesic and a novel type of hypnotic.",
+      "authors": [
+        "Krogsgaard-Larsen P",
+        "Fr\u00f8lund B",
+        "Liljefors T",
+        "Ebert B"
+      ],
+      "doi": "10.1016/j.bcp.2004.06.040",
+      "pmid": "15451401",
+      "journal": "Biochemical pharmacology",
+      "year": 2004,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:52.332749",
+      "source_database": "PubMed",
+      "research_goal": "muscimol GABA-A agonist sleep anxiety",
+      "added_to_database": "2025-11-10T19:47:52.332750"
+    },
+    {
+      "article_id": "ART-00024",
+      "title": "Feeding behavior elicited by mu opioid and GABA receptor activation in the lateral septum.",
+      "authors": [
+        "Calderwood MT",
+        "Tseng A",
+        "Gabriella I",
+        "Stanley BG"
+      ],
+      "doi": "10.1016/j.pbb.2022.173395",
+      "pmid": "35513120",
+      "journal": "Pharmacology, biochemistry, and behavior",
+      "year": 2022,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:52.332756",
+      "source_database": "PubMed",
+      "research_goal": "muscimol GABA-A agonist sleep anxiety",
+      "added_to_database": "2025-11-10T19:47:52.332758"
+    },
+    {
+      "article_id": "ART-00025",
+      "title": "[Implications of GABAergic synapses in neuropsychiatry].",
+      "authors": [
+        "Lloyd KG",
+        "Perrault G",
+        "Zivkovic B"
+      ],
+      "doi": null,
+      "pmid": "2867252",
+      "journal": "Journal de pharmacologie",
+      "year": 1985,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:52.332763",
+      "source_database": "PubMed",
+      "research_goal": "muscimol GABA-A agonist sleep anxiety",
+      "added_to_database": "2025-11-10T19:47:52.332765"
+    },
+    {
+      "article_id": "ART-00026",
+      "title": "GABA(A) receptor modulation of 5-HT neuronal firing in the median raphe nucleus: implications for the action of anxiolytics.",
+      "authors": [
+        "Judge SJ",
+        "Young RL",
+        "Gartside SE"
+      ],
+      "doi": "10.1016/j.euroneuro.2006.01.010",
+      "pmid": "16531019",
+      "journal": "European neuropsychopharmacology : the journal of the European College of Neuropsychopharmacology",
+      "year": 2006,
+      "abstract": null,
+      "url": null,
+      "keywords": [],
+      "relevance_score": 85.0,
+      "scan_date": "2025-11-10T19:47:52.332771",
+      "source_database": "PubMed",
+      "research_goal": "muscimol GABA-A agonist sleep anxiety",
+      "added_to_database": "2025-11-10T19:47:52.332772"
+    }
+  ]
+}
