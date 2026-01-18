@@ -119,6 +119,24 @@ services:
     networks:
       - pharmasight-network
 
+  web-frontend:
+    build: ./services/web-frontend
+    ports:
+      - "8090:8090"
+    environment:
+      - PORT=8090
+      - API_GATEWAY_URL=http://api-gateway:8080
+    volumes:
+      - ./services/web-frontend/static/assets:/app/static/assets
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
   api-gateway:
     build: ./services/api-gateway
     ports:
