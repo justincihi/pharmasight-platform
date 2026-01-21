@@ -903,3 +903,29 @@ class ToxicityProfiler:
 def get_toxicity_predictor():
     """Get singleton toxicity profiler instance"""
     return ToxicityProfiler()
+
+
+def predict_toxicity(smiles: str) -> dict:
+    """
+    Wrapper function for toxicity prediction that can be called from Node.js
+    
+    Args:
+        smiles: SMILES string of the compound
+        
+    Returns:
+        Dictionary containing comprehensive toxicity predictions
+    """
+    profiler = get_toxicity_predictor()
+    result = profiler.predict_comprehensive_toxicity(smiles)
+    
+    return {
+        'smiles': smiles,
+        'herg_risk': result['herg'],
+        'hepatotoxicity': result['hepatotoxicity'],
+        'mutagenicity': result['mutagenicity'],
+        'cyp450_inhibition': result['cyp450_inhibition'],
+        'overall_risk_score': result['overall_risk_score'],
+        'risk_level': result['risk_level'],
+        'recommendations': result['recommendations'],
+        'timestamp': result['timestamp']
+    }

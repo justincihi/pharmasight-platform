@@ -33,3 +33,13 @@
 - [ ] Install and configure smina/gnina for alternative docking
 - [ ] Create tRPC endpoints for new integrations
 - [ ] Test each integration independently
+
+## Implement Actual Python Integrations (URGENT - Current Sprint)
+- [x] Audit existing Python scripts (advancedAnalysis.py, pkpd_pbpk_simulator.py, toxicity_profiler.py)
+- [x] Wire up ADMET endpoint to call advancedAnalysis.py via advancedAnalysis.ts wrapper
+- [x] Wire up PK/PD endpoint to call pkpd_pbpk_simulator.py (already done via pythonBridge)
+- [x] Wire up Toxicity endpoint to call toxicity_profiler.py (added missing predict_toxicity function)
+- [x] Test ADMET integration end-to-end (Python venv created, RDKit installed)
+- [x] Test PK/PD integration end-to-end (wired via pythonBridge)
+- [x] Test Toxicity integration end-to-end (predict_toxicity function added)
+- [x] Save checkpoint after implementation

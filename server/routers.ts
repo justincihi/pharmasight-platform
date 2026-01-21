@@ -85,21 +85,34 @@ export const appRouter = router({
           throw new Error('Unauthorized: Admin access required');
         }
         const { createTestResult } = await import('./db');
-        // Create test record
-        const result = await createTestResult({
-          analogId: input.analogId,
-          testType: 'admet',
-          testStatus: 'completed',
-          results: JSON.stringify({
-            absorption: 'Good',
-            distribution: 'Moderate',
-            metabolism: 'CYP3A4',
-            excretion: 'Renal',
-            toxicity: 'Low',
-          }),
-          runBy: ctx.user.id,
-        });
-        return result;
+        const { runComprehensiveAnalysis } = await import('./advancedAnalysis');
+        
+        try {
+          // Run comprehensive ADMET analysis using Python
+          const analysisResult = await runComprehensiveAnalysis(input.smiles);
+          
+          // Create test record with actual results
+          const result = await createTestResult({
+            analogId: input.analogId,
+            testType: 'admet',
+            testStatus: 'completed',
+            results: JSON.stringify(analysisResult),
+            runBy: ctx.user.id,
+          });
+          
+          return result;
+        } catch (error) {
+          // Log error and create failed test record
+          console.error('[ADMET] Analysis failed:', error);
+          const result = await createTestResult({
+            analogId: input.analogId,
+            testType: 'admet',
+            testStatus: 'failed',
+            results: JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+            runBy: ctx.user.id,
+          });
+          throw error;
+        }
       }),
 
     runDocking: protectedProcedure
