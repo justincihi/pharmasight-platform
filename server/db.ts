@@ -165,13 +165,14 @@ export async function searchAnalogs(
   if (!db) return [];
 
   // Search by compound name or SMILES
-  return await (db as any)
+  return await db
     .select()
     .from(analogDiscoveries)
     .where(
-      (col: any) =>
-        col.compoundName.like(`%${searchQuery}%`) ||
-        col.smiles.like(`%${searchQuery}%`)
+      or(
+        like(analogDiscoveries.compoundName, `%${searchQuery}%`),
+        like(analogDiscoveries.smiles, `%${searchQuery}%`)
+      )
     )
     .limit(limit);
 }

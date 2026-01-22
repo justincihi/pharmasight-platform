@@ -43,3 +43,14 @@
 - [x] Test PK/PD integration end-to-end (wired via pythonBridge)
 - [x] Test Toxicity integration end-to-end (predict_toxicity function added)
 - [x] Save checkpoint after implementation
+
+## Critical Bug Fixes (URGENT - User Reported)
+- [x] Fix chatbot database query error: "col.compoundName.like is not a function"
+- [x] Fix ADMET analysis errors (Python venv auto-setup added)
+- [x] Fix PK/PD simulation errors (Python venv auto-setup added)
+- [x] Fix Toxicity prediction errors (Python venv auto-setup added)
+- [x] Fix 3D viewer not working (3dmol library loads correctly, PubChem fallback in place)
+- [x] Fix autonomous research engine (venv Python now used to avoid SRE module mismatch)
+- [x] Fix trends refresh "no LLM connected" error (API keys are set, error was misleading)
+- [ ] Push code to GitHub branch dashboard-manus2026
+- [ ] Research and integrate Dragonfly open-source software
