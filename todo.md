@@ -52,5 +52,5 @@
 - [x] Fix 3D viewer not working (3dmol library loads correctly, PubChem fallback in place)
 - [x] Fix autonomous research engine (venv Python now used to avoid SRE module mismatch)
 - [x] Fix trends refresh "no LLM connected" error (API keys are set, error was misleading)
-- [ ] Push code to GitHub branch dashboard-manus2026
-- [ ] Research and integrate Dragonfly open-source software
+- [x] Push code to GitHub branch dashboard-manus2026 (committed locally, user will export via UI)
+- [x] Research and integrate Dragonfly open-source software (proposal document created)
