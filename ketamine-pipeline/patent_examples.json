@@ -1,0 +1,20 @@
+{
+  "examples": [
+    {
+      "family": "Gilgamesh_NMDA",
+      "id": "GILG-001",
+      "smiles": "CCN(C1CCCCC1=O)c2cccc(F)c2Cl",
+      "aryl_pattern": ["2-Cl", "4-F"],
+      "n_substitution": "N-methyl",
+      "prodrug_motif": null
+    },
+    {
+      "family": "XW_Prodrug",
+      "id": "XW-001",
+      "smiles": "CCN(C1CCCCC1OC(=O)C(C(O)=O)N)c2cccc(F)c2Cl",
+      "aryl_pattern": ["2-Cl", "4-F"],
+      "n_substitution": "N-ethyl",
+      "prodrug_motif": "amino-acid-carbamate"
+    }
+  ]
+}
