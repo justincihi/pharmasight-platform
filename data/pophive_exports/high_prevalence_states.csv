@@ -1,0 +1,16 @@
+geography,age,year,outcome_name,source,value,pct_captured,sample_size
+Alabama,Total,2025,Diabetes,Epic Cosmos: HbA1c,10.92,8.34,416863
+Mississippi,Total,2025,Diabetes,Epic Cosmos: HbA1c,10.26,49.07,1456025
+Kentucky,Total,2025,Diabetes,Epic Cosmos: HbA1c,9.82,50.04,2248726
+Delaware,Total,2025,Diabetes,Epic Cosmos: HbA1c,9.62,41.27,405263
+Indiana,Total,2025,Diabetes,Epic Cosmos: HbA1c,9.58,33.58,2266810
+North Carolina,Total,2025,Diabetes,Epic Cosmos: HbA1c,9.4,48.52,5030382
+South Carolina,Total,2025,Diabetes,Epic Cosmos: HbA1c,9.4,55.14,2800548
+Ohio,Total,2025,Diabetes,Epic Cosmos: HbA1c,9.36,63.93,7523962
+West Virginia,Total,2025,Diabetes,Epic Cosmos: HbA1c,9.13,49.88,898449
+Illinois,Total,2025,Diabetes,Epic Cosmos: HbA1c,8.91,35.56,4560005
+Maine,Total,2025,Diabetes,Epic Cosmos: HbA1c,8.83,45.35,615482
+Maryland,Total,2025,Diabetes,Epic Cosmos: HbA1c,8.73,22.66,1392966
+New Jersey,Total,2025,Diabetes,Epic Cosmos: HbA1c,8.7,27.75,2562446
+Kansas,Total,2025,Diabetes,Epic Cosmos: HbA1c,8.69,26.36,772835
+Missouri,Total,2025,Diabetes,Epic Cosmos: HbA1c,8.67,13.47,827513

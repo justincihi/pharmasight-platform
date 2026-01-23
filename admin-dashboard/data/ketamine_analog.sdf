@@ -1,0 +1,41 @@
+KETAMINE-20251106-A001
+  PharmaSight Generated
+  
+  0  0  0  0  0  0  0  0  0  0999 V2000
+M  END
+> <COMPOUND_NAME>
+KETAMINE-20251106-A001
+
+> <PARENT_COMPOUND>
+Ketamine
+
+> <SMILES>
+CNC1(c2cccc(F)c2Cl)CCCCC1=O
+
+> <CONFIDENCE_SCORE>
+90
+
+> <SIMILARITY_SCORE>
+88
+
+> <SAFETY_SCORE>
+90
+
+> <EFFICACY_SCORE>
+88
+
+> <MARKET_VALUE>
+$65M
+
+> <PATENT_STATUS>
+patent-free
+
+> <THERAPEUTIC_POTENTIAL>
+Enhanced NMDA receptor antagonism for treatment-resistant depression with improved safety profile
+
+
+> <KEY_DIFFERENCES>
+Fluorinated derivative with stronger binding affinity and reduced dissociative effects
+
+
+$$$$

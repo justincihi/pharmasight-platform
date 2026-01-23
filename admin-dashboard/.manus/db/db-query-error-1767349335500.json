@@ -1,0 +1,8 @@
+{
+  "query": "SELECT compoundId, compoundName, smiles, confidenceScore, discoveryDate FROM analog_discoveries WHERE DATE(discoveryDate) = CURDATE() ORDER BY discoveryDate DESC LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZWrHs2nQutWeV7.ec074e332390 --database o8A9Pr4pqVWFTwAoQ2BaGp --execute SELECT compoundId, compoundName, smiles, confidenceScore, discoveryDate FROM analog_discoveries WHERE DATE(discoveryDate) = CURDATE() ORDER BY discoveryDate DESC LIMIT 10",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'discoverydate' in 'where clause'"
+  ]
+}
