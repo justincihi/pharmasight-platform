@@ -1,0 +1,20 @@
+{
+  "query": "SELECT COUNT(*) as total, MAX(discovered_at) as latest, discovered_by FROM analog_discoveries GROUP BY discovered_by",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZWrHs2nQutWeV7.ec074e332390 --database o8A9Pr4pqVWFTwAoQ2BaGp --execute SELECT COUNT(*) as total, MAX(discovered_at) as latest, discovered_by FROM analog_discoveries GROUP BY discovered_by",
+  "rows": [
+    {
+      "total": "135",
+      "latest": "2025-12-25 08:12:37",
+      "discovered_by": "platform-api"
+    },
+    {
+      "total": "15",
+      "latest": "2025-11-09 00:00:00",
+      "discovered_by": "autonomous_system"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tlatest\tdiscovered_by\n135\t2025-12-25 08:12:37\tplatform-api\n15\t2025-11-09 00:00:00\tautonomous_system\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}

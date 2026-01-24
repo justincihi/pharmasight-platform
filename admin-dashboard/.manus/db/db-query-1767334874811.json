@@ -1,0 +1,14 @@
+{
+  "query": "SELECT COUNT(*) as total, MAX(discovered_at) as latest_discovery FROM analog_discoveries",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZWrHs2nQutWeV7.ec074e332390 --database o8A9Pr4pqVWFTwAoQ2BaGp --execute SELECT COUNT(*) as total, MAX(discovered_at) as latest_discovery FROM analog_discoveries",
+  "rows": [
+    {
+      "total": "170",
+      "latest_discovery": "2026-01-02 06:21:01"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tlatest_discovery\n170\t2026-01-02 06:21:01\n",
+  "stderr": "",
+  "execution_time_ms": 83
+}
