@@ -553,6 +553,95 @@ When users ask about analogs, test results, or discoveries, query the FULL datab
       }),
   }),
 
+  // BioTransformer - Metabolite Prediction
+  biotransformer: router({
+    predictMetabolites: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { smiles: '', metabolismType: 'human', steps: 1 };
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          metabolismType: typeof obj.metabolismType === 'string' ? obj.metabolismType : 'human',
+          steps: typeof obj.steps === 'number' ? obj.steps : 1,
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { predictMetabolites } = await import('./pythonBridge');
+        const result = await predictMetabolites(input.smiles, input.metabolismType, input.steps);
+
+        if (!result.success) {
+          throw new Error(result.error || 'BioTransformer prediction failed');
+        }
+
+        return result.data;
+      }),
+
+    batchPredict: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { compounds: [], metabolismType: 'human', steps: 1 };
+        const obj = val as Record<string, unknown>;
+        return {
+          compounds: Array.isArray(obj.compounds) ? obj.compounds : [],
+          metabolismType: typeof obj.metabolismType === 'string' ? obj.metabolismType : 'human',
+          steps: typeof obj.steps === 'number' ? obj.steps : 1,
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { batchPredictMetabolites } = await import('./pythonBridge');
+        const result = await batchPredictMetabolites(input.compounds, input.metabolismType, input.steps);
+
+        if (!result.success) {
+          throw new Error(result.error || 'Batch prediction failed');
+        }
+
+        return result.data;
+      }),
+
+    getMetabolismTypes: publicProcedure.query(async () => {
+      const { getMetabolismTypes } = await import('./pythonBridge');
+      const result = await getMetabolismTypes();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to get metabolism types');
+      }
+
+      return result.data;
+    }),
+
+    // Save metabolite results to database
+    saveResults: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0, results: {} };
+        const obj = val as Record<string, unknown>;
+        return {
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
+          results: typeof obj.results === 'object' ? obj.results : {},
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { createTestResult } = await import('./db');
+
+        const result = await createTestResult({
+          analogId: input.analogId,
+          testType: 'metabolite_prediction',
+          testStatus: 'completed',
+          results: JSON.stringify(input.results),
+          runBy: ctx.user.id,
+        });
+
+        return result;
+      }),
+  }),
+
   // Synthesis route planning
   synthesis: router({
     generateRoutes: protectedProcedure
