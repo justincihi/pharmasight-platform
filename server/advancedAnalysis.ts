@@ -88,7 +88,17 @@ interface ComprehensiveAnalysisResult {
 
 function runPythonScript(command: string, smiles: string, ...args: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
-    const python = spawn(PYTHON_VENV, [ANALYSIS_SCRIPT, command, smiles, ...args]);
+    // Isolate Python environment to prevent system Python interference
+    const venvDir = path.join(__dirname, 'python_modules', 'venv');
+    const env = {
+      ...process.env,
+      VIRTUAL_ENV: venvDir,
+      PATH: `${path.join(venvDir, 'bin')}:${process.env.PATH}`,
+      PYTHONHOME: undefined as any, // Unset to use venv's Python
+      PYTHONPATH: undefined as any, // Unset to avoid conflicts
+    };
+    
+    const python = spawn(PYTHON_VENV, [ANALYSIS_SCRIPT, command, smiles, ...args], { env });
     
     let stdout = '';
     let stderr = '';

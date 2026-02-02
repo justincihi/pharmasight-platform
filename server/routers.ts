@@ -115,6 +115,22 @@ export const appRouter = router({
         }
       }),
 
+    getTestResults: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return {
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
+        };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getTestResults } = await import('./db');
+        return getTestResults(input.analogId);
+      }),
+
     runDocking: protectedProcedure
       .input((val: unknown) => {
         if (typeof val !== 'object' || val === null) return { analogId: 0, smiles: '', target: 'NMDA' };

@@ -17,10 +17,17 @@ export default function CompoundTesting() {
     offset: 0,
   });
 
+  // Fetch test results for selected analog
+  const { data: testResults, refetch: refetchResults } = trpc.analog.getTestResults.useQuery(
+    { analogId: selectedAnalog! },
+    { enabled: !!selectedAnalog }
+  );
+
   const admetMutation = trpc.analog.runADMET.useMutation({
     onSuccess: () => {
       toast.success("ADMET analysis completed successfully");
       setActiveTest(null);
+      refetchResults();
     },
     onError: (error: any) => {
       toast.error(`ADMET analysis failed: ${error.message}`);
@@ -229,6 +236,107 @@ export default function CompoundTesting() {
                         "Run ADMET Analysis"
                       )}
                     </Button>
+
+                    {/* Display ADMET Results */}
+                    {testResults && testResults.filter((r: any) => r.testType === 'admet').length > 0 && (
+                      <div className="mt-6 space-y-4">
+                        {testResults
+                          .filter((r: any) => r.testType === 'admet')
+                          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                          .slice(0, 1)
+                          .map((result: any) => {
+                            const data = JSON.parse(result.results || '{}');
+                            const toxicity = data.toxicity_profile || {};
+                            const sa = data.synthetic_accessibility || {};
+                            
+                            return (
+                              <Card key={result.id} className="mt-4">
+                                <CardHeader>
+                                  <CardTitle className="text-lg">Latest ADMET Results</CardTitle>
+                                  <CardDescription>
+                                    Analyzed {new Date(result.createdAt).toLocaleString()}
+                                  </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                  {/* Toxicity Profile */}
+                                  <div>
+                                    <h4 className="font-semibold mb-2">Toxicity Profile</h4>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      {toxicity.hERG && (
+                                        <div className="p-3 border rounded-lg">
+                                          <div className="text-sm font-medium">hERG Risk</div>
+                                          <div className="text-2xl font-bold">{toxicity.hERG.risk_score?.toFixed(1)}</div>
+                                          <Badge variant={toxicity.hERG.risk_level === 'Low' ? 'default' : 'destructive'}>
+                                            {toxicity.hERG.risk_level}
+                                          </Badge>
+                                        </div>
+                                      )}
+                                      {toxicity.hepatotoxicity && (
+                                        <div className="p-3 border rounded-lg">
+                                          <div className="text-sm font-medium">Hepatotoxicity</div>
+                                          <div className="text-2xl font-bold">{toxicity.hepatotoxicity.risk_score?.toFixed(1)}</div>
+                                          <Badge variant={toxicity.hepatotoxicity.risk_level === 'Low' ? 'default' : 'destructive'}>
+                                            {toxicity.hepatotoxicity.risk_level}
+                                          </Badge>
+                                        </div>
+                                      )}
+                                      {toxicity.mutagenicity && (
+                                        <div className="p-3 border rounded-lg">
+                                          <div className="text-sm font-medium">Mutagenicity</div>
+                                          <Badge variant={toxicity.mutagenicity.risk_level === 'Low' ? 'default' : 'destructive'}>
+                                            {toxicity.mutagenicity.prediction}
+                                          </Badge>
+                                        </div>
+                                      )}
+                                      {toxicity.carcinogenicity && (
+                                        <div className="p-3 border rounded-lg">
+                                          <div className="text-sm font-medium">Carcinogenicity</div>
+                                          <Badge variant={toxicity.carcinogenicity.risk_level === 'Low' ? 'default' : 'destructive'}>
+                                            {toxicity.carcinogenicity.prediction}
+                                          </Badge>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Synthetic Accessibility */}
+                                  {sa.sa_score && (
+                                    <div>
+                                      <h4 className="font-semibold mb-2">Synthetic Accessibility</h4>
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="flex justify-between items-center">
+                                          <div>
+                                            <div className="text-sm text-muted-foreground">SA Score</div>
+                                            <div className="text-2xl font-bold">{sa.sa_score?.toFixed(1)}</div>
+                                          </div>
+                                          <div className="text-right">
+                                            <Badge>{sa.difficulty}</Badge>
+                                            <div className="text-sm text-muted-foreground mt-1">{sa.estimated_steps}</div>
+                                          </div>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-2">{sa.recommendation}</p>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Optimization Suggestions */}
+                                  {data.optimization_suggestions && data.optimization_suggestions.length > 0 && (
+                                    <div>
+                                      <h4 className="font-semibold mb-2">Optimization Suggestions</h4>
+                                      {data.optimization_suggestions.map((sug: any, idx: number) => (
+                                        <div key={idx} className="p-3 border rounded-lg mb-2">
+                                          <div className="font-medium">{sug.modification}</div>
+                                          <p className="text-sm text-muted-foreground mt-1">{sug.rationale}</p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </TabsContent>
