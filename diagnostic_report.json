@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-10-26T16:25:01.971436",
+  "total_tests": 8,
+  "passed": 4,
+  "failed": 4,
+  "success_rate": "50.0%",
+  "results": {
+    "RDKit Integration": "PASS",
+    "Compound Database": "PASS",
+    "DDI Analysis": "PASS",
+    "Analog Generation": "FAIL",
+    "Research Findings": "FAIL",
+    "Flask Application": "PASS",
+    "RDKit API": "FAIL",
+    "ADMET Predictor": "FAIL"
+  }
+}

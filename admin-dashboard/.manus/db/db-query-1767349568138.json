@@ -1,0 +1,80 @@
+{
+  "query": "SELECT compound_id, compound_name, smiles, confidence_score, created_at FROM analog_discoveries ORDER BY created_at DESC LIMIT 10",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2ZWrHs2nQutWeV7.ec074e332390 --database o8A9Pr4pqVWFTwAoQ2BaGp --execute SELECT compound_id, compound_name, smiles, confidence_score, created_at FROM analog_discoveries ORDER BY created_at DESC LIMIT 10",
+  "rows": [
+    {
+      "compound_id": "8247a3b6b87f1020",
+      "compound_name": "PHS-20260102-008",
+      "smiles": "CC(C)NCC(O)COc1ccccc1",
+      "confidence_score": "61",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "e537912cc5ba9cb0",
+      "compound_name": "PHS-20260102-005",
+      "smiles": "CN1C2CCC1CC(C2)OC(=O)C(CO)c3ccccc3",
+      "confidence_score": "64",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "6ff23ac7fd6bbc14",
+      "compound_name": "PHS-20260102-001",
+      "smiles": "COc1cc2c(cc1OC)CCN(C2)C",
+      "confidence_score": "83",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "2661e30c1ba33934",
+      "compound_name": "PHS-20260102-007",
+      "smiles": "Clc1ccc(cc1)C(c2ccccc2)N3CCNCC3",
+      "confidence_score": "62",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "f46b4cc36e9e4e2c",
+      "compound_name": "PHS-20260102-006",
+      "smiles": "CN(C)CCc1c[nH]c2ccc(O)cc12",
+      "confidence_score": "65",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "6f97c00daa3d848b",
+      "compound_name": "PHS-20260102-004",
+      "smiles": "CN(C)CCC=C1c2ccccc2CCc3ccccc13",
+      "confidence_score": "77",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "7d90f82f75eb3295",
+      "compound_name": "PHS-20260102-009",
+      "smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "confidence_score": "86",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "c969c7f47dbaa4e1",
+      "compound_name": "PHS-20260102-003",
+      "smiles": "CN1CCC23C4C(=O)CCC2(C1CC5=C3C(=C(C=C5)O)O4)O",
+      "confidence_score": "88",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "b799f70c5124d76e",
+      "compound_name": "PHS-20260102-010",
+      "smiles": "CC(C)Cc1ccc(cc1)C(C)C(=O)O",
+      "confidence_score": "79",
+      "created_at": "2026-01-02 10:26:01"
+    },
+    {
+      "compound_id": "e188b7ef457d4e4c",
+      "compound_name": "PHS-20260102-002",
+      "smiles": "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+      "confidence_score": "46",
+      "created_at": "2026-01-02 10:26:01"
+    }
+  ],
+  "messages": [],
+  "stdout": "compound_id\tcompound_name\tsmiles\tconfidence_score\tcreated_at\n8247a3b6b87f1020\tPHS-20260102-008\tCC(C)NCC(O)COc1ccccc1\t61\t2026-01-02 10:26:01\ne537912cc5ba9cb0\tPHS-20260102-005\tCN1C2CCC1CC(C2)OC(=O)C(CO)c3ccccc3\t64\t2026-01-02 10:26:01\n6ff23ac7fd6bbc14\tPHS-20260102-001\tCOc1cc2c(cc1OC)CCN(C2)C\t83\t2026-01-02 10:26:01\n2661e30c1ba33934\tPHS-20260102-007\tClc1ccc(cc1)C(c2ccccc2)N3CCNCC3\t62\t2026-01-02 10:26:01\nf46b4cc36e9e4e2c\tPHS-20260102-006\tCN(C)CCc1c[nH]c2ccc(O)cc12\t65\t2026-01-02 10:26:01\n6f97c00daa3d848b\tPHS-20260102-004\tCN(C)CCC=C1c2ccccc2CCc3ccccc13\t77\t2026-01-02 10:26:01\n7d90f82f75eb3295\tPHS-20260102-009\tCC(=O)Oc1ccccc1C(=O)O\t86\t2026-01-02 10:26:01\nc969c7f47dbaa4e1\tPHS-20260102-003\tCN1CCC23C4C(=O)CCC2(C1CC5=C3C(=C(C=C5)O)O4)O\t88\t2026-01-02 10:26:01\nb799f70c5124d76e\tPHS-20260102-010\tCC(C)Cc1ccc(cc1)C(C)C(=O)O\t79\t2026-01-02 10:26:01\ne188b7ef457d4e4c\tPHS-20260102-002\tCN1C=NC2=C1C(=O)N(C(=O)N2C)C\t46\t2026-01-02 10:26:01\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

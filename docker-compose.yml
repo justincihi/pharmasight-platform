@@ -1,0 +1,341 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # DATABASES
+  # ============================================================================
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - pharmasight-network
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-pharmasight_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pharmasight_pass_2024}
+      - POSTGRES_DB=${POSTGRES_DB:-pharmasight_db}
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-pharmasight_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pharmasight-network
+
+  mysql:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-pharmasight_mysql_2024}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-pharmasight}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD:-pharmasight_mysql_2024}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pharmasight-network
+
+  # ============================================================================
+  # ADMIN DASHBOARD (TypeScript/React)
+  # ============================================================================
+
+  admin-dashboard:
+    build: ./admin-dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=mysql://root:${MYSQL_ROOT_PASSWORD:-pharmasight_mysql_2024}@mysql:3306/${MYSQL_DATABASE:-pharmasight}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - SONAR_API_KEY=${SONAR_API_KEY}
+      - PLATFORM_API_KEY=${PLATFORM_API_KEY}
+      - NODE_ENV=production
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+    volumes:
+      - ./data:/app/data:ro
+      - ./admin-dashboard/master_analogs.json:/app/master_analogs.json:ro
+
+  # ============================================================================
+  # PYTHON MICROSERVICES
+  # ============================================================================
+
+  compound-service:
+    build: ./services/compound-analysis
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@postgres:5432/${POSTGRES_DB:-pharmasight_db}
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  analog-service:
+    build: ./services/analog-generation
+    ports:
+      - "8002:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  ml-service:
+    build: ./services/ml-models
+    ports:
+      - "8003:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+    # Uncomment if GPU available for ML models
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  quantum-calculator:
+    build: ./services/quantum-calculator
+    ports:
+      - "8004:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "8005:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production-2024}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  web-frontend:
+    build: ./services/web-frontend
+    ports:
+      - "8090:8090"
+    environment:
+      - PORT=8090
+      - API_GATEWAY_URL=http://api-gateway:8080
+    volumes:
+      - ./services/web-frontend/static/assets:/app/static/assets
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  research-engine:
+    build: ./services/research-engine
+    ports:
+      - "8006:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@db:5432/${POSTGRES_DB:-pharmasight_db}
+      - REDIS_URL=redis://redis:6379/0
+      - PUBMED_API_KEY=${PUBMED_API_KEY:-}
+      - PUBCHEM_API_KEY=${PUBCHEM_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  api-gateway:
+    build: ./services/api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RATE_LIMIT_REQUESTS=100
+      - RATE_LIMIT_WINDOW=60
+    depends_on:
+      compound-service:
+        condition: service_healthy
+      analog-service:
+        condition: service_healthy
+      ml-service:
+        condition: service_healthy
+      quantum-calculator:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  pophive-connector:
+    build: ./services/pophive-connector
+    ports:
+      - "8006:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  # ============================================================================
+  # CHEMINFORMATICS SERVICES
+  # ============================================================================
+
+  biotransformer:
+    build: ./services/biotransformer
+    ports:
+      - "8007:8000"
+    environment:
+      - JAVA_OPTS=-Xmx4g
+      - PREDICTION_TIMEOUT=300
+      - DEBUG=False
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  # NOTE: AutoDock Vina docking service (to be implemented)
+  # Requires receptor PDB files in ./data/receptors/
+  # docking-service:
+  #   build: ./services/docking-service
+  #   ports:
+  #     - "8008:8000"
+  #   volumes:
+  #     - ./data/receptors:/data/receptors:ro
+  #   environment:
+  #     - VINA_AVAILABLE=true
+  #   restart: unless-stopped
+  #   networks:
+  #     - pharmasight-network
+
+  # ============================================================================
+  # AI-POWERED DRUG DISCOVERY (DRAGONFLY)
+  # ============================================================================
+
+  # NOTE: Dragonfly_gen - De novo molecular design (to be implemented)
+  # Requires GPU with 8GB+ VRAM
+  # dragonfly-gen:
+  #   build: ./services/dragonfly-gen
+  #   ports:
+  #     - "8009:8009"
+  #   restart: unless-stopped
+  #   networks:
+  #     - pharmasight-network
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+
+  # NOTE: Dragonfly Bayesian optimizer (to be implemented)
+  # dragonfly-optimizer:
+  #   build: ./services/dragonfly-optimizer
+  #   ports:
+  #     - "8010:8010"
+  #   restart: unless-stopped
+  #   networks:
+  #     - pharmasight-network
+
+networks:
+  pharmasight-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mysql_data:
+  redis_data:

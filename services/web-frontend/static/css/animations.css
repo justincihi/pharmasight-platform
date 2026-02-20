@@ -1,0 +1,628 @@
+/* ===================================
+   PharmaSight™ - Animations & Effects
+   =================================== */
+
+/* ===================================
+   Loading Screen Animations
+   =================================== */
+
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+/* Molecular Loader Animation */
+.molecular-loader {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 2rem;
+}
+
+.nucleus {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #00d4ff 0%, #9333ea 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.atom {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: #00d4ff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+}
+
+.atom-1 {
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: orbit-1 3s linear infinite;
+}
+
+.atom-2 {
+    bottom: 10px;
+    right: 10px;
+    animation: orbit-2 3s linear infinite;
+}
+
+.atom-3 {
+    bottom: 10px;
+    left: 10px;
+    animation: orbit-3 3s linear infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        box-shadow: 0 0 30px rgba(147, 51, 234, 0.8);
+    }
+}
+
+@keyframes orbit-1 {
+    0% {
+        transform: translateX(-50%) rotate(0deg) translateX(50px) rotate(0deg);
+    }
+    100% {
+        transform: translateX(-50%) rotate(360deg) translateX(50px) rotate(-360deg);
+    }
+}
+
+@keyframes orbit-2 {
+    0% {
+        transform: rotate(120deg) translateX(50px) rotate(-120deg);
+    }
+    100% {
+        transform: rotate(480deg) translateX(50px) rotate(-480deg);
+    }
+}
+
+@keyframes orbit-3 {
+    0% {
+        transform: rotate(240deg) translateX(50px) rotate(-240deg);
+    }
+    100% {
+        transform: rotate(600deg) translateX(50px) rotate(-600deg);
+    }
+}
+
+.loading-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #00d4ff 0%, #9333ea 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.educational-slide {
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 500px;
+    animation: fadeInSlide 1s ease-in-out;
+}
+
+.slide-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================================
+   Molecular Logo Animations
+   =================================== */
+
+.molecular-logo {
+    filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.3));
+}
+
+.nucleus-circle {
+    animation: nucleus-pulse 3s ease-in-out infinite;
+}
+
+@keyframes nucleus-pulse {
+    0%, 100% {
+        r: 8;
+        opacity: 1;
+    }
+    50% {
+        r: 10;
+        opacity: 0.8;
+    }
+}
+
+.orbit-atom {
+    animation: atom-glow 2s ease-in-out infinite;
+}
+
+.orbit-1 {
+    animation: atom-orbit-1 6s linear infinite, atom-glow 2s ease-in-out infinite;
+    transform-origin: 50px 50px;
+}
+
+.orbit-2 {
+    animation: atom-orbit-2 6s linear infinite, atom-glow 2s ease-in-out infinite;
+    transform-origin: 50px 50px;
+}
+
+.orbit-3 {
+    animation: atom-orbit-3 6s linear infinite, atom-glow 2s ease-in-out infinite;
+    transform-origin: 50px 50px;
+}
+
+@keyframes atom-orbit-1 {
+    0% {
+        transform: rotate(0deg) translateX(30px) rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg) translateX(30px) rotate(-360deg);
+    }
+}
+
+@keyframes atom-orbit-2 {
+    0% {
+        transform: rotate(120deg) translateX(30px) rotate(-120deg);
+    }
+    100% {
+        transform: rotate(480deg) translateX(30px) rotate(-480deg);
+    }
+}
+
+@keyframes atom-orbit-3 {
+    0% {
+        transform: rotate(240deg) translateX(30px) rotate(-240deg);
+    }
+    100% {
+        transform: rotate(600deg) translateX(30px) rotate(-600deg);
+    }
+}
+
+@keyframes atom-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 3px rgba(0, 212, 255, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 8px rgba(0, 212, 255, 1));
+    }
+}
+
+.orbital-path {
+    animation: path-pulse 4s ease-in-out infinite;
+}
+
+@keyframes path-pulse {
+    0%, 100% {
+        opacity: 0.3;
+        stroke-width: 0.5;
+    }
+    50% {
+        opacity: 0.6;
+        stroke-width: 1;
+    }
+}
+
+/* ===================================
+   Scroll Animations
+   =================================== */
+
+[data-animation] {
+    opacity: 0;
+    transition: all 0.8s ease;
+}
+
+[data-animation="fade-up"] {
+    transform: translateY(30px);
+}
+
+[data-animation="fade-up"].animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+[data-animation][data-delay="100"].animated {
+    transition-delay: 0.1s;
+}
+
+[data-animation][data-delay="200"].animated {
+    transition-delay: 0.2s;
+}
+
+[data-animation][data-delay="300"].animated {
+    transition-delay: 0.3s;
+}
+
+[data-animation][data-delay="400"].animated {
+    transition-delay: 0.4s;
+}
+
+[data-animation][data-delay="500"].animated {
+    transition-delay: 0.5s;
+}
+
+/* ===================================
+   Particle Background Animation
+   =================================== */
+
+@keyframes particle-float {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+    }
+    25% {
+        transform: translateY(-20px) translateX(10px);
+    }
+    50% {
+        transform: translateY(-10px) translateX(-10px);
+    }
+    75% {
+        transform: translateY(-30px) translateX(5px);
+    }
+}
+
+/* ===================================
+   Icon Animations
+   =================================== */
+
+.arrow-icon {
+    transition: transform 0.3s ease;
+}
+
+.btn-primary:hover .arrow-icon {
+    transform: translateX(5px);
+}
+
+.play-icon {
+    animation: play-pulse 2s ease-in-out infinite;
+}
+
+@keyframes play-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ===================================
+   Glassmorphism Hover Effects
+   =================================== */
+
+.glass-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(0, 212, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.glass-card:hover::before {
+    animation: glass-shine 1.5s ease-in-out;
+}
+
+@keyframes glass-shine {
+    0% {
+        left: -50%;
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        left: 150%;
+        opacity: 0;
+    }
+}
+
+/* ===================================
+   Gradient Border Animation
+   =================================== */
+
+.gradient-border {
+    position: relative;
+    background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+    padding: 2px;
+    border-radius: var(--radius-lg);
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: var(--radius-lg);
+    padding: 2px;
+    background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: gradient-rotate 3s linear infinite;
+}
+
+@keyframes gradient-rotate {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* ===================================
+   Text Typing Animation
+   =================================== */
+
+.typing-text {
+    overflow: hidden;
+    border-right: 2px solid var(--primary-cyan);
+    white-space: nowrap;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink-caret {
+    from,
+    to {
+        border-color: transparent;
+    }
+    50% {
+        border-color: var(--primary-cyan);
+    }
+}
+
+/* ===================================
+   Floating Animation
+   =================================== */
+
+.float {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+/* ===================================
+   Ripple Effect
+   =================================== */
+
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* ===================================
+   Glow Effects
+   =================================== */
+
+.glow-on-hover {
+    transition: all 0.3s ease;
+}
+
+.glow-on-hover:hover {
+    box-shadow:
+        0 0 20px rgba(0, 212, 255, 0.4),
+        0 0 40px rgba(0, 212, 255, 0.2),
+        0 0 60px rgba(0, 212, 255, 0.1);
+}
+
+/* ===================================
+   Parallax Effects
+   =================================== */
+
+.parallax-layer {
+    transition: transform 0.3s ease-out;
+}
+
+/* ===================================
+   Page Transition
+   =================================== */
+
+.page-transition {
+    animation: pageEnter 0.5s ease-out;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================================
+   Skeleton Loading
+   =================================== */
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ===================================
+   Counter Animation
+   =================================== */
+
+.counter {
+    animation: counter-up 2s ease-out;
+}
+
+@keyframes counter-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================================
+   Stagger Animation
+   =================================== */
+
+.stagger-item {
+    opacity: 0;
+    animation: stagger-in 0.5s ease forwards;
+}
+
+.stagger-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stagger-item:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.stagger-item:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.stagger-item:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.stagger-item:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.stagger-item:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+@keyframes stagger-in {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

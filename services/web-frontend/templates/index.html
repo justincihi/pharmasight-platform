@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaSight™ - AI-Powered Drug Discovery Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/animations.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="molecular-loader">
+                <div class="atom atom-1"></div>
+                <div class="atom atom-2"></div>
+                <div class="atom atom-3"></div>
+                <div class="nucleus"></div>
+            </div>
+            <div class="loading-text">Initializing PharmaSight™</div>
+            <div class="educational-slide">
+                <p class="slide-text">Did you know? Drug discovery typically takes 10-15 years and costs $2.6 billion</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-glass">
+        <div class="container nav-container">
+            <div class="logo-container">
+                <!-- Animated Molecular Logo -->
+                <svg class="molecular-logo" width="50" height="50" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#9333ea;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <!-- Central nucleus -->
+                    <circle class="nucleus-circle" cx="50" cy="50" r="8" fill="url(#gradient1)" filter="url(#glow)"/>
+                    <!-- Orbiting atoms -->
+                    <circle class="orbit-atom orbit-1" cx="50" cy="20" r="5" fill="#00d4ff" filter="url(#glow)"/>
+                    <circle class="orbit-atom orbit-2" cx="75" cy="65" r="5" fill="#00d4ff" filter="url(#glow)"/>
+                    <circle class="orbit-atom orbit-3" cx="25" cy="65" r="5" fill="#00d4ff" filter="url(#glow)"/>
+                    <!-- Orbital paths -->
+                    <circle class="orbital-path" cx="50" cy="50" r="30" fill="none" stroke="url(#gradient1)" stroke-width="0.5" opacity="0.3"/>
+                </svg>
+                <span class="logo-text">PharmaSight™</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#integrations" class="nav-link">Integrations</a>
+                <a href="#about" class="nav-link">About</a>
+                <a href="/dashboard" class="btn-primary-small">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background">
+            <!-- Video Background Placeholder -->
+            <div class="hero-video-container">
+                <canvas id="particle-canvas"></canvas>
+            </div>
+            <div class="gradient-overlay"></div>
+        </div>
+
+        <div class="container hero-content">
+            <h1 class="hero-title">
+                <span class="title-line">Accelerate Drug Discovery</span>
+                <span class="title-line gradient-text">With AI & Quantum Chemistry</span>
+            </h1>
+            <p class="hero-subtitle">
+                Harness the power of generative AI, molecular dynamics, and quantum calculations
+                to discover novel therapeutic compounds in weeks, not years.
+            </p>
+            <div class="hero-cta">
+                <a href="/dashboard" class="btn-primary">
+                    <span>Launch Platform</span>
+                    <svg class="arrow-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 10h12m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </a>
+                <a href="#demo-video" class="btn-secondary">
+                    <svg class="play-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                    </svg>
+                    <span>Watch Demo</span>
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-card glass-card">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-label">Compounds Analyzed</div>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-number">98.5%</div>
+                    <div class="stat-label">ADMET Accuracy</div>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-number">75%</div>
+                    <div class="stat-label">Time Reduction</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animated Molecular Structure -->
+        <div id="hero-molecule" class="hero-molecule"></div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="container">
+            <h2 class="section-title">Platform <span class="gradient-text">Capabilities</span></h2>
+            <p class="section-subtitle">End-to-end computational drug discovery toolkit</p>
+
+            <div class="features-grid">
+                <div class="feature-card glass-card" data-animation="fade-up">
+                    <div class="feature-icon gradient-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Molecular Generation</h3>
+                    <p class="feature-description">
+                        AI-powered generative chemistry creates novel molecular structures optimized for
+                        drug-like properties and target affinity.
+                    </p>
+                    <ul class="feature-list">
+                        <li>De novo molecule design</li>
+                        <li>Scaffold hopping</li>
+                        <li>Analog generation</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card glass-card" data-animation="fade-up" data-delay="100">
+                    <div class="feature-icon gradient-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">ADMET Prediction</h3>
+                    <p class="feature-description">
+                        Comprehensive absorption, distribution, metabolism, excretion, and toxicity predictions
+                        using ML models trained on 2M+ compounds.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Bioavailability scoring</li>
+                        <li>BBB penetration</li>
+                        <li>Toxicity assessment</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card glass-card" data-animation="fade-up" data-delay="200">
+                    <div class="feature-icon gradient-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Protein-Ligand Docking</h3>
+                    <p class="feature-description">
+                        Advanced molecular docking simulations predict binding affinity and interactions
+                        with target proteins and receptor sites.
+                    </p>
+                    <ul class="feature-list">
+                        <li>AutoDock Vina integration</li>
+                        <li>Binding pose visualization</li>
+                        <li>Affinity scoring</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card glass-card" data-animation="fade-up" data-delay="300">
+                    <div class="feature-icon gradient-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Quantum Chemistry</h3>
+                    <p class="feature-description">
+                        DFT calculations and quantum mechanics simulations for accurate electronic
+                        structure and property predictions.
+                    </p>
+                    <ul class="feature-list">
+                        <li>PySCF integration</li>
+                        <li>Energy optimization</li>
+                        <li>Orbital analysis</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card glass-card" data-animation="fade-up" data-delay="400">
+                    <div class="feature-icon gradient-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Safety & Compliance</h3>
+                    <p class="feature-description">
+                        Built-in FDA Orange Book integration and comprehensive safety profiling
+                        for regulatory compliance.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Patent status checking</li>
+                        <li>Clinical trial data</li>
+                        <li>Regulatory alerts</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card glass-card" data-animation="fade-up" data-delay="500">
+                    <div class="feature-icon gradient-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="16 18 22 12 16 6"/>
+                            <polyline points="8 6 2 12 8 18"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Retrosynthesis Planning</h3>
+                    <p class="feature-description">
+                        AI-driven retrosynthetic analysis suggests optimal synthesis routes
+                        from available starting materials.
+                    </p>
+                    <ul class="feature-list">
+                        <li>Multi-step route planning</li>
+                        <li>Cost estimation</li>
+                        <li>Feasibility scoring</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Integrations Section -->
+    <section id="integrations" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">Powered by <span class="gradient-text">Best-in-Class</span> Tools</h2>
+            <p class="section-subtitle">Seamlessly integrated computational chemistry ecosystem</p>
+
+            <div class="integrations-grid">
+                <!-- Current Integrations -->
+                <div class="integration-category glass-card">
+                    <h3 class="category-title">Cheminformatics</h3>
+                    <div class="integration-badges">
+                        <div class="badge"><span class="badge-icon">🧪</span>RDKit</div>
+                        <div class="badge"><span class="badge-icon">🔬</span>OpenBabel</div>
+                        <div class="badge"><span class="badge-icon">📊</span>ChemAxon</div>
+                    </div>
+                </div>
+
+                <div class="integration-category glass-card">
+                    <h3 class="category-title">Databases</h3>
+                    <div class="integration-badges">
+                        <div class="badge"><span class="badge-icon">💾</span>PubChem</div>
+                        <div class="badge"><span class="badge-icon">🗄️</span>ChEMBL</div>
+                        <div class="badge"><span class="badge-icon">📚</span>ZINC</div>
+                    </div>
+                </div>
+
+                <div class="integration-category glass-card">
+                    <h3 class="category-title">Molecular Dynamics</h3>
+                    <div class="integration-badges">
+                        <div class="badge"><span class="badge-icon">⚛️</span>AutoDock Vina</div>
+                        <div class="badge"><span class="badge-icon">🌀</span>GROMACS</div>
+                        <div class="badge"><span class="badge-icon">🔄</span>BioTransformer</div>
+                    </div>
+                </div>
+
+                <div class="integration-category glass-card">
+                    <h3 class="category-title">Quantum Computing</h3>
+                    <div class="integration-badges">
+                        <div class="badge"><span class="badge-icon">⚡</span>PySCF</div>
+                        <div class="badge"><span class="badge-icon">🔮</span>Qiskit</div>
+                        <div class="badge"><span class="badge-icon">💫</span>Psi4</div>
+                    </div>
+                </div>
+
+                <div class="integration-category glass-card">
+                    <h3 class="category-title">AI & Machine Learning</h3>
+                    <div class="integration-badges">
+                        <div class="badge"><span class="badge-icon">🤖</span>OpenAI GPT-4</div>
+                        <div class="badge"><span class="badge-icon">🧠</span>Google Gemini</div>
+                        <div class="badge"><span class="badge-icon">💬</span>Anthropic Claude</div>
+                    </div>
+                </div>
+
+                <div class="integration-category glass-card">
+                    <h3 class="category-title">Visualization</h3>
+                    <div class="integration-badges">
+                        <div class="badge"><span class="badge-icon">🎨</span>3Dmol.js</div>
+                        <div class="badge"><span class="badge-icon">📈</span>Plotly</div>
+                        <div class="badge"><span class="badge-icon">🖼️</span>BioRender</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planned Integrations -->
+            <div class="planned-integrations">
+                <h3 class="subsection-title">Coming Soon</h3>
+                <div class="planned-grid">
+                    <div class="planned-item glass-card-subtle">
+                        <span class="planned-icon">🧬</span>
+                        <div class="planned-content">
+                            <h4>CRISPR Design Tools</h4>
+                            <p>Genetic engineering capabilities</p>
+                        </div>
+                    </div>
+                    <div class="planned-item glass-card-subtle">
+                        <span class="planned-icon">🔄</span>
+                        <div class="planned-content">
+                            <h4>IBM RXN for Chemistry</h4>
+                            <p>AI-powered retrosynthesis</p>
+                        </div>
+                    </div>
+                    <div class="planned-item glass-card-subtle">
+                        <span class="planned-icon">🌊</span>
+                        <div class="planned-content">
+                            <h4>Flow Chemistry Platform</h4>
+                            <p>Automated synthesis workflows</p>
+                        </div>
+                    </div>
+                    <div class="planned-item glass-card-subtle">
+                        <span class="planned-icon">🎯</span>
+                        <div class="planned-content">
+                            <h4>NVIDIA bioNEMO</h4>
+                            <p>Generative AI for biomolecules</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Video Section -->
+    <section id="demo-video" class="section">
+        <div class="container">
+            <h2 class="section-title">See PharmaSight <span class="gradient-text">in Action</span></h2>
+            <div class="video-container glass-card">
+                <div id="molecular-animation-container">
+                    <!-- Three.js molecular animation will be rendered here -->
+                    <canvas id="molecular-canvas"></canvas>
+                </div>
+                <div class="video-overlay">
+                    <button class="play-btn" id="play-animation">
+                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                            <circle cx="30" cy="30" r="28" stroke="url(#gradient1)" stroke-width="2"/>
+                            <path d="M24 18l18 12-18 12V18z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <p>Watch how PharmaSight discovers novel therapeutic compounds</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section section-dark">
+        <div class="container">
+            <h2 class="section-title">About <span class="gradient-text">PharmaSight™</span></h2>
+            <div class="about-content">
+                <div class="about-text glass-card">
+                    <p class="lead-text">
+                        PharmaSight™ is a next-generation computational drug discovery platform that combines
+                        artificial intelligence, quantum chemistry, and advanced cheminformatics to accelerate
+                        the identification of novel therapeutic compounds.
+                    </p>
+                    <p>
+                        Our platform leverages state-of-the-art machine learning models, quantum mechanical
+                        calculations, and comprehensive molecular databases to predict drug-like properties,
+                        optimize lead compounds, and suggest synthetic routes—all in a fraction of the time
+                        required by traditional methods.
+                    </p>
+                    <div class="about-highlights">
+                        <div class="highlight-item">
+                            <span class="highlight-number">10-15 years</span>
+                            <span class="highlight-label">Traditional drug discovery timeline</span>
+                        </div>
+                        <div class="highlight-item">
+                            <span class="highlight-number">Weeks</span>
+                            <span class="highlight-label">With PharmaSight™</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-gallery">
+                    <div class="gallery-item glass-card">
+                        <img src="/static/assets/images/molecular_viz.png" alt="Molecular Visualization" />
+                        <p>Advanced molecular visualization</p>
+                    </div>
+                    <div class="gallery-item glass-card">
+                        <img src="/static/assets/images/lab_research.jpg" alt="Research Lab" />
+                        <p>Cutting-edge research tools</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo-container">
+                        <svg class="molecular-logo-small" width="40" height="40" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="8" fill="url(#gradient1)"/>
+                            <circle class="orbit-atom" cx="50" cy="20" r="5" fill="#00d4ff"/>
+                            <circle class="orbit-atom" cx="75" cy="65" r="5" fill="#00d4ff"/>
+                            <circle class="orbit-atom" cx="25" cy="65" r="5" fill="#00d4ff"/>
+                        </svg>
+                        <span class="logo-text">PharmaSight™</span>
+                    </div>
+                    <p class="footer-tagline">Accelerating drug discovery through AI and quantum chemistry</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Platform</h4>
+                        <a href="/dashboard">Dashboard</a>
+                        <a href="#features">Features</a>
+                        <a href="#integrations">Integrations</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="/docs">Documentation</a>
+                        <a href="/api">API Reference</a>
+                        <a href="/research">Research</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <a href="#about">About</a>
+                        <a href="/contact">Contact</a>
+                        <a href="/privacy">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 PharmaSight™. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="/static/js/particles.js"></script>
+    <script src="/static/js/molecular-animations.js"></script>
+    <script src="/static/js/loading-screens.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
