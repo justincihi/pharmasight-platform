@@ -1,0 +1,269 @@
+{
+  "name": "PharmaSight Platform Integration Testing",
+  "description": "Automated testing and deployment verification for PharmaSight drug discovery platform",
+  "branch": "claude/fix-todo-comment-8Pkt3",
+  "tasks": [
+    {
+      "id": "setup-environment",
+      "name": "Setup Environment",
+      "description": "Configure environment variables and dependencies",
+      "steps": [
+        "Create .env file in project root with required API keys",
+        "Create .env file in admin-dashboard/ for TypeScript services",
+        "Verify Docker and Docker Compose are available",
+        "Install Node.js dependencies for admin dashboard",
+        "Install Python dependencies for services"
+      ],
+      "priority": "high",
+      "estimatedTime": "10 minutes"
+    },
+    {
+      "id": "test-ketamine-pipeline",
+      "name": "Test Ketamine Analog Pipeline",
+      "description": "Verify patent boundary classification and 3D conformer generation",
+      "steps": [
+        "cd ketamine-pipeline",
+        "pip3 install -r requirements.txt",
+        "python3 main.py",
+        "Verify output in results/ketamine_aryl_analogs_ip_labels.json",
+        "Verify 3D SDF in data/ketamine_3d.sdf",
+        "Check IP classification labels (inside/near-boundary/outside)"
+      ],
+      "priority": "high",
+      "estimatedTime": "5 minutes",
+      "expectedOutputs": [
+        "results/ketamine_aryl_analogs_ip_labels.json",
+        "data/ketamine_3d.sdf"
+      ]
+    },
+    {
+      "id": "test-biotransformer",
+      "name": "Test BioTransformer Service",
+      "description": "Verify metabolite prediction service in mock mode",
+      "steps": [
+        "docker-compose up -d biotransformer",
+        "Wait 10 seconds for service to start",
+        "curl http://localhost:8007/health",
+        "curl -X POST http://localhost:8007/metabolism-types",
+        "Test prediction endpoint with ketamine SMILES",
+        "Verify mock mode response includes metabolites"
+      ],
+      "priority": "high",
+      "estimatedTime": "5 minutes",
+      "healthCheck": "http://localhost:8007/health"
+    },
+    {
+      "id": "setup-databases",
+      "name": "Setup Databases",
+      "description": "Initialize MySQL and PostgreSQL databases",
+      "steps": [
+        "docker-compose up -d mysql postgres redis",
+        "Wait 30 seconds for databases to initialize",
+        "Verify MySQL is ready: docker-compose exec mysql mysqladmin ping",
+        "Verify PostgreSQL is ready: docker-compose exec postgres pg_isready",
+        "Verify Redis is ready: docker-compose exec redis redis-cli ping"
+      ],
+      "priority": "high",
+      "estimatedTime": "2 minutes"
+    },
+    {
+      "id": "setup-admin-dashboard",
+      "name": "Setup Admin Dashboard",
+      "description": "Install dependencies and run database migrations",
+      "steps": [
+        "cd admin-dashboard",
+        "npm install",
+        "npx drizzle-kit push --config=drizzle.config.ts",
+        "Verify schema created successfully",
+        "npm run dev (run in background)",
+        "Wait 15 seconds for server to start",
+        "curl http://localhost:3000/api/health"
+      ],
+      "priority": "high",
+      "estimatedTime": "15 minutes",
+      "healthCheck": "http://localhost:3000/api/health"
+    },
+    {
+      "id": "test-microservices",
+      "name": "Test Python Microservices",
+      "description": "Start and verify all Python microservices",
+      "steps": [
+        "docker-compose up -d compound-service analog-service ml-service quantum-calculator auth-service api-gateway pophive-connector",
+        "Wait 30 seconds for all services to start",
+        "Check compound-service: curl http://localhost:8001/health",
+        "Check analog-service: curl http://localhost:8002/health",
+        "Check ml-service: curl http://localhost:8003/health",
+        "Check quantum-calculator: curl http://localhost:8004/health",
+        "Check auth-service: curl http://localhost:8005/health",
+        "Check pophive-connector: curl http://localhost:8006/health",
+        "Check api-gateway: curl http://localhost:8080/health"
+      ],
+      "priority": "medium",
+      "estimatedTime": "5 minutes"
+    },
+    {
+      "id": "test-chatbot",
+      "name": "Test Multi-LLM Chatbot",
+      "description": "Verify chatbot functionality in admin dashboard",
+      "steps": [
+        "Open http://localhost:3000 in browser",
+        "Navigate to chatbot interface",
+        "Test sample query: 'What are the top 5 analogs?'",
+        "Verify chatbot responds with analog data",
+        "Test different LLM providers if API keys available"
+      ],
+      "priority": "medium",
+      "estimatedTime": "10 minutes",
+      "requiresManualVerification": true
+    },
+    {
+      "id": "test-end-to-end-workflow",
+      "name": "End-to-End Discovery Workflow",
+      "description": "Test complete analog discovery pipeline",
+      "steps": [
+        "Generate analog with ketamine pipeline",
+        "Submit to ADMET prediction via admin dashboard API",
+        "Predict metabolites with BioTransformer",
+        "Verify analog appears in admin dashboard",
+        "Check database for stored results",
+        "Verify confidence scores calculated correctly"
+      ],
+      "priority": "high",
+      "estimatedTime": "15 minutes"
+    },
+    {
+      "id": "verify-autonomous-engine",
+      "name": "Verify Autonomous Research Engine",
+      "description": "Test autonomous research scheduler and PubMed integration",
+      "steps": [
+        "cd admin-dashboard",
+        "Test research engine directly: python3 server/python_modules/autonomous_research_engine.py --goals 'NMDA antagonists' --max-api-calls 5",
+        "Verify output in autonomous_research_output.json",
+        "Check if analogs were generated",
+        "Verify scheduler configuration in server/initScheduler.ts"
+      ],
+      "priority": "medium",
+      "estimatedTime": "10 minutes",
+      "requiresPubMedAPI": true
+    },
+    {
+      "id": "performance-testing",
+      "name": "Performance & Load Testing",
+      "description": "Test system performance under load",
+      "steps": [
+        "Run batch analog generation test (10 compounds)",
+        "Test BioTransformer batch endpoint with 5 compounds",
+        "Monitor Docker resource usage",
+        "Check response times for API endpoints",
+        "Verify no memory leaks or crashes"
+      ],
+      "priority": "low",
+      "estimatedTime": "20 minutes"
+    },
+    {
+      "id": "generate-report",
+      "name": "Generate Test Report",
+      "description": "Document all test results and issues",
+      "steps": [
+        "Compile test results from all tasks",
+        "Document any errors or warnings",
+        "List missing dependencies or configuration issues",
+        "Create MANUS_TEST_REPORT.md with findings",
+        "Include screenshots of admin dashboard",
+        "List API response times and performance metrics"
+      ],
+      "priority": "high",
+      "estimatedTime": "10 minutes",
+      "outputs": ["MANUS_TEST_REPORT.md"]
+    }
+  ],
+  "environment": {
+    "required": [
+      "MYSQL_ROOT_PASSWORD",
+      "DATABASE_URL",
+      "PLATFORM_API_KEY"
+    ],
+    "optional": [
+      "GEMINI_API_KEY",
+      "ANTHROPIC_API_KEY",
+      "SONAR_API_KEY",
+      "PUBMED_API_KEY"
+    ],
+    "defaults": {
+      "MYSQL_ROOT_PASSWORD": "pharmasight_mysql_2024",
+      "MYSQL_DATABASE": "pharmasight",
+      "POSTGRES_USER": "pharmasight_user",
+      "POSTGRES_PASSWORD": "pharmasight_pass_2024",
+      "POSTGRES_DB": "pharmasight_db",
+      "PLATFORM_API_KEY": "test-api-key-12345"
+    }
+  },
+  "services": {
+    "databases": ["mysql", "postgres", "redis"],
+    "python": [
+      "compound-service",
+      "analog-service",
+      "ml-service",
+      "quantum-calculator",
+      "auth-service",
+      "api-gateway",
+      "pophive-connector",
+      "biotransformer"
+    ],
+    "typescript": ["admin-dashboard"],
+    "ports": {
+      "admin-dashboard": 3000,
+      "compound-service": 8001,
+      "analog-service": 8002,
+      "ml-service": 8003,
+      "quantum-calculator": 8004,
+      "auth-service": 8005,
+      "pophive-connector": 8006,
+      "biotransformer": 8007,
+      "api-gateway": 8080,
+      "mysql": 3306,
+      "postgres": 5432,
+      "redis": 6379
+    }
+  },
+  "expectedResults": {
+    "totalServices": 12,
+    "healthyServices": 12,
+    "failedTests": 0,
+    "generatedAnalogs": ">= 3",
+    "databaseRecords": ">= 150",
+    "apiResponseTime": "< 2000ms"
+  },
+  "troubleshooting": {
+    "commonIssues": [
+      {
+        "issue": "MySQL connection refused",
+        "solution": "Wait 30 seconds after docker-compose up for MySQL to initialize"
+      },
+      {
+        "issue": "Admin dashboard npm install fails",
+        "solution": "Use Node.js version 18 or higher. Try: nvm install 18 && nvm use 18"
+      },
+      {
+        "issue": "BioTransformer predictions return errors",
+        "solution": "Service runs in mock mode without JAR file. Check for 'mock_mode: true' in response"
+      },
+      {
+        "issue": "Port already in use",
+        "solution": "Stop conflicting services: docker-compose down && fuser -k 3000/tcp 8080/tcp"
+      },
+      {
+        "issue": "RDKit import errors in ketamine pipeline",
+        "solution": "Install RDKit: pip3 install rdkit"
+      }
+    ]
+  },
+  "documentation": [
+    "README.md",
+    "INTEGRATION_COMPLETE_SUMMARY.md",
+    "DRAGONFLY_INTEGRATION_PLAN.md",
+    "ketamine-pipeline/README.md",
+    "services/biotransformer/README.md",
+    "PLATFORM_API.md"
+  ]
+}

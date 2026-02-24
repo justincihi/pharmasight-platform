@@ -1,0 +1,136 @@
+[
+  {
+    "discovery_id": "3b6af4f3dcbd9708",
+    "compound_name": "PHS-20260107-001",
+    "compound_smiles": "COc1cc2c(cc1OC)C(=O)C(CC2)Cc3ccc(c(c3)OC)OC",
+    "discovery_type": "Natural Product Derivative",
+    "confidence": 85,
+    "estimated_value": 9009226,
+    "therapeutic_area": "CNS Disorders",
+    "mechanism": "Allosteric Modulator",
+    "timestamp": "2026-01-07T02:38:18.753890",
+    "key_features": [
+      "Favorable safety profile",
+      "BBB penetrant",
+      "Excellent oral bioavailability"
+    ],
+    "next_steps": [
+      "Validate with secondary assays",
+      "Perform selectivity screening",
+      "Optimize key properties",
+      "Conduct IP landscape analysis"
+    ]
+  },
+  {
+    "discovery_id": "337fbacc99cc2149",
+    "compound_name": "PHS-20260107-004",
+    "compound_smiles": "CC(C)NCC(O)c1ccc(cc1)COCCOC",
+    "discovery_type": "Natural Product Derivative",
+    "confidence": 81,
+    "estimated_value": 18005830,
+    "therapeutic_area": "CNS Disorders",
+    "mechanism": "Allosteric Modulator",
+    "timestamp": "2026-01-07T02:38:18.754014",
+    "key_features": [
+      "High selectivity (>1000x)",
+      "Low CYP inhibition",
+      "Long half-life (>24h)",
+      "Potent activity (IC50 < 10nM)"
+    ],
+    "next_steps": [
+      "Validate with secondary assays",
+      "Perform selectivity screening",
+      "Optimize key properties",
+      "Conduct IP landscape analysis"
+    ]
+  },
+  {
+    "discovery_id": "cec01b2f39f63360",
+    "compound_name": "PHS-20260107-006",
+    "compound_smiles": "CNC(=O)Oc1cccc(c1)N(C)C",
+    "discovery_type": "Analog Screening",
+    "confidence": 80,
+    "estimated_value": 15014175,
+    "therapeutic_area": "Oncology",
+    "mechanism": "Receptor Antagonist",
+    "timestamp": "2026-01-07T02:38:18.754080",
+    "key_features": [
+      "High selectivity (>1000x)",
+      "Favorable safety profile"
+    ],
+    "next_steps": [
+      "Validate with secondary assays",
+      "Perform selectivity screening",
+      "Optimize key properties",
+      "Conduct IP landscape analysis"
+    ]
+  },
+  {
+    "discovery_id": "d7a722d3f54b33a3",
+    "compound_name": "PHS-20260107-003",
+    "compound_smiles": "CC(Cc1ccccc1)NC",
+    "discovery_type": "Fragment-Based Discovery",
+    "confidence": 75,
+    "estimated_value": 36433508,
+    "therapeutic_area": "Metabolic Diseases",
+    "mechanism": "Ion Channel Modulator",
+    "timestamp": "2026-01-07T02:38:18.753986",
+    "key_features": [
+      "High metabolic stability",
+      "Long half-life (>24h)",
+      "Excellent oral bioavailability",
+      "BBB penetrant"
+    ],
+    "next_steps": [
+      "Validate with secondary assays",
+      "Perform selectivity screening",
+      "Optimize key properties",
+      "Conduct IP landscape analysis"
+    ]
+  },
+  {
+    "discovery_id": "1c78ab8d3a257674",
+    "compound_name": "PHS-20260107-002",
+    "compound_smiles": "CN(C)c1ccc(cc1)C(=C2C=CC(=[N+](C)C)C=C2)c3ccc(cc3)N(C)C",
+    "discovery_type": "AI Structure-Based Design",
+    "confidence": 69,
+    "estimated_value": 29209777,
+    "therapeutic_area": "CNS Disorders",
+    "mechanism": "Allosteric Modulator",
+    "timestamp": "2026-01-07T02:38:18.753957",
+    "key_features": [
+      "Low CYP inhibition",
+      "Excellent oral bioavailability",
+      "BBB penetrant",
+      "Novel scaffold"
+    ],
+    "next_steps": [
+      "Additional virtual screening",
+      "Structure-activity relationship study",
+      "Refine predictive models",
+      "Explore alternative scaffolds"
+    ]
+  },
+  {
+    "discovery_id": "296ac63b26b297eb",
+    "compound_name": "PHS-20260107-005",
+    "compound_smiles": "CC(C)NCC(O)COc1ccccc1",
+    "discovery_type": "Virtual High-Throughput Screening",
+    "confidence": 48,
+    "estimated_value": 9532607,
+    "therapeutic_area": "CNS Disorders",
+    "mechanism": "Covalent Inhibitor",
+    "timestamp": "2026-01-07T02:38:18.754048",
+    "key_features": [
+      "Novel scaffold",
+      "Low CYP inhibition",
+      "Excellent oral bioavailability"
+    ],
+    "next_steps": [
+      "Additional virtual screening",
+      "Structure-activity relationship study",
+      "Refine predictive models",
+      "Explore alternative scaffolds"
+    ]
+  }
+]

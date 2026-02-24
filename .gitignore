@@ -1,38 +1,103 @@
+# Python
 __pycache__/
 *.pyc
-demo_output/
-test_output/
-*.zip
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node.js / TypeScript
+**/node_modules
+.pnpm-store/
+*.tsbuildinfo
+.npm
+.eslintcache
+jspm_packages/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.node_repl_history
+*.tgz
+.yarn-integrity
+
+# Build outputs
+dist/
+build/
+*.dist
+.next
+.nuxt
+.cache/
+.parcel-cache
+.out
+.storybook-out
 
 # Environment and secrets
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 *.pem
 *.key
 secrets/
 
-# Docker volumes
+# Docker and data
 postgres_data/
 redis_data/
+mysql_data/
 
 # Logs
 *.log
 logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # IDEs
+# IDEs and editors
+.vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS
+# OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Build artifacts
-dist/
-build/
-*.egg-info/
+# Runtime and process data
+pids
+*.pid
+*.seed
+*.pid.lock
+*.bak
 
 # Testing
-.pytest_cache/
-.coverage
-htmlcov/
+demo_output/
+test_output/
+coverage/
+*.lcov
+.nyc_output
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary folders
+tmp/
+temp/
+
+# Project-specific
+*.zip

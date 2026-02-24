@@ -1,0 +1,570 @@
+import { useLocation, useParams } from "wouter";
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import type { AppRouter } from '../../../server/routers';
+import SuperJSON from 'superjson';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Download, Beaker, FileText, ExternalLink, FlaskConical, Box } from "lucide-react";
+import SynthesisRoutePlanner from "@/components/SynthesisRoutePlanner";
+import SynthesisRouteViewer from "@/components/SynthesisRouteViewer";
+import { MoleculeViewer3D } from "@/components/MoleculeViewer3D";
+import MolecularViewer from "@/components/MolecularViewer";
+import DockingPoseViewer from "@/components/DockingPoseViewer";
+import { MetaboliteViewer } from "@/components/MetaboliteViewer";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import ToxicityProfileCard from "@/components/ToxicityProfileCard";
+import { SyntheticAccessibilityBadge } from "@/components/SyntheticAccessibilityBadge";
+import OptimizationSuggestionsPanel from "@/components/OptimizationSuggestionsPanel";
+
+export default function AnalogDetail() {
+  const params = useParams();
+  const [, setLocation] = useLocation();
+  const analogId = parseInt(params.id || "0");
+  const [synthesisRoute, setSynthesisRoute] = useState<any>(null);
+  const [isGeneratingRoute, setIsGeneratingRoute] = useState(false);
+  const [advancedAnalysis, setAdvancedAnalysis] = useState<any>(null);
+  const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
+
+  const { data: analog, isLoading } = trpc.analog.getById.useQuery({ id: analogId });
+  const generateRouteMutation = trpc.analog.generateSynthesisRoute.useMutation();
+  const optimizeRouteMutation = trpc.analog.optimizeSynthesisRoute.useMutation();
+  const runAnalysisMutation = trpc.advancedAnalysis.comprehensive.useMutation();
+  const createOptimizedMutation = trpc.analog.createFromOptimization.useMutation();
+  // Test results will be added later
+  const testResults: any[] = [];
+
+  const handleGenerateRoute = async () => {
+    if (!analog) return;
+    setIsGeneratingRoute(true);
+    try {
+      const route = await generateRouteMutation.mutateAsync({
+        compoundName: analog.compoundName,
+        smiles: analog.smiles,
+      });
+      setSynthesisRoute(route);
+      toast.success('Synthesis route generated successfully');
+    } catch (error: any) {
+      toast.error(`Failed to generate route: ${error.message}`);
+    } finally {
+      setIsGeneratingRoute(false);
+    }
+  };
+
+  const handleOptimizeRoute = async (goal: 'cost' | 'yield' | 'time') => {
+    if (!synthesisRoute) return;
+    setIsGeneratingRoute(true);
+    try {
+      const optimized = await optimizeRouteMutation.mutateAsync({
+        route: synthesisRoute,
+        goal,
+      });
+      setSynthesisRoute(optimized);
+      toast.success(`Route optimized for ${goal}`);
+    } catch (error: any) {
+      toast.error(`Failed to optimize route: ${error.message}`);
+    } finally {
+      setIsGeneratingRoute(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8 flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!analog) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Analog Not Found</h2>
+          <p className="text-muted-foreground mb-4">The requested analog could not be found.</p>
+          <Button onClick={() => setLocation("/admin/dashboard")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleExport = async (format: 'smiles' | 'sdf' | 'pdf') => {
+    try {
+      const client = createTRPCClient<AppRouter>({
+        links: [
+          httpBatchLink({
+            url: '/api/trpc',
+            transformer: SuperJSON,
+          }),
+        ],
+      });
+
+      let data;
+      if (format === 'smiles') {
+        data = await client.export.smiles.query({ analogId });
+      } else if (format === 'sdf') {
+        data = await client.export.sdf.query({ analogId });
+      } else {
+        data = await client.export.pdf.query({ analogId });
+      }
+
+      if (data) {
+        const blob = new Blob([data.content], { type: data.mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success(`Exported as ${format.toUpperCase()}`);
+      }
+    } catch (error) {
+      toast.error(`Export failed: ${error}`);
+    }
+  };
+
+  return (
+    <div className="container mx-auto py-8">
+      {/* Header */}
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => setLocation("/admin/dashboard")}
+          className="mb-4"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
+
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{analog.compoundName}</h1>
+            <p className="text-muted-foreground">
+              Parent Compound: <span className="font-medium">{analog.parentCompound}</span>
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={async () => {
+                if (!analog?.smiles) return;
+                setIsRunningAnalysis(true);
+                try {
+                  const result = await runAnalysisMutation.mutateAsync({ smiles: analog.smiles });
+                  setAdvancedAnalysis(result);
+                  toast.success('Advanced analysis complete');
+                } catch (error: any) {
+                  toast.error(`Analysis failed: ${error.message}`);
+                } finally {
+                  setIsRunningAnalysis(false);
+                }
+              }}
+              disabled={isRunningAnalysis}
+            >
+              {isRunningAnalysis ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Running Analysis...</>
+              ) : (
+                <><FlaskConical className="mr-2 h-4 w-4" />Run Advanced Analysis</>
+              )}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport('smiles')}>
+              <Download className="mr-2 h-4 w-4" />
+              SMILES
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport('sdf')}>
+              <Beaker className="mr-2 h-4 w-4" />
+              SDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport('pdf')}>
+              <FileText className="mr-2 h-4 w-4" />
+              PDF Report
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-[2fr_1fr]">
+        {/* Main Content */}
+        <div className="space-y-6">
+          {/* Chemical Structure */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Chemical Structure</CardTitle>
+              <CardDescription>Interactive 3D Visualization</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* 3D Molecular Viewer */}
+              <MolecularViewer
+                smiles={analog.smiles}
+                sdfData={analog.sdfData}
+                title="3D Molecular Structure"
+                height={500}
+                showControls={true}
+                showInteractions={false}
+              />
+
+              {/* Docking Pose Viewer */}
+              {analog.bindingAffinity && (
+                <div className="mt-6">
+                  <DockingPoseViewer
+                    ligandPDB={analog.ligandPDB}
+                    receptorPDB={analog.receptorPDB}
+                    bindingAffinity={analog.bindingAffinity}
+                    dockingScore={analog.dockingScore || undefined}
+                    target={analog.dockingTarget || 'NMDA Receptor'}
+                    height={600}
+                  />
+                </div>
+              )}
+              
+              {/* SMILES Notation */}
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
+                  SMILES Notation
+                </label>
+                <div className="bg-slate-900 text-slate-100 p-4 rounded font-mono text-sm overflow-x-auto">
+                  {analog.smiles}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Advanced Analysis Results */}
+          {advancedAnalysis && advancedAnalysis.status === 'success' && (
+            <>
+              {/* Toxicity Profile */}
+              <ToxicityProfileCard profile={advancedAnalysis.toxicity_profile} />
+
+              {/* Synthetic Accessibility */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Synthetic Accessibility</CardTitle>
+                  <CardDescription>Estimated synthesis difficulty and complexity</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SyntheticAccessibilityBadge 
+                    saData={advancedAnalysis.synthetic_accessibility} 
+                    showDetails={true}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Optimization Suggestions */}
+              {advancedAnalysis.optimization_suggestions && advancedAnalysis.optimization_suggestions.length > 0 && (
+                <OptimizationSuggestionsPanel 
+                  suggestions={advancedAnalysis.optimization_suggestions}
+                  onApplySuggestion={async (suggestion) => {
+                    try {
+                      const newAnalog = await createOptimizedMutation.mutateAsync({
+                        parentId: analogId,
+                        optimizedSmiles: suggestion.optimized_smiles,
+                        modification: suggestion.modification,
+                        category: suggestion.category,
+                      });
+                      toast.success(`Created optimized analog: ${newAnalog.compoundName}`);
+                      setLocation(`/admin/analog/${newAnalog.id}`);
+                    } catch (error: any) {
+                      toast.error(`Failed to create analog: ${error.message}`);
+                    }
+                  }}
+                  onViewDetails={(suggestion) => {
+                    console.log('View details:', suggestion);
+                  }}
+                />
+              )}
+            </>
+          )}
+
+          {/* Therapeutic Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Therapeutic Potential</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {analog.therapeuticPotential && (
+                <div>
+                  <h4 className="font-semibold mb-2">Mechanism of Action</h4>
+                  <p className="text-sm text-muted-foreground">{analog.therapeuticPotential}</p>
+                </div>
+              )}
+
+              {analog.keyDifferences && (
+                <div>
+                  <h4 className="font-semibold mb-2">Key Differences from Parent</h4>
+                  <p className="text-sm text-muted-foreground">{analog.keyDifferences}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Tabs for Test Results and Synthesis */}
+          <Card>
+            <CardContent className="pt-6">
+              <Tabs defaultValue="tests">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="tests">
+                    <Beaker className="mr-2 h-4 w-4" />
+                    Test Results
+                  </TabsTrigger>
+                  <TabsTrigger value="metabolites">
+                    <Box className="mr-2 h-4 w-4" />
+                    Metabolites
+                  </TabsTrigger>
+                  <TabsTrigger value="synthesis">
+                    <FlaskConical className="mr-2 h-4 w-4" />
+                    Synthesis Routes
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="tests" className="space-y-4 mt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Cheminformatics Test Results</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {testResults?.length || 0} test(s) completed
+                    </p>
+                  </div>
+                  {testResults && testResults.length > 0 ? (
+                    <Tabs defaultValue={testResults[0]?.testType || "admet"}>
+                      <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="admet">ADMET</TabsTrigger>
+                        <TabsTrigger value="docking">Docking</TabsTrigger>
+                        <TabsTrigger value="toxicity">Toxicity</TabsTrigger>
+                        <TabsTrigger value="pkpd">PK/PD</TabsTrigger>
+                      </TabsList>
+
+                  {testResults.map((result: any) => (
+                    <TabsContent key={result.id} value={result.testType} className="space-y-4">
+                      <div className="grid gap-4">
+                        <div className="flex items-center justify-between">
+                          <Badge variant={result.testStatus === 'completed' ? 'default' : 'secondary'}>
+                            {result.testStatus}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(result.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <div className="bg-muted p-4 rounded">
+                          <pre className="text-sm overflow-x-auto">
+                            {JSON.stringify(JSON.parse(result.results), null, 2)}
+                          </pre>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  ))}
+                    </Tabs>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>No test results available yet.</p>
+                      <Button
+                        variant="outline"
+                        className="mt-4"
+                        onClick={() => setLocation("/testing")}
+                      >
+                        Run Tests
+                      </Button>
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="metabolites" className="mt-6">
+                  <MetaboliteViewer analogId={analogId} />
+                </TabsContent>
+
+                <TabsContent value="synthesis" className="mt-6">
+                  {!synthesisRoute ? (
+                    <div className="text-center py-12">
+                      <FlaskConical className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">Generate Synthesis Route</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Use AI to generate a step-by-step synthesis route with cost and yield estimates
+                      </p>
+                      <Button onClick={handleGenerateRoute} disabled={isGeneratingRoute}>
+                        {isGeneratingRoute ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          'Generate Route'
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    <SynthesisRouteViewer
+                      route={synthesisRoute}
+                      onOptimize={handleOptimizeRoute}
+                    />
+                  )}
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Scores Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Scores & Metrics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium">Confidence</span>
+                  <Badge
+                    variant={analog.confidenceScore >= 85 ? 'default' : 'secondary'}
+                  >
+                    {analog.confidenceScore}%
+                  </Badge>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full"
+                    style={{ width: `${analog.confidenceScore}%` }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium">Similarity</span>
+                  <span className="text-sm">{analog.similarityScore}%</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full"
+                    style={{ width: `${analog.similarityScore}%` }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium">Safety</span>
+                  <span className="text-sm">{analog.safetyScore}/100</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-green-500 h-2 rounded-full"
+                    style={{ width: `${analog.safetyScore}%` }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium">Efficacy</span>
+                  <span className="text-sm">{analog.efficacyScore}/100</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-purple-500 h-2 rounded-full"
+                    style={{ width: `${analog.efficacyScore}%` }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium">Drug-Likeness</span>
+                  <span className="text-sm">{analog.drugLikenessScore}/100</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-orange-500 h-2 rounded-full"
+                    style={{ width: `${analog.drugLikenessScore}%` }}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Patent Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Patent Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Badge
+                variant={analog.patentStatus === 'patent_free' ? 'default' : 'secondary'}
+                className="w-full justify-center py-2"
+              >
+                {analog.patentStatus === 'patent_free'
+                  ? 'Patent-Free'
+                  : analog.patentStatus === 'patent_opportunity'
+                    ? 'Patent Opportunity'
+                    : 'Patented'}
+              </Badge>
+
+              {analog.patentStatus === 'patent_free' && (
+                <p className="text-sm text-muted-foreground mt-3">
+                  This compound appears to be free from existing patents and may be eligible
+                  for new patent filing.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Market Value */}
+          {analog.marketValue && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Market Value</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-primary">
+                  {analog.marketValue}
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Estimated market potential based on therapeutic area and novelty
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* External Resources */}
+          <Card>
+            <CardHeader>
+              <CardTitle>External Resources</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <a
+                  href={`https://pubchem.ncbi.nlm.nih.gov/#query=${encodeURIComponent(analog.smiles)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Search PubChem
+                </a>
+              </Button>
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <a
+                  href={`https://www.ebi.ac.uk/chembl/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  Search ChEMBL
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}

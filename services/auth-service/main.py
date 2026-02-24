@@ -49,11 +49,9 @@ class SecurityManager:
         self.oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
     def verify_password(self, plain_password, hashed_password):
-        # SECURITY WARNING: This is demo-only authentication!
-        # For demo purposes, accept "password" for all users
-        # TODO: In production, MUST use proper bcrypt verification:
-        # return self.pwd_context.verify(plain_password, hashed_password)
-        return plain_password == "password"
+        # SECURITY WARNING: Uses in-memory fake database for demonstration
+        # In production, use a proper database with securely stored credentials
+        return self.pwd_context.verify(plain_password, hashed_password)
 
     def get_password_hash(self, password):
         return self.pwd_context.hash(password)
