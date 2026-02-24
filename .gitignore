@@ -59,6 +59,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# IDEs
 # IDEs and editors
 .vscode/
 .idea/
