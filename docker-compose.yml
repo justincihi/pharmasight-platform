@@ -62,32 +62,72 @@ services:
   # ============================================================================
 
   admin-dashboard:
-    build: ./admin-dashboard
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
     ports:
       - "3000:3000"
     environment:
+      # Database connections
       - DATABASE_URL=mysql://root:${MYSQL_ROOT_PASSWORD:-pharmasight_mysql_2024}@mysql:3306/${MYSQL_DATABASE:-pharmasight}
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - SONAR_API_KEY=${SONAR_API_KEY}
-      - PLATFORM_API_KEY=${PLATFORM_API_KEY}
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@postgres:5432/${POSTGRES_DB:-pharmasight_db}
+      - REDIS_URL=redis://redis:6379/0
+
+      # LLM API Keys for chatbot coordination
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY:-}
+
+      # Platform API key for external research engine integration
+      - PLATFORM_API_KEY=${PLATFORM_API_KEY:-your-secure-platform-key-change-this}
+
+      # Python backend service URLs (for dashboard to call Python APIs)
+      - BACKEND_PK_API_URL=http://compound-service:8000
+      - RESEARCH_ENGINE_URL=http://research-engine:8000
+      - ANALOG_SERVICE_URL=http://analog-service:8000
+      - ML_SERVICE_URL=http://ml-service:8000
+      - QUANTUM_SERVICE_URL=http://quantum-calculator:8000
+      - BIOTRANSFORMER_URL=http://biotransformer:8000
+      - API_GATEWAY_URL=http://api-gateway:8080
+
+      # External database API endpoints
+      - PUBCHEM_API_BASE=${PUBCHEM_API_BASE:-https://pubchem.ncbi.nlm.nih.gov/rest/pug}
+      - CHEMBL_API_BASE=${CHEMBL_API_BASE:-https://www.ebi.ac.uk/chembl/api/data}
+      - ZINC_API_BASE=${ZINC_API_BASE:-https://zinc15.docking.org}
+      - OPENTARGETS_API_BASE=${OPENTARGETS_API_BASE:-https://api.platform.opentargets.org/api/v4}
+      - FDA_API_BASE=${FDA_API_BASE:-https://api.fda.gov/drug}
+      - DRUGBANK_API_KEY=${DRUGBANK_API_KEY:-}
+      - PUBMED_API_KEY=${PUBMED_API_KEY:-}
+
+      # Node environment
       - NODE_ENV=production
+
     depends_on:
       mysql:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
       redis:
+        condition: service_healthy
+      compound-service:
+        condition: service_healthy
+      research-engine:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/platform/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
     networks:
       - pharmasight-network
     volumes:
       - ./data:/app/data:ro
-      - ./admin-dashboard/master_analogs.json:/app/master_analogs.json:ro
+      - ./master_analogs.json:/app/master_analogs.json
+      - ./MASTER_ANALOG_DISCOVERIES.json:/app/MASTER_ANALOG_DISCOVERIES.json:ro
+      - ./RESEARCH_ARTICLES_DATABASE.json:/app/RESEARCH_ARTICLES_DATABASE.json:ro
 
   # ============================================================================
   # PYTHON MICROSERVICES
@@ -204,12 +244,14 @@ services:
     ports:
       - "8006:8000"
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@db:5432/${POSTGRES_DB:-pharmasight_db}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@postgres:5432/${POSTGRES_DB:-pharmasight_db}
       - REDIS_URL=redis://redis:6379/0
       - PUBMED_API_KEY=${PUBMED_API_KEY:-}
       - PUBCHEM_API_KEY=${PUBCHEM_API_KEY:-}
+      - PLATFORM_API_KEY=${PLATFORM_API_KEY:-your-secure-platform-key-change-this}
+      - PLATFORM_DASHBOARD_URL=http://admin-dashboard:3000
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -256,7 +298,7 @@ services:
   pophive-connector:
     build: ./services/pophive-connector
     ports:
-      - "8006:8000"
+      - "8008:8000"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

@@ -1,16 +1,7 @@
-import { spawn } from "child_process";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
-
 /**
- * Python Bridge for Cheminformatics
- * Executes Python scripts from the python_modules directory
+ * Python Bridge for Cheminformatics - HTTP API Version
+ * Calls Python backend microservices via HTTP instead of spawning processes
  */
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const PYTHON_MODULES_PATH = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules";
 
 interface PythonResult {
   success: boolean;
@@ -18,138 +9,180 @@ interface PythonResult {
   error?: string;
 }
 
+// Service URLs from environment variables
+const BACKEND_PK_API_URL = process.env.BACKEND_PK_API_URL || 'http://localhost:8001';
+const RESEARCH_ENGINE_URL = process.env.RESEARCH_ENGINE_URL || 'http://localhost:8006';
+const ANALOG_SERVICE_URL = process.env.ANALOG_SERVICE_URL || 'http://localhost:8002';
+const BIOTRANSFORMER_URL = process.env.BIOTRANSFORMER_URL || 'http://localhost:8007';
+
 /**
- * Execute a Python script and return the result
+ * Generic fetch wrapper with error handling
  */
-export async function executePythonScript(
-  scriptName: string,
-  functionName: string,
-  args: any[] = []
+async function callPythonService(
+  url: string,
+  method: 'GET' | 'POST' = 'POST',
+  body?: any
 ): Promise<PythonResult> {
-  return new Promise((resolve) => {
-    const scriptPath = join(PYTHON_MODULES_PATH, scriptName);
-    
-    // Create a Python wrapper script that imports and calls the function
-    const pythonCode = `
-import sys
-import json
-sys.path.insert(0, '${PYTHON_MODULES_PATH}')
+  try {
+    const options: RequestInit = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
 
-try:
-    from ${scriptName.replace('.py', '')} import ${functionName}
-    args = json.loads(sys.argv[1]) if len(sys.argv) > 1 else []
-    result = ${functionName}(*args)
-    print(json.dumps({"success": True, "data": result}))
-except Exception as e:
-    print(json.dumps({"success": False, "error": str(e)}))
-`;
+    if (body && method === 'POST') {
+      options.body = JSON.stringify(body);
+    }
 
-    const python = spawn("python3", ["-c", pythonCode, JSON.stringify(args)]);
-    
-    let stdout = "";
-    let stderr = "";
+    const response = await fetch(url, options);
 
-    python.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      return {
+        success: false,
+        error: `HTTP ${response.status}: ${errorText}`,
+      };
+    }
 
-    python.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
+    const data = await response.json();
 
-    python.on("close", (code) => {
-      if (code !== 0) {
-        resolve({
-          success: false,
-          error: stderr || `Python process exited with code ${code}`,
-        });
-        return;
-      }
-
-      try {
-        const result = JSON.parse(stdout);
-        resolve(result);
-      } catch (error) {
-        resolve({
-          success: false,
-          error: `Failed to parse Python output: ${stdout}`,
-        });
-      }
-    });
-  });
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 /**
- * ChEMBL Validation
+ * ChEMBL Validation via Research Engine
  */
 export async function validateWithChEMBL(smiles: string): Promise<PythonResult> {
-  return executePythonScript("chembl_validation.py", "validate_compound", [smiles]);
+  const url = `${RESEARCH_ENGINE_URL}/chembl/validate`;
+  return callPythonService(url, 'POST', { smiles });
 }
 
 /**
- * ADMET Prediction
+ * ADMET Prediction via Compound Analysis Service
  */
 export async function predictADMET(smiles: string): Promise<PythonResult> {
-  return executePythonScript("admet_predictor_advanced.py", "predict_admet", [smiles]);
+  const url = `${BACKEND_PK_API_URL}/admet/predict`;
+  return callPythonService(url, 'POST', { smiles });
 }
 
 /**
- * Molecular Docking
+ * Molecular Docking via Compound Analysis Service
  */
 export async function runMolecularDocking(
   ligandSmiles: string,
   receptorPDB: string
 ): Promise<PythonResult> {
-  return executePythonScript("molecular_docking.py", "dock_ligand", [
-    ligandSmiles,
-    receptorPDB,
-  ]);
+  const url = `${BACKEND_PK_API_URL}/docking/simulate`;
+  return callPythonService(url, 'POST', {
+    ligand_smiles: ligandSmiles,
+    receptor_pdb: receptorPDB,
+  });
 }
 
 /**
- * Toxicity Prediction
+ * Toxicity Prediction via Compound Analysis Service
  */
 export async function predictToxicity(smiles: string): Promise<PythonResult> {
-  return executePythonScript("toxicity_prediction.py", "predict_toxicity", [smiles]);
+  const url = `${BACKEND_PK_API_URL}/toxicity/predict`;
+  return callPythonService(url, 'POST', { smiles });
 }
 
 /**
- * PK/PD Simulation
+ * PK/PD Simulation via Backend PK API
  */
 export async function simulatePKPD(
   smiles: string,
   dose: number,
   route: string
 ): Promise<PythonResult> {
-  return executePythonScript("pkpd_pbpk_simulator.py", "simulate_pkpd", [
-    smiles,
-    dose,
+  const url = `${BACKEND_PK_API_URL}/pk/simulate`;
+  return callPythonService(url, 'POST', {
+    drug_name: 'custom',
+    dose_mg: dose,
     route,
-  ]);
+    drug_params: {
+      // Default parameters - can be enhanced with SMILES-based prediction
+      cl: 10.0,
+      vc: 50.0,
+      ka: 0.8,
+      f: 0.8,
+    },
+  });
 }
 
 /**
- * Generate Analogs using RDKit
+ * Generate Analogs using RDKit via Research Engine
  */
 export async function generateAnalogs(
   parentSmiles: string,
   numAnalogs: number = 10
 ): Promise<PythonResult> {
-  return executePythonScript("rdkit_analog_generator.py", "generate_analogs", [
-    parentSmiles,
-    numAnalogs,
-  ]);
+  const url = `${RESEARCH_ENGINE_URL}/rdkit/generate-analogs`;
+  return callPythonService(url, 'POST', {
+    smiles: parentSmiles,
+    num_analogs: numAnalogs,
+  });
 }
 
 /**
- * Query External Databases (PubChem, ChEMBL, etc.)
+ * Query PubChem Database
+ */
+export async function queryPubChem(compoundName: string): Promise<PythonResult> {
+  const url = `${RESEARCH_ENGINE_URL}/pubchem/compound/${encodeURIComponent(compoundName)}`;
+  return callPythonService(url, 'GET');
+}
+
+/**
+ * Query ChEMBL Database
+ */
+export async function queryChEMBL(query: string): Promise<PythonResult> {
+  const url = `${RESEARCH_ENGINE_URL}/chembl/search`;
+  return callPythonService(url, 'POST', { query });
+}
+
+/**
+ * Query External Database (Generic)
  */
 export async function queryExternalDatabase(
   database: string,
   query: string
 ): Promise<PythonResult> {
-  return executePythonScript("external_database_apis.py", "query_database", [
-    database,
-    query,
-  ]);
+  // Route to appropriate service based on database type
+  switch (database.toLowerCase()) {
+    case 'pubchem':
+      return queryPubChem(query);
+    case 'chembl':
+      return queryChEMBL(query);
+    default:
+      return {
+        success: false,
+        error: `Unknown database: ${database}`,
+      };
+  }
+}
+
+/**
+ * Get compound properties via RDKit
+ */
+export async function getCompoundProperties(smiles: string): Promise<PythonResult> {
+  const url = `${RESEARCH_ENGINE_URL}/rdkit/properties`;
+  return callPythonService(url, 'POST', { smiles });
+}
+
+/**
+ * BioTransformer metabolite prediction
+ */
+export async function predictMetabolites(smiles: string): Promise<PythonResult> {
+  const url = `${BIOTRANSFORMER_URL}/predict`;
+  return callPythonService(url, 'POST', { smiles });
 }

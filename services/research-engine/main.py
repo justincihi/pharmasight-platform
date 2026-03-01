@@ -330,6 +330,138 @@ async def run_enhanced_research_cycle(request: ResearchGoalsList):
         logger.error(f"Enhanced research cycle error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ============================================================================
+# ADDITIONAL ENDPOINTS FOR DASHBOARD INTEGRATION
+# ============================================================================
+
+class SMILESRequest(BaseModel):
+    smiles: str
+
+class AnalogGenerationRequest(BaseModel):
+    smiles: str
+    num_analogs: Optional[int] = 10
+
+class ChEMBLSearchRequest(BaseModel):
+    query: str
+
+
+@app.post("/chembl/validate")
+async def validate_with_chembl(request: SMILESRequest):
+    """Validate compound with ChEMBL database"""
+    try:
+        from api_integrations import ChEMBLAPI
+        chembl = ChEMBLAPI()
+
+        # Search ChEMBL for the compound
+        results = chembl.search_by_smiles(request.smiles)
+
+        if results:
+            return {
+                "success": True,
+                "data": {
+                    "validated": True,
+                    "chembl_id": results.get("molecule_chembl_id"),
+                    "preferred_name": results.get("pref_name"),
+                    "max_phase": results.get("max_phase", 0),
+                    "bioactivity_count": results.get("bioactivity_count", 0)
+                }
+            }
+        else:
+            return {
+                "success": True,
+                "data": {
+                    "validated": False,
+                    "message": "Compound not found in ChEMBL"
+                }
+            }
+    except Exception as e:
+        logger.error(f"ChEMBL validation error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/chembl/search")
+async def search_chembl(request: ChEMBLSearchRequest):
+    """Search ChEMBL database"""
+    try:
+        from api_integrations import ChEMBLAPI
+        chembl = ChEMBLAPI()
+
+        results = chembl.search_molecules(request.query)
+
+        return {
+            "success": True,
+            "data": results,
+            "count": len(results) if results else 0
+        }
+    except Exception as e:
+        logger.error(f"ChEMBL search error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/rdkit/generate-analogs")
+async def generate_analogs(request: AnalogGenerationRequest):
+    """Generate analogs using RDKit"""
+    try:
+        # Use the RDKit integration to generate analogs
+        analogs = rdkit_integration.generate_structural_analogs(
+            request.smiles,
+            num_analogs=request.num_analogs
+        )
+
+        return {
+            "success": True,
+            "data": {
+                "parent_smiles": request.smiles,
+                "analogs": analogs,
+                "count": len(analogs)
+            }
+        }
+    except Exception as e:
+        logger.error(f"Analog generation error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/rdkit/properties")
+async def get_compound_properties(request: SMILESRequest):
+    """Get molecular properties using RDKit"""
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import Descriptors
+
+        mol = Chem.MolFromSmiles(request.smiles)
+        if not mol:
+            raise HTTPException(status_code=400, detail="Invalid SMILES string")
+
+        properties = {
+            "smiles": request.smiles,
+            "molecular_weight": round(Descriptors.MolWt(mol), 2),
+            "logp": round(Descriptors.MolLogP(mol), 2),
+            "tpsa": round(Descriptors.TPSA(mol), 2),
+            "num_h_donors": Descriptors.NumHDonors(mol),
+            "num_h_acceptors": Descriptors.NumHAcceptors(mol),
+            "num_rotatable_bonds": Descriptors.NumRotatableBonds(mol),
+            "num_aromatic_rings": Descriptors.NumAromaticRings(mol),
+            "num_aliphatic_rings": Descriptors.NumAliphaticRings(mol),
+            "num_saturated_rings": Descriptors.NumSaturatedRings(mol),
+            "num_heteroatoms": Descriptors.NumHeteroatoms(mol),
+            "formal_charge": Chem.GetFormalCharge(mol),
+            "lipinski_violations": sum([
+                Descriptors.MolWt(mol) > 500,
+                Descriptors.MolLogP(mol) > 5,
+                Descriptors.NumHDonors(mol) > 5,
+                Descriptors.NumHAcceptors(mol) > 10
+            ])
+        }
+
+        return {
+            "success": True,
+            "data": properties
+        }
+    except Exception as e:
+        logger.error(f"Property calculation error: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8006)
