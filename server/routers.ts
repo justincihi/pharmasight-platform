@@ -135,10 +135,24 @@ export const appRouter = router({
       .input((val: unknown) => {
         if (typeof val !== 'object' || val === null) return { analogId: 0, smiles: '', target: 'NMDA' };
         const obj = val as Record<string, unknown>;
+        
+        // Validate and sanitize SMILES string
+        let smiles = typeof obj.smiles === 'string' ? obj.smiles.trim() : '';
+        if (!smiles) {
+          throw new Error('SMILES string is required');
+        }
+        
+        // Validate SMILES format (basic check - allow most SMILES characters)
+        // SMILES can contain: atoms (C,N,O,S,P,etc), numbers (0-9), brackets, bonds, stereo, etc
+        // We'll do a basic validation by checking for obviously invalid characters
+        if (/[^A-Za-z0-9()\[\]\\=\-#@+\/\\\\%:.\*~&|^$]/g.test(smiles)) {
+          throw new Error('Invalid SMILES format: contains invalid characters');
+        }
+        
         return {
           analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
-          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
-          target: typeof obj.target === 'string' ? obj.target : 'NMDA',
+          smiles: smiles,
+          target: typeof obj.target === 'string' ? obj.target.trim() : 'NMDA',
         };
       })
       .mutation(async ({ input, ctx }) => {
@@ -149,8 +163,18 @@ export const appRouter = router({
         // Import molecular docking wrapper
         const { runMolecularDocking } = await import('./molecularDockingWrapper');
         
-        // Run docking
-        const dockingResult = await runMolecularDocking(input.smiles, input.analogId.toString());
+        // Run docking with error handling
+        let dockingResult;
+        try {
+          dockingResult = await runMolecularDocking(input.smiles, input.analogId.toString());
+        } catch (error: any) {
+          console.error('[Docking Error]', error);
+          throw new Error(`Docking failed: ${error.message || 'Unknown error'}`);
+        }
+        
+        if (!dockingResult || dockingResult.error) {
+          throw new Error(`Docking failed: ${dockingResult?.error || 'No result returned'}`);
+        }
         
         // Normalize binding affinity to 0-100 score
         // Typical range: -12 to -3 kcal/mol
