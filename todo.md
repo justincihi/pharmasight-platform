@@ -54,3 +54,30 @@
 - [x] Fix trends refresh "no LLM connected" error (API keys are set, error was misleading)
 - [x] Push code to GitHub branch dashboard-manus2026 (committed locally, user will export via UI)
 - [x] Research and integrate Dragonfly open-source software (proposal document created)
+
+## Phase 1: Receptor PDB File Upload (COMPLETE)
+- [x] Create S3 storage handler for PDB files (pdbStorage.ts)
+- [x] Add PDB file upload endpoint (tRPC) (pdbRouter.ts)
+- [x] Create PDB upload UI component (PDBUploadDialog.tsx)
+- [x] Add PDB file management (list, delete, preview)
+- [x] Database schema with pdbReceptors table
+- [x] Database migration pushed successfully
+- [x] Vina already installed and verified
+
+## Phase 2: Docking Parameters UI (COMPLETE)
+- [x] Create docking parameters router (dockingParametersRouter.ts)
+- [x] Add fields: box center (x, y, z), box size (x, y, z), exhaustiveness
+- [x] Implement parameter validation (1-32 exhaustiveness, 1-20 poses)
+- [x] Add preset configurations support
+- [x] Database schema with dockingParameters table
+- [x] Registered in main appRouter as dockingParams
+- [x] Create, read, update, delete operations implemented
+
+## Phase 3: Batch Docking Analysis (IN PROGRESS)
+- [ ] Create batch docking queue system
+- [ ] Add batch job UI with progress tracking
+- [ ] Implement real-time progress updates (WebSocket or polling)
+- [ ] Add batch result export (CSV/JSON)
+- [ ] Create batch history and results viewer
+- [ ] Add batch job cancellation
+- [ ] Test batch docking with multiple compounds

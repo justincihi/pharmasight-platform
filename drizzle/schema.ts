@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, tinyint } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -213,3 +213,92 @@ export const bookmarks = mysqlTable("bookmarks", {
 
 export type Bookmark = typeof bookmarks.$inferSelect;
 export type InsertBookmark = typeof bookmarks.$inferInsert;
+
+
+/**
+ * PDB Receptor files table - stores uploaded protein receptor structures for docking
+ */
+export const pdbReceptors = mysqlTable("pdb_receptors", {
+  id: varchar("id", { length: 64 }).primaryKey(), // Unique file ID
+  name: varchar("name", { length: 255 }).notNull(), // Original filename
+  fileKey: varchar("file_key", { length: 512 }).notNull(), // S3 storage key
+  url: text("url").notNull(), // S3 presigned URL
+  uploadedBy: varchar("uploaded_by", { length: 128 }).notNull(), // User ID who uploaded
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+  fileSize: int("file_size").notNull(), // File size in bytes
+  targetName: varchar("target_name", { length: 255 }).notNull(), // e.g., "NMDA Receptor", "5HT2A"
+  description: text("description"), // Optional description of the receptor
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PDBReceptor = typeof pdbReceptors.$inferSelect;
+export type InsertPDBReceptor = typeof pdbReceptors.$inferInsert;
+
+/**
+ * Docking parameters table - stores custom docking configurations for different targets
+ */
+export const dockingParameters = mysqlTable("docking_parameters", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: varchar("user_id", { length: 128 }).notNull(), // User who created this configuration
+  name: varchar("name", { length: 255 }).notNull(), // e.g., "NMDA Standard", "5HT2A High Exhaustiveness"
+  targetName: varchar("target_name", { length: 255 }).notNull(), // Target protein name
+  boxCenterX: varchar("box_center_x", { length: 64 }).notNull(), // X coordinate
+  boxCenterY: varchar("box_center_y", { length: 64 }).notNull(), // Y coordinate
+  boxCenterZ: varchar("box_center_z", { length: 64 }).notNull(), // Z coordinate
+  boxSizeX: varchar("box_size_x", { length: 64 }).notNull(), // Box size X
+  boxSizeY: varchar("box_size_y", { length: 64 }).notNull(), // Box size Y
+  boxSizeZ: varchar("box_size_z", { length: 64 }).notNull(), // Box size Z
+  exhaustiveness: int("exhaustiveness").notNull().default(8), // Vina exhaustiveness (1-32)
+  numPoses: int("num_poses").notNull().default(9), // Number of poses to generate
+  isDefault: tinyint("is_default").default(0), // Mark as default for target (0=false, 1=true)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DockingParameter = typeof dockingParameters.$inferSelect;
+export type InsertDockingParameter = typeof dockingParameters.$inferInsert;
+
+/**
+ * Batch docking jobs table - tracks batch docking analysis jobs
+ */
+export const batchDockingJobs = mysqlTable("batch_docking_jobs", {
+  id: varchar("id", { length: 64 }).primaryKey(), // Unique job ID
+  userId: varchar("user_id", { length: 128 }).notNull(), // User who submitted the job
+  jobName: varchar("job_name", { length: 255 }).notNull(), // User-provided job name
+  status: mysqlEnum("status", ["pending", "running", "completed", "failed", "cancelled"]).default("pending").notNull(),
+  totalCompounds: int("total_compounds").notNull(), // Total compounds to dock
+  completedCompounds: int("completed_compounds").default(0).notNull(), // Compounds processed
+  failedCompounds: int("failed_compounds").default(0).notNull(), // Compounds that failed
+  targetName: varchar("target_name", { length: 255 }).notNull(), // Target protein
+  parametersId: int("parameters_id"), // Reference to docking parameters used
+  resultsSummary: text("results_summary"), // JSON summary of results
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BatchDockingJob = typeof batchDockingJobs.$inferSelect;
+export type InsertBatchDockingJob = typeof batchDockingJobs.$inferInsert;
+
+/**
+ * Batch docking results table - stores individual results for each compound in a batch job
+ */
+export const batchDockingResults = mysqlTable("batch_docking_results", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: varchar("job_id", { length: 64 }).notNull(), // Reference to batch job
+  analogId: int("analog_id").notNull(), // Reference to analog compound
+  status: mysqlEnum("status", ["pending", "completed", "failed"]).default("pending").notNull(),
+  bindingAffinity: varchar("binding_affinity", { length: 64 }), // kcal/mol
+  dockingScore: int("docking_score"), // 0-100 normalized score
+  numPoses: int("num_poses"), // Number of poses generated
+  topPoses: text("top_poses"), // JSON array of top poses
+  errorMessage: text("error_message"), // Error details if failed
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BatchDockingResult = typeof batchDockingResults.$inferSelect;
+export type InsertBatchDockingResult = typeof batchDockingResults.$inferInsert;
