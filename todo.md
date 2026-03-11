@@ -68,10 +68,18 @@
 - [x] Create docking parameters router (dockingParametersRouter.ts)
 - [x] Add fields: box center (x, y, z), box size (x, y, z), exhaustiveness
 - [x] Implement parameter validation (1-32 exhaustiveness, 1-20 poses)
-- [x] Add preset configurations support
+- [x] Add preset configurations support (NMDA, 5HT2A, Dopamine D2, etc.)
 - [x] Database schema with dockingParameters table
 - [x] Registered in main appRouter as dockingParams
 - [x] Create, read, update, delete operations implemented
+- [x] Create DockingParametersPanel UI component (DockingParametersPanel.tsx)
+- [x] Integrate into CompoundTesting page with toggle button
+- [x] Add PDB upload button to docking tab
+- [x] Create comprehensive test suite (dockingParameters.test.ts)
+- [x] Preset configurations with default values for common targets
+- [x] Save/load/delete parameter configurations
+- [x] Set default parameters per target
+- [x] Full authorization checks for admin-only access
 
 ## Phase 3: Batch Docking Analysis (IN PROGRESS)
 - [ ] Create batch docking queue system

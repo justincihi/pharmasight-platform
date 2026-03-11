@@ -7,10 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Beaker, Activity, Skull, Pill } from "lucide-react";
 import { toast } from "sonner";
+import { DockingParametersPanel } from "@/components/DockingParametersPanel";
+import { PDBUploadDialog } from "@/components/PDBUploadDialog";
 
 export default function CompoundTesting() {
   const [selectedAnalog, setSelectedAnalog] = useState<number | null>(null);
   const [activeTest, setActiveTest] = useState<string | null>(null);
+  const [pdbDialogOpen, setPdbDialogOpen] = useState(false);
+  const [showDockingParams, setShowDockingParams] = useState(false);
 
   const { data: analogs, isLoading: analogsLoading } = trpc.analog.list.useQuery({
     limit: 100,
@@ -350,19 +354,38 @@ export default function CompoundTesting() {
                       Simulate binding interactions with target receptors using
                       AutoDock Vina to predict binding affinity and pose.
                     </p>
-                    <Button
-                      onClick={runDocking}
-                      disabled={!selectedAnalog || activeTest === "docking"}
-                    >
-                      {activeTest === "docking" ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Running Docking...
-                        </>
-                      ) : (
-                        "Run Docking Simulation"
-                      )}
-                    </Button>
+                    <div className="flex gap-2 mb-4">
+                      <Button
+                        onClick={runDocking}
+                        disabled={!selectedAnalog || activeTest === "docking"}
+                      >
+                        {activeTest === "docking" ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Running Docking...
+                          </>
+                        ) : (
+                          "Run Docking Simulation"
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowDockingParams(!showDockingParams)}
+                      >
+                        {showDockingParams ? "Hide" : "Show"} Parameters
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setPdbDialogOpen(true)}
+                      >
+                        Upload PDB
+                      </Button>
+                    </div>
+                    {showDockingParams && (
+                      <div className="mt-6 border-t pt-6">
+                        <DockingParametersPanel />
+                      </div>
+                    )}
                   </div>
                 </div>
               </TabsContent>
@@ -422,6 +445,15 @@ export default function CompoundTesting() {
           </CardContent>
         </Card>
       </div>
+
+      {/* PDB Upload Dialog */}
+      <PDBUploadDialog
+        open={pdbDialogOpen}
+        onOpenChange={setPdbDialogOpen}
+        onSuccess={() => {
+          alert('✅ PDB file uploaded successfully');
+        }}
+      />
     </div>
   );
 }
