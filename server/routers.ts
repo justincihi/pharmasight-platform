@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { dockingRouter } from './dockingRouter';
 import { pdbRouter } from './pdbRouter';
 import { dockingParametersRouter } from './dockingParametersRouter';
+import { batchDockingRouter } from './batchDockingRouter';
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -1122,6 +1123,7 @@ Provide accurate, scientific responses based on the data above. If the user asks
 
   // Docking queue routes
   docking: dockingRouter,
+  batchDocking: batchDockingRouter,
 
   // Info Hub routes
   infohub: router({
