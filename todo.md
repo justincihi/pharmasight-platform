@@ -81,6 +81,14 @@
 - [x] Set default parameters per target
 - [x] Full authorization checks for admin-only access
 
+## MANUS Brief Implementation (CURRENT)
+- [x] TASK 1: Fix PDB upload to write files to ./receptors/ directory
+- [x] TASK 2: Create scripts/dock.py Python docking pipeline
+- [x] TASK 3: Fix molecularDockingWrapper to call Vina subprocess
+- [x] TASK 4: Wire docking parameters from DB into docking run
+- [ ] TASK 5: Add async job handling with polling mechanism
+- [ ] TASK 6: Code cleanup (constants, toasts, validation)
+
 ## Phase 3: Batch Docking Analysis (COMPLETE)
 - [x] Create batchDockingJobs and batchDockingResults tables in schema
 - [x] Implement batch job router with full CRUD operations (submitJob, listJobs, getJobDetails, cancelJob)

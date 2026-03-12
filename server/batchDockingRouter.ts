@@ -365,12 +365,28 @@ async function processBatchJob(
           continue;
         }
 
+        // Get docking parameters for the target
+        const { getDockingParamsForTarget } = await import('./molecularDockingWrapper');
+        const dockingParams = await getDockingParamsForTarget(targetName);
+
         // Run docking
-        const dockingResult = await runMolecularDocking(
-          analog.smiles,
-          analog.id.toString(),
-          targetName
-        );
+        const dockingResult = await runMolecularDocking({
+          smiles: analog.smiles,
+          analogId: analog.id.toString(),
+          targetName: targetName,
+          boxCenter: {
+            x: dockingParams.boxCenterX,
+            y: dockingParams.boxCenterY,
+            z: dockingParams.boxCenterZ,
+          },
+          boxSize: {
+            x: dockingParams.boxSizeX,
+            y: dockingParams.boxSizeY,
+            z: dockingParams.boxSizeZ,
+          },
+          exhaustiveness: dockingParams.exhaustiveness,
+          numPoses: dockingParams.numPoses,
+        });
 
         // Update result record
         await database
@@ -380,7 +396,7 @@ async function processBatchJob(
             bindingAffinity: dockingResult.binding_affinity?.toString(),
             dockingScore: Math.round((dockingResult.binding_affinity || 0) * 10),
             numPoses: dockingResult.num_poses,
-            topPoses: JSON.stringify(dockingResult.top_poses || []),
+            topPoses: JSON.stringify(dockingResult.poses || []),
             completedAt: new Date(),
             updatedAt: new Date(),
           })

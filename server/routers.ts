@@ -164,12 +164,31 @@ export const appRouter = router({
         }
         
         // Import molecular docking wrapper
-        const { runMolecularDocking } = await import('./molecularDockingWrapper');
+        const { runMolecularDocking, getDockingParamsForTarget } = await import('./molecularDockingWrapper');
+        
+        // Fetch docking parameters for the target
+        const dockingParams = await getDockingParamsForTarget(input.target);
         
         // Run docking with error handling
         let dockingResult;
         try {
-          dockingResult = await runMolecularDocking(input.smiles, input.analogId.toString());
+          dockingResult = await runMolecularDocking({
+            smiles: input.smiles,
+            analogId: input.analogId.toString(),
+            targetName: input.target,
+            boxCenter: {
+              x: dockingParams.boxCenterX,
+              y: dockingParams.boxCenterY,
+              z: dockingParams.boxCenterZ,
+            },
+            boxSize: {
+              x: dockingParams.boxSizeX,
+              y: dockingParams.boxSizeY,
+              z: dockingParams.boxSizeZ,
+            },
+            exhaustiveness: dockingParams.exhaustiveness,
+            numPoses: dockingParams.numPoses,
+          });
         } catch (error: any) {
           console.error('[Docking Error]', error);
           throw new Error(`Docking failed: ${error.message || 'Unknown error'}`);

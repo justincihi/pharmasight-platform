@@ -3,6 +3,11 @@ import { getDb } from "./db";
 import { pdbReceptors } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import crypto from "crypto";
+import fs from "fs/promises";
+import path from "path";
+
+// Receptors directory - relative to server root
+const RECEPTORS_DIR = path.join(process.cwd(), "receptors");
 
 export interface PDBFile {
   id: string;
@@ -33,12 +38,26 @@ export async function uploadPDBFile(
       throw new Error("Invalid PDB file: must contain ATOM or HETATM records");
     }
 
-    // Generate unique file key
+    // Sanitize target name for filesystem use
+    const sanitizedTargetName = targetName
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_-]/g, "");
+
+    // Ensure receptors directory exists
+    await fs.mkdir(RECEPTORS_DIR, { recursive: true });
+
+    // Write PDB file to disk
+    const diskFilePath = path.join(RECEPTORS_DIR, `${sanitizedTargetName}.pdb`);
+    await fs.writeFile(diskFilePath, content, "utf-8");
+    console.log(`[PDB Storage] Wrote PDB file to: ${diskFilePath}`);
+
+    // Generate unique file key for S3 backup
     const fileId = crypto.randomBytes(8).toString("hex");
     const fileKey = `pdb-receptors/${userId}/${fileId}-${fileName}`;
     const fileSize = Buffer.byteLength(content);
 
-    // Upload to S3
+    // Upload to S3 as backup
     const { url } = await storagePut(fileKey, content, "chemical/x-pdb");
 
     // Store metadata in database
@@ -74,6 +93,17 @@ export async function uploadPDBFile(
     console.error("[PDB Upload Error]", error);
     throw new Error(`Failed to upload PDB file: ${error.message}`);
   }
+}
+
+/**
+ * Get the path to a PDB receptor file on disk
+ */
+export function getPDBFilePath(targetName: string): string {
+  const sanitizedTargetName = targetName
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_-]/g, "");
+  return path.join(RECEPTORS_DIR, `${sanitizedTargetName}.pdb`);
 }
 
 /**
