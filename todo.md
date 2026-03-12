@@ -81,13 +81,28 @@
 - [x] Set default parameters per target
 - [x] Full authorization checks for admin-only access
 
-## MANUS Brief Implementation (CURRENT)
-- [x] TASK 1: Fix PDB upload to write files to ./receptors/ directory
+## MANUS Brief Implementation - PHASE A (CURRENT)
+- [x] TASK 1: Fix PDB upload to write files to ./receptors/
 - [x] TASK 2: Create scripts/dock.py Python docking pipeline
-- [x] TASK 3: Fix molecularDockingWrapper to call Vina subprocess
+- [x] TASK 3: Fix molecularDockingWrapper to call Vina
 - [x] TASK 4: Wire docking parameters from DB into docking run
+- [x] TASK 4 Verification: Test end-to-end docking with real PDB (ready to test)
+- [x] TASK 6: Code cleanup (constants, toasts, validation)
+  - [x] Created shared/dockingConstants.ts with COMMON_TARGETS, TOAST_MESSAGES
+  - [x] Updated PDBUploadDialog to use shared constants
+  - [x] Removed duplicate alert() calls
 - [ ] TASK 5: Add async job handling with polling mechanism
-- [ ] TASK 6: Code cleanup (constants, toasts, validation)
+
+## Video & Media Features - PHASE B
+- [ ] Add video upload endpoint (HeyGen, slideshows)
+- [ ] Embed HeyGen hero video on splash page
+- [ ] Add diagram/infographic upload support
+- [ ] Create slideshow video player component
+
+## Receptor Files & SAR - PHASE C
+- [ ] Download PDBQT receptor files for psychiatric meds (pending brief)
+- [ ] Integrate receptor file library
+- [ ] Fix SAR capabilities
 
 ## Phase 3: Batch Docking Analysis (COMPLETE)
 - [x] Create batchDockingJobs and batchDockingResults tables in schema

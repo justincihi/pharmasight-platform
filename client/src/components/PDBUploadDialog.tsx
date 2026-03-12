@@ -7,24 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { trpc } from '@/lib/trpc';
 import { Loader2, Upload } from 'lucide-react';
+import { COMMON_TARGETS, TOAST_MESSAGES } from '@/../../shared/dockingConstants';
 
 interface PDBUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
-
-const COMMON_TARGETS = [
-  'NMDA Receptor',
-  '5HT2A Receptor',
-  'Dopamine D2 Receptor',
-  'Serotonin Transporter',
-  'Norepinephrine Transporter',
-  'GABA-A Receptor',
-  'Opioid Receptor',
-  'Acetylcholine Receptor',
-  'Custom Target',
-];
 
 export function PDBUploadDialog({ open, onOpenChange, onSuccess }: PDBUploadDialogProps) {
 
@@ -129,8 +118,8 @@ export function PDBUploadDialog({ open, onOpenChange, onSuccess }: PDBUploadDial
               </SelectTrigger>
               <SelectContent>
                 {COMMON_TARGETS.map((target) => (
-                  <SelectItem key={target} value={target}>
-                    {target}
+                  <SelectItem key={target.name} value={target.name}>
+                    {target.description}
                   </SelectItem>
                 ))}
               </SelectContent>
