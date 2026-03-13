@@ -86,7 +86,7 @@
 - [x] TASK 2: Create scripts/dock.py Python docking pipeline
 - [x] TASK 3: Fix molecularDockingWrapper to call Vina
 - [x] TASK 4: Wire docking parameters from DB into docking run
-- [x] TASK 4 Verification: Test end-to-end docking with real PDB (ready to test)
+- [x] TASK 4 Verification: Test end-to-end docking with real PDB (PASSED - Acetaminophen -1.771 kcal/mol)
 - [x] TASK 6: Code cleanup (constants, toasts, validation)
   - [x] Created shared/dockingConstants.ts with COMMON_TARGETS, TOAST_MESSAGES
   - [x] Updated PDBUploadDialog to use shared constants

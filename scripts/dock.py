@@ -80,55 +80,55 @@ def run_vina(
     sz: float,
     exhaustiveness: int,
     num_poses: int,
-    out_pdbqt: str,
-) -> tuple[int, str, str]:
-    """Run AutoDock Vina docking"""
-    cmd = [
-        "vina",
-        "--receptor",
-        receptor_pdbqt,
-        "--ligand",
-        ligand_pdbqt,
-        "--center_x",
-        str(cx),
-        "--center_y",
-        str(cy),
-        "--center_z",
-        str(cz),
-        "--size_x",
-        str(sx),
-        "--size_y",
-        str(sy),
-        "--size_z",
-        str(sz),
-        "--exhaustiveness",
-        str(exhaustiveness),
-        "--num_modes",
-        str(num_poses),
-        "--out",
-        out_pdbqt,
-    ]
-
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-    return result.returncode, result.stdout, result.stderr
-
-
-def parse_vina_output(stdout: str) -> list[dict]:
-    """Parse Vina output to extract binding affinities"""
-    poses = []
-    lines = stdout.split("\n")
-
-    for line in lines:
-        parts = line.split()
-        if len(parts) >= 3:
-            try:
-                mode = int(parts[0])
-                affinity = float(parts[1])
-                poses.append({"mode": mode, "affinity": affinity})
-            except (ValueError, IndexError):
-                continue
-
-    return poses
+) -> tuple[bool, str | None, list[dict]]:
+    """Run AutoDock Vina docking using Python API"""
+    try:
+        from vina import Vina
+        import sys
+        from io import StringIO
+        
+        # Suppress Vina stdout
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        try:
+            # Initialize Vina
+            vina = Vina(sf_name='vina')
+            
+            # Set receptor
+            vina.set_receptor(receptor_pdbqt)
+            
+            # Set ligand
+            vina.set_ligand_from_file(ligand_pdbqt)
+            
+            # Set search space
+            vina.compute_vina_maps(center=[cx, cy, cz], box_size=[sx, sy, sz])
+            
+            # Run docking
+            vina.dock(exhaustiveness=exhaustiveness, n_poses=num_poses)
+        finally:
+            # Restore stdout
+            sys.stdout = old_stdout
+        
+        # Extract results
+        poses = []
+        pose_list = vina.poses()  # Call as method
+        energy_list = vina.energies()  # Call as method
+        
+        # Ensure we don't exceed available results
+        num_results = min(len(pose_list), len(energy_list))
+        for i in range(num_results):
+            affinity = energy_list[i][0]  # Binding affinity is first element
+            poses.append({
+                "mode": i + 1,
+                "affinity": float(affinity),
+                "rmsd": 0.0  # RMSD not easily available from Python API
+            })
+        
+        return True, None, poses
+        
+    except Exception as e:
+        return False, f"Vina docking failed: {str(e)}", []
 
 
 def main():
@@ -155,8 +155,7 @@ def main():
     with tempfile.TemporaryDirectory() as tmpdir:
         ligand_pdbqt = os.path.join(tmpdir, "ligand.pdbqt")
         receptor_pdbqt = args.receptor.replace(".pdb", ".pdbqt")
-        out_pdbqt = os.path.join(tmpdir, "out.pdbqt")
-
+        
         # Step 1: Prepare ligand (SMILES → PDBQT)
         ok, err = smiles_to_pdbqt(args.smiles, ligand_pdbqt)
         if not ok:
@@ -173,7 +172,7 @@ def main():
                 sys.exit(1)
 
         # Step 3: Run Vina
-        returncode, stdout, stderr = run_vina(
+        ok, err, poses = run_vina(
             receptor_pdbqt,
             ligand_pdbqt,
             args.cx,
@@ -184,15 +183,13 @@ def main():
             args.sz,
             args.exhaustiveness,
             args.num_poses,
-            out_pdbqt,
         )
 
-        if returncode != 0:
-            print(json.dumps({"success": False, "error": stderr or "Vina failed"}))
+        if not ok:
+            print(json.dumps({"success": False, "error": err}))
             sys.exit(1)
 
-        # Step 4: Parse results
-        poses = parse_vina_output(stdout)
+        # Step 4: Return results
         best = poses[0] if poses else None
 
         print(
