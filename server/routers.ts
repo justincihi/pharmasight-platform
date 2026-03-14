@@ -371,6 +371,11 @@ When users ask about analogs, test results, or discoveries, query the FULL datab
       const { getAvailableProviders } = await import('./multiLLM');
       return getAvailableProviders();
     }),
+
+    getProvidersStatus: publicProcedure.query(async () => {
+      const { getProvidersStatus } = await import('./multiLLM');
+      return getProvidersStatus();
+    }),
   }),
 
   // Export functionality
