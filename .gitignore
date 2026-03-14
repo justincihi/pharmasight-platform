@@ -101,3 +101,4 @@ temp/
 
 # Project-specific
 *.zip
+package-lock.json
