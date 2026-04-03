@@ -91,7 +91,7 @@
   - [x] Created shared/dockingConstants.ts with COMMON_TARGETS, TOAST_MESSAGES
   - [x] Updated PDBUploadDialog to use shared constants
   - [x] Removed duplicate alert() calls
-- [ ] TASK 5: Add async job handling with polling mechanism
+- [x] TASK 5: Add async job handling with polling mechanism (PASSED - 13 comprehensive tests)
 
 ## Video & Media Features - PHASE B
 - [ ] Add video upload endpoint (HeyGen, slideshows)
