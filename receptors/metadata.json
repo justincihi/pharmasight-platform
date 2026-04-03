@@ -1,0 +1,79 @@
+[
+  {
+    "name": "NMDA",
+    "pdb_id": "6NQH",
+    "description": "NMDA receptor (N-methyl-D-aspartate receptor)",
+    "pdb_file": "NMDA_6NQH.pdb",
+    "pdbqt_file": "NMDA_6NQH.pdbqt",
+    "chain": "A",
+    "ligand_chain": "C",
+    "source": "RCSB PDB",
+    "downloaded_at": "1775194145.9546154"
+  },
+  {
+    "name": "DOPAMINE_D2",
+    "pdb_id": "6A93",
+    "description": "Dopamine D2 receptor",
+    "pdb_file": "DOPAMINE_D2_6A93.pdb",
+    "pdbqt_file": "DOPAMINE_D2_6A93.pdbqt",
+    "chain": "A",
+    "ligand_chain": null,
+    "source": "RCSB PDB",
+    "downloaded_at": "1775194150.526615"
+  },
+  {
+    "name": "GABA_A",
+    "pdb_id": "6D6T",
+    "description": "GABA-A receptor (\u03b11\u03b22\u03b32)",
+    "pdb_file": "GABA_A_6D6T.pdb",
+    "pdbqt_file": "GABA_A_6D6T.pdbqt",
+    "chain": "A",
+    "ligand_chain": null,
+    "source": "RCSB PDB",
+    "downloaded_at": "1775194153.1106145"
+  },
+  {
+    "name": "GABA_B",
+    "pdb_id": "7EB2",
+    "description": "GABA-B receptor",
+    "pdb_file": "GABA_B_7EB2.pdb",
+    "pdbqt_file": "GABA_B_7EB2.pdbqt",
+    "chain": "A",
+    "ligand_chain": null,
+    "source": "RCSB PDB",
+    "downloaded_at": "1775194155.7226143"
+  },
+  {
+    "name": "SEROTONIN_5HT1A",
+    "pdb_id": "7E2X",
+    "description": "Serotonin 5-HT1A receptor",
+    "pdb_file": "SEROTONIN_5HT1A_7E2X.pdb",
+    "pdbqt_file": "SEROTONIN_5HT1A_7E2X.pdbqt",
+    "chain": "A",
+    "ligand_chain": null,
+    "source": "RCSB PDB",
+    "downloaded_at": "1775194157.966614"
+  },
+  {
+    "name": "DOPAMINE_D3",
+    "pdb_id": "3PBL",
+    "description": "Dopamine D3 receptor",
+    "pdb_file": "DOPAMINE_D3_3PBL.pdb",
+    "pdbqt_file": "DOPAMINE_D3_3PBL.pdbqt",
+    "chain": "A",
+    "ligand_chain": null,
+    "source": "RCSB PDB",
+    "downloaded_at": "1775194160.510614"
+  },
+  {
+    "name": "MUSCARINIC_M1",
+    "pdb_id": "5CXV",
+    "description": "Muscarinic M1 receptor",
+    "pdb_file": "MUSCARINIC_M1_5CXV.pdb",
+    "pdbqt_file": "MUSCARINIC_M1_5CXV.pdbqt",
+    "chain": "A",
+    "ligand_chain": null,
+    "source": "RCSB PDB",
+    "downloaded_at": "1775194162.6666136"
+  }
+]

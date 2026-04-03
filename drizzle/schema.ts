@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, tinyint } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, tinyint, decimal, boolean } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -302,3 +302,48 @@ export const batchDockingResults = mysqlTable("batch_docking_results", {
 
 export type BatchDockingResult = typeof batchDockingResults.$inferSelect;
 export type InsertBatchDockingResult = typeof batchDockingResults.$inferInsert;
+
+/**
+ * Receptor library table - stores pre-built PDBQT receptor files for docking
+ */
+export const receptorLibrary = mysqlTable("receptor_library", {
+  id: int("id").autoincrement().primaryKey(),
+  targetName: varchar("target_name", { length: 128 }).notNull().unique(), // e.g., "NMDA", "5HT2A"
+  description: text("description").notNull(), // Full description
+  pdbId: varchar("pdb_id", { length: 16 }).notNull(), // PDB ID from RCSB
+  pdbFileName: varchar("pdb_file_name", { length: 255 }).notNull(), // Original PDB file name
+  pdbqtFileName: varchar("pdbqt_file_name", { length: 255 }).notNull(), // PDBQT file name
+  pdbqtUrl: text("pdbqt_url").notNull(), // S3 URL to PDBQT file
+  pdbUrl: text("pdb_url"), // S3 URL to original PDB file
+  chain: varchar("chain", { length: 4 }).default("A"), // Primary chain to use
+  ligandChain: varchar("ligand_chain", { length: 4 }), // Ligand chain if applicable
+  fileSize: int("file_size"), // PDBQT file size in bytes
+  resolution: varchar("resolution", { length: 16 }), // Crystal structure resolution
+  experimentalMethod: varchar("experimental_method", { length: 64 }), // e.g., "X-RAY DIFFRACTION", "CRYO-EM"
+  organism: varchar("organism", { length: 255 }), // Source organism
+  
+  // Docking parameters (default box settings for this target)
+  defaultBoxCenterX: decimal("default_box_center_x", { precision: 10, scale: 3 }),
+  defaultBoxCenterY: decimal("default_box_center_y", { precision: 10, scale: 3 }),
+  defaultBoxCenterZ: decimal("default_box_center_z", { precision: 10, scale: 3 }),
+  defaultBoxSizeX: decimal("default_box_size_x", { precision: 10, scale: 3 }),
+  defaultBoxSizeY: decimal("default_box_size_y", { precision: 10, scale: 3 }),
+  defaultBoxSizeZ: decimal("default_box_size_z", { precision: 10, scale: 3 }),
+  defaultExhaustiveness: int("default_exhaustiveness").default(8),
+  defaultNumPoses: int("default_num_poses").default(5),
+  
+  // Metadata
+  category: varchar("category", { length: 64 }), // e.g., "psychiatric", "neurological", "cardiovascular"
+  tags: text("tags"), // JSON array of tags for filtering
+  notes: text("notes"), // Additional notes about the receptor
+  source: varchar("source", { length: 128 }).default("RCSB PDB"), // Data source
+  
+  // Tracking
+  uploadedBy: varchar("uploaded_by", { length: 128 }), // User ID who uploaded
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ReceptorLibrary = typeof receptorLibrary.$inferSelect;
+export type InsertReceptorLibrary = typeof receptorLibrary.$inferInsert;

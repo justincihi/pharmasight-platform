@@ -115,3 +115,23 @@
 - [x] Error handling and logging for failed compounds
 - [x] Database integration with proper async/await patterns
 - [x] Registered batchDockingRouter in main appRouter
+
+## PHASE C: PDBQT Receptor Library & UI Dashboard (CURRENT)
+- [x] Download PDBQT files for psychiatric targets (7/8 downloaded - NMDA, Dopamine D2, Dopamine D3, GABA-A, GABA-B, 5HT1A, Muscarinic M1)
+- [x] Organize receptor files in S3 storage with metadata (6.05 MB total, all uploaded)
+- [x] Create receptorLibrary table in database (30 columns with metadata)
+- [x] Implement receptor library management router (CRUD operations)
+- [x] Integrate pre-built receptors into docking workflow (registered in appRouter)
+- [x] Build batch docking UI dashboard with job list and progress (COMPLETE)
+  - [x] Real-time job list with status badges
+  - [x] Job progress visualization with progress bars
+  - [x] Job details tab with statistics
+  - [x] Results tab with per-compound docking data
+  - [x] Auto-refresh toggle for live updates
+  - [x] Export functionality (CSV, JSON)
+  - [x] Job cancellation support
+  - [x] Responsive design with Tabs component
+- [ ] Implement webhook notifications for job completion
+- [ ] Add email notifications for batch completion
+- [ ] Create notification preferences UI
+- [ ] Test end-to-end batch docking workflow
