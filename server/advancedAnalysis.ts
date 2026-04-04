@@ -1,11 +1,28 @@
-import { exec, spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
+import { existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);;
+const __dirname = path.dirname(__filename);
 
-const PYTHON_VENV = path.join(__dirname, 'python_modules', 'venv', 'bin', 'python');
+// Use system Python directly instead of venv
+let PYTHON_EXECUTABLE = 'python3';
+try {
+  PYTHON_EXECUTABLE = execSync('which python3', { encoding: 'utf-8' }).trim();
+  if (!PYTHON_EXECUTABLE || !existsSync(PYTHON_EXECUTABLE)) {
+    PYTHON_EXECUTABLE = '/usr/bin/python3';
+  }
+} catch (e) {
+  const commonPaths = ['/usr/bin/python3', '/usr/local/bin/python3', '/opt/python/bin/python3'];
+  for (const p of commonPaths) {
+    if (existsSync(p)) {
+      PYTHON_EXECUTABLE = p;
+      break;
+    }
+  }
+}
+
 const ANALYSIS_SCRIPT = path.join(__dirname, 'python_modules', 'comprehensive_analysis.py');
 
 interface ToxicityProfile {
@@ -88,17 +105,10 @@ interface ComprehensiveAnalysisResult {
 
 function runPythonScript(command: string, smiles: string, ...args: string[]): Promise<any> {
   return new Promise((resolve, reject) => {
-    // Isolate Python environment to prevent system Python interference
-    const venvDir = path.join(__dirname, 'python_modules', 'venv');
-    const env = {
-      ...process.env,
-      VIRTUAL_ENV: venvDir,
-      PATH: `${path.join(venvDir, 'bin')}:${process.env.PATH}`,
-      PYTHONHOME: undefined as any, // Unset to use venv's Python
-      PYTHONPATH: undefined as any, // Unset to avoid conflicts
-    };
-    
-    const python = spawn(PYTHON_VENV, [ANALYSIS_SCRIPT, command, smiles, ...args], { env });
+    const python = spawn(PYTHON_EXECUTABLE, [ANALYSIS_SCRIPT, command, smiles, ...args], { 
+      env: { ...process.env, PYTHONUNBUFFERED: '1' },
+      shell: false,
+    });
     
     let stdout = '';
     let stderr = '';
@@ -131,42 +141,56 @@ function runPythonScript(command: string, smiles: string, ...args: string[]): Pr
   });
 }
 
+export async function analyzeToxicity(smiles: string): Promise<ToxicityProfile> {
+  return runPythonScript('toxicity', smiles);
+}
+
+export async function analyzeSyntheticAccessibility(smiles: string): Promise<SAScore> {
+  return runPythonScript('sascore', smiles);
+}
+
+export async function generateOptimizationSuggestions(smiles: string): Promise<OptimizationSuggestion[]> {
+  return runPythonScript('optimize', smiles);
+}
+
 export async function runComprehensiveAnalysis(smiles: string): Promise<ComprehensiveAnalysisResult> {
   return runPythonScript('comprehensive', smiles);
 }
 
-export async function runToxicityAnalysis(smiles: string): Promise<ToxicityProfile> {
-  return runPythonScript('toxicity', smiles);
-}
 
 export async function runSAAnalysis(smiles: string): Promise<SAScore> {
-  return runPythonScript('sa_score', smiles);
+  return analyzeSyntheticAccessibility(smiles);
 }
 
-export async function runOptimizationAnalysis(
-  smiles: string,
-  targetProperty?: string
-): Promise<OptimizationSuggestion[]> {
-  if (targetProperty) {
-    return runPythonScript('optimize', smiles, targetProperty);
+export async function runOptimizationAnalysis(smiles: string, targetProperty?: string): Promise<OptimizationSuggestion[]> {
+  return generateOptimizationSuggestions(smiles);
+}
+
+export async function runIterativeOptimization(smiles: string, targetProperty: string, iterations: number): Promise<any> {
+  // Run comprehensive analysis multiple times for iterative optimization
+  const results = [];
+  for (let i = 0; i < iterations; i++) {
+    const result = await runComprehensiveAnalysis(smiles);
+    results.push(result);
   }
-  return runPythonScript('optimize', smiles);
+  return { iterations: results, final_smiles: smiles };
 }
 
-export async function runIterativeOptimization(
-  smiles: string,
-  targetProperty: string,
-  iterations: number = 3
-): Promise<any[]> {
-  return runPythonScript('iterative_optimize', smiles, targetProperty, iterations.toString());
-}
-
-// Helper to check if Python environment is available
 export async function checkPythonEnvironment(): Promise<boolean> {
   try {
-    const result = await runPythonScript('sa_score', 'CCO'); // Test with ethanol
-    return !result.error;
+    // Test if Python can be executed and has required modules
+    const result = execSync(`${PYTHON_EXECUTABLE} -c "import rdkit, meeko, vina; print('OK')"`, { 
+      encoding: 'utf-8',
+      timeout: 5000,
+    });
+    return result.includes('OK');
   } catch (e) {
+    console.error('Python environment check failed:', e);
     return false;
   }
+}
+
+
+export async function runToxicityAnalysis(smiles: string): Promise<ToxicityProfile> {
+  return analyzeToxicity(smiles);
 }

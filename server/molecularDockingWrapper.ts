@@ -1,4 +1,6 @@
 import { spawn } from "child_process";
+import { execSync } from "child_process";
+import { existsSync } from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -40,6 +42,25 @@ export async function runMolecularDocking(
 ): Promise<DockingResult> {
   return new Promise((resolve, reject) => {
     try {
+      // Find the correct Python executable
+      let pythonExe = "python3";
+      try {
+        // Try to get the absolute path to python3
+        pythonExe = execSync("which python3", { encoding: "utf-8" }).trim();
+        if (!pythonExe || !existsSync(pythonExe)) {
+          pythonExe = "/usr/bin/python3";
+        }
+      } catch (e) {
+        // Fallback to common locations
+        const commonPaths = ["/usr/bin/python3", "/usr/local/bin/python3", "/opt/python/bin/python3"];
+        for (const path of commonPaths) {
+          if (existsSync(path)) {
+            pythonExe = path;
+            break;
+          }
+        }
+      }
+
       // Get the PDB file path for the target
       const receptorPath = getPDBFilePath(params.targetName);
 
@@ -68,10 +89,12 @@ export async function runMolecularDocking(
         params.numPoses.toString(),
       ];
 
-      // Spawn Python process
-      const python = spawn("python3", args, {
+      // Spawn Python process with absolute path
+      const python = spawn(pythonExe, args, {
         cwd: __dirname,
         timeout: 300000, // 5 minutes
+        shell: false,
+        env: { ...process.env, PYTHONUNBUFFERED: "1" },
       });
 
       let stdout = "";
