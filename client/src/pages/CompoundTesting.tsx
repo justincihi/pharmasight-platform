@@ -9,12 +9,16 @@ import { Loader2, Beaker, Activity, Skull, Pill } from "lucide-react";
 import { toast } from "sonner";
 import { DockingParametersPanel } from "@/components/DockingParametersPanel";
 import { PDBUploadDialog } from "@/components/PDBUploadDialog";
+import { ReceptorSelector, type SelectedReceptor } from "@/components/ReceptorSelector";
 
 export default function CompoundTesting() {
   const [selectedAnalog, setSelectedAnalog] = useState<number | null>(null);
   const [activeTest, setActiveTest] = useState<string | null>(null);
   const [pdbDialogOpen, setPdbDialogOpen] = useState(false);
   const [showDockingParams, setShowDockingParams] = useState(false);
+  const [selectedReceptor, setSelectedReceptor] = useState<SelectedReceptor | null>(null);
+  const [showReceptorSelector, setShowReceptorSelector] = useState(false);
+  const [uploadedPdbFile, setUploadedPdbFile] = useState<File | null>(null);
 
   const { data: analogs, isLoading: analogsLoading } = trpc.analog.list.useQuery({
     limit: 100,
@@ -354,7 +358,7 @@ export default function CompoundTesting() {
                       Simulate binding interactions with target receptors using
                       AutoDock Vina to predict binding affinity and pose.
                     </p>
-                    <div className="flex gap-2 mb-4">
+                    <div className="flex gap-2 mb-4 flex-wrap">
                       <Button
                         onClick={runDocking}
                         disabled={!selectedAnalog || activeTest === "docking"}
@@ -370,6 +374,12 @@ export default function CompoundTesting() {
                       </Button>
                       <Button
                         variant="outline"
+                        onClick={() => setShowReceptorSelector(!showReceptorSelector)}
+                      >
+                        {showReceptorSelector ? "Hide" : "Select"} Receptor
+                      </Button>
+                      <Button
+                        variant="outline"
                         onClick={() => setShowDockingParams(!showDockingParams)}
                       >
                         {showDockingParams ? "Hide" : "Show"} Parameters
@@ -381,6 +391,30 @@ export default function CompoundTesting() {
                         Upload PDB
                       </Button>
                     </div>
+                    {selectedReceptor && (
+                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                        <p className="text-sm font-medium text-blue-900">Receptor Selected:</p>
+                        <p className="text-sm text-blue-800 mt-1">
+                          {selectedReceptor.family} - {selectedReceptor.subtype} ({selectedReceptor.species})
+                        </p>
+                      </div>
+                    )}
+                    {showReceptorSelector && (
+                      <div className="mt-6 border-t pt-6">
+                        <ReceptorSelector
+                          onReceptorSelect={(receptor) => {
+                            setSelectedReceptor(receptor);
+                            setShowReceptorSelector(false);
+                            toast.success(`Receptor selected: ${receptor.family}`);
+                          }}
+                          onPdbUpload={(file) => {
+                            setUploadedPdbFile(file);
+                            toast.success(`PDB file loaded: ${file.name}`);
+                          }}
+                          allowPdbUpload={true}
+                        />
+                      </div>
+                    )}
                     {showDockingParams && (
                       <div className="mt-6 border-t pt-6">
                         <DockingParametersPanel />

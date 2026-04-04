@@ -135,3 +135,20 @@
 - [ ] Add email notifications for batch completion
 - [ ] Create notification preferences UI
 - [ ] Test end-to-end batch docking workflow
+
+
+## PHASE D: Enhanced Receptor System with Species & Subtype Support (COMPLETE)
+- [x] Extract and process batch NMDA/glutamate receptor structures from zip file (8XLK, 9JNN - 2 structures)
+- [x] Build receptor selector UI with species selection (Human/Mouse/Rat) (ReceptorSelector.tsx)
+- [x] Add receptor subtype selection (GABA-A: A1/A2/A3/A5, NMDA: GluN2A/GluN2B/GluN2C/GluN2D, 5HT: 5HT1A/5HT2A/5HT2C/5HT7)
+- [x] Implement G-protein vs beta-arrestin modulation mode selection (4 modes: ion-channel, g-protein, beta-arrestin, kinase)
+- [x] Add agonist/antagonist/PAM/NAM selection UI (6 ligand types)
+- [x] Preserve PDB upload option alongside pre-built receptor selection (Tabs: Pre-built vs Upload)
+- [x] Create receptorSubtypeDatabase.ts with comprehensive receptor data (6 families, 30+ subtypes)
+- [x] Integrate ReceptorSelector into CompoundTesting page (Docking tab)
+- [x] Process NMDA batch structures to PDBQT (8xlk.pdbqt: 2669.4 KB, 9jnn.pdbqt: 2547.5 KB)
+- [x] Create NMDA integration tests (6/6 PASSED - database insertion, file verification, querying)
+- [ ] Implement webhook notifications for job completion (NEXT)
+- [ ] Add email notification support (NEXT)
+- [ ] Integrate 3Dmol viewer for 3D pose visualization (NEXT)
+- [ ] Test with ketamine analogs on NMDA subtypes (NEXT)

@@ -1,0 +1,40 @@
+{
+  "8xlk": {
+    "pdbqt_file": "/home/ubuntu/pharmasight-admin-dashboard/data/nmda_receptors/8xlk.pdbqt",
+    "metadata": {
+      "name": "NMDA GluN1-GluN2A-GluN2B (Tri-heteromeric)",
+      "species": "rat",
+      "description": "Native tri-heteromeric NMDA receptor from rat cortex and hippocampus",
+      "resolution": 2.85,
+      "year": 2023,
+      "ligands": [
+        "glutamate",
+        "glycine"
+      ],
+      "pdb_id": "8XLK",
+      "family": "nmda",
+      "subtype": "glun2a-glun2b",
+      "modulation_mode": "ion-channel"
+    },
+    "status": "success"
+  },
+  "9jnn": {
+    "pdbqt_file": "/home/ubuntu/pharmasight-admin-dashboard/data/nmda_receptors/9jnn.pdbqt",
+    "metadata": {
+      "name": "NMDA GluN1-GluN2B (Di-heteromeric)",
+      "species": "rat",
+      "description": "Native di-heteromeric NMDA receptor from rat cortex and hippocampus",
+      "resolution": 2.95,
+      "year": 2024,
+      "ligands": [
+        "glutamate",
+        "glycine"
+      ],
+      "pdb_id": "9JNN",
+      "family": "nmda",
+      "subtype": "glun2b",
+      "modulation_mode": "ion-channel"
+    },
+    "status": "success"
+  }
+}
