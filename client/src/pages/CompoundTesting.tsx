@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { DockingParametersPanel } from "@/components/DockingParametersPanel";
 import { PDBUploadDialog } from "@/components/PDBUploadDialog";
 import { ReceptorSelector, type SelectedReceptor } from "@/components/ReceptorSelector";
+import { DockingResultsPanel } from "@/components/DockingResultsPanel";
+import { DockingPoseViewer3D } from "@/components/DockingPoseViewer3D";
 
 export default function CompoundTesting() {
   const [selectedAnalog, setSelectedAnalog] = useState<number | null>(null);

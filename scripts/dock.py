@@ -53,13 +53,15 @@ def smiles_to_pdbqt(smiles: str, out_path: str) -> tuple[bool, str | None]:
 def pdb_to_pdbqt(pdb_path: str, out_path: str) -> tuple[bool, str | None]:
     """Convert PDB file to PDBQT format using obabel or MGLTools"""
     try:
+        import shutil
+        
         # If input is already PDBQT, just copy it
         if pdb_path.endswith('.pdbqt'):
-            import shutil
-            shutil.copy(pdb_path, out_path)
+            if pdb_path != out_path:  # Only copy if different paths
+                shutil.copy(pdb_path, out_path)
             return True, None
         
-        # Try obabel first
+        # Try obabel first (only for .pdb files)
         result = subprocess.run(
             ["obabel", pdb_path, "-O", out_path, "-xr"],
             capture_output=True,
@@ -164,23 +166,24 @@ def main():
         # Handle both .pdb and .pdbqt input files
         if args.receptor.endswith('.pdbqt'):
             receptor_pdbqt = args.receptor
+            # Verify PDBQT file exists
+            if not os.path.exists(receptor_pdbqt):
+                print(json.dumps({"success": False, "error": f"Receptor file not found: {receptor_pdbqt}"}))
+                sys.exit(1)
         else:
             receptor_pdbqt = args.receptor.replace(".pdb", ".pdbqt")
+            # Step 2: Prepare receptor (convert PDB → PDBQT if needed)
+            if not os.path.exists(receptor_pdbqt):
+                ok, err = pdb_to_pdbqt(args.receptor, receptor_pdbqt)
+                if not ok:
+                    print(json.dumps({"success": False, "error": f"Receptor prep failed: {err}"}))
+                    sys.exit(1)
         
         # Step 1: Prepare ligand (SMILES → PDBQT)
         ok, err = smiles_to_pdbqt(args.smiles, ligand_pdbqt)
         if not ok:
             print(json.dumps({"success": False, "error": f"Ligand prep failed: {err}"}))
             sys.exit(1)
-
-        # Step 2: Prepare receptor (convert PDB → PDBQT if needed)
-        if not os.path.exists(receptor_pdbqt):
-            ok, err = pdb_to_pdbqt(args.receptor, receptor_pdbqt)
-            if not ok:
-                print(
-                    json.dumps({"success": False, "error": f"Receptor prep failed: {err}"})
-                )
-                sys.exit(1)
 
         # Step 3: Run Vina
         ok, err, poses = run_vina(
