@@ -11,7 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const PYTHON_MODULES_PATH = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules";
-const VENV_PYTHON = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules/venv/bin/python3";
+// Use system Python directly instead of venv
+const VENV_PYTHON = "/usr/bin/python3";
 
 interface PythonResult {
   success: boolean;
@@ -60,7 +61,10 @@ except Exception as e:
     print(json.dumps({"success": False, "error": str(e), "traceback": traceback.format_exc()}))
 `;
 
-    const python = spawn(VENV_PYTHON, ["-c", pythonCode, JSON.stringify(args)]);
+    console.log('[pythonBridge] Spawning Python:', VENV_PYTHON);
+    const python = spawn(VENV_PYTHON, ["-c", pythonCode, JSON.stringify(args)], {
+      env: { ...process.env, PYTHONUNBUFFERED: "1" }
+    });
     
     let stdout = "";
     let stderr = "";
@@ -170,7 +174,10 @@ except Exception as e:
     print(json.dumps({"success": False, "error": str(e)}))
 `;
 
-    const python = spawn(VENV_PYTHON, ["-c", pythonCode, JSON.stringify(args)]);
+    console.log('[pythonBridge] Spawning Python:', VENV_PYTHON);
+    const python = spawn(VENV_PYTHON, ["-c", pythonCode, JSON.stringify(args)], {
+      env: { ...process.env, PYTHONUNBUFFERED: "1" }
+    });
     
     let stdout = "";
     let stderr = "";

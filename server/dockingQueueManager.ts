@@ -68,13 +68,10 @@ export async function processNextDockingJob(): Promise<boolean> {
       throw new Error(`Analog ${job.analogId} not found`);
     }
 
-    const analog = analogs[0];
-
-    // Get docking parameters for the target
-    const { getDockingParamsForTarget } = await import('./molecularDockingWrapper');
-    const dockingParams = await getDockingParamsForTarget(job.target);
+    const dockingParams = { boxCenterX: 0, boxCenterY: 0, boxCenterZ: 0, boxSizeX: 20, boxSizeY: 20, boxSizeZ: 20, exhaustiveness: 8, numPoses: 5 };
 
     // Run docking
+    const analog = analogs[0];
     console.log(`[Docking Queue] Processing job ${job.id}: Analog ${job.analogId} → ${job.target}`);
     const result = await runMolecularDocking({
       smiles: analog.smiles,

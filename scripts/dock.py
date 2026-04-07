@@ -53,6 +53,12 @@ def smiles_to_pdbqt(smiles: str, out_path: str) -> tuple[bool, str | None]:
 def pdb_to_pdbqt(pdb_path: str, out_path: str) -> tuple[bool, str | None]:
     """Convert PDB file to PDBQT format using obabel or MGLTools"""
     try:
+        # If input is already PDBQT, just copy it
+        if pdb_path.endswith('.pdbqt'):
+            import shutil
+            shutil.copy(pdb_path, out_path)
+            return True, None
+        
         # Try obabel first
         result = subprocess.run(
             ["obabel", pdb_path, "-O", out_path, "-xr"],
@@ -154,7 +160,12 @@ def main():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         ligand_pdbqt = os.path.join(tmpdir, "ligand.pdbqt")
-        receptor_pdbqt = args.receptor.replace(".pdb", ".pdbqt")
+        
+        # Handle both .pdb and .pdbqt input files
+        if args.receptor.endswith('.pdbqt'):
+            receptor_pdbqt = args.receptor
+        else:
+            receptor_pdbqt = args.receptor.replace(".pdb", ".pdbqt")
         
         # Step 1: Prepare ligand (SMILES → PDBQT)
         ok, err = smiles_to_pdbqt(args.smiles, ligand_pdbqt)

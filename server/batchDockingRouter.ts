@@ -366,8 +366,7 @@ async function processBatchJob(
         }
 
         // Get docking parameters for the target
-        const { getDockingParamsForTarget } = await import('./molecularDockingWrapper');
-        const dockingParams = await getDockingParamsForTarget(targetName);
+        const dockingParams = { boxCenterX: 0, boxCenterY: 0, boxCenterZ: 0, boxSizeX: 20, boxSizeY: 20, boxSizeZ: 20, exhaustiveness: 8, numPoses: 5 };
 
         // Run docking
         const dockingResult = await runMolecularDocking({

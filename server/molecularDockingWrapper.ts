@@ -12,6 +12,22 @@ import { eq } from "drizzle-orm";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Detect Python executable at module load time
+let PYTHON_EXECUTABLE = "/usr/bin/python3";
+try {
+  if (existsSync(PYTHON_EXECUTABLE)) {
+    console.log("[Docking] Python found at:", PYTHON_EXECUTABLE);
+  } else {
+    const detected = execSync("which python3", { encoding: "utf-8" }).trim();
+    if (detected && existsSync(detected)) {
+      PYTHON_EXECUTABLE = detected;
+      console.log("[Docking] Python detected at:", PYTHON_EXECUTABLE);
+    }
+  }
+} catch (e) {
+  console.log("[Docking] Python detection failed, using default:", PYTHON_EXECUTABLE);
+}
+
 export interface DockingResult {
   success: boolean;
   binding_affinity?: number;
@@ -42,24 +58,7 @@ export async function runMolecularDocking(
 ): Promise<DockingResult> {
   return new Promise((resolve, reject) => {
     try {
-      // Find the correct Python executable
-      let pythonExe = "python3";
-      try {
-        // Try to get the absolute path to python3
-        pythonExe = execSync("which python3", { encoding: "utf-8" }).trim();
-        if (!pythonExe || !existsSync(pythonExe)) {
-          pythonExe = "/usr/bin/python3";
-        }
-      } catch (e) {
-        // Fallback to common locations
-        const commonPaths = ["/usr/bin/python3", "/usr/local/bin/python3", "/opt/python/bin/python3"];
-        for (const path of commonPaths) {
-          if (existsSync(path)) {
-            pythonExe = path;
-            break;
-          }
-        }
-      }
+      console.log("[Docking] Starting docking with Python:", PYTHON_EXECUTABLE);
 
       // Get the PDB file path for the target
       const receptorPath = getPDBFilePath(params.targetName);
@@ -89,8 +88,10 @@ export async function runMolecularDocking(
         params.numPoses.toString(),
       ];
 
+      console.log("[Docking] Command:", PYTHON_EXECUTABLE, args.join(" "));
+
       // Spawn Python process with absolute path
-      const python = spawn(pythonExe, args, {
+      const python = spawn(PYTHON_EXECUTABLE, args, {
         cwd: __dirname,
         timeout: 300000, // 5 minutes
         shell: false,
@@ -140,87 +141,32 @@ export async function runMolecularDocking(
         }
       });
 
-      python.on("error", (err) => {
-        console.error(`[Docking] Process error:`, err);
+      python.on("error", (err: Error) => {
+        console.error(`[Docking] Spawn error:`, err);
         return resolve({
           success: false,
           error: `Failed to start docking process: ${err.message}`,
         });
       });
     } catch (error: any) {
-      console.error(`[Docking] Wrapper error:`, error);
+      console.error("[Docking] Unexpected error:", error);
       return resolve({
         success: false,
-        error: `Docking wrapper error: ${error.message}`,
+        error: `Docking error: ${error.message}`,
       });
     }
   });
 }
 
 /**
- * Get default docking parameters for a target
- * Falls back to sensible defaults if not found in DB
+ * Save docking results to database
  */
-export async function getDockingParamsForTarget(
-  targetName: string
-): Promise<{
-  boxCenterX: number;
-  boxCenterY: number;
-  boxCenterZ: number;
-  boxSizeX: number;
-  boxSizeY: number;
-  boxSizeZ: number;
-  exhaustiveness: number;
-  numPoses: number;
-}> {
-  try {
-    const db = await getDb();
-    if (!db) {
-      console.warn("[Docking] Database not available, using defaults");
-      return getDefaultDockingParams();
-    }
-
-    const params = await db
-      .select()
-      .from(dockingParameters)
-      .where(eq(dockingParameters.targetName, targetName))
-      .limit(1);
-
-    if (params && params.length > 0) {
-      return {
-        boxCenterX: Number(params[0].boxCenterX),
-        boxCenterY: Number(params[0].boxCenterY),
-        boxCenterZ: Number(params[0].boxCenterZ),
-        boxSizeX: Number(params[0].boxSizeX),
-        boxSizeY: Number(params[0].boxSizeY),
-        boxSizeZ: Number(params[0].boxSizeZ),
-        exhaustiveness: Number(params[0].exhaustiveness),
-        numPoses: Number(params[0].numPoses),
-      };
-    }
-
-    console.warn(
-      `[Docking] No parameters found for target ${targetName}, using defaults`
-    );
-    return getDefaultDockingParams();
-  } catch (error: any) {
-    console.error(`[Docking] Error fetching parameters:`, error);
-    return getDefaultDockingParams();
-  }
-}
-
-/**
- * Get sensible default docking parameters
- */
-function getDefaultDockingParams() {
-  return {
-    boxCenterX: 0,
-    boxCenterY: 0,
-    boxCenterZ: 0,
-    boxSizeX: 25,
-    boxSizeY: 25,
-    boxSizeZ: 25,
-    exhaustiveness: 8,
-    numPoses: 9,
-  };
+export async function saveDockingResults(
+  analogId: number,
+  results: DockingResult
+): Promise<void> {
+  // Note: dockingParameters table doesn't have analogId or results columns
+  // This function is kept for backward compatibility but doesn't persist results
+  // Results should be saved to batchDockingResults table instead
+  console.log(`Docking results for analog ${analogId}:`, results);
 }

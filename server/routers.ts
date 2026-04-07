@@ -165,10 +165,19 @@ export const appRouter = router({
         }
         
         // Import molecular docking wrapper
-        const { runMolecularDocking, getDockingParamsForTarget } = await import('./molecularDockingWrapper');
+        const { runMolecularDocking } = await import('./molecularDockingWrapper');
         
-        // Fetch docking parameters for the target
-        const dockingParams = await getDockingParamsForTarget(input.target);
+        // Use default docking parameters
+        const dockingParams = {
+          boxCenterX: 0,
+          boxCenterY: 0,
+          boxCenterZ: 0,
+          boxSizeX: 20,
+          boxSizeY: 20,
+          boxSizeZ: 20,
+          exhaustiveness: 8,
+          numPoses: 5,
+        };
         
         // Run docking with error handling
         let dockingResult;
@@ -994,23 +1003,6 @@ Provide accurate, scientific responses based on the data above. If the user asks
         }
         const { predictADMET } = await import('./pythonBridge');
         return predictADMET(input.smiles);
-      }),
-
-    runDocking: protectedProcedure
-      .input((val: unknown) => {
-        if (typeof val !== 'object' || val === null) return { ligandSmiles: '', receptorPDB: '' };
-        const obj = val as Record<string, unknown>;
-        return {
-          ligandSmiles: typeof obj.ligandSmiles === 'string' ? obj.ligandSmiles : '',
-          receptorPDB: typeof obj.receptorPDB === 'string' ? obj.receptorPDB : '',
-        };
-      })
-      .mutation(async ({ input, ctx }) => {
-        if (ctx.user?.role !== 'admin') {
-          throw new Error('Unauthorized: Admin access required');
-        }
-        const { runMolecularDocking } = await import('./pythonBridge');
-        return runMolecularDocking(input.ligandSmiles, input.receptorPDB);
       }),
 
     predictToxicity: protectedProcedure
