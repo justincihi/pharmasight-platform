@@ -43,6 +43,41 @@
       "when": 1766650237010,
       "tag": "0005_wide_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1767356139054,
+      "tag": "0006_soft_boomer",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1767356939936,
+      "tag": "0007_curly_tana_nile",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1767417959399,
+      "tag": "0008_organic_kate_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1767685364458,
+      "tag": "0009_gigantic_vulcan",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1767701922467,
+      "tag": "0010_light_madame_masque",
+      "breakpoints": true
     }
   ]
 }

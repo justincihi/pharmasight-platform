@@ -136,6 +136,7 @@ class DailyDiscoveryEngine:
         """
         discoveries = []
         goals = goals or []
+        seen_smiles = set()  # Track unique SMILES to prevent duplicates
         
         # Simulate different discovery methods
         discovery_methods = [
@@ -178,17 +179,27 @@ class DailyDiscoveryEngine:
         # Generate 5-10 discoveries per day
         num_discoveries = random.randint(5, 10)
         
-        for i in range(num_discoveries):
+        attempts = 0
+        max_attempts = num_discoveries * 3  # Allow retries for uniqueness
+        
+        while len(discoveries) < num_discoveries and attempts < max_attempts:
+            attempts += 1
             method, base_confidence, base_value = random.choice(discovery_methods)
+            
+            # Get a unique parent SMILES
+            smiles = self._generate_mock_smiles()
+            if smiles in seen_smiles:
+                continue  # Skip duplicates
+            seen_smiles.add(smiles)
             
             # Add some randomness
             confidence = min(99, base_confidence * 100 + random.randint(-10, 20))
             value = base_value * (0.5 + random.random() * 1.5)
             
             discovery = {
-                "discovery_id": hashlib.md5(f"disc_{datetime.now()}_{i}".encode()).hexdigest()[:16],
-                "compound_name": f"PHS-{datetime.now().strftime('%Y%m%d')}-{i+1:03d}",
-                "compound_smiles": self._generate_mock_smiles(),
+                "discovery_id": hashlib.md5(f"disc_{datetime.now()}_{len(discoveries)}".encode()).hexdigest()[:16],
+                "compound_name": f"PHS-{datetime.now().strftime('%Y%m%d')}-{len(discoveries)+1:03d}",
+                "compound_smiles": smiles,
                 "discovery_type": method,
                 "confidence": confidence,
                 "estimated_value": round(value),
@@ -204,16 +215,97 @@ class DailyDiscoveryEngine:
         return sorted(discoveries, key=lambda x: x['confidence'], reverse=True)
     
     def _generate_mock_smiles(self) -> str:
-        """Generate a mock but valid-looking SMILES string"""
-        fragments = [
-            "c1ccccc1", "C1CCCCC1", "c1ncncc1", "C(=O)O", "C(=O)N",
-            "CC(C)C", "CCO", "CN", "c1ccc2c(c1)OCO2", "Cc1ccccc1",
-            "FC(F)(F)", "Cl", "Br", "S(=O)(=O)N", "P(=O)(O)(O)"
+        """Get real parent compound SMILES from expanded pharmaceutical library"""
+        # Expanded library with 50+ diverse pharmaceutical scaffolds
+        parent_compounds = [
+            # Bronchodilators & Respiratory
+            "CC(C)NCC(O)c1ccc(O)c(CO)c1",  # Salbutamol
+            "CC(C)(C)NCC(O)c1ccc(O)c(CO)c1",  # Terbutaline
+            "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",  # Theophylline
+            
+            # CNS Stimulants & Nootropics
+            "CN1C(=O)N(C)c2ncn(C)c2C1=O",  # Caffeine
+            "CC(Cc1ccccc1)NC",  # Methamphetamine precursor
+            "CNC(=O)Oc1cccc(c1)N(C)C",  # Rivastigmine
+            
+            # Analgesics & NSAIDs
+            "CC(=O)Oc1ccccc1C(=O)O",  # Aspirin
+            "CC(C)Cc1ccc(cc1)C(C)C(=O)O",  # Ibuprofen
+            "COc1ccc2c(c1)c(CC(=O)O)c(C)n2C(=O)c3ccc(cc3)Cl",  # Indomethacin
+            "CN1CCC23C4C(=O)CCC2(C1CC5=C3C(=C(C=C5)O)O4)O",  # Morphine
+            
+            # Psychedelics & Serotonergics
+            "CCN(CC)C(=O)C1CN(C2CC3=CNC4=CC=CC(=C34)C2=C1)C",  # LSD
+            "COc1cc2c(cc1OC)CCN(C2)C",  # Mescaline
+            "CN(C)CCc1c[nH]c2ccc(O)cc12",  # Psilocybin precursor
+            "c1ccc2c(c1)c(c[nH]2)CCN",  # Tryptamine
+            "COc1cc(ccc1O)C(=O)CCN",  # 5-HT precursor
+            
+            # Antidepressants
+            "CN(C)CCC=C1c2ccccc2CCc3ccccc13",  # Amitriptyline
+            "CNCCC(c1ccc(cc1)OC)c2ccc(cc2)OC",  # Venlafaxine
+            "CNCCC(Oc1ccc(cc1)C(F)(F)F)c2ccccc2",  # Fluoxetine
+            "CN1C(CCC1c2ccc(cc2)Cl)c3ccccn3",  # Nicotine analog
+            
+            # Beta Blockers & Cardiovascular
+            "CC(C)NCC(O)COc1ccccc1",  # Propranolol
+            "CC(C)NCC(O)COc1cccc2c1cccc2",  # Propranolol analog
+            "CC(C)NCC(O)c1ccc(cc1)COCCOC",  # Metoprolol
+            
+            # Antihistamines
+            "Clc1ccc(cc1)C(c2ccccc2)N3CCNCC3",  # Cetirizine precursor
+            "CN(C)CCOC(c1ccccc1)c2ccccc2",  # Diphenhydramine
+            
+            # Anticholinergics
+            "CN1C2CCC1CC(C2)OC(=O)C(CO)c3ccccc3",  # Atropine
+            "OC(C(=O)O)(c1ccccc1)c2ccccc2",  # Benzilic acid
+            
+            # Antibiotics
+            "CC1(C)SC2C(NC(=O)Cc3ccccc3)C(=O)N2C1C(=O)O",  # Penicillin G
+            "CN(C)c1ccc(cc1)C(=C2C=CC(=[N+](C)C)C=C2)c3ccc(cc3)N(C)C",  # Crystal violet
+            "Nc1ccc(cc1)S(=O)(=O)Nc2ncccn2",  # Sulfadiazine
+            
+            # Antivirals
+            "Nc1nc(=O)c2c([nH]1)ncn2C3OC(CO)C(O)C3O",  # Acyclovir
+            "CC(C)c1nc(cs1)CN(C)C(=O)N[C@@H](C(C)C)C(=O)N[C@H]2[C@H]3N(C2=O)C(=C(CS3)CSc4nnnn4C)C(=O)O",  # Cefdinir
+            
+            # Kinase Inhibitors
+            "Cn1cnc2c1c(=O)n(c(=O)n2C)C",  # Xanthine scaffold
+            "c1ccc2c(c1)ncc(n2)c3cccnc3",  # Quinazoline scaffold
+            "Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)NC(=O)c4ccc(cc4)CN5CCN(CC5)C",  # Imatinib
+            
+            # Immunosuppressants
+            "CC1CCC2C(C1)C(=O)N(C2=O)SC(C)(C)C",  # Cyclosporine analog
+            "COc1cc(ccc1O)C2c3cc4c(cc3C(=O)C(C2)O)OCO4",  # Podophyllotoxin
+            
+            # Anticancer Agents
+            "CN(C)c1ccc(cc1)C(=O)c2ccc(cc2)N(C)C",  # Michler's ketone
+            "COc1cc2c(cc1OC)C(=O)C(CC2)Cc3ccc(c(c3)OC)OC",  # Colchicine analog
+            "Nc1ncnc2c1ncn2C3OC(CO)C(O)C3O",  # Adenosine
+            
+            # Anxiolytics & Sedatives
+            "CN1C(=O)CN=C(c2ccccc2)c3cc(ccc13)Cl",  # Diazepam
+            "Cc1nnc(s1)SCC2=C(N3C(C(C3=O)NC(=O)Cc4ccccc4)SC2)C(=O)O",  # Cefazolin
+            
+            # Anticonvulsants
+            "NC(=O)c1ccccc1N",  # Anthranilamide
+            "O=C1NC(=O)C(c2ccccc2)(c3ccccc3)C(=O)N1",  # Phenytoin
+            
+            # Antipsychotics
+            "CN1CCN(CC1)C2=Nc3ccccc3Nc4ccccc24",  # Clozapine
+            "OCCN1CCN(CC1)c2ccc(cc2)C(=O)c3ccc(cc3)F",  # Haloperidol analog
+            
+            # Diabetes & Metabolic
+            "CN(C)C(=N)NC(=N)N",  # Metformin
+            "CC(=O)Nc1ccc(cc1)S(=O)(=O)Nc2ncccn2",  # Sulfonylurea
+            
+            # Antiparasitics
+            "COc1ccc(cc1)C(c2ccc(cc2)OC)C(=O)c3ccc(cc3)Cl",  # Chloroquine analog
+            "c1ccc2c(c1)nc(s2)N",  # Benzothiazole
         ]
         
-        num_fragments = random.randint(2, 4)
-        selected = random.sample(fragments, num_fragments)
-        return "".join(selected)
+        # Return a random parent compound
+        return random.choice(parent_compounds)
     
     def _generate_key_features(self) -> List[str]:
         """Generate key features for a discovery"""

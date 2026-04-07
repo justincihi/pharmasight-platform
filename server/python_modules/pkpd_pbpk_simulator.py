@@ -173,7 +173,9 @@ class PKPDSimulator:
         # Calculate PK parameters
         cmax = max(concentrations)
         tmax = self.time_points[concentrations.index(cmax)]
-        auc = np.trapz(concentrations, self.time_points)
+        # Use scipy.integrate.trapezoid instead of deprecated np.trapz
+        from scipy.integrate import trapezoid
+        auc = trapezoid(concentrations, self.time_points)
         
         return {
             'time': self.time_points.tolist(),
@@ -238,7 +240,9 @@ class PKPDSimulator:
         
         cmax = max(concentrations)
         tmax = self.time_points[list(concentrations).index(cmax)]
-        auc = np.trapz(concentrations, self.time_points)
+        # Use scipy.integrate.trapezoid instead of deprecated np.trapz
+        from scipy.integrate import trapezoid
+        auc = trapezoid(concentrations, self.time_points)
         
         return {
             'time': self.time_points.tolist(),
@@ -515,3 +519,57 @@ def get_population_analyzer() -> PopulationPKPDAnalyzer:
         _population_analyzer = PopulationPKPDAnalyzer()
     return _population_analyzer
 
+
+def simulate_pkpd(smiles: str, dose: float, route: str = 'oral') -> dict:
+    """
+    Wrapper function for PK/PD simulation that can be called from Node.js
+    
+    Args:
+        smiles: SMILES string of the compound
+        dose: Dose in mg
+        route: Administration route ('oral', 'iv', 'im', 'sc')
+    
+    Returns:
+        Dictionary with PK/PD simulation results
+    """
+    try:
+        simulator = get_pk_simulator()
+        
+        # Create a standard patient for simulation
+        standard_patient = {
+            'age': 35,
+            'weight': 70.0,
+            'height': 170.0,
+            'sex': 'M',
+            'bsa': 1.8,
+            'bmi': 24.2,
+            'creatinine_clearance': 100.0,
+            'liver_function': 1.0,
+            'conditions': []
+        }
+        
+        # Run one-compartment PK simulation
+        result = simulator.simulate_one_compartment_pk(
+            dose=dose,
+            patient=standard_patient
+        )
+        
+        return {
+            'success': True,
+            'time_points': result['time'],
+            'concentration': result['concentration'],
+            'cmax': result['cmax'],
+            'tmax': result['tmax'],
+            'auc': result['auc'],
+            'half_life': result['half_life'],
+            'clearance': result['clearance'],
+            'volume_distribution': result['volume_distribution'],
+            'route': route,
+            'dose_mg': dose
+        }
+    except Exception as e:
+        logger.error(f"PK/PD simulation failed: {e}")
+        return {
+            'success': False,
+            'error': str(e)
+        }

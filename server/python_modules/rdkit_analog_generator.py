@@ -81,6 +81,45 @@ class RDKitAnalogGenerator:
         except:
             return 0.0
     
+    def calculate_diversity_score(self, new_smiles: str, existing_smiles_list: List[str], 
+                                   min_diversity_threshold: float = 0.3) -> Tuple[float, bool]:
+        """Calculate diversity score against existing analogs
+        
+        Args:
+            new_smiles: SMILES string of new compound
+            existing_smiles_list: List of existing SMILES in database
+            min_diversity_threshold: Minimum Tanimoto distance required (1 - similarity)
+        
+        Returns:
+            Tuple of (diversity_score, is_diverse_enough)
+            diversity_score: Minimum Tanimoto distance to any existing compound (0-1)
+            is_diverse_enough: True if diversity_score >= min_diversity_threshold
+        """
+        try:
+            new_mol = Chem.MolFromSmiles(new_smiles)
+            if not new_mol:
+                return 0.0, False
+            
+            if not existing_smiles_list:
+                return 1.0, True  # No existing compounds, fully diverse
+            
+            min_distance = 1.0  # Start with maximum diversity
+            
+            for existing_smiles in existing_smiles_list:
+                existing_mol = Chem.MolFromSmiles(existing_smiles)
+                if not existing_mol:
+                    continue
+                
+                similarity = self.calculate_similarity(new_mol, existing_mol)
+                distance = 1.0 - similarity  # Convert similarity to distance
+                min_distance = min(min_distance, distance)
+            
+            is_diverse = min_distance >= min_diversity_threshold
+            return round(min_distance, 3), is_diverse
+        
+        except:
+            return 0.0, False
+    
     def assess_drug_likeness(self, props: Dict) -> Tuple[int, List[str]]:
         """Assess drug-likeness based on Lipinski's Rule of Five"""
         violations = []

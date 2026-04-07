@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { dockingRouter } from './dockingRouter';
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -103,31 +104,62 @@ export const appRouter = router({
 
     runDocking: protectedProcedure
       .input((val: unknown) => {
-        if (typeof val !== 'object' || val === null) return { analogId: 0, smiles: '', target: '' };
+        if (typeof val !== 'object' || val === null) return { analogId: 0, smiles: '', target: 'NMDA' };
         const obj = val as Record<string, unknown>;
         return {
           analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
           smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
-          target: typeof obj.target === 'string' ? obj.target : '',
+          target: typeof obj.target === 'string' ? obj.target : 'NMDA',
         };
       })
       .mutation(async ({ input, ctx }) => {
         if (ctx.user?.role !== 'admin') {
           throw new Error('Unauthorized: Admin access required');
         }
+        
+        // Import molecular docking wrapper
+        const { runMolecularDocking } = await import('./molecularDockingWrapper');
+        
+        // Run docking
+        const dockingResult = await runMolecularDocking(input.smiles, input.analogId.toString());
+        
+        // Normalize binding affinity to 0-100 score
+        // Typical range: -12 to -3 kcal/mol
+        // More negative = better binding
+        const affinity = dockingResult.binding_affinity || 0;
+        const normalizedScore = Math.max(0, Math.min(100, Math.round(((-affinity + 3) / 9) * 100)));
+        
+        // Update analog with docking results
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        
+        if (db) {
+          await db.update(analogDiscoveries)
+            .set({
+              bindingAffinity: affinity.toString(),
+              dockingScore: normalizedScore,
+              dockingTarget: input.target + ' Receptor',
+            })
+            .where(eq(analogDiscoveries.id, input.analogId));
+        }
+        
+        // Create test result record
         const { createTestResult } = await import('./db');
         const result = await createTestResult({
           analogId: input.analogId,
           testType: 'docking',
           testStatus: 'completed',
-          results: JSON.stringify({
-            bindingAffinity: -8.5,
-            rmsd: 1.2,
-            interactions: ['hydrogen-bond', 'pi-stacking'],
-          }),
+          results: JSON.stringify(dockingResult),
           runBy: ctx.user.id,
         });
-        return result;
+        
+        return {
+          ...result,
+          dockingScore: normalizedScore,
+          bindingAffinity: affinity,
+        };
       }),
 
     bulkApprove: protectedProcedure
@@ -193,6 +225,169 @@ export const appRouter = router({
         
         return { success: true, count: input.analogIds.length };
       }),
+    
+    importFromSDF: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { sdfPath: '' };
+        const obj = val as Record<string, unknown>;
+        return {
+          sdfPath: typeof obj.sdfPath === 'string' ? obj.sdfPath : '',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { importFromSDF } = await import('./sdfImporter');
+        return importFromSDF(input.sdfPath);
+      }),
+    
+    generateSynthesisRoute: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { compoundName: '', smiles: '' };
+        const obj = val as Record<string, unknown>;
+        return {
+          compoundName: typeof obj.compoundName === 'string' ? obj.compoundName : '',
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { generateSynthesisRoute } = await import('./synthesisRouteOptimizer');
+        return generateSynthesisRoute(input.compoundName, input.smiles);
+      }),
+    
+    optimizeSynthesisRoute: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { route: null, goal: 'cost' as const };
+        const obj = val as Record<string, unknown>;
+        return {
+          route: obj.route,
+          goal: (obj.goal === 'yield' || obj.goal === 'time' ? obj.goal : 'cost') as 'cost' | 'yield' | 'time',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        if (!input.route) {
+          throw new Error('Route is required');
+        }
+        const { optimizeSynthesisRoute } = await import('./synthesisRouteOptimizer');
+        return optimizeSynthesisRoute(input.route as any, input.goal);
+      }),
+    
+    predictMetabolites: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getDb } = await import('./db');
+        const db = await getDb();
+        if (!db) throw new Error('Database connection failed');
+        
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        
+        // Get analog SMILES
+        const analog = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.id, input.analogId)).limit(1);
+        if (!analog || analog.length === 0) {
+          throw new Error('Analog not found');
+        }
+        
+        const { predictMetabolites, storeMetabolites } = await import('./metabolitePredictorWrapper');
+        
+        try {
+          const result = await predictMetabolites(analog[0].smiles, 10);
+          await storeMetabolites(input.analogId, result.metabolites);
+          return result;
+        } catch (error: any) {
+          throw new Error(`Metabolite prediction failed: ${error.message}`);
+        }
+      }),
+    
+    getMetabolites: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getMetabolitesForAnalog } = await import('./metabolitePredictorWrapper');
+        return await getMetabolitesForAnalog(input.analogId);
+      }),
+
+    createFromOptimization: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          return { parentId: 0, optimizedSmiles: '', modification: '', category: '' };
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          parentId: typeof obj.parentId === 'number' ? obj.parentId : 0,
+          optimizedSmiles: typeof obj.optimizedSmiles === 'string' ? obj.optimizedSmiles : '',
+          modification: typeof obj.modification === 'string' ? obj.modification : '',
+          category: typeof obj.category === 'string' ? obj.category : '',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new Error('Database connection failed');
+        
+        // Get parent analog
+        const parent = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.id, input.parentId));
+        if (!parent || parent.length === 0) {
+          throw new Error('Parent analog not found');
+        }
+        
+        const parentAnalog = parent[0];
+        const nextGeneration = (parentAnalog.optimizationGeneration || 1) + 1;
+        
+        // Generate unique compound ID
+        const timestamp = Date.now().toString(36);
+        const compoundId = `${parentAnalog.compoundId}-OPT${nextGeneration}-${timestamp}`;
+        
+        // Create new analog from optimization
+        await db.insert(analogDiscoveries).values({
+          compoundId,
+          compoundName: `${parentAnalog.compoundName} (Optimized Gen ${nextGeneration})`,
+          smiles: input.optimizedSmiles,
+          parentCompound: parentAnalog.parentCompound,
+          safetyScore: parentAnalog.safetyScore,
+          efficacyScore: parentAnalog.efficacyScore,
+          confidenceScore: parentAnalog.confidenceScore,
+          similarityScore: parentAnalog.similarityScore,
+          drugLikenessScore: parentAnalog.drugLikenessScore,
+          patentStatus: 'patent-opportunity' as const,
+          discoveredBy: 'optimization-engine',
+          discoveredAt: new Date(),
+          parentAnalogId: input.parentId,
+          optimizationGeneration: nextGeneration,
+          optimizationTarget: input.category,
+          optimizationNotes: input.modification,
+        });
+        
+        // Get the newly created analog
+        const newAnalog = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.compoundId, compoundId));
+        return newAnalog[0];
+      }),
 
   }),
 
@@ -219,10 +414,30 @@ export const appRouter = router({
         const { getDiscoveryTimeline } = await import('./db');
         return getDiscoveryTimeline(input.days);
       }),
+    
+    export: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          return { format: 'csv' as const, filters: {} };
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          format: (obj.format === 'sdf' ? 'sdf' : 'csv') as 'csv' | 'sdf',
+          filters: typeof obj.filters === 'object' ? obj.filters as any : {},
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { exportAnalogs } = await import('./batchExporter');
+        return exportAnalogs(input);
+      }),
   }),
 
-  // Notifications routes
+  // Notifications routes - Real-time notification system
   notifications: router({
+    // Get recent notifications
     getRecent: protectedProcedure
       .input((val: unknown) => {
         if (typeof val !== 'object' || val === null) return { limit: 20 };
@@ -235,6 +450,203 @@ export const appRouter = router({
         }
         const { getAdminNotifications } = await import('./db');
         return getAdminNotifications(ctx.user.id, input.limit);
+      }),
+    
+    // Get unread count for badge
+    getUnreadCount: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getUnreadNotificationCount } = await import('./db');
+        return getUnreadNotificationCount(ctx.user.id);
+      }),
+    
+    // Mark notification as read
+    markAsRead: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { notificationId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { notificationId: typeof obj.notificationId === 'number' ? obj.notificationId : 0 };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { markNotificationAsRead } = await import('./db');
+        await markNotificationAsRead(input.notificationId);
+        return { success: true };
+      }),
+    
+    // Mark all notifications as read
+    markAllAsRead: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { markAllNotificationsAsRead } = await import('./db');
+        await markAllNotificationsAsRead(ctx.user.id);
+        return { success: true };
+      }),
+    
+    // Poll for new notifications (real-time polling endpoint)
+    pollNew: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { since: null };
+        const obj = val as Record<string, unknown>;
+        return { 
+          since: typeof obj.since === 'string' ? obj.since : null 
+        };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getNewNotifications } = await import('./db');
+        return getNewNotifications(ctx.user.id, input.since);
+      }),
+  }),
+
+  // Bookmarks routes - save/bookmark important discoveries
+  bookmarks: router({
+    // Get all user's bookmarks
+    getAll: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { limit: 50 };
+        const obj = val as Record<string, unknown>;
+        return { limit: typeof obj.limit === 'number' ? obj.limit : 50 };
+      })
+      .query(async ({ input, ctx }) => {
+        const { getUserBookmarks } = await import('./db');
+        return getUserBookmarks(ctx.user!.id, input.limit);
+      }),
+
+    // Create a new bookmark
+    create: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : null,
+          notificationId: typeof obj.notificationId === 'number' ? obj.notificationId : null,
+          title: typeof obj.title === 'string' ? obj.title : 'Untitled Bookmark',
+          notes: typeof obj.notes === 'string' ? obj.notes : null,
+          category: typeof obj.category === 'string' ? obj.category : 'review-later',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { createBookmark } = await import('./db');
+        const result = await createBookmark({
+          userId: ctx.user!.id,
+          analogId: input.analogId,
+          notificationId: input.notificationId,
+          title: input.title,
+          notes: input.notes,
+          category: input.category as any,
+        });
+        return { success: true, bookmarkId: result.id };
+      }),
+
+    // Update a bookmark
+    update: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          bookmarkId: typeof obj.bookmarkId === 'number' ? obj.bookmarkId : 0,
+          title: typeof obj.title === 'string' ? obj.title : undefined,
+          notes: typeof obj.notes === 'string' ? obj.notes : undefined,
+          category: typeof obj.category === 'string' ? obj.category : undefined,
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { getBookmarkById, updateBookmark } = await import('./db');
+        
+        // Verify ownership
+        const bookmark = await getBookmarkById(input.bookmarkId);
+        if (!bookmark || bookmark.userId !== ctx.user!.id) {
+          throw new Error('Bookmark not found or access denied');
+        }
+        
+        const updateData: any = {};
+        if (input.title) updateData.title = input.title;
+        if (input.notes !== undefined) updateData.notes = input.notes;
+        if (input.category) updateData.category = input.category;
+        
+        await updateBookmark(input.bookmarkId, updateData);
+        return { success: true };
+      }),
+
+    // Delete a bookmark
+    delete: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { bookmarkId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { bookmarkId: typeof obj.bookmarkId === 'number' ? obj.bookmarkId : 0 };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { getBookmarkById, deleteBookmark } = await import('./db');
+        
+        // Verify ownership
+        const bookmark = await getBookmarkById(input.bookmarkId);
+        if (!bookmark || bookmark.userId !== ctx.user!.id) {
+          throw new Error('Bookmark not found or access denied');
+        }
+        
+        await deleteBookmark(input.bookmarkId);
+        return { success: true };
+      }),
+
+    // Check if an analog is bookmarked
+    isBookmarked: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input, ctx }) => {
+        const { isAnalogBookmarked } = await import('./db');
+        return isAnalogBookmarked(ctx.user!.id, input.analogId);
+      }),
+
+    // Toggle bookmark for an analog
+    toggle: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) {
+          throw new Error('Invalid input');
+        }
+        const obj = val as Record<string, unknown>;
+        return {
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : 0,
+          title: typeof obj.title === 'string' ? obj.title : 'Saved Discovery',
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        const { isAnalogBookmarked, getBookmarkByAnalogId, createBookmark, deleteBookmark } = await import('./db');
+        
+        const isBookmarked = await isAnalogBookmarked(ctx.user!.id, input.analogId);
+        
+        if (isBookmarked) {
+          // Remove bookmark
+          const bookmark = await getBookmarkByAnalogId(ctx.user!.id, input.analogId);
+          if (bookmark) {
+            await deleteBookmark(bookmark.id);
+          }
+          return { bookmarked: false };
+        } else {
+          // Add bookmark
+          await createBookmark({
+            userId: ctx.user!.id,
+            analogId: input.analogId,
+            title: input.title,
+            category: 'review-later',
+          });
+          return { bookmarked: true };
+        }
       }),
   }),
 
@@ -273,6 +685,48 @@ export const appRouter = router({
       const { stopScheduler } = await import('./autonomousScheduler');
       stopScheduler();
       return { success: true, message: 'Scheduler stopped' };
+    }),
+    
+    getResearchGoals: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { getResearchGoals } = await import('./researchGoalsManager');
+      return getResearchGoals();
+    }),
+    
+    saveResearchGoals: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { goals: [] };
+        const obj = val as Record<string, unknown>;
+        return {
+          goals: Array.isArray(obj.goals) ? obj.goals.filter(g => typeof g === 'string') : [],
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { saveResearchGoals } = await import('./researchGoalsManager');
+        await saveResearchGoals(input.goals);
+        return { success: true };
+      }),
+    
+    getMedicalTrends: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { getMedicalTrends } = await import('./medicalTrendsAnalyzer');
+      return getMedicalTrends();
+    }),
+    
+    refreshMedicalTrends: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') {
+        throw new Error('Unauthorized: Admin access required');
+      }
+      const { refreshMedicalTrends } = await import('./medicalTrendsAnalyzer');
+      await refreshMedicalTrends();
+      return { success: true };
     }),
   }),
 
@@ -611,6 +1065,146 @@ When users ask about analogs, test results, or discoveries, query the FULL datab
         const { generateRoutesMarkdown } = await import('./exportRoutes');
         return { markdown: generateRoutesMarkdown(input.routes as any[]) };
       }),
+  }),
+
+  // Docking queue routes
+  docking: dockingRouter,
+
+  // Info Hub routes
+  infohub: router({
+    listVideos: protectedProcedure.query(async () => {
+      // Return empty array for now - will implement storage later
+      return [];
+    }),
+    listPdfs: protectedProcedure.query(async () => {
+      // Return empty array for now - will implement storage later
+      return [];
+    }),
+    uploadVideo: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          title: typeof obj.title === 'string' ? obj.title : '',
+          url: typeof obj.url === 'string' ? obj.url : '',
+          description: typeof obj.description === 'string' ? obj.description : '',
+        };
+      })
+      .mutation(async ({ input }) => {
+        // TODO: Implement file storage
+        return { success: true, id: Date.now() };
+      }),
+    uploadPdf: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          title: typeof obj.title === 'string' ? obj.title : '',
+          url: typeof obj.url === 'string' ? obj.url : '',
+          description: typeof obj.description === 'string' ? obj.description : '',
+        };
+      })
+      .mutation(async ({ input }) => {
+        // TODO: Implement file storage
+        return { success: true, id: Date.now() };
+      }),
+    deleteVideo: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { id: typeof obj.id === 'number' ? obj.id : 0 };
+      })
+      .mutation(async ({ input }) => {
+        // TODO: Implement file deletion
+        return { success: true };
+      }),
+    deletePdf: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { id: typeof obj.id === 'number' ? obj.id : 0 };
+      })
+      .mutation(async ({ input }) => {
+        // TODO: Implement file deletion
+        return { success: true };
+      }),
+  }),
+
+  // Advanced molecular analysis (Phase I & II)
+  advancedAnalysis: router({
+    // Run comprehensive analysis (toxicity + SA + optimization)
+    comprehensive: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runComprehensiveAnalysis } = await import('./advancedAnalysis');
+        return runComprehensiveAnalysis(input.smiles);
+      }),
+
+    // Run toxicity profiling only
+    toxicity: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runToxicityAnalysis } = await import('./advancedAnalysis');
+        return runToxicityAnalysis(input.smiles);
+      }),
+
+    // Run synthetic accessibility analysis only
+    syntheticAccessibility: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+      })
+      .mutation(async ({ input }) => {
+        const { runSAAnalysis } = await import('./advancedAnalysis');
+        return runSAAnalysis(input.smiles);
+      }),
+
+    // Get structure optimization suggestions
+    optimize: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          targetProperty: typeof obj.targetProperty === 'string' ? obj.targetProperty : undefined,
+        };
+      })
+      .mutation(async ({ input }) => {
+        const { runOptimizationAnalysis } = await import('./advancedAnalysis');
+        return runOptimizationAnalysis(input.smiles, input.targetProperty);
+      }),
+
+    // Run iterative optimization
+    iterativeOptimize: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
+        const obj = val as Record<string, unknown>;
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          targetProperty: typeof obj.targetProperty === 'string' ? obj.targetProperty : 'reduce_lipophilicity',
+          iterations: typeof obj.iterations === 'number' ? obj.iterations : 3,
+        };
+      })
+      .mutation(async ({ input }) => {
+        const { runIterativeOptimization } = await import('./advancedAnalysis');
+        return runIterativeOptimization(input.smiles, input.targetProperty, input.iterations);
+      }),
+
+    // Check Python environment status
+    checkEnvironment: protectedProcedure.query(async () => {
+      const { checkPythonEnvironment } = await import('./advancedAnalysis');
+      const isAvailable = await checkPythonEnvironment();
+      return { available: isAvailable };
+    }),
   }),
 });
 

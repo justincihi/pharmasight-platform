@@ -1,18 +1,23 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AnalogCard } from "@/components/AnalogCard";
+import SDFUploader from "@/components/SDFUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Search, Filter } from "lucide-react";
+import { Loader2, Search, Filter, FlaskConical } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import type { AnalogDiscovery } from "@/types";
+import { BatchAnalysisModal } from "@/components/BatchAnalysisModal";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [patentFilter, setPatentFilter] = useState<string | undefined>();
   const [confidenceFilter, setConfidenceFilter] = useState<number | undefined>();
   const [page, setPage] = useState(0);
+  const [selectedAnalogs, setSelectedAnalogs] = useState<Set<number>>(new Set());
+  const [showBatchAnalysis, setShowBatchAnalysis] = useState(false);
 
   // Fetch analogs
   const { data: analogs, isLoading, error } = trpc.analog.list.useQuery({
@@ -30,6 +35,37 @@ export default function AdminDashboard() {
 
   const displayAnalogs = searchQuery.length > 2 ? searchResults : analogs;
 
+  const toggleAnalogSelection = (analogId: number) => {
+    setSelectedAnalogs(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(analogId)) {
+        newSet.delete(analogId);
+      } else {
+        newSet.add(analogId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedAnalogs.size === displayAnalogs?.length) {
+      setSelectedAnalogs(new Set());
+    } else {
+      setSelectedAnalogs(new Set(displayAnalogs?.map((a: AnalogDiscovery) => a.id) || []));
+    }
+  };
+
+  const getSelectedAnalogsData = () => {
+    if (!displayAnalogs) return [];
+    return displayAnalogs
+      .filter((a: AnalogDiscovery) => selectedAnalogs.has(a.id))
+      .map((a: AnalogDiscovery) => ({
+        id: a.id,
+        compoundName: a.compoundName,
+        smiles: a.smiles
+      }));
+  };
+
   const handleRunTest = (analogId: number, testType: string) => {
     console.log(`Running ${testType} test on analog ${analogId}`);
     // TODO: Implement test running logic
@@ -45,6 +81,9 @@ export default function AdminDashboard() {
             Manage and analyze pharmaceutical analog compounds
           </p>
         </div>
+        
+        {/* SDF Uploader */}
+        <SDFUploader />
 
         {/* Search and Filters */}
         <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
@@ -61,6 +100,19 @@ export default function AdminDashboard() {
                 className="pl-10"
               />
             </div>
+            {selectedAnalogs.size > 0 && (
+              <Button 
+                variant="default" 
+                size="sm"
+                onClick={() => setShowBatchAnalysis(true)}
+              >
+                <FlaskConical className="w-4 h-4 mr-2" />
+                Analyze Selected ({selectedAnalogs.size})
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={toggleSelectAll}>
+              {selectedAnalogs.size === displayAnalogs?.length ? 'Deselect All' : 'Select All'}
+            </Button>
             <Button variant="outline" size="sm">
               <Filter className="w-4 h-4 mr-2" />
               Advanced
@@ -129,14 +181,29 @@ export default function AdminDashboard() {
         {!isLoading && displayAnalogs && displayAnalogs.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {displayAnalogs.map((analog: AnalogDiscovery) => (
-              <AnalogCard
-                key={analog.id}
-                analog={analog}
-                onRunTest={handleRunTest}
-              />
+              <div key={analog.id} className="relative">
+                <div className="absolute top-2 left-2 z-10">
+                  <Checkbox
+                    checked={selectedAnalogs.has(analog.id)}
+                    onCheckedChange={() => toggleAnalogSelection(analog.id)}
+                    className="bg-white border-2"
+                  />
+                </div>
+                <AnalogCard
+                  analog={analog}
+                  onRunTest={handleRunTest}
+                />
+              </div>
             ))}
           </div>
         )}
+
+        {/* Batch Analysis Modal */}
+        <BatchAnalysisModal
+          open={showBatchAnalysis}
+          onOpenChange={setShowBatchAnalysis}
+          selectedAnalogs={getSelectedAnalogsData()}
+        />
 
         {/* Empty State */}
         {!isLoading && displayAnalogs && displayAnalogs.length === 0 && (

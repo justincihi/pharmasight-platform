@@ -20,7 +20,39 @@ interface ResearchResult {
  * This calls the daily_discovery_engine.py module
  */
 export async function runAutonomousResearch(): Promise<ResearchResult> {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
+    // Load research goals from file
+    let researchGoals = ['psychedelics', 'nootropics', 'anxiolytics']; // Default
+    try {
+      const { getResearchGoals } = await import('./researchGoalsManager');
+      const goalsData = await getResearchGoals();
+      if (goalsData.goals && goalsData.goals.length > 0) {
+        researchGoals = goalsData.goals;
+      }
+    } catch (error) {
+      console.log('[Autonomous Research] Using default goals');
+    }
+    
+    // Load AI-discovered medical trends
+    let trendKeywords: string[] = [];
+    try {
+      const { getMedicalTrends } = await import('./medicalTrendsAnalyzer');
+      const trendsData = await getMedicalTrends();
+      if (trendsData.trends && trendsData.trends.length > 0) {
+        // Extract high-priority trend keywords
+        trendKeywords = trendsData.trends
+          .filter(t => t.priority === 'High')
+          .flatMap(t => t.keywords)
+          .slice(0, 5); // Limit to top 5 trend keywords
+      }
+    } catch (error) {
+      console.log('[Autonomous Research] No medical trends available');
+    }
+    
+    // Combine user goals with AI-discovered trends
+    const combinedGoals = [...researchGoals, ...trendKeywords];
+    console.log(`[Autonomous Research] Using goals: ${combinedGoals.join(', ')}`);
+    
     const pythonScript = `
 import sys
 import json
@@ -33,7 +65,7 @@ try:
     # Initialize and run discovery
     engine = DailyDiscoveryEngine()
     report = engine.generate_daily_report(
-        goals=['psychedelics', 'nootropics', 'anxiolytics']
+        goals=${JSON.stringify(combinedGoals)}
     )
     
     # Extract discoveries from report
@@ -51,7 +83,11 @@ except Exception as e:
     }))
 `;
 
-    const python = spawn("python3", ["-c", pythonScript]);
+    // Use venv Python if available to avoid SRE module mismatch
+    const venvPython = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules/venv/bin/python3";
+    const pythonCmd = existsSync(venvPython) ? venvPython : "python3";
+    
+    const python = spawn(pythonCmd, ["-c", pythonScript]);
 
     let stdout = "";
     let stderr = "";

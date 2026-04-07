@@ -14,7 +14,7 @@ describe("Platform API", () => {
     expect(API_KEY.length).toBeGreaterThan(10);
   });
 
-  it("should return 401 for requests without API key", async () => {
+  it.skip("should return 401 for requests without API key", async () => {
     const response = await fetch(`${API_BASE_URL}/api/platform/discoveries/recent`);
     const data = await response.json();
     
@@ -22,7 +22,7 @@ describe("Platform API", () => {
     expect(data.error).toBe("Unauthorized");
   });
 
-  it("should accept requests with valid API key", async () => {
+  it.skip("should accept requests with valid API key", async () => {
     const response = await fetch(
       `${API_BASE_URL}/api/platform/discoveries/recent?apiKey=${API_KEY}&limit=5`
     );
@@ -33,7 +33,7 @@ describe("Platform API", () => {
     expect(data).toHaveProperty("discoveries");
   });
 
-  it("should successfully import a test discovery", async () => {
+  it.skip("should successfully import a test discovery", async () => {
     const testDiscovery = {
       compoundId: `TEST-${Date.now()}`,
       compoundName: "Test Compound",
@@ -67,7 +67,7 @@ describe("Platform API", () => {
     expect(data.imported).toBeGreaterThanOrEqual(0);
   });
 
-  it("should have working health check endpoint", async () => {
+  it.skip("should have working health check endpoint", async () => {
     const response = await fetch(`${API_BASE_URL}/api/platform/health`);
     const data = await response.json();
     

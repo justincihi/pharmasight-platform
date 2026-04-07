@@ -1,0 +1,19 @@
+# Core cheminformatics
+rdkit>=2023.9.1
+# Molecular descriptors and fingerprints
+mordred>=1.2.0
+# Machine learning for QSAR
+scikit-learn>=1.3.0
+numpy>=1.24.0
+pandas>=2.0.0
+# ADMET prediction
+chemprop>=1.6.0
+# Toxicity prediction
+deepchem>=2.7.0
+# Synthetic accessibility
+syba>=0.6.0
+# Additional utilities
+requests>=2.31.0
+tqdm>=4.66.0
+# Molecular similarity
+scipy>=1.11.0

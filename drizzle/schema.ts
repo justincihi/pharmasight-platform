@@ -59,6 +59,11 @@ export const analogDiscoveries = mysqlTable("analog_discoveries", {
   hBondDonors: int("h_bond_donors"),
   hBondAcceptors: int("h_bond_acceptors"),
   
+  // Docking scores
+  bindingAffinity: varchar("binding_affinity", { length: 64 }), // kcal/mol
+  dockingScore: int("docking_score"), // 0-100 normalized score
+  dockingTarget: varchar("docking_target", { length: 128 }), // e.g., "NMDA Receptor"
+  
   // External database IDs
   pubchemCid: varchar("pubchem_cid", { length: 64 }),
   chemblId: varchar("chembl_id", { length: 64 }),
@@ -67,6 +72,17 @@ export const analogDiscoveries = mysqlTable("analog_discoveries", {
   discoveredBy: varchar("discovered_by", { length: 128 }).notNull(), // "autonomous-engine" or user ID
   discoveryMethod: varchar("discovery_method", { length: 128 }),
   discoveredAt: timestamp("discovered_at").defaultNow().notNull(),
+  
+  // Lead optimization tracking
+  parentAnalogId: int("parent_analog_id"), // ID of the parent analog this was optimized from
+  optimizationGeneration: int("optimization_generation").default(1), // Generation number (1 = original, 2 = first optimization, etc.)
+  optimizationTarget: varchar("optimization_target", { length: 128 }), // What property was being optimized
+  optimizationNotes: text("optimization_notes"), // Notes about the optimization
+  
+  // Advanced analysis results (JSON)
+  toxicityProfile: text("toxicity_profile"), // JSON: hERG, hepatotoxicity, mutagenicity, carcinogenicity
+  syntheticAccessibility: text("synthetic_accessibility"), // JSON: SA score, difficulty, estimated steps
+  metabolites: text("metabolites"), // JSON: predicted metabolites
   
   // Approval workflow
   approvalStatus: mysqlEnum("approval_status", ["pending", "approved", "rejected"]).default("pending").notNull(),
@@ -130,3 +146,70 @@ export const chatMessages = mysqlTable("chat_messages", {
 
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = typeof chatMessages.$inferInsert;
+
+/**
+ * Docking queue table - manages automated docking jobs for multiple targets
+ */
+export const dockingQueue = mysqlTable("docking_queue", {
+  id: int("id").autoincrement().primaryKey(),
+  analogId: int("analog_id").notNull(),
+  target: varchar("target", { length: 100 }).notNull(), // 'NMDA', '5-HT2A', 'D2'
+  status: mysqlEnum("status", ["pending", "running", "completed", "failed"]).default("pending").notNull(),
+  priority: int("priority").default(5).notNull(), // 1-10, higher = more important
+  
+  // Results
+  bindingAffinity: varchar("binding_affinity", { length: 50 }),
+  dockingScore: int("docking_score"),
+  ligandPDB: text("ligand_pdb"),
+  receptorPDB: text("receptor_pdb"),
+  
+  // Metadata
+  errorMessage: text("error_message"),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type DockingQueueEntry = typeof dockingQueue.$inferSelect;
+export type NewDockingQueueEntry = typeof dockingQueue.$inferInsert;
+
+/**
+ * Metabolites table - stores predicted metabolites for each analog
+ */
+export const metabolites = mysqlTable("metabolites", {
+  id: int("id").autoincrement().primaryKey(),
+  parentAnalogId: int("parent_analog_id").notNull(),
+  smiles: text("smiles").notNull(),
+  transformation: varchar("transformation", { length: 255 }).notNull(),
+  phase: mysqlEnum("phase", ["Phase I", "Phase II"]).notNull(),
+  enzyme: varchar("enzyme", { length: 64 }).notNull(),
+  probability: varchar("probability", { length: 20 }).notNull(),
+  molecularWeight: varchar("molecular_weight", { length: 20 }),
+  logP: varchar("log_p", { length: 20 }),
+  metabolicStabilityScore: int("metabolic_stability_score"),
+  admetScore: int("admet_score"),
+  dockingScore: int("docking_score"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Metabolite = typeof metabolites.$inferSelect;
+export type InsertMetabolite = typeof metabolites.$inferInsert;
+
+/**
+ * Bookmarks table - allows users to save/bookmark important discoveries
+ */
+export const bookmarks = mysqlTable("bookmarks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(), // user who bookmarked
+  analogId: int("analog_id"), // bookmarked analog discovery (optional)
+  notificationId: int("notification_id"), // bookmarked notification (optional)
+  title: varchar("title", { length: 255 }).notNull(),
+  notes: text("notes"), // user's personal notes about this bookmark
+  category: mysqlEnum("category", ["high-priority", "review-later", "promising", "archived"]).default("review-later").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Bookmark = typeof bookmarks.$inferSelect;
+export type InsertBookmark = typeof bookmarks.$inferInsert;

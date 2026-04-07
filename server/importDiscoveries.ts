@@ -1,8 +1,13 @@
-import { readFile } from "fs/promises";
+import { spawn } from "child_process";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { getDb } from "./db";
 import { analogDiscoveries } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
+import { existsSync, readFile as readFileCallback } from "fs";
+import { promisify } from "util";
+
+const readFile = promisify(readFileCallback);;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -30,6 +35,76 @@ interface AutonomousDiscovery {
   discovered_at: string;
 }
 
+/**
+ * Apply diversity filtering to discoveries using Python diversity_filter module
+ */
+async function applyDiversityFiltering(discoveries: any[], existingSmiles: string[]): Promise<any[]> {
+  return new Promise((resolve) => {
+    const pythonScript = `
+import sys
+import json
+sys.path.insert(0, '/home/ubuntu/pharmasight-admin-dashboard/server/python_modules')
+
+try:
+    from diversity_filter import filter_discoveries_from_json
+    
+    discoveries = json.loads('''${JSON.stringify(discoveries)}''')
+    existing_smiles = json.loads('''${JSON.stringify(existingSmiles)}''')
+    
+    filtered = filter_discoveries_from_json(discoveries, existing_smiles, min_threshold=0.3)
+    
+    print(json.dumps({
+        "success": True,
+        "filtered": filtered,
+        "original_count": len(discoveries),
+        "filtered_count": len(filtered)
+    }))
+except Exception as e:
+    print(json.dumps({
+        "success": False,
+        "error": str(e)
+    }))
+`;
+
+    const venvPython = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules/venv/bin/python3";
+    const pythonCmd = existsSync(venvPython) ? venvPython : "python3";
+    const python = spawn(pythonCmd, ["-c", pythonScript]);
+
+    let stdout = "";
+    let stderr = "";
+
+    python.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    python.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    python.on("close", (code) => {
+      if (code !== 0) {
+        console.error("[Diversity Filter] Python error:", stderr);
+        resolve(discoveries); // Return original if filtering fails
+        return;
+      }
+
+      try {
+        const result = JSON.parse(stdout.trim());
+        if (result.success) {
+          console.log(`[Diversity Filter] Filtered ${result.original_count} → ${result.filtered_count} discoveries`);
+          resolve(result.filtered);
+        } else {
+          console.error("[Diversity Filter] Error:", result.error);
+          resolve(discoveries);
+        }
+      } catch (error) {
+        console.error("[Diversity Filter] Failed to parse output:", error);
+        resolve(discoveries);
+      }
+    });
+  });
+}
+
 export async function importAutonomousDiscoveries(): Promise<{
   success: boolean;
   importedCount: number;
@@ -38,7 +113,7 @@ export async function importAutonomousDiscoveries(): Promise<{
   try {
     // Read the autonomous discoveries file
     const fileContent = await readFile(DISCOVERIES_PATH, "utf-8");
-    const discoveries: AutonomousDiscovery[] = JSON.parse(fileContent);
+    let discoveries: AutonomousDiscovery[] = JSON.parse(fileContent);
 
     if (!Array.isArray(discoveries) || discoveries.length === 0) {
       return {
@@ -55,40 +130,48 @@ export async function importAutonomousDiscoveries(): Promise<{
         error: "Database not available",
       };
     }
+    
+    // Get existing SMILES from database for diversity filtering
+    const existingAnalogs = await db.select({ smiles: analogDiscoveries.smiles }).from(analogDiscoveries);
+    const existingSmiles = existingAnalogs.map(a => a.smiles);
+    
+    // Apply diversity filtering
+    console.log(`[Import] Applying diversity filter to ${discoveries.length} discoveries...`);
+    discoveries = await applyDiversityFiltering(discoveries, existingSmiles) as any[];
 
     let importedCount = 0;
 
     // Import each discovery
-    for (const discovery of discoveries) {
+    for (const discovery of discoveries as any[]) {
       try {
         // Check if already exists
         const existing = await db
           .select()
           .from(analogDiscoveries)
-          .where((fields: any) => fields.compoundId.eq(discovery.compound_id))
+          .where(eq(analogDiscoveries.compoundId, discovery.compound_id))
           .limit(1);
 
         if (existing.length > 0) {
           continue; // Skip if already imported
         }
 
-        // Insert new discovery
+        // Insert new discovery (map Python format to DB schema)
         await db.insert(analogDiscoveries).values({
-          compoundId: discovery.compound_id,
+          compoundId: discovery.discovery_id || `AUTO-${Date.now()}`,
           compoundName: discovery.compound_name,
-          parentCompound: discovery.parent_compound,
-          smiles: discovery.smiles,
-          confidenceScore: discovery.confidence_score,
-          safetyScore: discovery.safety_score,
-          efficacyScore: discovery.efficacy_score,
-          similarityScore: discovery.similarity_score,
-          drugLikenessScore: 100, // Default for autonomous discoveries
-          patentStatus: discovery.patent_status === "Patent-Free" ? "patent-free" : "patent-opportunity",
-          marketValue: discovery.market_value,
-          therapeuticPotential: discovery.therapeutic_potential,
-          keyDifferences: discovery.key_differences,
-          discoveredBy: "autonomous_research_engine",
-          discoveredAt: new Date(discovery.discovered_at),
+          parentCompound: discovery.therapeutic_area || "Unknown",
+          smiles: discovery.compound_smiles,
+          confidenceScore: discovery.confidence || 0,
+          safetyScore: 85, // Default for autonomous discoveries
+          efficacyScore: 85, // Default for autonomous discoveries
+          similarityScore: 0.85, // Default
+          drugLikenessScore: 100,
+          patentStatus: discovery.key_features?.includes("Patent-free") ? "patent-free" : "patent-opportunity",
+          marketValue: discovery.estimated_value || 0,
+          therapeuticPotential: discovery.mechanism || "Unknown",
+          keyDifferences: discovery.key_features?.join(", ") || "",
+          discoveredBy: "autonomous_system",
+          discoveredAt: new Date(discovery.timestamp),
         });
 
         importedCount++;
