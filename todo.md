@@ -152,3 +152,24 @@
 - [ ] Add email notification support (NEXT)
 - [ ] Integrate 3Dmol viewer for 3D pose visualization (NEXT)
 - [ ] Test with ketamine analogs on NMDA subtypes (NEXT)
+
+
+## PHASE E: Batch Ketamine Testing, Selectivity Analysis, and Export (CURRENT)
+- [ ] Phase 1: Implement batch ketamine testing for all analogs
+  - [ ] Create batch ketamine testing service
+  - [ ] Fetch all ketamine analogs from database
+  - [ ] Run docking against GluN2A and GluN2B
+  - [ ] Store batch results with timestamps
+  - [ ] Create batch results visualization
+- [ ] Phase 2: Add receptor selectivity analysis UI
+  - [ ] Create multi-receptor comparison component
+  - [ ] Implement selectivity scoring algorithm
+  - [ ] Add off-target effect detection
+  - [ ] Create selectivity heatmap visualization
+  - [ ] Build receptor profile comparison table
+- [ ] Phase 3: Implement export docking results
+  - [ ] Create CSV export functionality
+  - [ ] Implement PDF export with structures
+  - [ ] Add export dialog component
+  - [ ] Support batch export capability
+  - [ ] Test export file generation
