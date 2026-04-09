@@ -173,3 +173,38 @@
   - [ ] Add export dialog component
   - [ ] Support batch export capability
   - [ ] Test export file generation
+
+
+## PHASE F: Integration & Testing (CURRENT)
+- [x] Phase 1: Integrate new components into CompoundTesting page
+  - [x] Add tabs for BatchKetamineTestingPanel
+  - [x] Add tabs for ReceptorSelectivityPanel
+  - [x] Add tabs for DockingResultsExportPanel
+  - [x] Connect component state management
+- [ ] Phase 2: Connect components to real backend
+  - [ ] Wire BatchKetamineTestingPanel to tRPC mutations
+  - [ ] Implement batchKetamine.runBatchDocking mutation
+  - [ ] Add real-time progress updates
+  - [ ] Handle error states and retries
+- [ ] Phase 3: Add result persistence
+  - [ ] Create batch results storage in database
+  - [ ] Implement job tracking with timestamps
+  - [ ] Add user attribution to results
+  - [ ] Create audit trail for batch operations
+- [x] Phase 4: Test 3D imaging and ADMET
+  - [x] Screenshot 3D docking pose visualization
+  - [x] Test ADMET functionality with test compounds
+  - [x] Verify 3Dmol.js rendering
+  - [x] Confirm binding affinity display
+- [ ] Phase 5: Debug comparison tabs and PK/PD
+  - [ ] Fix analog comparison functionality
+  - [ ] Debug PK/PD analysis tab
+  - [ ] Restore comparison data loading
+  - [ ] Test cross-receptor comparisons
+- [ ] Phase 6: Investigate discovery quality
+  - [ ] Audit current discovery generation logic
+  - [ ] Identify source of partial/fragment compounds
+  - [ ] Check pharmacophore validation
+  - [ ] Restore manual research function from GitHub branch
+  - [ ] Implement discovery validation pipeline
+  - [ ] Add data completeness checks

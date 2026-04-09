@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { z } from "zod";
 import { dockingRouter } from './dockingRouter';
 import { pdbRouter } from './pdbRouter';
 import { dockingParametersRouter } from './dockingParametersRouter';
@@ -1391,6 +1392,38 @@ Provide accurate, scientific responses based on the data above. If the user asks
   // Receptor library management
   receptorLibrary: receptorLibraryRouter,
 
-
+  // Batch ketamine testing
+  batchKetamine: router({
+    runBatchDocking: protectedProcedure
+      .input(z.object({
+        compoundFilter: z.string().optional(),
+        receptors: z.array(z.string()),
+        dockingParams: z.object({
+          exhaustiveness: z.number().optional(),
+          numPoses: z.number().optional(),
+          centerX: z.number().optional(),
+          centerY: z.number().optional(),
+          centerZ: z.number().optional(),
+          sizeX: z.number().optional(),
+          sizeY: z.number().optional(),
+          sizeZ: z.number().optional(),
+        }).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const { runBatchKetamineDocking } = await import('./services/batchKetamineService');
+          const result = await runBatchKetamineDocking({
+            compoundFilter: input.compoundFilter,
+            receptors: input.receptors,
+            dockingParams: input.dockingParams,
+          });
+          return result;
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          console.error('[Batch Ketamine] Error:', errorMsg);
+          throw new Error(`Batch docking failed: ${errorMsg}`);
+        }
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;

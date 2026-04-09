@@ -12,6 +12,9 @@ import { PDBUploadDialog } from "@/components/PDBUploadDialog";
 import { ReceptorSelector, type SelectedReceptor } from "@/components/ReceptorSelector";
 import { DockingResultsPanel } from "@/components/DockingResultsPanel";
 import { DockingPoseViewer3D } from "@/components/DockingPoseViewer3D";
+import { BatchKetamineTestingPanel } from "@/components/BatchKetamineTestingPanel";
+import { ReceptorSelectivityPanel } from "@/components/ReceptorSelectivityPanel";
+import { DockingResultsExportPanel } from "@/components/DockingResultsExportPanel";
 
 export default function CompoundTesting() {
   const [selectedAnalog, setSelectedAnalog] = useState<number | null>(null);
@@ -217,11 +220,14 @@ export default function CompoundTesting() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="admet" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="admet">ADMET</TabsTrigger>
                 <TabsTrigger value="docking">Docking</TabsTrigger>
                 <TabsTrigger value="toxicity">Toxicity</TabsTrigger>
                 <TabsTrigger value="pkpd">PK/PD</TabsTrigger>
+                <TabsTrigger value="batch">Batch Test</TabsTrigger>
+                <TabsTrigger value="selectivity">Selectivity</TabsTrigger>
+                <TabsTrigger value="export">Export</TabsTrigger>
               </TabsList>
 
               <TabsContent value="admet" className="space-y-4">
@@ -476,6 +482,18 @@ export default function CompoundTesting() {
                     </Button>
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="batch" className="space-y-4">
+                <BatchKetamineTestingPanel />
+              </TabsContent>
+
+              <TabsContent value="selectivity" className="space-y-4">
+                <ReceptorSelectivityPanel results={[]} />
+              </TabsContent>
+
+              <TabsContent value="export" className="space-y-4">
+                <DockingResultsExportPanel results={[]} />
               </TabsContent>
             </Tabs>
           </CardContent>
