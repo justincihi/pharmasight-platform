@@ -480,6 +480,133 @@ export default function CompoundTesting() {
                         "Run PK/PD Simulation"
                       )}
                     </Button>
+                    
+                    {/* PK/PD Results Display */}
+                    {testResults?.pkpd && testResults.pkpd.length > 0 && (
+                      <div className="mt-6 space-y-4">
+                        <h4 className="font-semibold">Latest PK/PD Results</h4>
+                        {testResults.pkpd.map((result: any, idx: number) => (
+                          <Card key={idx}>
+                            <CardHeader>
+                              <CardTitle className="text-lg">
+                                PK/PD Profile - {result.dose}mg {result.route}
+                              </CardTitle>
+                              <CardDescription>
+                                Analyzed {new Date(result.analyzedAt).toLocaleString()}
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                              {/* Pharmacokinetic Parameters */}
+                              {result.pharmacokinetics && (
+                                <div>
+                                  <h4 className="font-semibold mb-3">Pharmacokinetic Parameters</h4>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {result.pharmacokinetics.absorption && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">Absorption (Tmax)</div>
+                                        <div className="text-lg font-bold">{result.pharmacokinetics.absorption.tmax?.toFixed(2)} h</div>
+                                      </div>
+                                    )}
+                                    {result.pharmacokinetics.distribution && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">Volume of Distribution</div>
+                                        <div className="text-lg font-bold">{result.pharmacokinetics.distribution.vd?.toFixed(2)} L/kg</div>
+                                      </div>
+                                    )}
+                                    {result.pharmacokinetics.elimination && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">Half-life</div>
+                                        <div className="text-lg font-bold">{result.pharmacokinetics.elimination.t_half?.toFixed(2)} h</div>
+                                      </div>
+                                    )}
+                                    {result.pharmacokinetics.clearance && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">Clearance</div>
+                                        <div className="text-lg font-bold">{result.pharmacokinetics.clearance.cl?.toFixed(2)} L/h</div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Pharmacodynamic Parameters */}
+                              {result.pharmacodynamics && (
+                                <div>
+                                  <h4 className="font-semibold mb-3">Pharmacodynamic Parameters</h4>
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {result.pharmacodynamics.potency && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">Potency (EC50)</div>
+                                        <div className="text-lg font-bold">{result.pharmacodynamics.potency.ec50?.toFixed(2)} nM</div>
+                                      </div>
+                                    )}
+                                    {result.pharmacodynamics.efficacy && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">Efficacy (Emax)</div>
+                                        <div className="text-lg font-bold">{(result.pharmacodynamics.efficacy.emax * 100).toFixed(1)}%</div>
+                                      </div>
+                                    )}
+                                    {result.pharmacodynamics.onset && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">Onset Time</div>
+                                        <div className="text-lg font-bold">{result.pharmacodynamics.onset.tmax?.toFixed(2)} h</div>
+                                      </div>
+                                    )}
+                                    {result.pharmacodynamics.duration && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm text-muted-foreground">Duration</div>
+                                        <div className="text-lg font-bold">{result.pharmacodynamics.duration.duration?.toFixed(2)} h</div>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Therapeutic Window */}
+                              {result.therapeuticWindow && (
+                                <div>
+                                  <h4 className="font-semibold mb-3">Therapeutic Window</h4>
+                                  <div className="p-3 border rounded-lg">
+                                    <div className="flex justify-between items-center mb-2">
+                                      <span className="text-sm text-muted-foreground">Therapeutic Index</span>
+                                      <Badge variant={result.therapeuticWindow.index > 2 ? 'default' : 'destructive'}>
+                                        {result.therapeuticWindow.index?.toFixed(2)}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">{result.therapeuticWindow.interpretation}</p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Safety Assessment */}
+                              {result.safetyAssessment && (
+                                <div>
+                                  <h4 className="font-semibold mb-3">Safety Assessment</h4>
+                                  <div className="space-y-2">
+                                    {result.safetyAssessment.hepatotoxicity && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm font-medium">Hepatotoxicity Risk</div>
+                                        <Badge variant={result.safetyAssessment.hepatotoxicity.risk === 'Low' ? 'default' : 'destructive'}>
+                                          {result.safetyAssessment.hepatotoxicity.risk}
+                                        </Badge>
+                                      </div>
+                                    )}
+                                    {result.safetyAssessment.nephrotoxicity && (
+                                      <div className="p-3 border rounded-lg">
+                                        <div className="text-sm font-medium">Nephrotoxicity Risk</div>
+                                        <Badge variant={result.safetyAssessment.nephrotoxicity.risk === 'Low' ? 'default' : 'destructive'}>
+                                          {result.safetyAssessment.nephrotoxicity.risk}
+                                        </Badge>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </TabsContent>

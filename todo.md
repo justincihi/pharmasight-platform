@@ -208,3 +208,44 @@
   - [ ] Restore manual research function from GitHub branch
   - [ ] Implement discovery validation pipeline
   - [ ] Add data completeness checks
+
+
+## PHASE G: Debug PK/PD & Comparisons
+- [ ] Investigate PK/PD tab data loading
+- [ ] Fix analog comparison functionality
+- [ ] Test side-by-side receptor comparisons
+
+## PHASE H: Discovery Audit System
+- [ ] Query last 2 months of audit logs
+- [ ] Identify discoveries not in master list
+- [ ] Create discovery import interface
+
+## PHASE I: Save Discovery UI
+- [ ] Add "Save to Master List" button on search results
+- [ ] Add "Save as Scaffold" button for partial discoveries
+- [ ] Implement validation logic
+
+## PHASE J: SMILES & Pharmacophore Validation
+- [ ] Implement SMILES validation
+- [ ] Add pharmacophore element verification
+- [ ] Set minimum data requirements
+
+## PHASE K: Chatbot Conversation Logging
+- [ ] Implement markdown file logging for each conversation
+- [ ] Capture full metadata (timestamp, user, query, response, etc.)
+- [ ] Store in database with attribution
+
+## PHASE L: Scaffold Library
+- [ ] Create separate storage for partial discoveries
+- [ ] Add Scaffold Library section to Info Hub
+- [ ] Implement auto-query via chatbot for missing data
+
+## PHASE M: Conversation History Viewer
+- [ ] Create conversation history UI in Info Hub
+- [ ] Add search/filter functionality
+- [ ] Implement download/export options
+
+## PHASE N: Final Testing & Checkpoint
+- [ ] Test all new features end-to-end
+- [ ] Verify admin-only access (prepare for future role-based checks)
+- [ ] Save final checkpoint
