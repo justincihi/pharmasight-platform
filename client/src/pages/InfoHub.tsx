@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
-import { FileVideo, FileText, Upload, Trash2, ExternalLink, Play } from "lucide-react";
+import { FileVideo, FileText, Upload, Trash2, ExternalLink, Play, History, Beaker } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -112,7 +112,7 @@ export default function InfoHub() {
       </div>
 
       <Tabs defaultValue="videos" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="videos">
             <FileVideo className="h-4 w-4 mr-2" />
             Videos
@@ -120,6 +120,14 @@ export default function InfoHub() {
           <TabsTrigger value="pdfs">
             <FileText className="h-4 w-4 mr-2" />
             PDFs
+          </TabsTrigger>
+          <TabsTrigger value="discoveries">
+            <Beaker className="h-4 w-4 mr-2" />
+            Discoveries
+          </TabsTrigger>
+          <TabsTrigger value="conversations">
+            <History className="h-4 w-4 mr-2" />
+            Conversations
           </TabsTrigger>
         </TabsList>
 
@@ -288,6 +296,54 @@ export default function InfoHub() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Discoveries Tab */}
+        <TabsContent value="discoveries" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Discovery Audit & Import</CardTitle>
+              <CardDescription>
+                Browse discoveries from the last 60 days and import to master list or scaffold library
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">Discovery audit system coming soon. This will show:</p>
+                <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
+                  <li>All discoveries from the last 60 days</li>
+                  <li>SMILES validation status</li>
+                  <li>Pharmacophore match verification</li>
+                  <li>Data completeness scoring</li>
+                  <li>Save to Master List or Scaffold Library</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Conversations Tab */}
+        <TabsContent value="conversations" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Conversation History</CardTitle>
+              <CardDescription>
+                View and manage all chatbot conversations and interactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">Conversation history viewer coming soon. This will show:</p>
+                <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
+                  <li>All chatbot conversations with timestamps</li>
+                  <li>Search conversations by topic or date</li>
+                  <li>Download conversations as markdown</li>
+                  <li>Full metadata (queries, responses, execution time)</li>
+                  <li>Delete or archive conversations</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
