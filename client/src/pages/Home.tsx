@@ -138,14 +138,6 @@ export default function Home() {
             >
               <Button
                 size="lg"
-                onClick={() => window.location.href = getLoginUrl()}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-8 py-6 group"
-              >
-                Get Started
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button
-                size="lg"
                 variant="outline"
                 className="glass border-glass-border text-lg px-8 py-6"
               >
@@ -233,10 +225,10 @@ export default function Home() {
             </p>
             <Button
               size="lg"
-              onClick={() => window.location.href = getLoginUrl()}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg px-10 py-6"
+              variant="outline"
+              className="glass border-glass-border text-lg px-10 py-6"
             >
-              Sign In to PharmaSight
+              View Documentation
             </Button>
           </motion.div>
         </section>
