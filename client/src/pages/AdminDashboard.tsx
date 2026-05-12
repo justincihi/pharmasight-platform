@@ -5,7 +5,9 @@ import SDFUploader from "@/components/SDFUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Search, Filter, FlaskConical } from "lucide-react";
+import { Loader2, Search, Filter, FlaskConical, Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ManualAnalogEntry } from "@/components/ManualAnalogEntry";
 import { trpc } from "@/lib/trpc";
 import type { AnalogDiscovery } from "@/types";
 import { BatchAnalysisModal } from "@/components/BatchAnalysisModal";
@@ -18,6 +20,7 @@ export default function AdminDashboard() {
   const [page, setPage] = useState(0);
   const [selectedAnalogs, setSelectedAnalogs] = useState<Set<number>>(new Set());
   const [showBatchAnalysis, setShowBatchAnalysis] = useState(false);
+  const [activeTab, setActiveTab] = useState("master-list");
 
   // Fetch analogs
   const { data: analogs, isLoading, error } = trpc.analog.list.useQuery({
@@ -76,14 +79,24 @@ export default function AdminDashboard() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Analog Discoveries</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Analog Management</h1>
           <p className="text-gray-600 mt-1">
-            Manage and analyze pharmaceutical analog compounds
+            Manage, analyze, and create pharmaceutical analog compounds
           </p>
         </div>
         
-        {/* SDF Uploader */}
-        <SDFUploader />
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="master-list">Master List</TabsTrigger>
+            <TabsTrigger value="manual-entry" className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Manual Entry
+            </TabsTrigger>
+          </TabsList>
+          
+          {/* Master List Tab */}
+          <TabsContent value="master-list" className="space-y-6">
 
         {/* Search and Filters */}
         <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
@@ -223,28 +236,35 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Pagination */}
-        {!isLoading && displayAnalogs && displayAnalogs.length > 0 && (
-          <div className="flex justify-center gap-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setPage(Math.max(0, page - 1))}
-              disabled={page === 0}
-            >
-              Previous
-            </Button>
-            <span className="px-4 py-2 text-sm text-gray-600">
-              Page {page + 1}
-            </span>
-            <Button
-              variant="outline"
-              onClick={() => setPage(page + 1)}
-              disabled={!displayAnalogs || displayAnalogs.length < 12}
-            >
-              Next
-            </Button>
-          </div>
-        )}
+          {/* Pagination */}
+          {!isLoading && displayAnalogs && displayAnalogs.length > 0 && (
+            <div className="flex justify-center gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setPage(Math.max(0, page - 1))}
+                disabled={page === 0}
+              >
+                Previous
+              </Button>
+              <span className="px-4 py-2 text-sm text-gray-600">
+                Page {page + 1}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setPage(page + 1)}
+                disabled={!displayAnalogs || displayAnalogs.length < 12}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+          </TabsContent>
+          
+          {/* Manual Entry Tab */}
+          <TabsContent value="manual-entry" className="space-y-6">
+            <ManualAnalogEntry onSuccess={() => setActiveTab("master-list")} />
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
