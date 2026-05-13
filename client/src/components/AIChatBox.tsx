@@ -170,7 +170,17 @@ export function AIChatBox({
     const trimmedInput = input.trim();
     if (!trimmedInput || isLoading) return;
 
-    onSendMessage(trimmedInput);
+    // Check if this is an analog generation query
+    const isAnalogQuery = /find|generate|search|analog|similar|smiles|patent|compound/i.test(trimmedInput);
+    
+    if (isAnalogQuery) {
+      // Add metadata to indicate this should trigger analog handler
+      const enrichedMessage = `[ANALOG_QUERY] ${trimmedInput}`;
+      onSendMessage(enrichedMessage);
+    } else {
+      onSendMessage(trimmedInput);
+    }
+    
     setInput("");
 
     // Scroll immediately after sending

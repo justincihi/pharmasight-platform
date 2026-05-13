@@ -27,22 +27,24 @@ export async function generateBRICSAnalogs(
   numAnalogs: number = 25,
   similarityThreshold: number = 0.7
 ): Promise<BRICSAnalog[]> {
-  const analogs: BRICSAnalog[] = [];
-
   try {
-    // In production, this would call Python backend via pythonBridge
-    // For now, return placeholder data structure
+    // Import pythonBridge dynamically to avoid circular dependencies
+    const { runPythonJson } = await import('../pythonBridge.js');
+    
     console.log(`Generating ${numAnalogs} BRICS analogs from ${parentSmiles}`);
     console.log(`Similarity threshold: ${similarityThreshold}`);
 
-    // Placeholder: would call Python service like:
-    // const result = await pythonBridge.generateBRICSAnalogs({
-    //   smiles: parentSmiles,
-    //   numAnalogs,
-    //   similarityThreshold
-    // });
+    const result = await runPythonJson({
+      modulePath: 'brics_generator.py',
+      args: ['generate_brics_analogs', parentSmiles, numAnalogs, similarityThreshold],
+      timeoutMs: 60000
+    });
 
-    return analogs;
+    if (!result.ok) {
+      throw new Error(result.error?.message || 'Failed to generate BRICS analogs');
+    }
+
+    return result.data || [];
   } catch (error) {
     console.error("Error generating BRICS analogs:", error);
     throw error;
@@ -57,31 +59,22 @@ export async function generateSubstituentAnalogs(
   parentSmiles: string,
   numAnalogs: number = 25
 ): Promise<BRICSAnalog[]> {
-  const analogs: BRICSAnalog[] = [];
-
   try {
+    const { runPythonJson } = await import('../pythonBridge.js');
+    
     console.log(`Generating ${numAnalogs} substituent analogs from ${parentSmiles}`);
 
-    // Common drug-like substituents
-    const substituents = [
-      "F", "Cl", "Br", "I",
-      "C", "CC", "CCC",
-      "O", "OC", "OCC",
-      "N", "NC", "NCC",
-      "S", "SC", "SCC",
-      "C(=O)O", "C(=O)N",
-      "C(=O)C", "C(=O)CC",
-      "C1=CC=CC=C1", // phenyl
-      "C1=CC=C(C=C1)C", // tolyl
-    ];
+    const result = await runPythonJson({
+      modulePath: 'substituent_generator.py',
+      args: ['generate_substituent_analogs', parentSmiles, numAnalogs],
+      timeoutMs: 60000
+    });
 
-    // In production, would:
-    // 1. Parse SMILES and identify substitutable positions
-    // 2. Generate combinations of substituents
-    // 3. Score each analog
-    // 4. Filter by drug-likeness criteria
+    if (!result.ok) {
+      throw new Error(result.error?.message || 'Failed to generate substituent analogs');
+    }
 
-    return analogs;
+    return result.data || [];
   } catch (error) {
     console.error("Error generating substituent analogs:", error);
     throw error;
@@ -96,24 +89,22 @@ export async function generateScaffoldHoppingAnalogs(
   parentSmiles: string,
   numAnalogs: number = 25
 ): Promise<BRICSAnalog[]> {
-  const analogs: BRICSAnalog[] = [];
-
   try {
+    const { runPythonJson } = await import('../pythonBridge.js');
+    
     console.log(`Generating ${numAnalogs} scaffold-hopped analogs from ${parentSmiles}`);
 
-    // Common bioisosteric scaffolds
-    const scaffoldReplacements = [
-      // Aromatic rings
-      { from: "c1ccccc1", to: "c1ccncc1" }, // benzene -> pyridine
-      { from: "c1ccccc1", to: "c1cccnc1" }, // benzene -> pyridine (alt)
-      { from: "c1ccccc1", to: "c1ccc[nH]c1" }, // benzene -> pyrrole
-      { from: "c1ccccc1", to: "c1ccsc1" }, // benzene -> thiophene
-      // Saturated rings
-      { from: "C1CCCCC1", to: "C1CCNCC1" }, // cyclohexane -> piperidine
-      { from: "C1CCCCC1", to: "C1CCOCC1" }, // cyclohexane -> tetrahydropyran
-    ];
+    const result = await runPythonJson({
+      modulePath: 'scaffold_hopper.py',
+      args: ['generate_scaffold_hops', parentSmiles, numAnalogs],
+      timeoutMs: 60000
+    });
 
-    return analogs;
+    if (!result.ok) {
+      throw new Error(result.error?.message || 'Failed to generate scaffold-hopped analogs');
+    }
+
+    return result.data || [];
   } catch (error) {
     console.error("Error generating scaffold-hopped analogs:", error);
     throw error;
