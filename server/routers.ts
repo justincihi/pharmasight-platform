@@ -8,6 +8,9 @@ import { pdbRouter } from './pdbRouter';
 import { dockingParametersRouter } from './dockingParametersRouter';
 import { batchDockingRouter } from './batchDockingRouter';
 import { receptorLibraryRouter } from './receptorLibraryRouter';
+import { batchTestingRouter } from './routers/batchTestingRouter';
+import { discoveryAuditRouter } from './routers/discoveryAuditRouter';
+import { conversationLoggerRouter } from './routers/conversationLoggerRouter';
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -1425,5 +1428,8 @@ Provide accurate, scientific responses based on the data above. If the user asks
         }
       }),
   }),
+  batchTesting: batchTestingRouter,
+  discoveryAudit: discoveryAuditRouter,
+  conversationLogger: conversationLoggerRouter,
 });
 export type AppRouter = typeof appRouter;

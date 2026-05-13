@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 import { FileVideo, FileText, Upload, Trash2, ExternalLink, Play, History, Beaker } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ConversationHistoryViewer } from "@/components/ConversationHistoryViewer";
 
 export default function InfoHub() {
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -324,26 +325,7 @@ export default function InfoHub() {
 
         {/* Conversations Tab */}
         <TabsContent value="conversations" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Conversation History</CardTitle>
-              <CardDescription>
-                View and manage all chatbot conversations and interactions
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">Conversation history viewer coming soon. This will show:</p>
-                <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
-                  <li>All chatbot conversations with timestamps</li>
-                  <li>Search conversations by topic or date</li>
-                  <li>Download conversations as markdown</li>
-                  <li>Full metadata (queries, responses, execution time)</li>
-                  <li>Delete or archive conversations</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
+          <ConversationHistoryViewer />
         </TabsContent>
       </Tabs>
     </div>
