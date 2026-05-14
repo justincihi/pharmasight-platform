@@ -43,15 +43,17 @@ export function NotificationBell() {
     { limit: 20 },
     {
       enabled: isOpen,
+      staleTime: 5000,
     }
   );
 
   // Poll for new notifications
   const { data: newNotificationsData } = trpc.notifications.pollNew.useQuery(
-    { since: lastChecked },
+    { since: lastChecked || new Date().toISOString() },
     {
-      refetchInterval: 15000, // Poll every 15 seconds
+      refetchInterval: 15000,
       enabled: !!lastChecked,
+      staleTime: 5000,
     }
   );
 
@@ -60,6 +62,7 @@ export function NotificationBell() {
     { limit: 100 },
     {
       enabled: isOpen,
+      staleTime: 10000,
     }
   );
 
@@ -129,12 +132,14 @@ export function NotificationBell() {
           description: latest.message.substring(0, 100) + (latest.message.length > 100 ? "..." : ""),
           duration: 5000,
         });
+        previousCountRef.current = unreadCount;
       }
       
-      setLastChecked(newNotificationsData.lastChecked);
+      if (newNotificationsData.lastChecked) {
+        setLastChecked(newNotificationsData.lastChecked);
+      }
     }
-    previousCountRef.current = unreadCount;
-  }, [newNotificationsData, unreadCount]);
+  }, [newNotificationsData?.notifications?.length, unreadCount])
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
