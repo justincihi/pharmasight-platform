@@ -8,6 +8,7 @@ import { FileVideo, FileText, Upload, Trash2, ExternalLink, Play, History, Beake
 import { useState } from "react";
 import { toast } from "sonner";
 import { ConversationHistoryViewer } from "@/components/ConversationHistoryViewer";
+import { CheminformaticsPipeline } from "@/components/CheminformaticsPipeline";
 
 export default function InfoHub() {
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -113,7 +114,7 @@ export default function InfoHub() {
       </div>
 
       <Tabs defaultValue="videos" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="videos">
             <FileVideo className="h-4 w-4 mr-2" />
             Videos
@@ -129,6 +130,10 @@ export default function InfoHub() {
           <TabsTrigger value="conversations">
             <History className="h-4 w-4 mr-2" />
             Conversations
+          </TabsTrigger>
+          <TabsTrigger value="cheminformatics">
+            <Beaker className="h-4 w-4 mr-2" />
+            Cheminformatics
           </TabsTrigger>
         </TabsList>
 
@@ -326,6 +331,11 @@ export default function InfoHub() {
         {/* Conversations Tab */}
         <TabsContent value="conversations" className="space-y-4">
           <ConversationHistoryViewer />
+        </TabsContent>
+
+        {/* Cheminformatics Tab */}
+        <TabsContent value="cheminformatics" className="space-y-4">
+          <CheminformaticsPipeline />
         </TabsContent>
       </Tabs>
     </div>

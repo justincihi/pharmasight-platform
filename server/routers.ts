@@ -11,6 +11,7 @@ import { receptorLibraryRouter } from './receptorLibraryRouter';
 import { batchTestingRouter } from './routers/batchTestingRouter';
 import { discoveryAuditRouter } from './routers/discoveryAuditRouter';
 import { conversationLoggerRouter } from './routers/conversationLoggerRouter';
+import { cheminformaticsRouter } from './routers/cheminformaticsRouter';
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -1074,6 +1075,53 @@ Provide accurate, scientific responses based on the data above. If the user asks
         const { runBatchAnalysis } = await import('./batchAnalysis');
         const { getAnalogById } = await import('./db');
         return runBatchAnalysis(input.analogIds, input.tests, getAnalogById);
+      }),
+
+    // New PubChem-based workflows
+    validateSmiles: publicProcedure
+      .input(z.object({ smiles: z.string().min(1) }))
+      .query(async ({ input }) => {
+        const { validateSmiles: validateSmilesFn } = await import('./_core/cheminformatics');
+        return validateSmilesFn(input.smiles);
+      }),
+
+    confirmAndFetchSimilars: publicProcedure
+      .input(z.object({
+        nameOrSmiles: z.string().min(1),
+        threshold: z.number().min(0).max(1).default(0.70),
+        maxHits: z.number().min(1).max(100).default(25),
+      }))
+      .query(async ({ input }) => {
+        const { confirmAndFetchSimilars: confirmAndFetchSimilarsFn } = await import('./_core/cheminformatics');
+        return confirmAndFetchSimilarsFn(input.nameOrSmiles, input.threshold, input.maxHits);
+      }),
+
+    checkPatentStatus: publicProcedure
+      .input(z.object({ cid: z.number().int().positive() }))
+      .query(async ({ input }) => {
+        const { checkPatentStatus: checkPatentStatusFn } = await import('./_core/cheminformatics');
+        return checkPatentStatusFn(input.cid);
+      }),
+
+    generateBricsAnalogs: publicProcedure
+      .input(z.object({
+        smiles: z.string().min(1),
+        n: z.number().min(1).max(100).default(25),
+      }))
+      .query(async ({ input }) => {
+        const { generateBricsAnalogs: generateBricsAnalogsFn } = await import('./_core/cheminformatics');
+        return generateBricsAnalogsFn(input.smiles, input.n);
+      }),
+
+    fullAnalogPipeline: publicProcedure
+      .input(z.object({
+        inputSmiles: z.string().min(1),
+        threshold: z.number().min(0).max(1).default(0.70),
+        maxHits: z.number().min(1).max(100).default(25),
+      }))
+      .query(async ({ input }) => {
+        const { fullAnalogPipeline: fullAnalogPipelineFn } = await import('./_core/cheminformatics');
+        return fullAnalogPipelineFn(input.inputSmiles, input.threshold, input.maxHits);
       }),
   }),
 

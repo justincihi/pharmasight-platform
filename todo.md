@@ -249,3 +249,42 @@
 - [ ] Test all new features end-to-end
 - [ ] Verify admin-only access (prepare for future role-based checks)
 - [ ] Save final checkpoint
+
+
+## PHASE O: Cheminformatics Pipeline Integration (COMPLETE)
+- [x] Phase 1: Backend Setup
+  - [x] Install rdkit, pubchempy, requests dependencies
+  - [x] Create cheminformaticsRouter.ts with 5 tRPC procedures
+  - [x] Implement confirm_and_fetch_similars (PubChem similarity search)
+  - [x] Implement check_patent_status (patent screening)
+  - [x] Implement generate_brics_analogs (BRICS fragmentation)
+  - [x] Implement enumerate_substituent_analogs (R-group substitution)
+  - [x] Implement full_analog_pipeline (orchestration)
+  - [x] Add rate limiting for PubChem API (0.3s sleep)
+  - [x] Create Python wrapper functions in server/_core/cheminformatics.ts
+- [x] Phase 2: Frontend UI
+  - [x] Create CheminformaticsPipeline.tsx component
+  - [x] Add SMILES input field with validation
+  - [x] Add threshold and max_hits parameters
+  - [x] Create workflow selector (similarity, BRICS, substituent, full pipeline)
+  - [x] Add results display with similarity scores
+  - [x] Implement patent status visualization
+  - [x] Add export functionality for results
+- [x] Phase 3: Integration with InfoHub
+  - [x] Add Cheminformatics tab to InfoHub
+  - [x] Wire CheminformaticsPipeline to tRPC procedures
+  - [x] Add real-time progress updates
+  - [x] Implement error handling and retry logic
+- [x] Phase 4: Testing & Validation
+  - [x] Create unit tests for each workflow function
+  - [x] Test PubChem API integration
+  - [x] Validate patent screening accuracy
+  - [x] Test BRICS analog generation
+  - [x] Test full pipeline end-to-end
+  - [x] Verify rate limiting compliance
+- [ ] Phase 5: Results Persistence (NEXT)
+  - [ ] Create cheminformaticsResults table in database
+  - [ ] Store generated analogs with metadata
+  - [ ] Implement results history and recall
+  - [ ] Add export to master list functionality
+  - [ ] Create audit trail for all pipeline runs
