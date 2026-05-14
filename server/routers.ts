@@ -12,6 +12,8 @@ import { batchTestingRouter } from './routers/batchTestingRouter';
 import { discoveryAuditRouter } from './routers/discoveryAuditRouter';
 import { conversationLoggerRouter } from './routers/conversationLoggerRouter';
 import { cheminformaticsRouter } from './routers/cheminformaticsRouter';
+import { cheminformaticsResultsRouter } from './routers/cheminformaticsResultsRouter';
+import { masterListIntegrationRouter } from './routers/masterListIntegrationRouter';
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -1479,5 +1481,7 @@ Provide accurate, scientific responses based on the data above. If the user asks
   batchTesting: batchTestingRouter,
   discoveryAudit: discoveryAuditRouter,
   conversationLogger: conversationLoggerRouter,
+  cheminformaticsResults: cheminformaticsResultsRouter,
+  masterListIntegration: masterListIntegrationRouter,
 });
 export type AppRouter = typeof appRouter;

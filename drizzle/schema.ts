@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, tinyint, decimal, boolean } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, tinyint, decimal, boolean, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -347,3 +347,73 @@ export const receptorLibrary = mysqlTable("receptor_library", {
 
 export type ReceptorLibrary = typeof receptorLibrary.$inferSelect;
 export type InsertReceptorLibrary = typeof receptorLibrary.$inferInsert;
+
+
+/**
+ * Cheminformatics results table - stores pipeline execution results
+ */
+export const cheminformaticsResults = mysqlTable("cheminformatics_results", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().references(() => users.id),
+  
+  // Input parameters
+  inputSmiles: text("input_smiles").notNull(),
+  canonicalSmiles: text("canonical_smiles"),
+  workflow: mysqlEnum("workflow", ["similarity", "brics", "validate", "full_pipeline"]).notNull(),
+  threshold: decimal("threshold", { precision: 3, scale: 2 }).default("0.70"),
+  maxHits: int("max_hits").default(25),
+  
+  // Results (stored as JSON for flexibility)
+  results: json("results").$type<{
+    success: boolean;
+    error?: string;
+    data?: {
+      parent_smiles?: string;
+      parent_cid?: number;
+      parent_name?: string;
+      hits?: Array<{
+        cid: number;
+        name: string;
+        smiles: string;
+        mw: number;
+        tanimoto: number;
+        patent_free?: boolean;
+        patents?: string[];
+      }>;
+      total_hits?: number;
+      analogs?: Array<{
+        smiles: string;
+        tanimoto: number;
+        mw?: number;
+      }>;
+      total_generated?: number;
+      master_list?: Array<{
+        smiles: string;
+        tanimoto: number;
+        mw?: number;
+        cid?: number;
+        patent_free?: boolean;
+        flag?: string;
+      }>;
+      total_candidates?: number;
+      patent_free_count?: number;
+      in_pubchem?: boolean;
+      canonical_smiles?: string;
+      mw?: number;
+      num_atoms?: number;
+      num_bonds?: number;
+    };
+  }>().notNull(),
+  
+  // Metadata
+  executionTime: int("execution_time"), // milliseconds
+  status: mysqlEnum("status", ["pending", "running", "completed", "failed"]).default("completed"),
+  notes: text("notes"),
+  
+  // Tracking
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CheminformaticsResult = typeof cheminformaticsResults.$inferSelect;
+export type InsertCheminformaticsResult = typeof cheminformaticsResults.$inferInsert;

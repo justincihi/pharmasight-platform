@@ -288,3 +288,37 @@
   - [ ] Implement results history and recall
   - [ ] Add export to master list functionality
   - [ ] Create audit trail for all pipeline runs
+
+
+## PHASE P: Extended Cheminformatics Features (IN PROGRESS)
+- [x] Phase 1: Results Persistence (COMPLETE)
+  - [x] Create cheminformaticsResults table in database schema
+  - [x] Add fields: id, userId, inputSmiles, threshold, maxHits, results (JSON), timestamp, createdAt
+  - [x] Create tRPC procedures: saveResults, listResults, getResult, deleteResult, getStatistics, exportResults, searchResults
+  - [x] Implement results history retrieval with pagination
+  - [x] Register cheminformaticsResultsRouter in main appRouter
+- [x] Phase 2: Master List Integration (COMPLETE)
+  - [x] Create masterListIntegrationRouter with 4 procedures
+  - [x] Implement saveToMasterList with duplicate detection
+  - [x] Implement batchSaveToMasterList for bulk operations
+  - [x] Add getMasterListStats for analytics
+  - [x] Add linkToResult for existing analog linking
+  - [x] Register masterListIntegrationRouter in main appRouter
+- [ ] Phase 3: Batch Processing UI (NEXT)
+  - [ ] Create BatchCheminformaticsUpload.tsx component
+  - [ ] Add file upload for CSV/TXT with SMILES strings
+  - [ ] Implement batch job queue and progress tracking
+  - [ ] Add real-time progress bar with completion percentage
+  - [ ] Create batch results summary and export functionality
+  - [ ] Add clear upload success indicator with animation
+  - [ ] Integrate with CheminformaticsPipeline component
+- [ ] Phase 4: Testing & Validation
+  - [ ] Write tests for results persistence (save, retrieve, delete)
+  - [ ] Test master list integration (linking, duplicate detection)
+  - [ ] Test batch processing (upload, queue, progress)
+  - [ ] Verify data integrity across all new features
+- [ ] Phase 5: Final Checkpoint
+  - [ ] Review all completed features
+  - [ ] Verify zero TypeScript errors
+  - [ ] Test end-to-end workflows
+  - [ ] Save final checkpoint
