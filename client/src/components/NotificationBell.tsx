@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Bell, Check, CheckCheck, FlaskConical, FileText, AlertTriangle, Info, Bookmark, BookmarkCheck } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -27,19 +27,21 @@ export function NotificationBell() {
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<number>>(new Set());
   
   const previousCountRef = useRef<number>(0);
+  const lastCheckedRef = useRef<string | null>(null);
   const utils = trpc.useUtils();
 
   // Get unread count for badge
-  const { data: unreadCount = 0, refetch: refetchCount } = trpc.notifications.getUnreadCount.useQuery(
+  const { data: unreadCount = 0 } = trpc.notifications.getUnreadCount.useQuery(
     undefined,
     {
-      refetchInterval: 10000, // Poll every 10 seconds
+      refetchInterval: 10000,
       enabled: true,
+      staleTime: 5000,
     }
   );
 
   // Get recent notifications
-  const { data: notifications = [], refetch: refetchNotifications } = trpc.notifications.getRecent.useQuery(
+  const { data: notifications = [] } = trpc.notifications.getRecent.useQuery(
     { limit: 20 },
     {
       enabled: isOpen,
@@ -47,12 +49,12 @@ export function NotificationBell() {
     }
   );
 
-  // Poll for new notifications
+  // Poll for new notifications - only when lastChecked is set
   const { data: newNotificationsData } = trpc.notifications.pollNew.useQuery(
-    { since: lastChecked || new Date().toISOString() },
+    { since: lastCheckedRef.current || new Date().toISOString() },
     {
       refetchInterval: 15000,
-      enabled: !!lastChecked,
+      enabled: !!lastCheckedRef.current,
       staleTime: 5000,
     }
   );
@@ -78,16 +80,16 @@ export function NotificationBell() {
   // Mark as read mutation
   const markAsReadMutation = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
-      refetchCount();
-      refetchNotifications();
+      utils.notifications.getUnreadCount.invalidate();
+      utils.notifications.getRecent.invalidate();
     },
   });
 
   // Mark all as read mutation
   const markAllAsReadMutation = trpc.notifications.markAllAsRead.useMutation({
     onSuccess: () => {
-      refetchCount();
-      refetchNotifications();
+      utils.notifications.getUnreadCount.invalidate();
+      utils.notifications.getRecent.invalidate();
       toast.success("All notifications marked as read");
     },
   });
@@ -114,34 +116,38 @@ export function NotificationBell() {
     },
   });
 
-  // Initialize lastChecked on mount
+  // Initialize lastChecked on mount - only once
   useEffect(() => {
-    setLastChecked(new Date().toISOString());
+    lastCheckedRef.current = new Date().toISOString();
+    setLastChecked(lastCheckedRef.current);
   }, []);
 
-  // Show toast for new notifications
+  // Handle new notifications - use ref to avoid dependency loop
   useEffect(() => {
-    if (newNotificationsData?.notifications && newNotificationsData.notifications.length > 0) {
-      const newOnes = newNotificationsData.notifications.filter(
-        (n: Notification) => n.isRead === 0
-      );
-      
-      if (newOnes.length > 0 && unreadCount > previousCountRef.current) {
-        const latest = newOnes[0] as Notification;
-        toast(getNotificationIcon(latest.notificationType) + " " + latest.title, {
-          description: latest.message.substring(0, 100) + (latest.message.length > 100 ? "..." : ""),
-          duration: 5000,
-        });
-        previousCountRef.current = unreadCount;
-      }
-      
-      if (newNotificationsData.lastChecked) {
-        setLastChecked(newNotificationsData.lastChecked);
-      }
+    if (!newNotificationsData?.notifications || newNotificationsData.notifications.length === 0) {
+      return;
     }
-  }, [newNotificationsData?.notifications?.length, unreadCount])
 
-  const getNotificationIcon = (type: string) => {
+    const newOnes = newNotificationsData.notifications.filter(
+      (n: Notification) => n.isRead === 0
+    );
+    
+    if (newOnes.length > 0 && unreadCount > previousCountRef.current) {
+      const latest = newOnes[0] as Notification;
+      toast(getNotificationIcon(latest.notificationType) + " " + latest.title, {
+        description: latest.message.substring(0, 100) + (latest.message.length > 100 ? "..." : ""),
+        duration: 5000,
+      });
+      previousCountRef.current = unreadCount;
+    }
+    
+    // Update ref but don't trigger re-render
+    if (newNotificationsData.lastChecked) {
+      lastCheckedRef.current = newNotificationsData.lastChecked;
+    }
+  }, [newNotificationsData?.notifications?.length, unreadCount]);
+
+  const getNotificationIcon = useCallback((type: string) => {
     switch (type) {
       case "new-discovery":
         return "🔬";
@@ -154,9 +160,9 @@ export function NotificationBell() {
       default:
         return "🔔";
     }
-  };
+  }, []);
 
-  const getNotificationIconComponent = (type: string) => {
+  const getNotificationIconComponent = useCallback((type: string) => {
     switch (type) {
       case "new-discovery":
         return <FlaskConical className="h-4 w-4 text-blue-500" />;
@@ -169,9 +175,9 @@ export function NotificationBell() {
       default:
         return <Bell className="h-4 w-4" />;
     }
-  };
+  }, []);
 
-  const formatTimeAgo = (dateInput: Date | string) => {
+  const formatTimeAgo = useCallback((dateInput: Date | string) => {
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -184,18 +190,18 @@ export function NotificationBell() {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
-  };
+  }, []);
 
-  const handleMarkAsRead = (notificationId: number, e: React.MouseEvent) => {
+  const handleMarkAsRead = useCallback((notificationId: number, e: React.MouseEvent) => {
     e.stopPropagation();
     markAsReadMutation.mutate({ notificationId });
-  };
+  }, [markAsReadMutation]);
 
-  const handleMarkAllAsRead = () => {
+  const handleMarkAllAsRead = useCallback(() => {
     markAllAsReadMutation.mutate();
-  };
+  }, [markAllAsReadMutation]);
 
-  const handleToggleBookmark = (notification: Notification, e: React.MouseEvent) => {
+  const handleToggleBookmark = useCallback((notification: Notification, e: React.MouseEvent) => {
     e.stopPropagation();
     if (notification.analogId) {
       toggleBookmarkMutation.mutate({
@@ -203,7 +209,83 @@ export function NotificationBell() {
         title: notification.title,
       });
     }
-  };
+  }, [toggleBookmarkMutation]);
+
+  // Memoize notification items to prevent re-renders
+  const notificationItems = useMemo(() => {
+    return (notifications as Notification[]).map((notification) => {
+      const isBookmarked = notification.analogId ? bookmarkedIds.has(notification.analogId) : false;
+      
+      return (
+        <div
+          key={notification.id}
+          className={cn(
+            "flex gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors",
+            notification.isRead === 0 && "bg-blue-50/50 dark:bg-blue-950/20"
+          )}
+          onClick={() => {
+            if (notification.isRead === 0) {
+              markAsReadMutation.mutate({ notificationId: notification.id });
+            }
+            if (notification.analogId) {
+              window.location.href = `/analog/${notification.analogId}`;
+            }
+          }}
+        >
+          <div className="flex-shrink-0 mt-1">
+            {getNotificationIconComponent(notification.notificationType)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <p className={cn(
+                "text-sm truncate",
+                notification.isRead === 0 && "font-medium"
+              )}>
+                {notification.title}
+              </p>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {notification.analogId && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-6 w-6",
+                      isBookmarked && "text-yellow-500"
+                    )}
+                    onClick={(e) => handleToggleBookmark(notification, e)}
+                    title={isBookmarked ? "Remove from bookmarks" : "Save to bookmarks"}
+                  >
+                    {isBookmarked ? (
+                      <BookmarkCheck className="h-3.5 w-3.5" />
+                    ) : (
+                      <Bookmark className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                )}
+                {notification.isRead === 0 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={(e) => handleMarkAsRead(notification.id, e)}
+                    title="Mark as read"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+              {notification.message}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {formatTimeAgo(notification.createdAt)}
+            </p>
+          </div>
+        </div>
+      );
+    });
+  }, [notifications, bookmarkedIds, handleMarkAsRead, handleToggleBookmark, getNotificationIconComponent, formatTimeAgo, markAsReadMutation]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -259,81 +341,7 @@ export function NotificationBell() {
             </div>
           ) : (
             <div className="divide-y">
-              {(notifications as Notification[]).map((notification) => {
-                const isBookmarked = notification.analogId ? bookmarkedIds.has(notification.analogId) : false;
-                
-                return (
-                  <div
-                    key={notification.id}
-                    className={cn(
-                      "flex gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors",
-                      notification.isRead === 0 && "bg-blue-50/50 dark:bg-blue-950/20"
-                    )}
-                    onClick={() => {
-                      if (notification.isRead === 0) {
-                        markAsReadMutation.mutate({ notificationId: notification.id });
-                      }
-                      // Navigate to analog if applicable
-                      if (notification.analogId) {
-                        window.location.href = `/analog/${notification.analogId}`;
-                      }
-                    }}
-                  >
-                    <div className="flex-shrink-0 mt-1">
-                      {getNotificationIconComponent(notification.notificationType)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className={cn(
-                          "text-sm truncate",
-                          notification.isRead === 0 && "font-medium"
-                        )}>
-                          {notification.title}
-                        </p>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          {/* Bookmark button */}
-                          {notification.analogId && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className={cn(
-                                "h-6 w-6",
-                                isBookmarked && "text-yellow-500"
-                              )}
-                              onClick={(e) => handleToggleBookmark(notification, e)}
-                              title={isBookmarked ? "Remove from bookmarks" : "Save to bookmarks"}
-                            >
-                              {isBookmarked ? (
-                                <BookmarkCheck className="h-3.5 w-3.5" />
-                              ) : (
-                                <Bookmark className="h-3.5 w-3.5" />
-                              )}
-                            </Button>
-                          )}
-                          {/* Mark as read button */}
-                          {notification.isRead === 0 && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={(e) => handleMarkAsRead(notification.id, e)}
-                              title="Mark as read"
-                            >
-                              <Check className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {formatTimeAgo(notification.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+              {notificationItems}
             </div>
           )}
         </div>
