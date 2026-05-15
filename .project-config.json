@@ -1,0 +1,42 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [
+    "db",
+    "server",
+    "user"
+  ],
+  "dev_command": "pnpm run dev",
+  "env_vars": {
+    "DATABASE_URL": "mysql://2ZWrHs2nQutWeV7.ec074e332390:PD8hJ0yPCUqlf50G9U2x@gateway02.us-east-1.prod.aws.tidbcloud.com:4000/o8A9Pr4pqVWFTwAoQ2BaGp?ssl={\"rejectUnauthorized\":true}"
+  },
+  "experiments": null,
+  "git_remote": {
+    "repo_url": "s3://vida-prod-gitrepo/webdev-git/310419663028907715/o8A9Pr4pqVWFTwAoQ2BaGp",
+    "access_key_id": "ASIAZV3A2ECZA6DWLWW2",
+    "secret_access_key": "8KPQtYeGnr8Wr4Gr9yWel4iD9CoZl//3NV4POVhT",
+    "session_token": "IQoJb3JpZ2luX2VjEKL//////////wEaCXVzLWVhc3QtMSJGMEQCIDup2yuH4uHJADMVrgxyD4mIQ0sJHhWSmdGYiDBUMyqmAiAQOx2jK7OTlH1Ht1yF7O+LWJJSsNKpzrArs7vpMzkn+yr2AwhrEAQaDDY2NTM4NjA5ODg2NiIMVRubYNK2M4ImGXqhKtMD/JIMSvkEkU5iOG2TDSBs6AYz/dxNhCCsuzbkH+rLOqg91PRG2cqSQWWtJZfjcu2LfnpIhd4un7umVZseM1uWNZugP+lDnmIYmtT+XZC1IwAe9skheprH4Y7euBk6YqkUG8N/xAhjZaITlASLK5pgBJETenI9TJ7pTzTbTq4ZR925Z43/AMKoNoImbiY+cWdePOV7y5UEhYLRkXcJxOA9vhumq7JSSDUkO41Hnu1cY9b2a6RCSlvemiOJKGBSdGsvQ3BkUyl5AMAgBPsvW42CGiq5y2wfFfGa4HhIA/5vAJU1iIWAsmif1+sVKT/MZAKMaN7IluBQtJnIxYRuqdh89Hav0s15RH+QbSoi15IarrOgYDp7w/9SPb4qS26V8+PjzzKYQxPuXfyZAcfa+Cr3ENVBUugzK36QTgSbsRmsHkxWZFyPYlVKPT8EAC4w+2wv4yURCuuRmGA5G+eWcwscqcIXPpWlMJ3lUD0Z0C9gIw9m2XiByjls55TaOWF74s+xo3witXBzCBSJfPNgExIkmOH3ERPZ4klyfaZsGu+R/PS+GtepxEyJcKrPSIAGNxyA4i98qDhNwatb9QHGFYeNn0a3d5it2eKzz6Mb6Ic8Axi79Oow3fWZ0AY6ngEmmHXGdUxEFHFjc3vN/SyCkCUcHjoKXR0bDbyef2ayBh1ESFzuHl4wPb5tj7MXx8VptBkI1I9n8Ot/PgfuTZXn4qHsnqwOOO2SwXt5Y8q3qQf9qytZpIWADo7iXFKjgV/HjejxpxCQBalghcGDXafhUI8kMwBfX9eShS52kjdJhmFtg76smEkv9MfEEta9hUI106aonB9StHVgoJVzSw==",
+    "expiration": "2026-05-15T13:46:05.000Z"
+  },
+  "name": "pharmasight-admin-dashboard",
+  "path": "/home/ubuntu/pharmasight-admin-dashboard",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "RGGLaQp7x5GCWpPZpQ3hSv",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "noMwQTfCjkJPfbXTrKKTAT",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "Justin Cihi",
+    "OWNER_OPEN_ID": "hVEZYcu2L3jqU5DEXCzkBb",
+    "PLATFORM_API_KEY": "pharmasight-api-key-2025",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "0278aa71-cfb9-4eb3-ae7f-53d7a5d2d0e7",
+    "VITE_APP_ID": "o8A9Pr4pqVWFTwAoQ2BaGp",
+    "VITE_APP_LOGO": "https://files.manuscdn.com/user_upload_by_module/web_dev_logo/310419663028907715/JZIdRaAJAooCDeNB.png",
+    "VITE_APP_TITLE": "PharmaSight™ Admin Dashboard",
+    "VITE_FRONTEND_FORGE_API_KEY": "RLdTrSKF5v6S9YvKCwLX8L",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "web-db-user",
+  "test_command": "pnpm test"
+}
