@@ -322,3 +322,39 @@
   - [ ] Verify zero TypeScript errors
   - [ ] Test end-to-end workflows
   - [ ] Save final checkpoint
+
+
+## PHASE R: Hybrid Architecture Fix (CRITICAL - Python Analysis Functions)
+- [ ] Phase 1: Architecture Planning
+  - [ ] Document integration points between Node.js and Python service
+  - [ ] Design API contracts for docking, toxicity, PK/PD services
+  - [ ] Plan external API integration for SMILES validation, similarity search
+  - [ ] Create architecture diagram
+- [ ] Phase 2: Python Microservice (Heavy Compute)
+  - [ ] Create standalone Python service with Flask/FastAPI
+  - [ ] Implement docking service endpoint (AutoDock Vina)
+  - [ ] Implement toxicity prediction endpoint
+  - [ ] Implement PK/PD simulation endpoint
+  - [ ] Add health check and status endpoints
+  - [ ] Create Docker configuration for deployment
+- [ ] Phase 3: External API Integration (Quick Lookups)
+  - [ ] Integrate PubChem API for SMILES validation
+  - [ ] Integrate PubChem API for similarity search
+  - [ ] Integrate PubChem API for patent screening
+  - [ ] Add rate limiting and caching
+  - [ ] Create API wrapper functions
+- [ ] Phase 4: Node.js Backend Routing
+  - [ ] Create service router that chooses between Python service, external API, or local
+  - [ ] Update existing tRPC procedures to use new routing
+  - [ ] Add error handling and fallback logic
+  - [ ] Add request logging and monitoring
+- [ ] Phase 5: Frontend UI Updates
+  - [ ] Update analysis components to show service source (Python, API, Local)
+  - [ ] Add loading states for external API calls
+  - [ ] Add fallback UI for unavailable services
+  - [ ] Update error messages to be user-friendly
+- [ ] Phase 6: Deployment Guide
+  - [ ] Document how to set up Python service on persistent VM
+  - [ ] Create deployment checklist
+  - [ ] Test all functions end-to-end
+  - [ ] Create monitoring dashboard

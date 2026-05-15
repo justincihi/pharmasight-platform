@@ -171,54 +171,36 @@ export const appRouter = router({
           throw new Error('Unauthorized: Admin access required');
         }
         
-        // Import molecular docking wrapper
-        const { runMolecularDocking } = await import('./molecularDockingWrapper');
+        // Use service router to route to Python microservice or fallback
+        const { routeDocking } = await import('./_core/serviceRouter');
         
-        // Use default docking parameters
-        const dockingParams = {
-          boxCenterX: 0,
-          boxCenterY: 0,
-          boxCenterZ: 0,
-          boxSizeX: 20,
-          boxSizeY: 20,
-          boxSizeZ: 20,
-          exhaustiveness: 8,
-          numPoses: 5,
-        };
-        
-        // Run docking with error handling
         let dockingResult;
         try {
-          dockingResult = await runMolecularDocking({
-            smiles: input.smiles,
-            analogId: input.analogId.toString(),
-            targetName: input.target,
-            boxCenter: {
-              x: dockingParams.boxCenterX,
-              y: dockingParams.boxCenterY,
-              z: dockingParams.boxCenterZ,
-            },
-            boxSize: {
-              x: dockingParams.boxSizeX,
-              y: dockingParams.boxSizeY,
-              z: dockingParams.boxSizeZ,
-            },
-            exhaustiveness: dockingParams.exhaustiveness,
-            numPoses: dockingParams.numPoses,
-          });
+          const result = await routeDocking(input.smiles, input.target);
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Docking failed');
+          }
+          
+          dockingResult = result.data;
         } catch (error: any) {
           console.error('[Docking Error]', error);
           throw new Error(`Docking failed: ${error.message || 'Unknown error'}`);
         }
         
-        if (!dockingResult || dockingResult.error) {
-          throw new Error(`Docking failed: ${dockingResult?.error || 'No result returned'}`);
+        if (!dockingResult || typeof dockingResult !== 'object') {
+          throw new Error(`Docking failed: No result returned`);
+        }
+        
+        const dockingData = dockingResult as Record<string, unknown>;
+        if (dockingData.error) {
+          throw new Error(`Docking failed: ${dockingData.error}`);
         }
         
         // Normalize binding affinity to 0-100 score
         // Typical range: -12 to -3 kcal/mol
         // More negative = better binding
-        const affinity = dockingResult.binding_affinity || 0;
+        const affinity = (dockingData.binding_affinity as number) || 0;
         const normalizedScore = Math.max(0, Math.min(100, Math.round(((-affinity + 3) / 9) * 100)));
         
         // Update analog with docking results
@@ -239,7 +221,7 @@ export const appRouter = router({
         
         // Create test result record
         const { createTestResult } = await import('./db');
-        const result = await createTestResult({
+        const testResult = await createTestResult({
           analogId: input.analogId,
           testType: 'docking',
           testStatus: 'completed',
@@ -248,7 +230,7 @@ export const appRouter = router({
         });
         
         return {
-          ...result,
+          ...testResult,
           dockingScore: normalizedScore,
           bindingAffinity: affinity,
         };
@@ -1273,8 +1255,16 @@ Provide accurate, scientific responses based on the data above. If the user asks
         return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
       })
       .mutation(async ({ input }) => {
-        const { runToxicityAnalysis } = await import('./advancedAnalysis');
-        return runToxicityAnalysis(input.smiles);
+        const { routeToxicityPrediction } = await import('./_core/serviceRouter');
+        try {
+          const result = await routeToxicityPrediction(input.smiles);
+          if (!result.success) {
+            throw new Error(result.error || 'Toxicity prediction failed');
+          }
+          return result.data;
+        } catch (error: any) {
+          throw new Error(`Toxicity prediction failed: ${error.message || 'Unknown error'}`);
+        }
       }),
 
     // Run synthetic accessibility analysis only
