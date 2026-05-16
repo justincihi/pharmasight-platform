@@ -384,3 +384,27 @@
   - [ ] Test all analysis functions
   - [ ] Verify no spawn errors
   - [ ] Monitor error logs
+
+
+## PHASE T: Critical Bug Fixes and Feature Implementation (CURRENT)
+- [ ] Phase 1: Fix Patent Status Logic Bug (URGENT)
+  - [ ] Find where patent status is being inverted
+  - [ ] Fix logic so unpatented = patent-free, patented = has patents
+  - [ ] Test with known patent-free compounds
+- [ ] Phase 2: Fix Docking Pose Visualization (URGENT)
+  - [ ] Check 3D viewer component (Map.tsx or MoleculeViewer)
+  - [ ] Verify docking results include pose data
+  - [ ] Fix rendering of molecular structure
+  - [ ] Test with sample docking results
+- [ ] Phase 3: Add Fallback Status Badges
+  - [ ] Create badge component for "Demo Mode" indicator
+  - [ ] Display when mock responses are used
+  - [ ] Add to analysis result cards
+- [ ] Phase 4: Create Analysis Function Test Suite
+  - [ ] Build test page with all analysis functions
+  - [ ] Run docking, toxicity, ADMET, PK/PD, cheminformatics
+  - [ ] Display results side-by-side
+- [ ] Phase 5: Implement Result Caching
+  - [ ] Create cache utility for analysis results
+  - [ ] Cache by SMILES hash
+  - [ ] Add cache invalidation logic

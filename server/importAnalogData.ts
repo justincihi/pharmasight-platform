@@ -43,13 +43,16 @@ export async function importAnalogDiscoveriesFromFile(filePath: string) {
   for (const discovery of discoveries) {
     try {
       // Determine patent status based on patent_score
+      // Higher score = more likely to be patent-free
       let patentStatus: "patent-free" | "patent-opportunity" | "patented" | "unknown" = "patent-free";
-      if (discovery.patent_score === 100) {
-        patentStatus = "patent-free";
-      } else if (discovery.patent_score >= 80) {
-        patentStatus = "patent-opportunity";
+      if (discovery.patent_score >= 90) {
+        patentStatus = "patent-free";           // 90-100: Definitely patent-free
+      } else if (discovery.patent_score >= 70) {
+        patentStatus = "patent-opportunity";    // 70-89: Likely patent-free opportunity
+      } else if (discovery.patent_score >= 50) {
+        patentStatus = "patent-opportunity";    // 50-69: Possible patent-free
       } else {
-        patentStatus = "patented";
+        patentStatus = "unknown";               // <50: Unknown patent status
       }
       
       await db.insert(analogDiscoveries).values({
