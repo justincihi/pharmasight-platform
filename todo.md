@@ -358,3 +358,29 @@
   - [ ] Create deployment checklist
   - [ ] Test all functions end-to-end
   - [ ] Create monitoring dashboard
+
+
+## PHASE S: Fix Spawn ENOENT Errors (URGENT - CURRENT)
+- [ ] Phase 1: Create production-safe Python bridge wrapper
+  - [ ] Create pythonBridgeSafe.ts with graceful fallbacks
+  - [ ] Add environment detection (production vs sandbox)
+  - [ ] Implement mock responses for production
+  - [ ] Add logging for debugging
+- [ ] Phase 2: Update all Python calls to use wrapper
+  - [ ] Update batchExporter.ts
+  - [ ] Update importDiscoveries.ts
+  - [ ] Update metabolitePredictorWrapper.ts
+  - [ ] Update pythonBridge.ts
+  - [ ] Update runAutonomousResearch.ts
+  - [ ] Update sdfImporter.ts
+  - [ ] Update routers.ts executePythonScript calls
+- [ ] Phase 3: Test graceful fallbacks locally
+  - [ ] Test docking with fallback
+  - [ ] Test toxicity with fallback
+  - [ ] Test all drug filters with fallback
+  - [ ] Verify error messages are user-friendly
+- [ ] Phase 4: Deploy and verify production
+  - [ ] Deploy to production
+  - [ ] Test all analysis functions
+  - [ ] Verify no spawn errors
+  - [ ] Monitor error logs

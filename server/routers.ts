@@ -1327,8 +1327,8 @@ Provide accurate, scientific responses based on the data above. If the user asks
         return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
       })
       .mutation(async ({ input }) => {
-        const { executePythonScript } = await import('./pythonBridge');
-        const result = await executePythonScript('drug_filters.py', 'check_pains_brenk_filters', [input.smiles]);
+        const { executePythonScriptSafe } = await import('./_core/pythonBridgeSafe');
+        const result = await executePythonScriptSafe('drug_filters.py', 'check_pains_brenk_filters', [input.smiles]);
         return result;
       }),
 
@@ -1339,8 +1339,8 @@ Provide accurate, scientific responses based on the data above. If the user asks
         return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
       })
       .mutation(async ({ input }) => {
-        const { executePythonScript } = await import('./pythonBridge');
-        const result = await executePythonScript('drug_filters.py', 'calculate_cns_mpo_score', [input.smiles]);
+        const { executePythonScriptSafe } = await import('./_core/pythonBridgeSafe');
+        const result = await executePythonScriptSafe('drug_filters.py', 'calculate_cns_mpo_score', [input.smiles]);
         return result;
       }),
 
@@ -1351,8 +1351,8 @@ Provide accurate, scientific responses based on the data above. If the user asks
         return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
       })
       .mutation(async ({ input }) => {
-        const { executePythonScript } = await import('./pythonBridge');
-        const result = await executePythonScript('drug_filters.py', 'predict_bbb_permeability', [input.smiles]);
+        const { executePythonScriptSafe } = await import('./_core/pythonBridgeSafe');
+        const result = await executePythonScriptSafe('drug_filters.py', 'predict_bbb_permeability', [input.smiles]);
         return result;
       }),
 
@@ -1363,8 +1363,8 @@ Provide accurate, scientific responses based on the data above. If the user asks
         return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
       })
       .mutation(async ({ input }) => {
-        const { executePythonScript } = await import('./pythonBridge');
-        const result = await executePythonScript('drug_filters.py', 'comprehensive_drug_assessment', [input.smiles]);
+        const { executePythonScriptSafe } = await import('./_core/pythonBridgeSafe');
+        const result = await executePythonScriptSafe('drug_filters.py', 'comprehensive_drug_assessment', [input.smiles]);
         return result;
       }),
   }),
