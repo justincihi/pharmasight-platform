@@ -1,80 +1,36 @@
-import { spawn } from 'child_process';
-import { join } from 'path';
-import { promises as fs } from 'fs';
+import { executePythonScriptSafe } from './pythonBridgeSafe';
 
 /**
  * Wrapper for cheminformatics Python workflows
- * Executes Python scripts in the project's venv
+ * Executes Python scripts with graceful fallback to mock responses
  */
-
-const VENV_PYTHON = join(process.cwd(), 'venv', 'bin', 'python');
-const SCRIPTS_DIR = join(process.cwd(), 'scripts');
 
 export interface CheminformaticsResult {
   success: boolean;
   data?: any;
   error?: string;
-  stdout?: string;
-  stderr?: string;
 }
 
 /**
- * Execute a Python cheminformatics script
+ * Execute a Python cheminformatics script with safe wrapper
  */
-function executePythonScript(
+async function executePythonScript(
   scriptName: string,
-  args: string[] = []
+  functionName: string,
+  args: unknown[]
 ): Promise<CheminformaticsResult> {
-  return new Promise((resolve) => {
-    const scriptPath = join(SCRIPTS_DIR, scriptName);
-    const python = spawn(VENV_PYTHON, [scriptPath, ...args], {
-      cwd: process.cwd(),
-      env: { ...process.env, PYTHONUNBUFFERED: '1' },
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    python.stdout.on('data', (data) => {
-      stdout += data.toString();
-    });
-
-    python.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
-
-    python.on('close', (code) => {
-      if (code === 0) {
-        try {
-          // Try to parse JSON output from Python script
-          const jsonMatch = stdout.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            const data = JSON.parse(jsonMatch[0]);
-            resolve({ success: true, data, stdout });
-          } else {
-            resolve({ success: true, stdout });
-          }
-        } catch (e) {
-          resolve({ success: true, stdout });
-        }
-      } else {
-        resolve({
-          success: false,
-          error: `Python script exited with code ${code}`,
-          stderr,
-          stdout,
-        });
-      }
-    });
-
-    python.on('error', (err) => {
-      resolve({
-        success: false,
-        error: err.message,
-        stderr: err.toString(),
-      });
-    });
-  });
+  try {
+    const result = await executePythonScriptSafe(scriptName, functionName, args);
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
 }
 
 /**
@@ -85,11 +41,10 @@ export async function confirmAndFetchSimilars(
   threshold: number = 0.70,
   maxHits: number = 25
 ): Promise<CheminformaticsResult> {
-  return executePythonScript('cheminformatics_workflows.py', [
-    'confirm_and_fetch_similars',
+  return executePythonScript('cheminformatics_workflows.py', 'confirm_and_fetch_similars', [
     nameOrSmiles,
-    threshold.toString(),
-    maxHits.toString(),
+    threshold,
+    maxHits,
   ]);
 }
 
@@ -97,10 +52,7 @@ export async function confirmAndFetchSimilars(
  * Check patent status for a compound
  */
 export async function checkPatentStatus(cid: number): Promise<CheminformaticsResult> {
-  return executePythonScript('cheminformatics_workflows.py', [
-    'check_patent_status',
-    cid.toString(),
-  ]);
+  return executePythonScript('cheminformatics_workflows.py', 'check_patent_status', [cid]);
 }
 
 /**
@@ -110,11 +62,9 @@ export async function screenAndFlagForMasterlist(
   hits: any[],
   maxHits: number = 25
 ): Promise<CheminformaticsResult> {
-  const hitsJson = JSON.stringify(hits);
-  return executePythonScript('cheminformatics_workflows.py', [
-    'screen_and_flag_for_masterlist',
-    hitsJson,
-    maxHits.toString(),
+  return executePythonScript('cheminformatics_workflows.py', 'screen_and_flag_for_masterlist', [
+    hits,
+    maxHits,
   ]);
 }
 
@@ -125,10 +75,9 @@ export async function generateBricsAnalogs(
   smiles: string,
   n: number = 25
 ): Promise<CheminformaticsResult> {
-  return executePythonScript('cheminformatics_workflows.py', [
-    'generate_brics_analogs',
+  return executePythonScript('cheminformatics_workflows.py', 'generate_brics_analogs', [
     smiles,
-    n.toString(),
+    n,
   ]);
 }
 
@@ -140,11 +89,10 @@ export async function enumerateSubstituentAnalogs(
   attachmentIdx: number,
   n: number = 25
 ): Promise<CheminformaticsResult> {
-  return executePythonScript('cheminformatics_workflows.py', [
-    'enumerate_substituent_analogs',
+  return executePythonScript('cheminformatics_workflows.py', 'enumerate_substituent_analogs', [
     baseSmiles,
-    attachmentIdx.toString(),
-    n.toString(),
+    attachmentIdx,
+    n,
   ]);
 }
 
@@ -156,11 +104,10 @@ export async function fullAnalogPipeline(
   threshold: number = 0.70,
   maxHits: number = 25
 ): Promise<CheminformaticsResult> {
-  return executePythonScript('cheminformatics_workflows.py', [
-    'full_analog_pipeline',
+  return executePythonScript('cheminformatics_workflows.py', 'full_analog_pipeline', [
     inputSmiles,
-    threshold.toString(),
-    maxHits.toString(),
+    threshold,
+    maxHits,
   ]);
 }
 
@@ -168,8 +115,5 @@ export async function fullAnalogPipeline(
  * Validate SMILES string
  */
 export async function validateSmiles(smiles: string): Promise<CheminformaticsResult> {
-  return executePythonScript('cheminformatics_workflows.py', [
-    'validate_smiles',
-    smiles,
-  ]);
+  return executePythonScript('cheminformatics_workflows.py', 'validate_smiles', [smiles]);
 }

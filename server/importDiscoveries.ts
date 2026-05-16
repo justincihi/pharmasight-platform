@@ -1,4 +1,3 @@
-import { spawn } from "child_process";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { getDb } from "./db";
@@ -6,6 +5,7 @@ import { analogDiscoveries } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { existsSync, readFile as readFileCallback } from "fs";
 import { promisify } from "util";
+import { executePythonScriptSafe } from "./_core/pythonBridgeSafe";
 
 const readFile = promisify(readFileCallback);;
 
@@ -39,70 +39,27 @@ interface AutonomousDiscovery {
  * Apply diversity filtering to discoveries using Python diversity_filter module
  */
 async function applyDiversityFiltering(discoveries: any[], existingSmiles: string[]): Promise<any[]> {
-  return new Promise((resolve) => {
-    const pythonScript = `
-import sys
-import json
-sys.path.insert(0, '/home/ubuntu/pharmasight-admin-dashboard/server/python_modules')
+  try {
+    // Use safe wrapper - will return original if Python unavailable
+    const result = await executePythonScriptSafe("diversity_filter.py", "filter_discoveries_from_json", [
+      discoveries,
+      existingSmiles,
+      0.3, // min_threshold
+    ]);
 
-try:
-    from diversity_filter import filter_discoveries_from_json
-    
-    discoveries = json.loads('''${JSON.stringify(discoveries)}''')
-    existing_smiles = json.loads('''${JSON.stringify(existingSmiles)}''')
-    
-    filtered = filter_discoveries_from_json(discoveries, existing_smiles, min_threshold=0.3)
-    
-    print(json.dumps({
-        "success": True,
-        "filtered": filtered,
-        "original_count": len(discoveries),
-        "filtered_count": len(filtered)
-    }))
-except Exception as e:
-    print(json.dumps({
-        "success": False,
-        "error": str(e)
-    }))
-`;
+    if (typeof result === 'object' && result !== null && 'filtered' in result) {
+      const filtered = (result as any).filtered;
+      console.log(`[Diversity Filter] Filtered ${discoveries.length} → ${filtered.length} discoveries`);
+      return filtered;
+    }
 
-    const venvPython = "/home/ubuntu/pharmasight-admin-dashboard/server/python_modules/venv/bin/python3";
-    const pythonCmd = existsSync(venvPython) ? venvPython : "python3";
-    const python = spawn(pythonCmd, ["-c", pythonScript]);
-
-    let stdout = "";
-    let stderr = "";
-
-    python.stdout.on("data", (data) => {
-      stdout += data.toString();
-    });
-
-    python.stderr.on("data", (data) => {
-      stderr += data.toString();
-    });
-
-    python.on("close", (code) => {
-      if (code !== 0) {
-        console.error("[Diversity Filter] Python error:", stderr);
-        resolve(discoveries); // Return original if filtering fails
-        return;
-      }
-
-      try {
-        const result = JSON.parse(stdout.trim());
-        if (result.success) {
-          console.log(`[Diversity Filter] Filtered ${result.original_count} → ${result.filtered_count} discoveries`);
-          resolve(result.filtered);
-        } else {
-          console.error("[Diversity Filter] Error:", result.error);
-          resolve(discoveries);
-        }
-      } catch (error) {
-        console.error("[Diversity Filter] Failed to parse output:", error);
-        resolve(discoveries);
-      }
-    });
-  });
+    // Fallback: return original if filtering unavailable
+    console.log("[Diversity Filter] Python unavailable, returning original discoveries");
+    return discoveries;
+  } catch (error) {
+    console.error("[Diversity Filter] Error:", error);
+    return discoveries; // Return original on error
+  }
 }
 
 export async function importAutonomousDiscoveries(): Promise<{

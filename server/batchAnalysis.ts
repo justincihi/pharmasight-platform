@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { executePythonScript } from "./pythonBridge";
+import { executePythonScriptSafe } from "./_core/pythonBridgeSafe";
 
 export interface BatchTestResult {
   analogId: number;
@@ -44,19 +44,19 @@ export async function runBatchAnalysis(
         let result;
         switch (test) {
           case "admet":
-            result = await executePythonScript("admet_predictor_advanced.py", "predict_admet", [analog.smiles]);
+            result = await executePythonScriptSafe("admet_predictor_advanced.py", "predict_admet", [analog.smiles]);
             testResults.admet = result;
             break;
           case "docking":
-            result = await executePythonScript("molecular_docking.py", "perform_docking", [analog.smiles, "default"]);
+            result = await executePythonScriptSafe("molecular_docking.py", "perform_docking", [analog.smiles, "default"]);
             testResults.docking = result;
             break;
           case "toxicity":
-            result = await executePythonScript("toxicity_prediction.py", "predict_toxicity", [analog.smiles]);
+            result = await executePythonScriptSafe("toxicity_prediction.py", "predict_toxicity", [analog.smiles]);
             testResults.toxicity = result;
             break;
           case "pkpd":
-            result = await executePythonScript("pkpd_pbpk_simulator.py", "simulate_pkpd", [analog.smiles, 100]);
+            result = await executePythonScriptSafe("pkpd_pbpk_simulator.py", "simulate_pkpd", [analog.smiles, 100]);
             testResults.pkpd = result;
             break;
         }
