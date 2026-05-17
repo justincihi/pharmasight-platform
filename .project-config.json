@@ -12,10 +12,10 @@
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310419663028907715/o8A9Pr4pqVWFTwAoQ2BaGp",
-    "access_key_id": "ASIAZV3A2ECZA6DWLWW2",
-    "secret_access_key": "8KPQtYeGnr8Wr4Gr9yWel4iD9CoZl//3NV4POVhT",
-    "session_token": "IQoJb3JpZ2luX2VjEKL//////////wEaCXVzLWVhc3QtMSJGMEQCIDup2yuH4uHJADMVrgxyD4mIQ0sJHhWSmdGYiDBUMyqmAiAQOx2jK7OTlH1Ht1yF7O+LWJJSsNKpzrArs7vpMzkn+yr2AwhrEAQaDDY2NTM4NjA5ODg2NiIMVRubYNK2M4ImGXqhKtMD/JIMSvkEkU5iOG2TDSBs6AYz/dxNhCCsuzbkH+rLOqg91PRG2cqSQWWtJZfjcu2LfnpIhd4un7umVZseM1uWNZugP+lDnmIYmtT+XZC1IwAe9skheprH4Y7euBk6YqkUG8N/xAhjZaITlASLK5pgBJETenI9TJ7pTzTbTq4ZR925Z43/AMKoNoImbiY+cWdePOV7y5UEhYLRkXcJxOA9vhumq7JSSDUkO41Hnu1cY9b2a6RCSlvemiOJKGBSdGsvQ3BkUyl5AMAgBPsvW42CGiq5y2wfFfGa4HhIA/5vAJU1iIWAsmif1+sVKT/MZAKMaN7IluBQtJnIxYRuqdh89Hav0s15RH+QbSoi15IarrOgYDp7w/9SPb4qS26V8+PjzzKYQxPuXfyZAcfa+Cr3ENVBUugzK36QTgSbsRmsHkxWZFyPYlVKPT8EAC4w+2wv4yURCuuRmGA5G+eWcwscqcIXPpWlMJ3lUD0Z0C9gIw9m2XiByjls55TaOWF74s+xo3witXBzCBSJfPNgExIkmOH3ERPZ4klyfaZsGu+R/PS+GtepxEyJcKrPSIAGNxyA4i98qDhNwatb9QHGFYeNn0a3d5it2eKzz6Mb6Ic8Axi79Oow3fWZ0AY6ngEmmHXGdUxEFHFjc3vN/SyCkCUcHjoKXR0bDbyef2ayBh1ESFzuHl4wPb5tj7MXx8VptBkI1I9n8Ot/PgfuTZXn4qHsnqwOOO2SwXt5Y8q3qQf9qytZpIWADo7iXFKjgV/HjejxpxCQBalghcGDXafhUI8kMwBfX9eShS52kjdJhmFtg76smEkv9MfEEta9hUI106aonB9StHVgoJVzSw==",
-    "expiration": "2026-05-15T13:46:05.000Z"
+    "access_key_id": "ASIAZV3A2ECZFBC7OW2K",
+    "secret_access_key": "Zs0vvsm76thCoQG/wsLxf0IMgfru6pP028nQ4Ac3",
+    "session_token": "IQoJb3JpZ2luX2VjENf//////////wEaCXVzLWVhc3QtMSJIMEYCIQDIEz7hEJbxSxmn2Yp1Ori9aH1A3wsORpyY7Mm3+nd8KAIhAKIVXDCCCz1KvlVwmTOtsXUA+WBjKranIA8Pwl8IufRKKv8DCJ///////////wEQBBoMNjY1Mzg2MDk4ODY2IgxaO1JH+JazJM2DLvgq0wNxvXrDpmYza5yJLtK/y+1rojeIDhmc7uPiX6rwC1X8HlEFEb3nyxPgnGoTg+GqWoPkVE1e1TmOYNtV4TTxr9p8j9JI+l0czeXRevEArOco6jI+qES6AveGZJ36NKh0oiVcOyTrwHKQqG/u7eMZIAp2W6/0NvIEB2hLbcgJM7OXnwsT538USPVYwPN/YVjEOUc1T4tkyvnPvYp0wtOLKEaikzJSIu4zEl5erxdKS9y9C/LOAzxAL+CLA9/0mKhJN0Tmzvt6EJg1hs6XSyLnC9aliCZuCfYo426RHj28JuQPSRXWo6u/0NRFs1DTRqyYN/0/ZWN1OFfdLScbLv00KjiRm2Cp0RoGEwT7UwlxBPZRYjwxzprHa50yh0aHtewpJGvyrD2zTereTzF7roo8Bn2DBt+XBfAQj648ndZ2pz6YUECSl4j3KiQgQZfsDatiT2f4uCYNf937hONMZvtdt1LSO6M/pK71J6Z3mBB0gn6TWKWzd2AYw527sSBzoUMRu9DlTbX/fcPupPaQhj8mY/suEr+LMgrY4JFvLxVBPnB27l0h820JW+k7gvCJLbFwLgG16UZrreTwanxMDJtinNIkJIqdLJNGOBGYd8caIoe5rV9shTDstKXQBjqcAbAwGfbJ/iqBWleE1z52RqeKDksWAFRnOfCEMRickCymnZK33qRgPUmSf6dt2w7uVjcgWbL1VvJmV5Ncatpn035JaJ+Kye2vPvr+VnJRq0rmazoaQKRyAmVXMVxAFKouZJDdxpcziWQ9xvX0wxQSIQttVBk9a7VeAs8KpfI9u6NnkTRVsICW/qdpxbjDeNTBOAeXYqkhrmlhG86RDA==",
+    "expiration": "2026-05-17T18:04:28.000Z"
   },
   "name": "pharmasight-admin-dashboard",
   "path": "/home/ubuntu/pharmasight-admin-dashboard",

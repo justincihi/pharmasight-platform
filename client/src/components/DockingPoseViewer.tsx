@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Download, RotateCcw, Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import DemoModeBadge, { DemoModeWarning } from './DemoModeBadge';
 
 // Declare 3Dmol global
 declare const $3Dmol: any;
@@ -14,6 +15,8 @@ interface DockingPoseViewerProps {
   dockingScore?: number;
   target?: string;
   height?: number;
+  source?: 'python' | 'fallback' | 'mock' | 'api';
+  timestamp?: Date;
 }
 
 export default function DockingPoseViewer({
@@ -23,6 +26,8 @@ export default function DockingPoseViewer({
   dockingScore,
   target = 'NMDA Receptor',
   height = 600,
+  source = 'fallback',
+  timestamp,
 }: DockingPoseViewerProps) {
   const viewerContainerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<any>(null);
@@ -156,7 +161,7 @@ export default function DockingPoseViewer({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Docking Pose Visualization</CardTitle>
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-2 mt-2 flex-wrap">
               {bindingAffinity && (
                 <Badge variant="outline">
                   Binding: {bindingAffinity} kcal/mol
@@ -168,6 +173,7 @@ export default function DockingPoseViewer({
                 </Badge>
               )}
               <Badge variant="outline">{target}</Badge>
+              <DemoModeBadge source={source} />
             </div>
           </div>
           {!isLoading && !error && (
@@ -242,7 +248,10 @@ export default function DockingPoseViewer({
         </div>
 
         {!isLoading && !error && (
-          <div className="mt-4">
+          <div className="mt-4 space-y-4">
+            {source !== 'python' && source !== 'api' && (
+              <DemoModeWarning source={source} />
+            )}
             <div className="text-xs text-gray-500 space-y-1 mb-3">
               <p>• Left click + drag: Rotate</p>
               <p>• Right click + drag: Pan</p>
@@ -259,6 +268,11 @@ export default function DockingPoseViewer({
                 <span className="ml-2 text-muted-foreground">Stick + Sphere (green)</span>
               </div>
             </div>
+            {timestamp && (
+              <div className="text-xs text-gray-500 pt-2 border-t">
+                <p>Generated: {timestamp.toLocaleString()}</p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
