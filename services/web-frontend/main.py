@@ -340,6 +340,49 @@ async def get_integrations():
 
 
 # ===================================
+# LLM Configuration Health Check
+# ===================================
+
+@app.get("/api/llm/health")
+async def llm_health():
+    """
+    Returns the configuration status of each supported LLM provider.
+    Reports whether the required API key environment variable is set.
+    Never exposes actual key values.
+    """
+    providers = {
+        "openai": {
+            "configured": bool(os.getenv("OPENAI_API_KEY") or os.getenv("BUILT_IN_FORGE_API_KEY")),
+            "key_var": "OPENAI_API_KEY",
+        },
+        "gemini": {
+            "configured": bool(os.getenv("GEMINI_API_KEY")),
+            "key_var": "GEMINI_API_KEY",
+        },
+        "anthropic": {
+            "configured": bool(os.getenv("ANTHROPIC_API_KEY")),
+            "key_var": "ANTHROPIC_API_KEY",
+        },
+        "perplexity": {
+            "configured": bool(os.getenv("PERPLEXITY_API_KEY") or os.getenv("SONAR_API_KEY")),
+            "key_var": "PERPLEXITY_API_KEY",
+        },
+        "xai": {
+            "configured": bool(os.getenv("XAI_API_KEY")),
+            "key_var": "XAI_API_KEY",
+        },
+    }
+
+    configured_count = sum(1 for p in providers.values() if p["configured"])
+    return {
+        "status": "ok",
+        "providers": providers,
+        "configured_count": configured_count,
+        "total_providers": len(providers),
+    }
+
+
+# ===================================
 # Main Entry Point
 # ===================================
 
