@@ -7,6 +7,7 @@
  */
 
 import { validateSmiles, searchSimilarCompounds, checkPatentStatus, getCompoundProperties } from "./pubchemApi";
+import { callDockingService, callADMETService, callToxicityService, callMetaboliteService, callLeadOptimizationService, callBioNemoService } from "./pythonServiceGateway";
 
 interface ServiceConfig {
   pythonServiceUrl?: string;
@@ -63,37 +64,22 @@ export async function routeDocking(
   data?: unknown;
   error?: string;
 }> {
-  // Try Python service first
-  if (config.enablePythonService) {
-    try {
-      const isHealthy = await checkPythonServiceHealth(config);
-      if (isHealthy) {
-        const response = await fetch(
-          `${config.pythonServiceUrl}/api/docking/run`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ smiles, receptor_id: receptorId }),
-            signal: AbortSignal.timeout(config.pythonServiceTimeout || 120000),
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          return { source: "python", success: true, data };
-        }
-      }
-    } catch (error) {
-      console.error("[ServiceRouter] Python docking error:", error);
-    }
+  // Use Python service gateway (handles HTTP calls + fallback to mock)
+  try {
+    const result = await callDockingService(smiles, receptorId);
+    return {
+      source: result.isDemo ? "fallback" : "python",
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[ServiceRouter] Docking error:", error);
+    return {
+      source: "fallback",
+      success: false,
+      error: "Docking service unavailable",
+    };
   }
-
-  // Fallback: return error
-  return {
-    source: "fallback",
-    success: false,
-    error: "Docking service unavailable. Please ensure Python microservice is running.",
-  };
 }
 
 /**
@@ -108,37 +94,22 @@ export async function routeToxicityPrediction(
   data?: unknown;
   error?: string;
 }> {
-  // Try Python service first
-  if (config.enablePythonService) {
-    try {
-      const isHealthy = await checkPythonServiceHealth(config);
-      if (isHealthy) {
-        const response = await fetch(
-          `${config.pythonServiceUrl}/api/toxicity/predict`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ smiles }),
-            signal: AbortSignal.timeout(config.pythonServiceTimeout || 120000),
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          return { source: "python", success: true, data };
-        }
-      }
-    } catch (error) {
-      console.error("[ServiceRouter] Python toxicity error:", error);
-    }
+  // Use Python service gateway (handles HTTP calls + fallback to mock)
+  try {
+    const result = await callToxicityService(smiles);
+    return {
+      source: result.isDemo ? "fallback" : "python",
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error("[ServiceRouter] Toxicity error:", error);
+    return {
+      source: "fallback",
+      success: false,
+      error: "Toxicity service unavailable",
+    };
   }
-
-  // Fallback: return error
-  return {
-    source: "fallback",
-    success: false,
-    error: "Toxicity service unavailable. Please ensure Python microservice is running.",
-  };
 }
 
 /**

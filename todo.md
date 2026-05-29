@@ -476,3 +476,42 @@
   - [ ] Add tooltips and help text
   - [ ] Save checkpoint
   - [ ] Prepare for deployment
+
+
+## CRITICAL ISSUES TO FIX
+
+### Python Microservices Spawn Failures
+- [ ] Diagnose ENOENT errors in docking, ADMET, PK/PD services
+- [ ] Implement hybrid architecture (persistent Python service + Node.js gateway)
+- [ ] Set up persistent computing for Python microservices
+- [ ] Test all Python-dependent procedures with new architecture
+- [ ] Verify docking, ADMET, toxicity, PK/PD all spawn correctly
+
+### Biotransformer Integration
+- [ ] Wire biotransformer into runDocking procedure
+- [ ] Add metabolite prediction tab to CompoundTesting page
+- [ ] Create metabolite pathway visualization component
+- [ ] Test metabolite prediction with known substrates
+- [ ] Add metabolite results to analysis export
+
+### Dragonfly Integration
+- [ ] Wire dragonfly_gen into leadOptimizationRouter procedures
+- [ ] Add LeadOptimizationPanel to CompoundTesting page
+- [ ] Create UI controls for optimization parameters
+- [ ] Test lead generation with known parent compounds
+- [ ] Verify SAR analysis integration
+
+### Autonomous Research Engine
+- [ ] Fix research_goals.json file path issue
+- [ ] Implement manual trigger button for research engine
+- [ ] Create research results viewer page
+- [ ] Add research history and audit trail
+- [ ] Wire LLM API for trend analysis (Perplexity/Gemini)
+- [ ] Test manual execution and results retrieval
+
+### BioNemo Integration
+- [ ] Add BioNemo to Python requirements
+- [ ] Create protein-language model wrapper
+- [ ] Integrate into protein target analysis
+- [ ] Add protein embedding visualization
+- [ ] Test with known protein sequences
