@@ -417,3 +417,25 @@ export const cheminformaticsResults = mysqlTable("cheminformatics_results", {
 
 export type CheminformaticsResult = typeof cheminformaticsResults.$inferSelect;
 export type InsertCheminformaticsResult = typeof cheminformaticsResults.$inferInsert;
+
+
+/**
+ * Analysis Results table - persistent logging of all analysis results
+ * Stores docking, toxicity, ADMET, and PK/PD analysis results with timestamps
+ */
+export const analysisResults = mysqlTable("analysis_results", {
+  id: int("id").autoincrement().primaryKey(),
+  analogId: int("analog_id"),
+  analysisType: mysqlEnum("analysis_type", ["docking", "toxicity", "admet", "pkpd"]).notNull(),
+  smiles: text("smiles").notNull(),
+  target: varchar("target", { length: 128 }),
+  result: json("result").$type<Record<string, unknown>>().notNull(),
+  source: mysqlEnum("source", ["python", "api", "fallback"]).default("python").notNull(),
+  executionTime: int("execution_time"), // milliseconds
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: int("created_by"),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AnalysisResult = typeof analysisResults.$inferSelect;
+export type InsertAnalysisResult = typeof analysisResults.$inferInsert;

@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
+import { dockingCache, admetCache, getAllCacheStats, clearAllCaches } from "./_core/resultCache";
 import { dockingRouter } from './dockingRouter';
 import { pdbRouter } from './pdbRouter';
 import { dockingParametersRouter } from './dockingParametersRouter';
@@ -14,6 +15,7 @@ import { conversationLoggerRouter } from './routers/conversationLoggerRouter';
 import { cheminformaticsRouter } from './routers/cheminformaticsRouter';
 import { cheminformaticsResultsRouter } from './routers/cheminformaticsResultsRouter';
 import { masterListIntegrationRouter } from './routers/masterListIntegrationRouter';
+import { analysisResultsRouter } from './routers/analysisResultsRouter';
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -1473,5 +1475,27 @@ Provide accurate, scientific responses based on the data above. If the user asks
   conversationLogger: conversationLoggerRouter,
   cheminformaticsResults: cheminformaticsResultsRouter,
   masterListIntegration: masterListIntegrationRouter,
+  
+  // Cache statistics and management
+  cache: router({
+    stats: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        return getAllCacheStats();
+      }),
+    
+    clear: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        clearAllCaches();
+        return { success: true, message: 'All caches cleared' };
+      }),
+  }),
+  
+  analysisResults: analysisResultsRouter,
 });
 export type AppRouter = typeof appRouter;
