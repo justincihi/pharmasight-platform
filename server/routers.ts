@@ -838,6 +838,97 @@ export const appRouter = router({
       await refreshMedicalTrends();
       return { success: true };
     }),
+
+    getCronInterval: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+      const { getCronSchedule } = await import('./autonomousScheduler');
+      return { cronSchedule: getCronSchedule() };
+    }),
+
+    setCronInterval: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { cronSchedule: '0 9 * * *' };
+        const obj = val as Record<string, unknown>;
+        return { cronSchedule: typeof obj.cronSchedule === 'string' ? obj.cronSchedule : '0 9 * * *' };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+        const { setCronSchedule } = await import('./autonomousScheduler');
+        setCronSchedule(input.cronSchedule);
+        return { success: true, cronSchedule: input.cronSchedule };
+      }),
+
+    importDiscoveries: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { runId: '', minConfidence: 75 };
+        const obj = val as Record<string, unknown>;
+        return {
+          runId: typeof obj.runId === 'string' ? obj.runId : '',
+          minConfidence: typeof obj.minConfidence === 'number' ? obj.minConfidence : 75,
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized: Admin access required');
+        }
+        const { getDb } = await import('./db');
+        const { researchRuns, analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new Error('Database unavailable');
+
+        // Fetch the run
+        const rows = await db.select().from(researchRuns).where(eq(researchRuns.runId, input.runId)).limit(1);
+        const run = rows[0];
+        if (!run) throw new Error('Research run not found');
+
+        const discoveries = (run.topDiscoveries ?? []) as Array<{
+          compoundId: string;
+          compoundName: string;
+          parentCompound: string;
+          confidenceScore: number;
+          safetyScore: number;
+          efficacyScore: number;
+          patentStatus: string;
+          smiles?: string;
+        }>;
+
+        const filtered = discoveries.filter(d => d.confidenceScore >= input.minConfidence);
+        if (filtered.length === 0) return { imported: 0, skipped: 0 };
+
+        let imported = 0;
+        let skipped = 0;
+        for (const d of filtered) {
+          try {
+            // Check for duplicate by compoundId
+            const existing = await db.select({ id: analogDiscoveries.id })
+              .from(analogDiscoveries)
+              .where(eq(analogDiscoveries.compoundId, d.compoundId))
+              .limit(1);
+            if (existing.length > 0) { skipped++; continue; }
+
+            await db.insert(analogDiscoveries).values({
+              compoundId: d.compoundId,
+              compoundName: d.compoundName,
+              parentCompound: d.parentCompound,
+              smiles: d.smiles ?? '',
+              confidenceScore: d.confidenceScore,
+              similarityScore: Math.round(d.confidenceScore * 0.9),
+              safetyScore: d.safetyScore,
+              efficacyScore: d.efficacyScore,
+              drugLikenessScore: Math.round((d.safetyScore + d.efficacyScore) / 2),
+              patentStatus: (d.patentStatus as 'patent-free' | 'patent-opportunity' | 'patented' | 'unknown') ?? 'unknown',
+              discoveredBy: 'autonomous-engine',
+              discoveryMethod: 'autonomous-research-run',
+              approvalStatus: 'pending',
+            });
+            imported++;
+          } catch {
+            skipped++;
+          }
+        }
+        return { imported, skipped };
+      }),
   }),
 
   // Multi-LLM Chat Integration

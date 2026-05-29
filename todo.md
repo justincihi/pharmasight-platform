@@ -522,3 +522,8 @@
 - [ ] Create Research Results History page with timestamps and import action
 - [ ] Enable Autonomous Research Engine manual trigger with live progress log
 - [ ] Push changes to GitHub Pharmadash branch
+
+## PHASE S: Import, Scheduler Countdown, Compound Comparison
+- [x] Wire Import button to real database mutation (insert filtered discoveries into analogs table)
+- [x] Add Scheduler countdown timer with adjustable cron interval
+- [x] Build compound comparison radar chart (2-4 analogs side-by-side)

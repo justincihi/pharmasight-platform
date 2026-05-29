@@ -25,6 +25,27 @@ const defaultConfig: SchedulerConfig = {
 };
 
 let schedulerJob: CronJob | null = null;
+let currentCronSchedule: string = defaultConfig.cronSchedule;
+
+/**
+ * Get the current cron schedule string
+ */
+export function getCronSchedule(): string {
+  return currentCronSchedule;
+}
+
+/**
+ * Update the cron schedule and restart the scheduler
+ */
+export function setCronSchedule(newCron: string): void {
+  currentCronSchedule = newCron;
+  defaultConfig.cronSchedule = newCron;
+  // Restart scheduler with new schedule if it was running
+  if (schedulerJob) {
+    stopScheduler();
+    startScheduler({ cronSchedule: newCron });
+  }
+}
 
 type ProgressLevel = "info" | "success" | "warning" | "error";
 
@@ -314,6 +335,6 @@ export function getSchedulerStatus() {
   return {
     running: schedulerJob !== null,
     nextRun: schedulerJob?.nextDate().toISO() || null,
-    config: defaultConfig,
+    config: { ...defaultConfig, cronSchedule: currentCronSchedule },
   };
 }

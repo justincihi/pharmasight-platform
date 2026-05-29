@@ -176,7 +176,22 @@ export default function ResearchHistory() {
   const filteredOutCount = allDiscoveries.length - filteredDiscoveries.length;
 
   // Import filtered discoveries to analog database
-  const handleImport = async (run: ResearchRun) => {
+  const importMutation = trpc.scheduler.importDiscoveries.useMutation({
+    onSuccess: (data) => {
+      setImportingRunId(null);
+      if (data.imported > 0) {
+        toast.success(`Imported ${data.imported} compound${data.imported !== 1 ? "s" : ""} (≥${confidenceThreshold}% confidence) to the analog database.${data.skipped > 0 ? ` ${data.skipped} skipped (already exist).` : ""}`);
+      } else {
+        toast.info(`No new compounds imported. ${data.skipped} already exist in the database.`);
+      }
+    },
+    onError: (err) => {
+      setImportingRunId(null);
+      toast.error(`Import failed: ${err.message}`);
+    },
+  });
+
+  const handleImport = (run: ResearchRun) => {
     const toImport = (run.topDiscoveries ?? []).filter(
       (d) => d.confidenceScore >= confidenceThreshold
     );
@@ -185,10 +200,7 @@ export default function ResearchHistory() {
       return;
     }
     setImportingRunId(run.runId);
-    // Simulate import — in production this would call a tRPC mutation
-    await new Promise((r) => setTimeout(r, 1200));
-    setImportingRunId(null);
-    toast.success(`Imported ${toImport.length} compound${toImport.length !== 1 ? "s" : ""} (≥${confidenceThreshold}% confidence) to the analog database.`);
+    importMutation.mutate({ runId: run.runId, minConfidence: confidenceThreshold });
   };
 
   const exportRun = (run: ResearchRun) => {
