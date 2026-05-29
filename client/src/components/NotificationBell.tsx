@@ -23,11 +23,10 @@ interface Notification {
 
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
-  const [lastChecked, setLastChecked] = useState<string | null>(null);
+  const [lastChecked, setLastChecked] = useState<string>(() => new Date().toISOString());
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<number>>(new Set());
   
   const previousCountRef = useRef<number>(0);
-  const lastCheckedRef = useRef<string | null>(null);
   const utils = trpc.useUtils();
 
   // Get unread count for badge
@@ -49,12 +48,11 @@ export function NotificationBell() {
     }
   );
 
-  // Poll for new notifications - only when lastChecked is set
+  // Poll for new notifications - use stable state value (not ref) as query input
   const { data: newNotificationsData } = trpc.notifications.pollNew.useQuery(
-    { since: lastCheckedRef.current || new Date().toISOString() },
+    { since: lastChecked },
     {
       refetchInterval: 15000,
-      enabled: !!lastCheckedRef.current,
       staleTime: 5000,
     }
   );
@@ -116,13 +114,7 @@ export function NotificationBell() {
     },
   });
 
-  // Initialize lastChecked on mount - only once
-  useEffect(() => {
-    lastCheckedRef.current = new Date().toISOString();
-    setLastChecked(lastCheckedRef.current);
-  }, []);
-
-  // Handle new notifications - use ref to avoid dependency loop
+  // Handle new notifications - show toast for new ones, update lastChecked timestamp
   useEffect(() => {
     if (!newNotificationsData?.notifications || newNotificationsData.notifications.length === 0) {
       return;
@@ -141,10 +133,11 @@ export function NotificationBell() {
       previousCountRef.current = unreadCount;
     }
     
-    // Update ref but don't trigger re-render
-    if (newNotificationsData.lastChecked) {
-      lastCheckedRef.current = newNotificationsData.lastChecked;
+    // Advance the polling window only when the server returns a newer timestamp
+    if (newNotificationsData.lastChecked && newNotificationsData.lastChecked !== lastChecked) {
+      setLastChecked(newNotificationsData.lastChecked);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newNotificationsData?.notifications?.length, unreadCount]);
 
   const getNotificationIcon = useCallback((type: string) => {
