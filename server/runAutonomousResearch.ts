@@ -22,6 +22,9 @@ interface ResearchResult {
   success: boolean;
   discoveries?: any[];
   error?: string;
+  articlesScanned?: number;
+  goalsUsed?: string[];
+  articles?: Array<{ title: string; authors?: string; doi?: string; url?: string; relevanceScore?: number }>;
 }
 
 /**

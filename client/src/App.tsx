@@ -21,6 +21,7 @@ import DockingQueue from "./pages/DockingQueue";
 import Bookmarks from "./pages/Bookmarks";
 import LeadOptimization from "./pages/LeadOptimization";
 import { BatchDockingDashboard } from "./pages/BatchDockingDashboard";
+import ResearchHistory from "./pages/ResearchHistory";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/lead-optimization" component={LeadOptimization} />
       <Route path="/batch-docking" component={BatchDockingDashboard} />
       <Route path="/admin/batch-docking" component={BatchDockingDashboard} />
+      <Route path="/research-history" component={ResearchHistory} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

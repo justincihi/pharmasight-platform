@@ -515,3 +515,10 @@
 - [ ] Integrate into protein target analysis
 - [ ] Add protein embedding visualization
 - [ ] Test with known protein sequences
+
+## PHASE R: Chatbot, Research History & Autonomous Engine Trigger
+
+- [ ] Wire AI chatbot to live database (inject analog list into system prompt)
+- [ ] Create Research Results History page with timestamps and import action
+- [ ] Enable Autonomous Research Engine manual trigger with live progress log
+- [ ] Push changes to GitHub Pharmadash branch

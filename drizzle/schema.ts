@@ -439,3 +439,49 @@ export const analysisResults = mysqlTable("analysis_results", {
 
 export type AnalysisResult = typeof analysisResults.$inferSelect;
 export type InsertAnalysisResult = typeof analysisResults.$inferInsert;
+
+
+/**
+ * Research Runs table - tracks every autonomous research engine execution
+ * Stores run metadata, discovered compounds, articles scanned, and status
+ */
+export const researchRuns = mysqlTable("research_runs", {
+  id: int("id").autoincrement().primaryKey(),
+  runId: varchar("run_id", { length: 64 }).notNull().unique(),
+  triggeredBy: mysqlEnum("triggered_by", ["manual", "scheduled"]).default("manual").notNull(),
+  triggeredByUserId: int("triggered_by_user_id"),
+  status: mysqlEnum("status", ["running", "completed", "failed"]).default("running").notNull(),
+  discoveriesCount: int("discoveries_count").default(0),
+  highConfidenceCount: int("high_confidence_count").default(0),
+  articlesScanned: int("articles_scanned").default(0),
+  goalsUsed: json("goals_used").$type<string[]>(),
+  topDiscoveries: json("top_discoveries").$type<Array<{
+    compoundId: string;
+    compoundName: string;
+    parentCompound: string;
+    confidenceScore: number;
+    safetyScore: number;
+    efficacyScore: number;
+    patentStatus: string;
+    smiles?: string;
+  }>>(),
+  articlesLog: json("articles_log").$type<Array<{
+    title: string;
+    authors?: string;
+    doi?: string;
+    url?: string;
+    relevanceScore?: number;
+  }>>(),
+  progressLog: json("progress_log").$type<Array<{
+    timestamp: string;
+    message: string;
+    level: "info" | "success" | "warning" | "error";
+  }>>(),
+  errorMessage: text("error_message"),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+  durationMs: int("duration_ms"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type ResearchRun = typeof researchRuns.$inferSelect;
+export type InsertResearchRun = typeof researchRuns.$inferInsert;

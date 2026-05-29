@@ -113,6 +113,20 @@
       "when": 1780018192396,
       "tag": "0015_quick_captain_cross",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1780041920814,
+      "tag": "0016_sweet_nomad",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1780041951490,
+      "tag": "0017_panoramic_mystique",
+      "breakpoints": true
     }
   ]
 }

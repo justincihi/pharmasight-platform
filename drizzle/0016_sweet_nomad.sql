@@ -1,0 +1,21 @@
+CREATE TABLE `research_runs` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`run_id` varchar(64) NOT NULL,
+	`triggered_by` enum('manual','scheduled') NOT NULL DEFAULT 'manual',
+	`triggered_by_user_id` int,
+	`status` enum('running','completed','failed') NOT NULL DEFAULT 'running',
+	`discoveries_count` int DEFAULT 0,
+	`high_confidence_count` int DEFAULT 0,
+	`articles_scanned` int DEFAULT 0,
+	`goals_used` json,
+	`top_discoveries` json,
+	`articles_log` json,
+	`progress_log` json,
+	`error_message` text,
+	`started_at` timestamp NOT NULL DEFAULT (now()),
+	`completed_at` timestamp,
+	`duration_ms` int,
+	`created_at` timestamp NOT NULL DEFAULT (now()),
+	CONSTRAINT `research_runs_id` PRIMARY KEY(`id`),
+	CONSTRAINT `research_runs_run_id_unique` UNIQUE(`run_id`)
+);
