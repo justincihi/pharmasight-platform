@@ -527,3 +527,11 @@
 - [x] Wire Import button to real database mutation (insert filtered discoveries into analogs table)
 - [x] Add Scheduler countdown timer with adjustable cron interval
 - [x] Build compound comparison radar chart (2-4 analogs side-by-side)
+
+## PHASE T: ML Integrations, DB Persistence, Skill
+- [x] Persist cron schedule to database (appSettings table + getSetting/setSetting helpers)
+- [x] Mark notifications as read on popover open (markVisible procedure)
+- [x] Export comparison report (CSV download from radar chart page)
+- [x] Install ADMET-AI (Chemprop 1.6.1) — 49 real ML-predicted properties
+- [x] Implement SMARTS-based Phase I/II metabolite engine (10 reaction rules, real structural transforms)
+- [x] Create pharmasight-webdev reusable skill

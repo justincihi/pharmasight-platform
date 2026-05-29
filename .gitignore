@@ -108,7 +108,11 @@ temp/
 
 # Python virtual environment
 server/python_modules/venv/
+venv/
 *.pyc
 __pycache__/
+
+# Large binary files (CUDA, PyTorch, etc.)
+python_services/biotransformer/
 
 .project-config.json

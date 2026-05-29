@@ -485,3 +485,18 @@ export const researchRuns = mysqlTable("research_runs", {
 });
 export type ResearchRun = typeof researchRuns.$inferSelect;
 export type InsertResearchRun = typeof researchRuns.$inferInsert;
+
+/**
+ * App Settings table - persistent key-value store for application configuration
+ * Used for: cron schedule, feature flags, thresholds, etc.
+ */
+export const appSettings = mysqlTable("app_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 128 }).notNull().unique(),
+  value: text("value").notNull(),
+  description: text("description"),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+  updatedBy: int("updated_by"),
+});
+export type AppSetting = typeof appSettings.$inferSelect;
+export type InsertAppSetting = typeof appSettings.$inferInsert;

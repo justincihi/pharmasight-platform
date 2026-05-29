@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { X, Plus, BarChart3, Info } from "lucide-react";
+import { X, Plus, BarChart3, Download } from "lucide-react";
 
 // Colours for up to 4 compounds
 const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444"];
@@ -96,6 +96,25 @@ export default function CompoundComparisonChart() {
     setSelectedIds((prev) => prev.filter((x) => x !== id));
   };
 
+  const exportCSV = () => {
+    if (selected.length === 0) return;
+    const headers = ["Metric", ...selected.map((c) => c.compoundName)];
+    const rows = METRICS.map(({ key, label }) => [
+      label,
+      ...selected.map((c) => String((c[key] as number) ?? 0)),
+    ]);
+    rows.push(["Patent Status", ...selected.map((c) => c.patentStatus)]);
+    rows.push(["Parent Compound", ...selected.map((c) => c.parentCompound)]);
+    const csv = [headers, ...rows].map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pharmasight-comparison-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -103,6 +122,17 @@ export default function CompoundComparisonChart() {
         <BarChart3 className="w-5 h-5 text-purple-500" />
         <h2 className="text-xl font-semibold">Compound Comparison</h2>
         <span className="text-sm text-muted-foreground">(select 2–4 analogs)</span>
+        {selected.length >= 2 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportCSV}
+            className="ml-auto flex items-center gap-1.5"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export CSV
+          </Button>
+        )}
       </div>
 
       {/* Selected chips */}

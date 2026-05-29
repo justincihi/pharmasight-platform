@@ -64,8 +64,8 @@ async function startServer() {
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
     
-    // Initialize autonomous research scheduler
-    initializeScheduler();
+    // Initialize autonomous research scheduler (async: loads cron from DB)
+    initializeScheduler().catch(console.error);
   });
 }
 

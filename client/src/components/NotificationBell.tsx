@@ -89,6 +89,31 @@ export function NotificationBell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unreadCount]);
 
+  const markVisibleMutation = trpc.notifications.markVisible.useMutation({
+    onSuccess: () => {
+      utils.notifications.getUnreadCount.invalidate();
+      utils.notifications.getRecent.invalidate();
+    },
+  });
+
+  // When popover opens and there are unread notifications, mark visible ones as read
+  const prevOpenRef = useRef(false);
+  useEffect(() => {
+    if (isOpen && !prevOpenRef.current) {
+      // Popover just opened — schedule mark-visible after data loads (100ms grace)
+      const timer = setTimeout(() => {
+        const unreadIds = (notifications as Notification[])
+          .filter(n => n.isRead === 0)
+          .map(n => n.id);
+        if (unreadIds.length > 0) {
+          markVisibleMutation.mutate({ ids: unreadIds });
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    prevOpenRef.current = isOpen;
+  }, [isOpen, notifications]);
+
   const markAsReadMutation = trpc.notifications.markAsRead.useMutation({
     onSuccess: () => {
       utils.notifications.getUnreadCount.invalidate();

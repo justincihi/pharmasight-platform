@@ -71,6 +71,17 @@ except ImportError:
     HAS_RDKIT = False
     logger.warning("RDKit not available - using mock responses")
 
+# ADMET-AI (Chemprop-based ML ADMET predictions)
+_admet_model = None
+HAS_ADMET_AI = False
+try:
+    from admet_ai import ADMETModel
+    _admet_model = ADMETModel()
+    HAS_ADMET_AI = True
+    logger.info("ADMET-AI model loaded successfully")
+except Exception as e:
+    logger.warning(f"ADMET-AI not available: {e}")
+
 
 # ─── Utility ──────────────────────────────────────────────────────────────────
 
@@ -317,6 +328,82 @@ def predict_admet():
         if not smiles:
             return jsonify({'error': 'Missing SMILES'}), 400
 
+        # ── Tier 1: ADMET-AI (Chemprop ML models, 49 properties) ─────────────
+        if HAS_ADMET_AI and _admet_model is not None:
+            try:
+                ai_result = _admet_model.predict(smiles=smiles)
+                # Also compute RDKit physicochemical descriptors if available
+                rdkit_extras = {}
+                if HAS_RDKIT:
+                    mol = Chem.MolFromSmiles(smiles)
+                    if mol:
+                        rdkit_extras = {
+                            'rotatable_bonds': rdMolDescriptors.CalcNumRotatableBonds(mol),
+                            'aromatic_rings': rdMolDescriptors.CalcNumAromaticRings(mol),
+                        }
+                return jsonify({
+                    'success': True,
+                    # Physicochemical
+                    'molecular_weight': round(float(ai_result.get('molecular_weight', 0)), 2),
+                    'logp': round(float(ai_result.get('logP', 0)), 3),
+                    'hbd': int(ai_result.get('hydrogen_bond_donors', 0)),
+                    'hba': int(ai_result.get('hydrogen_bond_acceptors', 0)),
+                    'tpsa': round(float(ai_result.get('tpsa', 0)), 2),
+                    'qed': round(float(ai_result.get('QED', 0)), 3),
+                    'lipinski_pass': bool(ai_result.get('Lipinski', False)),
+                    # Absorption
+                    'bbb_permeability': round(float(ai_result.get('BBB_Martins', 0)), 3),
+                    'oral_bioavailability': round(float(ai_result.get('Bioavailability_Ma', 0)) * 100, 1),
+                    'hia': round(float(ai_result.get('HIA_Hou', 0)), 3),
+                    'caco2': round(float(ai_result.get('Caco2_Wang', 0)), 3),
+                    'pampa': round(float(ai_result.get('PAMPA_NCATS', 0)), 3),
+                    'pgp': round(float(ai_result.get('Pgp_Broccatelli', 0)), 3),
+                    # Distribution
+                    'ppbr': round(float(ai_result.get('PPBR_AZ', 0)), 1),
+                    'vdss': round(float(ai_result.get('VDss_Lombardo', 0)), 3),
+                    # Metabolism (CYP)
+                    'cyp1a2': round(float(ai_result.get('CYP1A2_Veith', 0)), 3),
+                    'cyp2c19': round(float(ai_result.get('CYP2C19_Veith', 0)), 3),
+                    'cyp2c9': round(float(ai_result.get('CYP2C9_Veith', 0)), 3),
+                    'cyp2d6': round(float(ai_result.get('CYP2D6_Veith', 0)), 3),
+                    'cyp3a4': round(float(ai_result.get('CYP3A4_Veith', 0)), 3),
+                    'cyp2c9_substrate': round(float(ai_result.get('CYP2C9_Substrate_CarbonMangels', 0)), 3),
+                    'cyp2d6_substrate': round(float(ai_result.get('CYP2D6_Substrate_CarbonMangels', 0)), 3),
+                    'cyp3a4_substrate': round(float(ai_result.get('CYP3A4_Substrate_CarbonMangels', 0)), 3),
+                    # Excretion
+                    'half_life': round(float(ai_result.get('Half_Life_Obach', 0)), 2),
+                    'clearance_hepatocyte': round(float(ai_result.get('Clearance_Hepatocyte_AZ', 0)), 2),
+                    'clearance_microsome': round(float(ai_result.get('Clearance_Microsome_AZ', 0)), 2),
+                    # Toxicity
+                    'ames': round(float(ai_result.get('AMES', 0)), 3),
+                    'herg': round(float(ai_result.get('hERG', 0)), 3),
+                    'dili': round(float(ai_result.get('DILI', 0)), 3),
+                    'ld50': round(float(ai_result.get('LD50_Zhu', 0)), 2),
+                    'clintox': round(float(ai_result.get('ClinTox', 0)), 3),
+                    'skin_reaction': round(float(ai_result.get('Skin_Reaction', 0)), 3),
+                    'carcinogen': round(float(ai_result.get('Carcinogens_Lagunin', 0)), 3),
+                    'toxicity_risk': 'high' if float(ai_result.get('AMES', 0)) > 0.5 or float(ai_result.get('hERG', 0)) > 0.5 else ('moderate' if float(ai_result.get('DILI', 0)) > 0.5 else 'low'),
+                    # Nuclear receptors
+                    'nr_ahr': round(float(ai_result.get('NR-AhR', 0)), 3),
+                    'nr_ar': round(float(ai_result.get('NR-AR', 0)), 3),
+                    'nr_er': round(float(ai_result.get('NR-ER', 0)), 3),
+                    # Solubility
+                    'solubility': round(float(ai_result.get('Solubility_AqSolDB', 0)), 3),
+                    'lipophilicity': round(float(ai_result.get('Lipophilicity_AstraZeneca', 0)), 3),
+                    # Percentiles vs approved drugs
+                    'bbb_percentile': round(float(ai_result.get('BBB_Martins_drugbank_approved_percentile', 0)), 1),
+                    'herg_percentile': round(float(ai_result.get('hERG_drugbank_approved_percentile', 0)), 1),
+                    'ames_percentile': round(float(ai_result.get('AMES_drugbank_approved_percentile', 0)), 1),
+                    # RDKit extras
+                    **rdkit_extras,
+                    'isDemo': False,
+                    'source': 'admet_ai_chemprop',
+                    'timestamp': datetime.utcnow().isoformat()
+                }), 200
+            except Exception as ai_err:
+                logger.warning(f"ADMET-AI prediction failed, falling back to RDKit: {ai_err}")
+
+        # ── Tier 2: RDKit physicochemical rules ───────────────────────────────
         if HAS_RDKIT:
             mol = Chem.MolFromSmiles(smiles)
             if mol:
@@ -351,7 +438,7 @@ def predict_admet():
                     'timestamp': datetime.utcnow().isoformat()
                 }), 200
 
-        # Mock fallback
+        # ── Tier 3: Mock fallback ─────────────────────────────────────────────
         rng = deterministic_rng(smiles)
         mw = 200 + rng * 300
         logp = -1 + rng * 6
@@ -375,7 +462,54 @@ def predict_admet():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# ─── Metabolites (Biotransformer) ─────────────────────────────────────────────
+# ─── Metabolites (RDKit SMARTS-based Phase I/II engine) ───────────────────────
+
+# SMARTS-based biotransformation rules (Phase I CYP reactions + Phase II conjugations)
+# Each rule: (name, enzyme, phase, SMARTS_reactant, SMARTS_product_transform)
+# We use RDKit AllChem.ReactionFromSmarts for real structural transformations
+_BT_REACTIONS = [
+    # Phase I – CYP oxidations
+    ('Aromatic Hydroxylation', 'CYP1A2/CYP2C9', 'phase1',
+     '[cH:1]', '[c:1][OH]'),
+    ('Aliphatic Hydroxylation', 'CYP3A4', 'phase1',
+     '[CH2:1][CH3:2]', '[CH2:1][CH2:2][OH]'),
+    ('N-Demethylation', 'CYP2D6/CYP3A4', 'phase1',
+     '[N:1][CH3:2]', '[NH:1].[CH2O]'),
+    ('O-Demethylation', 'CYP2D6/CYP1A2', 'phase1',
+     '[O:1][CH3:2]', '[OH:1].[CH2O]'),
+    ('N-Oxidation', 'CYP3A4/FMO', 'phase1',
+     '[N:1]([C:2])[C:3]', '[N+:1]([C:2])([C:3])[O-]'),
+    ('S-Oxidation', 'CYP3A4/FMO', 'phase1',
+     '[S:1]([C:2])[C:3]', '[S:1](=O)([C:2])[C:3]'),
+    # Phase II – conjugations
+    ('Glucuronidation', 'UGT1A1/UGT1A3', 'phase2',
+     '[OH:1]', '[O:1]C1OC(C(=O)O)C(O)C(O)C1O'),
+    ('Sulfation', 'SULT1A1/SULT1E1', 'phase2',
+     '[OH:1]', '[O:1]S(=O)(=O)O'),
+    ('Glutathione Conjugation', 'GST', 'phase2',
+     '[C:1][Cl,Br,I]', '[C:1]SCC(NC(=O)CCC(N)C(=O)O)C(=O)NCC(=O)O'),
+    ('Acetylation', 'NAT1/NAT2', 'phase2',
+     '[NH2:1]', '[NH:1]C(C)=O'),
+]
+
+def _apply_biotransformation(mol, rxn_smarts_reactant, rxn_smarts_product):
+    """Apply a SMARTS transformation and return product SMILES, or None if no match."""
+    try:
+        from rdkit.Chem import AllChem
+        # Build reaction SMARTS directly (no extra brackets)
+        rxn_str = f'{rxn_smarts_reactant}>>{rxn_smarts_product}'
+        rxn = AllChem.ReactionFromSmarts(rxn_str)
+        if rxn is None:
+            return None
+        products = rxn.RunReactants((mol,))
+        if products:
+            prod_mol = products[0][0]
+            AllChem.SanitizeMol(prod_mol)
+            return Chem.MolToSmiles(prod_mol)
+    except Exception:
+        pass
+    return None
+
 
 @app.route('/api/metabolites/predict', methods=['POST'])
 def predict_metabolites():
@@ -388,71 +522,60 @@ def predict_metabolites():
 
         logger.info(f"Metabolite prediction: SMILES={smiles[:30]}, phase={phase}")
 
-        # Try biotransformer CLI
-        try:
-            result = subprocess.run(
-                ['biotransformer', '-ismi', smiles, '-btType', 'allHuman', '-ocsv', '/tmp/bt_out.csv'],
-                capture_output=True, timeout=60, text=True
-            )
-            if result.returncode == 0:
-                import csv
-                metabolites = []
-                with open('/tmp/bt_out.csv', 'r') as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        metabolites.append({
-                            'smiles': row.get('SMILES', ''),
-                            'name': row.get('Metabolite Name', f'Metabolite-{len(metabolites)+1}'),
-                            'reaction': row.get('Reaction', 'Unknown'),
-                            'enzyme': row.get('Enzyme', 'Unknown'),
-                            'phase': row.get('Biotransformation Type', phase),
-                            'abundance': 0.5,
-                        })
-                return jsonify({
-                    'success': True,
-                    'smiles': smiles,
-                    'phase': phase,
-                    'metabolites': metabolites,
-                    'total_metabolites': len(metabolites),
-                    'isDemo': False,
-                    'source': 'biotransformer',
-                    'timestamp': datetime.utcnow().isoformat()
-                }), 200
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            pass
-
-        # RDKit-based metabolite estimation
+        # ── RDKit SMARTS-based Phase I/II engine ──────────────────────────────
         if HAS_RDKIT:
             mol = Chem.MolFromSmiles(smiles)
             if mol:
+                from rdkit.Chem import AllChem
                 metabolites = []
-                reactions = [
-                    ('Hydroxylation', 'CYP3A4', 'phase1'),
-                    ('N-Demethylation', 'CYP2D6', 'phase1'),
-                    ('O-Demethylation', 'CYP1A2', 'phase1'),
-                    ('Glucuronidation', 'UGT1A1', 'phase2'),
-                    ('Sulfation', 'SULT1A1', 'phase2'),
-                ]
-                for i, (rxn, enzyme, ph) in enumerate(reactions):
-                    if phase == 'all' or phase == ph:
+                seen_smiles = {smiles}  # Deduplicate
+
+                for i, (rxn_name, enzyme, rxn_phase, reactant_smarts, product_smarts) in enumerate(_BT_REACTIONS):
+                    if phase not in ('all', rxn_phase):
+                        continue
+                    # Check if the reactant SMARTS matches the molecule
+                    patt = Chem.MolFromSmarts(reactant_smarts)
+                    if patt is None or not mol.HasSubstructMatch(patt):
+                        continue
+                    # Attempt structural transformation
+                    prod_smiles = _apply_biotransformation(mol, reactant_smarts, product_smarts)
+                    if prod_smiles and prod_smiles not in seen_smiles:
+                        seen_smiles.add(prod_smiles)
+                        met_mol = Chem.MolFromSmiles(prod_smiles)
+                        mw = round(Descriptors.MolWt(met_mol), 2) if met_mol else None
                         metabolites.append({
-                            'smiles': smiles,  # Simplified - real would modify structure
-                            'name': f'M{i+1}-{rxn[:4]}',
-                            'reaction': rxn,
+                            'smiles': prod_smiles,
+                            'name': f'M{len(metabolites)+1}-{rxn_name.split()[0]}',
+                            'reaction': rxn_name,
                             'enzyme': enzyme,
-                            'phase': ph,
-                            'abundance': round(0.8 / (i + 1), 3),
+                            'phase': rxn_phase,
+                            'molecular_weight': mw,
+                            'abundance': round(0.9 / (len(metabolites) + 1), 3),
                         })
-                return jsonify({
-                    'success': True,
-                    'smiles': smiles,
-                    'phase': phase,
-                    'metabolites': metabolites,
-                    'total_metabolites': len(metabolites),
-                    'isDemo': False,
-                    'source': 'rdkit_estimated',
-                    'timestamp': datetime.utcnow().isoformat()
-                }), 200
+                    elif not prod_smiles:
+                        # Reaction matched but transform failed — still report the reaction type
+                        metabolites.append({
+                            'smiles': smiles,
+                            'name': f'M{len(metabolites)+1}-{rxn_name.split()[0]}',
+                            'reaction': rxn_name,
+                            'enzyme': enzyme,
+                            'phase': rxn_phase,
+                            'molecular_weight': None,
+                            'abundance': round(0.5 / (len(metabolites) + 1), 3),
+                            'note': 'Structural transformation pending (matched reaction type)',
+                        })
+
+                if metabolites:
+                    return jsonify({
+                        'success': True,
+                        'smiles': smiles,
+                        'phase': phase,
+                        'metabolites': metabolites,
+                        'total_metabolites': len(metabolites),
+                        'isDemo': False,
+                        'source': 'rdkit_smarts_phase1_phase2',
+                        'timestamp': datetime.utcnow().isoformat()
+                    }), 200
 
         # Mock fallback
         rng = deterministic_rng(f"{smiles}{phase}")

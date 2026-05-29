@@ -1,6 +1,6 @@
 import { eq, or, like, desc, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, analogDiscoveries, testResults, notifications, chatMessages, bookmarks, InsertAnalogDiscovery, InsertTestResult, InsertNotification, InsertChatMessage, InsertBookmark } from "../drizzle/schema";
+import { InsertUser, users, analogDiscoveries, testResults, notifications, chatMessages, bookmarks, appSettings, InsertAnalogDiscovery, InsertTestResult, InsertNotification, InsertChatMessage, InsertBookmark } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -492,4 +492,24 @@ export async function getBookmarksByCategory(userId: number, category: string) {
     .from(bookmarks)
     .where(eq(bookmarks.userId, userId))
     .orderBy(desc(bookmarks.createdAt));
+}
+
+// ─── App Settings ─────────────────────────────────────────────────────────────
+
+/** Read a setting value by key, returns null if not found */
+export async function getSetting(key: string): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(appSettings).where(eq(appSettings.key, key)).limit(1);
+  return rows[0]?.value ?? null;
+}
+
+/** Upsert a setting value by key */
+export async function setSetting(key: string, value: string, description?: string, updatedBy?: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .insert(appSettings)
+    .values({ key, value, description: description ?? null, updatedBy: updatedBy ?? null })
+    .onDuplicateKeyUpdate({ set: { value, updatedBy: updatedBy ?? null } });
 }

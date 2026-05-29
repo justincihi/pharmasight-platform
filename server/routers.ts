@@ -568,6 +568,26 @@ export const appRouter = router({
         return { success: true };
       }),
     
+    // Mark a specific list of notification IDs as read (used for "mark visible on open")
+    markVisible: protectedProcedure
+      .input((val: unknown) => {
+        if (!Array.isArray(val)) return { ids: [] as number[] };
+        return { ids: (val as unknown[]).filter((v): v is number => typeof v === 'number') };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user) throw new Error('Unauthorized');
+        const { getDb } = await import('./db');
+        const { notifications } = await import('../drizzle/schema');
+        const { eq, inArray, and } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db || input.ids.length === 0) return { success: true, updated: 0 };
+        await db
+          .update(notifications)
+          .set({ isRead: 1 })
+          .where(and(inArray(notifications.id, input.ids), eq(notifications.userId, ctx.user.id)));
+        return { success: true, updated: input.ids.length };
+      }),
+
     // Poll for new notifications (real-time polling endpoint)
     pollNew: protectedProcedure
       .input((val: unknown) => {
@@ -854,7 +874,10 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
         const { setCronSchedule } = await import('./autonomousScheduler');
+        const { setSetting } = await import('./db');
         setCronSchedule(input.cronSchedule);
+        // Persist to DB so it survives server restarts
+        await setSetting('scheduler_cron', input.cronSchedule, 'Autonomous research scheduler cron expression', ctx.user.id);
         return { success: true, cronSchedule: input.cronSchedule };
       }),
 
