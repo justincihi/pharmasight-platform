@@ -15,6 +15,9 @@ import { DockingPoseViewer3D } from "@/components/DockingPoseViewer3D";
 import { BatchKetamineTestingPanel } from "@/components/BatchKetamineTestingPanel";
 import { ReceptorSelectivityPanel } from "@/components/ReceptorSelectivityPanel";
 import { DockingResultsExportPanel } from "@/components/DockingResultsExportPanel";
+import { BioNemoPanel } from "@/components/BioNemoPanel";
+import { MetaboliteViewer } from "@/components/MetaboliteViewer";
+import { LeadOptimizationPanel } from "@/components/LeadOptimizationPanel";
 
 export default function CompoundTesting() {
   const [selectedAnalog, setSelectedAnalog] = useState<number | null>(null);
@@ -220,13 +223,16 @@ export default function CompoundTesting() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="admet" className="w-full">
-              <TabsList className="grid w-full grid-cols-7">
+              <TabsList className="flex flex-wrap w-full gap-0.5">
                 <TabsTrigger value="admet">ADMET</TabsTrigger>
                 <TabsTrigger value="docking">Docking</TabsTrigger>
                 <TabsTrigger value="toxicity">Toxicity</TabsTrigger>
                 <TabsTrigger value="pkpd">PK/PD</TabsTrigger>
                 <TabsTrigger value="batch">Batch Test</TabsTrigger>
                 <TabsTrigger value="selectivity">Selectivity</TabsTrigger>
+                <TabsTrigger value="metabolites">Metabolites</TabsTrigger>
+                <TabsTrigger value="lead-opt">Lead Opt.</TabsTrigger>
+                <TabsTrigger value="bionemo">BioNemo</TabsTrigger>
                 <TabsTrigger value="export">Export</TabsTrigger>
               </TabsList>
 
@@ -617,6 +623,34 @@ export default function CompoundTesting() {
 
               <TabsContent value="selectivity" className="space-y-4">
                 <ReceptorSelectivityPanel results={[]} />
+              </TabsContent>
+
+              <TabsContent value="metabolites" className="space-y-4">
+                {selectedAnalog ? (
+                  <MetaboliteViewer analogId={selectedAnalog} />
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Select a compound to view metabolite predictions
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="lead-opt" className="space-y-4">
+                {selectedAnalog && selectedAnalogData ? (
+                  <LeadOptimizationPanel
+                    analogId={selectedAnalog}
+                    smiles={selectedAnalogData.smiles}
+                    compoundName={selectedAnalogData.compoundName || selectedAnalogData.compoundId}
+                  />
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Select a compound to run lead optimization (biotransformer + dragonfly_gen + SAR)
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="bionemo" className="space-y-4">
+                <BioNemoPanel ligandSmiles={selectedAnalogData?.smiles} />
               </TabsContent>
 
               <TabsContent value="export" className="space-y-4">

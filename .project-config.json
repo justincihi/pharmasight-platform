@@ -7,15 +7,16 @@
   ],
   "dev_command": "pnpm run dev",
   "env_vars": {
-    "DATABASE_URL": "mysql://2ZWrHs2nQutWeV7.ec074e332390:PD8hJ0yPCUqlf50G9U2x@gateway02.us-east-1.prod.aws.tidbcloud.com:4000/o8A9Pr4pqVWFTwAoQ2BaGp?ssl={\"rejectUnauthorized\":true}"
+    "DATABASE_URL": "mysql://2ZWrHs2nQutWeV7.ec074e332390:PD8hJ0yPCUqlf50G9U2x@gateway02.us-east-1.prod.aws.tidbcloud.com:4000/o8A9Pr4pqVWFTwAoQ2BaGp?ssl={\"rejectUnauthorized\":true}",
+    "DRIZZLE_DATABASE_URL": "mysql://2ZWrHs2nQutWeV7.ec074e332390:PD8hJ0yPCUqlf50G9U2x@gateway02.us-east-1.prod.aws.tidbcloud.com:4000/o8A9Pr4pqVWFTwAoQ2BaGp?ssl={\"rejectUnauthorized\":true}"
   },
   "experiments": null,
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310419663028907715/o8A9Pr4pqVWFTwAoQ2BaGp",
-    "access_key_id": "ASIAZV3A2ECZFBC7OW2K",
-    "secret_access_key": "Zs0vvsm76thCoQG/wsLxf0IMgfru6pP028nQ4Ac3",
-    "session_token": "IQoJb3JpZ2luX2VjENf//////////wEaCXVzLWVhc3QtMSJIMEYCIQDIEz7hEJbxSxmn2Yp1Ori9aH1A3wsORpyY7Mm3+nd8KAIhAKIVXDCCCz1KvlVwmTOtsXUA+WBjKranIA8Pwl8IufRKKv8DCJ///////////wEQBBoMNjY1Mzg2MDk4ODY2IgxaO1JH+JazJM2DLvgq0wNxvXrDpmYza5yJLtK/y+1rojeIDhmc7uPiX6rwC1X8HlEFEb3nyxPgnGoTg+GqWoPkVE1e1TmOYNtV4TTxr9p8j9JI+l0czeXRevEArOco6jI+qES6AveGZJ36NKh0oiVcOyTrwHKQqG/u7eMZIAp2W6/0NvIEB2hLbcgJM7OXnwsT538USPVYwPN/YVjEOUc1T4tkyvnPvYp0wtOLKEaikzJSIu4zEl5erxdKS9y9C/LOAzxAL+CLA9/0mKhJN0Tmzvt6EJg1hs6XSyLnC9aliCZuCfYo426RHj28JuQPSRXWo6u/0NRFs1DTRqyYN/0/ZWN1OFfdLScbLv00KjiRm2Cp0RoGEwT7UwlxBPZRYjwxzprHa50yh0aHtewpJGvyrD2zTereTzF7roo8Bn2DBt+XBfAQj648ndZ2pz6YUECSl4j3KiQgQZfsDatiT2f4uCYNf937hONMZvtdt1LSO6M/pK71J6Z3mBB0gn6TWKWzd2AYw527sSBzoUMRu9DlTbX/fcPupPaQhj8mY/suEr+LMgrY4JFvLxVBPnB27l0h820JW+k7gvCJLbFwLgG16UZrreTwanxMDJtinNIkJIqdLJNGOBGYd8caIoe5rV9shTDstKXQBjqcAbAwGfbJ/iqBWleE1z52RqeKDksWAFRnOfCEMRickCymnZK33qRgPUmSf6dt2w7uVjcgWbL1VvJmV5Ncatpn035JaJ+Kye2vPvr+VnJRq0rmazoaQKRyAmVXMVxAFKouZJDdxpcziWQ9xvX0wxQSIQttVBk9a7VeAs8KpfI9u6NnkTRVsICW/qdpxbjDeNTBOAeXYqkhrmlhG86RDA==",
-    "expiration": "2026-05-17T18:04:28.000Z"
+    "access_key_id": "ASIAZV3A2ECZHJ6NWA3H",
+    "secret_access_key": "UuQDt+XP6Mfutnel660+xzo6EnuTmKbhtiuDRbOq",
+    "session_token": "IQoJb3JpZ2luX2VjEPX//////////wEaCXVzLWVhc3QtMSJHMEUCIGMmmRr9mbHFVncLesfVtLY6qUQoumtd5vePHdVxop9qAiEA9kw42G525VPCcVH7ioUXg06O2W6Fc3q/JC/weqn0IcYq/wMIvv//////////ARAEGgw2NjUzODYwOTg4NjYiDN8h5G3sjIgr9TGffyrTA8mLqHTLlu5YsH6Kd/vd2gdx71y0+BMBsoJcYjJdjufCfqqZyApHm98O7JG3uHaOtNvY2heIrOramXDny9s+MTFJqFFnGYLT9rR8iSvraaJ76Jgt9OYorY+f8y4rV8NDuAXYA5KzK85fUtgn9gM4xiTssqMCOsytZ8wLfy+2mPR9f8S6ay18E6ttMivL1oYMwb3ysOpOooE1aSgNyWhVHd//4gnDvECIhuVSqt4GRTjscyCDQnml7bB4l822tQPva7pv9JwyUnUebPJzEOCzLnjwkTGRvHAxJ7LFf9ARA+ScBae4edbnc4UtyPsWp4jhbOCE9l/+1VYj002HjR+x8myb+5u38boUP468Hukn3sc7DD5DuHYJJWwTUN6it/Gh0dQ4KUkQlL0+VWu9747cfVMGa9os9eOSB8YUOiM3LwiAtqtzr8qAl0p18paaFh3Ieo5H6K0g4FM6wS4ilb2bb+jHAkv0s6y7VBH6L7b960vbglOaRDjoTNNdkj+tyFcypOrJuv3BBCDNtQhNZAOxUpUvSfcfc0UFiRYmUlKBV1L5+odH1W0u5iyBnXkwzMe3qIqx46kpUpxRsSud46C/KQOilHxCB5lxT9XP+4RDe+PRvaMRMMO85NAGOp0BP2+FUg2zhtTnEZGbwvKpA+2nOxwNu3zys3Y938d6sJnKVyjSCGSvj2Wm6XwqY8XgMmAjOV7NVD6D73Yz9q4b0B5kiAP+t8QaYaUtBibaqIClDIjmEzkkn+Q/5UqZYePJMtH1xwAj+UpYtDf71oDFWNu5B3n1oZCN9E/PSigQP0EkxyptnN1LJo+QNuq44H3oUhxSoIwkiMrSpiEjSg==",
+    "expiration": "2026-05-29T17:04:03.000Z"
   },
   "name": "pharmasight-admin-dashboard",
   "path": "/home/ubuntu/pharmasight-admin-dashboard",
@@ -23,11 +24,13 @@
   "secrets": {
     "BUILT_IN_FORGE_API_KEY": "RGGLaQp7x5GCWpPZpQ3hSv",
     "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "GEMINI_API_KEY": "AIzaSyCtv9aNDNr-Z0IxEv-m-1dv301bwphemmo",
     "JWT_SECRET": "noMwQTfCjkJPfbXTrKKTAT",
     "OAUTH_SERVER_URL": "https://api.manus.im",
     "OWNER_NAME": "Justin Cihi",
     "OWNER_OPEN_ID": "hVEZYcu2L3jqU5DEXCzkBb",
     "PLATFORM_API_KEY": "pharmasight-api-key-2025",
+    "SONAR_API_KEY": "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",
     "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
     "VITE_ANALYTICS_WEBSITE_ID": "0278aa71-cfb9-4eb3-ae7f-53d7a5d2d0e7",
     "VITE_APP_ID": "o8A9Pr4pqVWFTwAoQ2BaGp",

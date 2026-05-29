@@ -30,8 +30,14 @@ interface PipelineResult {
   };
 }
 
-export const LeadOptimizationPanel: React.FC = () => {
-  const [parentSmiles, setParentSmiles] = useState('');
+interface LeadOptimizationPanelProps {
+  analogId?: number;
+  smiles?: string;
+  compoundName?: string;
+}
+
+export const LeadOptimizationPanel: React.FC<LeadOptimizationPanelProps> = ({ smiles: initialSmiles, compoundName }) => {
+  const [parentSmiles, setParentSmiles] = useState(initialSmiles || '');
   const [targetSmiles, setTargetSmiles] = useState('');
   const [numAnalogs, setNumAnalogs] = useState(20);
   const [topN, setTopN] = useState(10);
