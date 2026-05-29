@@ -26,7 +26,7 @@ const MOUNT_SINCE = new Date().toISOString();
 
 export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
-  const [bookmarkedIds, setBookmarkedIds] = useState<Set<number>>(new Set());
+  // Derived from bookmarks query — useMemo avoids the setState-in-useEffect loop
 
   // Track previous unread count to detect new arrivals (ref = no re-render)
   const previousCountRef = useRef<number>(0);
@@ -59,13 +59,12 @@ export function NotificationBell() {
     { enabled: isOpen, staleTime: 10000 }
   );
 
-  // Sync bookmarked IDs
-  useEffect(() => {
+  const bookmarkedIds = useMemo(() => {
     const ids = new Set<number>();
     (bookmarks as any[]).forEach((b) => {
       if (b.analogId) ids.add(b.analogId);
     });
-    setBookmarkedIds(ids);
+    return ids;
   }, [bookmarks]);
 
   // Show toast only when unread count genuinely increases
@@ -108,10 +107,8 @@ export function NotificationBell() {
   const toggleBookmarkMutation = trpc.bookmarks.toggle.useMutation({
     onSuccess: (result, variables) => {
       if (result.bookmarked) {
-        setBookmarkedIds((prev) => { const s = new Set(prev); s.add(variables.analogId); return s; });
         toast.success("Discovery saved to bookmarks");
       } else {
-        setBookmarkedIds((prev) => { const s = new Set(prev); s.delete(variables.analogId); return s; });
         toast.success("Removed from bookmarks");
       }
       utils.bookmarks.getAll.invalidate();
