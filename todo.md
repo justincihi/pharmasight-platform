@@ -408,3 +408,71 @@
   - [ ] Create cache utility for analysis results
   - [ ] Cache by SMILES hash
   - [ ] Add cache invalidation logic
+
+
+## PHASE Q: Advanced Lead Optimization with ML & SAR (IN PROGRESS)
+- [x] Phase 1: Biotransformer Integration
+  - [x] Install biotransformer Python package (added to requirements.txt)
+  - [x] Create metabolite prediction wrapper (metabolite_predictor.py)
+  - [x] Implement Phase I/II/III metabolite prediction
+  - [x] Add metabolite toxicity assessment
+  - [x] Create tRPC endpoint for metabolite prediction
+  - [x] Test with known substrates
+
+- [x] Phase 2: ChemProp ADMET-AI Integration
+  - [x] Install chemprop and ADMET-AI models (added to requirements.txt)
+  - [x] Create chemprop wrapper (chemprop_admet.py)
+  - [x] Implement property prediction (logP, MW, HBD, HBA, etc.)
+  - [x] Add ADMET-AI model ensemble for robust predictions
+  - [x] Create tRPC endpoint for property prediction
+  - [x] Benchmark against current ADMET predictions
+
+- [x] Phase 3: Dragonfly_gen Integration
+  - [x] Install dragonfly_gen for lead optimization (added to requirements.txt)
+  - [x] Create optimization wrapper (lead_optimizer.py)
+  - [x] Implement multi-objective optimization (potency, selectivity, ADMET)
+  - [x] Add constraint handling (MW, logP, HBD, HBA limits)
+  - [x] Create tRPC endpoint for lead optimization
+  - [x] Test with known leads
+
+- [x] Phase 4: SAR Analysis Engine
+  - [x] Create SAR analyzer module (sar_analyzer.py)
+  - [x] Implement R-group decomposition
+  - [x] Calculate activity cliffs
+  - [x] Identify key pharmacophores
+  - [x] Rank substitutions by predicted improvement
+  - [x] Create SAR visualization data structures
+  - [x] Add tRPC endpoint for SAR analysis
+
+- [x] Phase 5: Lead Optimization Pipeline
+  - [x] Create optimization orchestrator (leadOptimizationRouter.ts)
+  - [x] Integrate biotransformer for metabolite prediction
+  - [x] Integrate ChemProp ADMET-AI for property prediction
+  - [x] Integrate dragonfly_gen for structure generation
+  - [x] Implement ML ranking of generated leads
+  - [x] Add SAR-guided optimization constraints
+  - [x] Create tRPC endpoint for full pipeline
+
+- [x] Phase 6: Results Visualization UI
+  - [x] Create LeadOptimizationPanel.tsx component
+  - [x] Build SAR heatmap visualization
+  - [x] Create metabolite pathway viewer
+  - [x] Add ADMET property comparison charts
+  - [x] Implement lead ranking table with scores
+  - [x] Add structure comparison viewer
+  - [x] Create export functionality for optimized leads
+
+- [ ] Phase 7: Integration & Testing
+  - [ ] Wire all components to backend
+  - [ ] Create comprehensive test suite
+  - [ ] Test with known drug leads
+  - [ ] Validate SAR predictions
+  - [ ] Benchmark optimization results
+  - [ ] Create integration tests
+
+- [ ] Phase 8: Documentation & Delivery
+  - [ ] Document SAR analysis methodology
+  - [ ] Create user guide for lead optimization
+  - [ ] Add tooltips and help text
+  - [ ] Save checkpoint
+  - [ ] Prepare for deployment

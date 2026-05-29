@@ -12,6 +12,12 @@ chemprop>=1.6.0
 deepchem>=2.7.0
 # Synthetic accessibility
 syba>=0.6.0
+# Metabolite prediction
+biotransformer>=1.0.0
+# Lead optimization
+dragonfly-gen>=0.1.0
+# ADMET-AI ensemble
+admetai>=1.0.0
 # Additional utilities
 requests>=2.31.0
 tqdm>=4.66.0
