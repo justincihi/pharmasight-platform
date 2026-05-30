@@ -1,6 +1,6 @@
 import { eq, or, like, desc, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, analogDiscoveries, testResults, notifications, chatMessages, bookmarks, appSettings, InsertAnalogDiscovery, InsertTestResult, InsertNotification, InsertChatMessage, InsertBookmark } from "../drizzle/schema";
+import { InsertUser, users, analogDiscoveries, testResults, notifications, chatMessages, bookmarks, appSettings, admetResults, InsertAnalogDiscovery, InsertTestResult, InsertNotification, InsertChatMessage, InsertBookmark, InsertAdmetResult } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -512,4 +512,63 @@ export async function setSetting(key: string, value: string, description?: strin
     .insert(appSettings)
     .values({ key, value, description: description ?? null, updatedBy: updatedBy ?? null })
     .onDuplicateKeyUpdate({ set: { value, updatedBy: updatedBy ?? null } });
+}
+
+// ─── ADMET Results ─────────────────────────────────────────────────────────────
+
+/** Insert a single ADMET result row */
+export async function insertAdmetResult(data: InsertAdmetResult): Promise<number | null> {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.insert(admetResults).values(data);
+  return result[0]?.insertId ?? null;
+}
+
+/** Get all ADMET results for a specific analog, newest first */
+export async function getAdmetResultsForAnalog(analogId: number, limit = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select()
+    .from(admetResults)
+    .where(eq(admetResults.analogId, analogId))
+    .orderBy(desc(admetResults.createdAt))
+    .limit(limit);
+}
+
+/** Get the latest ADMET result for each analog in a list */
+export async function getLatestAdmetForAnalogs(analogIds: number[]) {
+  const db = await getDb();
+  if (!db || analogIds.length === 0) return [];
+  // Fetch all rows for these analogs and keep only the latest per analogId
+  const rows = await db
+    .select()
+    .from(admetResults)
+    .where(
+      analogIds.length === 1
+        ? eq(admetResults.analogId, analogIds[0])
+        : (admetResults.analogId as any).in(analogIds)
+    )
+    .orderBy(desc(admetResults.createdAt))
+    .limit(analogIds.length * 5);
+  const seen = new Set<number>();
+  return rows.filter((r) => {
+    if (seen.has(r.analogId)) return false;
+    seen.add(r.analogId);
+    return true;
+  });
+}
+
+/** Aggregate stats across all stored ADMET results */
+export async function getAdmetStats() {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(admetResults).orderBy(desc(admetResults.createdAt)).limit(1000);
+  if (rows.length === 0) return { total: 0, flaggedHerg: 0, flaggedAmes: 0, flaggedDili: 0, avgBbb: null };
+  const flaggedHerg = rows.filter((r) => parseFloat(r.herg ?? '0') > 0.5).length;
+  const flaggedAmes = rows.filter((r) => parseFloat(r.ames ?? '0') > 0.5).length;
+  const flaggedDili = rows.filter((r) => parseFloat(r.dili ?? '0') > 0.5).length;
+  const bbbVals = rows.map((r) => parseFloat(r.bbbPermeability ?? '')).filter((v) => !isNaN(v));
+  const avgBbb = bbbVals.length > 0 ? bbbVals.reduce((a, b) => a + b, 0) / bbbVals.length : null;
+  return { total: rows.length, flaggedHerg, flaggedAmes, flaggedDili, avgBbb: avgBbb !== null ? Math.round(avgBbb * 100) / 100 : null };
 }

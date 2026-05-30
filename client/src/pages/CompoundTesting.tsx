@@ -627,7 +627,11 @@ export default function CompoundTesting() {
 
               <TabsContent value="metabolites" className="space-y-4">
                 {selectedAnalog ? (
-                  <MetaboliteViewer analogId={selectedAnalog} />
+                  <MetaboliteViewer
+                    analogId={selectedAnalog}
+                    parentName={selectedAnalogData?.compoundName ?? selectedAnalogData?.compoundId ?? 'Parent Compound'}
+                    parentSmiles={selectedAnalogData?.smiles ?? ''}
+                  />
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     Select a compound to view metabolite predictions

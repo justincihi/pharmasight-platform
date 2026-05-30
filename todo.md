@@ -535,3 +535,14 @@
 - [x] Install ADMET-AI (Chemprop 1.6.1) — 49 real ML-predicted properties
 - [x] Implement SMARTS-based Phase I/II metabolite engine (10 reaction rules, real structural transforms)
 - [x] Create pharmasight-webdev reusable skill
+
+## PHASE U: Batch ADMET, Metabolite Pathway Tree, Metabolite Tab Export
+- [x] Add admetResults table to schema and push DB migration
+- [x] Add batchAdmet tRPC procedures (runBatch, getResults, getStats)
+- [x] Add DB helpers for admetResults (insertAdmetResult, getAdmetResultsForAnalog, getAdmetStats)
+- [x] Build BatchAdmetPanel component with progress tracking and results table
+- [x] Integrate BatchAdmetPanel into BatchAnalysis page
+- [x] Build MetabolitePathwayTree component (tree/graph with enzyme labels, CSV export)
+- [x] Replace MetaboliteViewer with new tree view in CompoundTesting metabolites tab
+- [x] Add CSV export button to metabolite tab (via MetabolitePathwayTree)
+- [x] Push to GitHub Pharmadash branch

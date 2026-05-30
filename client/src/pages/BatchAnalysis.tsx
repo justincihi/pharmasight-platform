@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Download, Play, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Download, Play, CheckCircle2, XCircle, Loader2, FlaskConical } from "lucide-react";
 import { toast } from "sonner";
+import { BatchAdmetPanel } from "@/components/BatchAdmetPanel";
 
 interface BatchTestResult {
   analogId: number;
@@ -135,13 +137,27 @@ export default function BatchAnalysis() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Batch Analysis</h1>
-        <p className="text-gray-600">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Batch Analysis</h1>
+        <p className="text-muted-foreground">
           Run cheminformatics analyses on multiple analogs simultaneously
         </p>
       </div>
 
+      <Tabs defaultValue="ml-admet" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="ml-admet" className="gap-2">
+            <FlaskConical className="h-4 w-4" />
+            ML ADMET Screening
+          </TabsTrigger>
+          <TabsTrigger value="classic">Classic Batch</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="ml-admet">
+          <BatchAdmetPanel />
+        </TabsContent>
+
+        <TabsContent value="classic">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Selection Panel */}
         <div className="lg:col-span-2 space-y-6">
@@ -372,6 +388,8 @@ export default function BatchAnalysis() {
           </CardContent>
         </Card>
       )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

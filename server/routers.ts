@@ -406,6 +406,85 @@ export const appRouter = router({
         return await getMetabolitesForAnalog(input.analogId);
       }),
 
+    runBatchAdmet: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogIds: [] as number[] };
+        const obj = val as Record<string, unknown>;
+        return {
+          analogIds: Array.isArray(obj.analogIds) ? (obj.analogIds as number[]) : [],
+        };
+      })
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+        const { getAnalogById, insertAdmetResult } = await import('./db');
+        const { callADMETService } = await import('./_core/pythonServiceGateway');
+        const batchRunId = `batch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        const results: Array<{ analogId: number; status: 'ok' | 'error'; error?: string }> = [];
+        for (const analogId of input.analogIds) {
+          try {
+            const analog = await getAnalogById(analogId);
+            if (!analog?.smiles) { results.push({ analogId, status: 'error', error: 'No SMILES' }); continue; }
+            const raw = await callADMETService(analog.smiles);
+            const props = raw?.admet_results ?? raw ?? {};
+            await insertAdmetResult({
+              analogId,
+              smiles: analog.smiles,
+              source: raw?.source ?? 'admet_ai_chemprop',
+              ames: props['AMES'] != null ? String(props['AMES']) : null,
+              herg: props['hERG'] != null ? String(props['hERG']) : null,
+              dili: props['DILI'] != null ? String(props['DILI']) : null,
+              ld50: props['LD50_Zhu'] != null ? String(props['LD50_Zhu']) : null,
+              clintox: props['ClinTox'] != null ? String(props['ClinTox']) : null,
+              bbbPermeability: props['BBB_Martini'] != null ? String(props['BBB_Martini']) : null,
+              oralBioavailability: props['Bioavailability_Ma'] != null ? String(props['Bioavailability_Ma']) : null,
+              hia: props['HIA_Hou'] != null ? String(props['HIA_Hou']) : null,
+              caco2: props['Caco2_Wang'] != null ? String(props['Caco2_Wang']) : null,
+              pgp: props['Pgp_Broccatelli'] != null ? String(props['Pgp_Broccatelli']) : null,
+              ppbr: props['PPBR_AZ'] != null ? String(props['PPBR_AZ']) : null,
+              halfLife: props['Half_Life_Obach'] != null ? String(props['Half_Life_Obach']) : null,
+              clearanceHepatocyte: props['Clearance_Hepatocyte_AZ'] != null ? String(props['Clearance_Hepatocyte_AZ']) : null,
+              cyp1a2: props['CYP1A2_Veith'] != null ? String(props['CYP1A2_Veith']) : null,
+              cyp2c9: props['CYP2C9_Substrate_CarbonMangels'] != null ? String(props['CYP2C9_Substrate_CarbonMangels']) : null,
+              cyp2c19: props['CYP2C19_Veith'] != null ? String(props['CYP2C19_Veith']) : null,
+              cyp2d6: props['CYP2D6_Substrate_CarbonMangels'] != null ? String(props['CYP2D6_Substrate_CarbonMangels']) : null,
+              cyp3a4: props['CYP3A4_Substrate_CarbonMangels'] != null ? String(props['CYP3A4_Substrate_CarbonMangels']) : null,
+              solubility: props['Solubility_AqSolDB'] != null ? String(props['Solubility_AqSolDB']) : null,
+              lipophilicity: props['Lipophilicity_AstraZeneca'] != null ? String(props['Lipophilicity_AstraZeneca']) : null,
+              molecularWeight: props['molecular_weight'] != null ? String(props['molecular_weight']) : null,
+              logp: props['logp'] != null ? String(props['logp']) : null,
+              tpsa: props['tpsa'] != null ? String(props['tpsa']) : null,
+              qed: props['qed'] != null ? String(props['qed']) : null,
+              rawResult: props,
+              batchRunId,
+              createdBy: ctx.user.id,
+            });
+            results.push({ analogId, status: 'ok' });
+          } catch (err: any) {
+            results.push({ analogId, status: 'error', error: err?.message ?? 'Unknown error' });
+          }
+        }
+        return { batchRunId, results, total: input.analogIds.length, succeeded: results.filter((r) => r.status === 'ok').length };
+      }),
+
+    getAdmetResults: protectedProcedure
+      .input((val: unknown) => {
+        if (typeof val !== 'object' || val === null) return { analogId: 0 };
+        const obj = val as Record<string, unknown>;
+        return { analogId: typeof obj.analogId === 'number' ? obj.analogId : 0 };
+      })
+      .query(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+        const { getAdmetResultsForAnalog } = await import('./db');
+        return getAdmetResultsForAnalog(input.analogId);
+      }),
+
+    getAdmetStats: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+        const { getAdmetStats } = await import('./db');
+        return getAdmetStats();
+      }),
+
     createFromOptimization: protectedProcedure
       .input((val: unknown) => {
         if (typeof val !== 'object' || val === null) {

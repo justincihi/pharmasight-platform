@@ -500,3 +500,46 @@ export const appSettings = mysqlTable("app_settings", {
 });
 export type AppSetting = typeof appSettings.$inferSelect;
 export type InsertAppSetting = typeof appSettings.$inferInsert;
+
+/**
+ * ADMET Results table - persistent ML-predicted ADMET properties per analog
+ * Stores ADMET-AI (Chemprop) results with 49 ML properties for historical comparison
+ */
+export const admetResults = mysqlTable("admet_results", {
+  id: int("id").autoincrement().primaryKey(),
+  analogId: int("analog_id").notNull(),
+  smiles: text("smiles").notNull(),
+  source: varchar("source", { length: 64 }).default("admet_ai_chemprop").notNull(),
+  // Core ADMET properties (0-1 probability unless noted)
+  ames: varchar("ames", { length: 20 }),
+  herg: varchar("herg", { length: 20 }),
+  dili: varchar("dili", { length: 20 }),
+  ld50: varchar("ld50", { length: 20 }),
+  clintox: varchar("clintox", { length: 20 }),
+  bbbPermeability: varchar("bbb_permeability", { length: 20 }),
+  oralBioavailability: varchar("oral_bioavailability", { length: 20 }),
+  hia: varchar("hia", { length: 20 }),
+  caco2: varchar("caco2", { length: 20 }),
+  pgp: varchar("pgp", { length: 20 }),
+  ppbr: varchar("ppbr", { length: 20 }),
+  halfLife: varchar("half_life", { length: 20 }),
+  clearanceHepatocyte: varchar("clearance_hepatocyte", { length: 20 }),
+  cyp1a2: varchar("cyp1a2", { length: 20 }),
+  cyp2c9: varchar("cyp2c9", { length: 20 }),
+  cyp2c19: varchar("cyp2c19", { length: 20 }),
+  cyp2d6: varchar("cyp2d6", { length: 20 }),
+  cyp3a4: varchar("cyp3a4", { length: 20 }),
+  solubility: varchar("solubility", { length: 20 }),
+  lipophilicity: varchar("lipophilicity", { length: 20 }),
+  molecularWeight: varchar("molecular_weight", { length: 20 }),
+  logp: varchar("logp", { length: 20 }),
+  tpsa: varchar("tpsa", { length: 20 }),
+  qed: varchar("qed", { length: 20 }),
+  // Full raw result JSON for all 49 properties
+  rawResult: json("raw_result").$type<Record<string, unknown>>(),
+  batchRunId: varchar("batch_run_id", { length: 64 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: int("created_by"),
+});
+export type AdmetResult = typeof admetResults.$inferSelect;
+export type InsertAdmetResult = typeof admetResults.$inferInsert;
