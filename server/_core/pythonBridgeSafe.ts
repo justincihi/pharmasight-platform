@@ -13,7 +13,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const VENV_PYTHON = process.env.VENV_PYTHON || 'python3';
+// Resolve the venv Python path relative to this file's location.
+// Falls back to VENV_PYTHON env var, then system python3 as last resort.
+const DEFAULT_VENV_PYTHON = path.join(__dirname, '..', 'python_modules', 'venv', 'bin', 'python');
+const VENV_PYTHON = process.env.VENV_PYTHON || DEFAULT_VENV_PYTHON;
 
 /**
  * Check if Python is available in the current environment
