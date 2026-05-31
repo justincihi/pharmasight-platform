@@ -70,6 +70,33 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+/** Mark any research runs left in 'running' state (from a crashed/restarted server) as failed */
+async function cleanupStaleRuns(): Promise<void> {
+  try {
+    const { getDb } = await import('../db');
+    const { researchRuns } = await import('../../drizzle/schema');
+    const { eq, lt } = await import('drizzle-orm');
+    const db = await getDb();
+    if (!db) return;
+    // Any run still 'running' after server boot is orphaned — mark as failed
+    const staleThreshold = new Date(Date.now() - 30 * 60 * 1000); // 30 min ago
+    const result = await db
+      .update(researchRuns)
+      .set({
+        status: 'failed',
+        errorMessage: 'Run interrupted: server restarted before completion.',
+        completedAt: new Date(),
+      })
+      .where(eq(researchRuns.status, 'running'));
+    const affected = (result as any).rowsAffected ?? (result as any)[0]?.affectedRows ?? 0;
+    if (affected > 0) {
+      console.log(`[Init] Cleaned up ${affected} stale research run(s) left in 'running' state.`);
+    }
+  } catch (e) {
+    console.error('[Init] Failed to clean up stale runs:', e);
+  }
+}
+
 async function startServer() {
   const app = express();
   const server = createServer(app);
@@ -106,6 +133,8 @@ async function startServer() {
     console.log(`Server running on http://localhost:${port}/`);
     // Start Python analysis microservice (metabolites, ADMET, docking)
     startAnalysisMicroservice();
+    // Clean up any runs that were left in 'running' state from a previous server instance
+    cleanupStaleRuns().catch(console.error);
     // Initialize autonomous research scheduler (async: loads cron from DB)
     initializeScheduler().catch(console.error);
   });
