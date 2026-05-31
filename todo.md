@@ -546,3 +546,12 @@
 - [x] Replace MetaboliteViewer with new tree view in CompoundTesting metabolites tab
 - [x] Add CSV export button to metabolite tab (via MetabolitePathwayTree)
 - [x] Push to GitHub Pharmadash branch
+
+## PHASE R: AI Chatbot Wired to Live Analog Database (COMPLETE)
+- [x] Build server-side DB context builder (fetch top analogs, recent discoveries, ADMET stats, docking)
+- [x] Add chatbot.chat tRPC procedure that injects live DB context into LLM system prompt
+- [x] Support follow-up questions with conversation history (multi-turn)
+- [x] Upgrade chatbot UI: Streamdown markdown rendering, compound citation cards
+- [x] Chatbot returns citedCompounds[] with click-through to AnalogDetail
+- [x] 15 vitest tests for extractCitedIds, buildCitedCompounds, formatAnalogContextLine
+- [x] Push to GitHub Pharmadash branch (commit 871888d5)
