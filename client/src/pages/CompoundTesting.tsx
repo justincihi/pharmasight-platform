@@ -18,6 +18,7 @@ import { DockingResultsExportPanel } from "@/components/DockingResultsExportPane
 import { BioNemoPanel } from "@/components/BioNemoPanel";
 import { MetaboliteViewer } from "@/components/MetaboliteViewer";
 import { LeadOptimizationPanel } from "@/components/LeadOptimizationPanel";
+import { ExportResultsButton } from "@/components/ExportResultsButton";
 
 export default function CompoundTesting() {
   const [selectedAnalog, setSelectedAnalog] = useState<number | null>(null);
@@ -273,11 +274,23 @@ export default function CompoundTesting() {
                             
                             return (
                               <Card key={result.id} className="mt-4">
-                                <CardHeader>
-                                  <CardTitle className="text-lg">Latest ADMET Results</CardTitle>
-                                  <CardDescription>
-                                    Analyzed {new Date(result.createdAt).toLocaleString()}
-                                  </CardDescription>
+                                <CardHeader className="flex flex-row items-start justify-between gap-4">
+                                  <div>
+                                    <CardTitle className="text-lg">Latest ADMET Results</CardTitle>
+                                    <CardDescription>
+                                      Analyzed {new Date(result.createdAt).toLocaleString()}
+                                    </CardDescription>
+                                  </div>
+                                  <ExportResultsButton
+                                    data={{
+                                      ...data,
+                                      compound_name: selectedAnalogData?.compoundName ?? selectedAnalogData?.compoundId ?? "compound",
+                                      smiles: selectedAnalogData?.smiles,
+                                      analyzed_at: result.createdAt instanceof Date ? result.createdAt.toISOString() : String(result.createdAt),
+                                    }}
+                                    compoundName={selectedAnalogData?.compoundName ?? selectedAnalogData?.compoundId ?? "compound"}
+                                    mode="admet"
+                                  />
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                   {/* Toxicity Profile */}
@@ -460,6 +473,74 @@ export default function CompoundTesting() {
                         "Run Toxicity Prediction"
                       )}
                     </Button>
+
+                    {/* Toxicity Results */}
+                    {testResults && testResults.filter((r: any) => r.testType === 'toxicity').length > 0 && (
+                      <div className="mt-6 space-y-4">
+                        {testResults
+                          .filter((r: any) => r.testType === 'toxicity')
+                          .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                          .slice(0, 1)
+                          .map((result: any) => {
+                            const toxData = JSON.parse(result.results || '{}');
+                            const toxProfile = toxData.toxicity_profile || toxData;
+                            return (
+                              <Card key={result.id} className="mt-4">
+                                <CardHeader className="flex flex-row items-start justify-between gap-4">
+                                  <div>
+                                    <CardTitle className="text-lg">Latest Toxicity Results</CardTitle>
+                                    <CardDescription>
+                                      Analyzed {new Date(result.createdAt).toLocaleString()}
+                                    </CardDescription>
+                                  </div>
+                                  <ExportResultsButton
+                                    data={{
+                                      toxicity_profile: toxProfile,
+                                      compound_name: selectedAnalogData?.compoundName ?? selectedAnalogData?.compoundId ?? "compound",
+                                      smiles: selectedAnalogData?.smiles,
+                                      analyzed_at: result.createdAt instanceof Date ? result.createdAt.toISOString() : String(result.createdAt),
+                                    }}
+                                    compoundName={selectedAnalogData?.compoundName ?? selectedAnalogData?.compoundId ?? "compound"}
+                                    mode="toxicity"
+                                  />
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                  <div className="grid grid-cols-2 gap-3">
+                                    {Object.entries(toxProfile).map(([key, entry]: [string, any]) => (
+                                      <div key={key} className="p-3 border rounded-lg">
+                                        <div className="text-sm font-medium capitalize">{key.replace(/_/g, ' ')}</div>
+                                        {entry?.risk_score !== undefined && (
+                                          <div className="text-2xl font-bold">{Number(entry.risk_score).toFixed(1)}</div>
+                                        )}
+                                        {entry?.prediction && (
+                                          <div className="text-sm">{entry.prediction}</div>
+                                        )}
+                                        {entry?.risk_level && (
+                                          <Badge variant={entry.risk_level === 'Low' ? 'default' : 'destructive'}>
+                                            {entry.risk_level}
+                                          </Badge>
+                                        )}
+                                        {entry?.recommendation && (
+                                          <p className="text-xs text-muted-foreground mt-1">{entry.recommendation}</p>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            );
+                          })}
+                      </div>
+                    )}
+
+                    {/* Cross-reference note when no dedicated toxicity results exist */}
+                    {testResults && testResults.filter((r: any) => r.testType === 'toxicity').length === 0 &&
+                      testResults.filter((r: any) => r.testType === 'admet').length > 0 && (
+                      <div className="mt-4 p-3 border border-dashed rounded-lg text-sm text-muted-foreground">
+                        Toxicity profile data (hERG, hepatotoxicity, mutagenicity, carcinogenicity) is also
+                        available in the <strong>ADMET tab</strong> under "Toxicity Profile".
+                      </div>
+                    )}
                   </div>
                 </div>
               </TabsContent>

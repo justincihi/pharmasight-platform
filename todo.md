@@ -564,3 +564,9 @@
 - [x] Auto-start analysis microservice from Node server on boot
 - [x] Install flask + flask-cors + admet-ai + chemprop into python_modules venv
 - [x] Verify microservice returns real SMARTS metabolites (aspirin: 3 metabolites)
+
+## PHASE V: Export ADMET/Toxicity Results (CSV + PDF)
+- [x] Build ExportResultsButton component (CSV + PDF, pure client-side, no server calls)
+- [x] Integrate export button into ADMET results panel in CompoundTesting
+- [x] Integrate export button into Toxicity results panel in CompoundTesting
+- [x] Push to GitHub Pharmadash branch
