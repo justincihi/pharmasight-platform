@@ -6,30 +6,13 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Use system Python directly - hardcode first, then detect
-let PYTHON_EXECUTABLE = '/usr/bin/python3';
-if (existsSync(PYTHON_EXECUTABLE)) {
-  console.log('[advancedAnalysis] Using Python at:', PYTHON_EXECUTABLE);
-} else {
-  try {
-    PYTHON_EXECUTABLE = execSync('which python3', { encoding: 'utf-8' }).trim();
-    console.log('[advancedAnalysis] Detected Python at:', PYTHON_EXECUTABLE);
-    if (!PYTHON_EXECUTABLE || !existsSync(PYTHON_EXECUTABLE)) {
-      PYTHON_EXECUTABLE = '/usr/bin/python3';
-    }
-  } catch (e) {
-    console.log('[advancedAnalysis] which python3 failed, trying fallback paths');
-    const commonPaths = ['/usr/bin/python3', '/usr/local/bin/python3', '/opt/python/bin/python3'];
-    for (const p of commonPaths) {
-      if (existsSync(p)) {
-        PYTHON_EXECUTABLE = p;
-        console.log('[advancedAnalysis] Found Python at:', p);
-        break;
-      }
-    }
-  }
-}
-console.log('[advancedAnalysis] Final PYTHON_EXECUTABLE:', PYTHON_EXECUTABLE, 'exists:', existsSync(PYTHON_EXECUTABLE));
+// Use the project venv Python which has rdkit, admet-ai, chemprop installed.
+// System python3 does NOT have rdkit — always prefer the venv.
+const VENV_PYTHON_PATH = path.join(__dirname, 'python_modules', 'venv', 'bin', 'python');
+let PYTHON_EXECUTABLE = existsSync(VENV_PYTHON_PATH)
+  ? VENV_PYTHON_PATH
+  : '/usr/bin/python3';
+console.log('[advancedAnalysis] Python executable:', PYTHON_EXECUTABLE, '| venv found:', existsSync(VENV_PYTHON_PATH));
 
 const ANALYSIS_SCRIPT = path.join(__dirname, 'python_modules', 'comprehensive_analysis.py');
 

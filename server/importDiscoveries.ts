@@ -100,21 +100,14 @@ export async function importAutonomousDiscoveries(): Promise<{
 
     // Import each discovery
     for (const discovery of discoveries as any[]) {
+      // Build a stable compound ID outside try/catch so it's accessible in catch
+      const stableId: string = (discovery.discovery_id || discovery.compound_id ||
+        `AUTO-${(discovery.compound_name || '').replace(/\s+/g, '-').toLowerCase().slice(0, 30)}-${(discovery.compound_smiles || '').slice(0, 8)}`).slice(0, 64);
       try {
-        // Check if already exists
-        const existing = await db
-          .select()
-          .from(analogDiscoveries)
-          .where(eq(analogDiscoveries.compoundId, discovery.compound_id))
-          .limit(1);
-
-        if (existing.length > 0) {
-          continue; // Skip if already imported
-        }
-
-        // Insert new discovery (map Python format to DB schema)
+        // Use onDuplicateKeyUpdate to make the insert idempotent at the DB level.
+        // This avoids check-then-insert race conditions and silently skips existing rows.
         await db.insert(analogDiscoveries).values({
-          compoundId: discovery.discovery_id || `AUTO-${Date.now()}`,
+          compoundId: stableId,
           compoundName: discovery.compound_name,
           parentCompound: discovery.therapeutic_area || "Unknown",
           smiles: discovery.compound_smiles,
@@ -129,11 +122,14 @@ export async function importAutonomousDiscoveries(): Promise<{
           keyDifferences: discovery.key_features?.join(", ") || "",
           discoveredBy: "autonomous_system",
           discoveredAt: new Date(discovery.timestamp),
+        }).onDuplicateKeyUpdate({
+          // On duplicate compound_id: update updatedAt only (effectively a no-op skip)
+          set: { discoveredBy: 'autonomous_system' },
         });
 
         importedCount++;
       } catch (error) {
-        console.error(`Failed to import discovery ${discovery.compound_id}:`, error);
+        console.error(`Failed to import discovery ${stableId}:`, error);
       }
     }
 
