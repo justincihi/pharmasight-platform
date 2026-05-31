@@ -18,25 +18,37 @@ const __dirname = path.dirname(__filename);
 
 /** Start the Flask analysis microservice in the background (port 5000) */
 function startAnalysisMicroservice(): void {
-  const venvPython = path.join(__dirname, '..', 'python_modules', 'venv', 'bin', 'python');
-  const script = path.join(__dirname, '..', '..', 'python_services', 'analysis_microservice.py');
-  const child = spawn(venvPython, [script], {
-    env: { ...process.env, PORT: '5000' },
-    stdio: ['ignore', 'pipe', 'pipe'],
-    detached: false,
+  // Check if port 5000 is already occupied before spawning
+  const probe = net.createServer();
+  probe.once('error', () => {
+    // Port already in use — microservice is already running, skip
+    console.log('[MicroService] Port 5000 already in use, skipping start.');
   });
-  child.stdout?.on('data', (d: Buffer) => {
-    const line = d.toString().trim();
-    if (line) console.log('[MicroService]', line);
+  probe.once('listening', () => {
+    probe.close(() => {
+      // Port is free — start the microservice
+      const venvPython = path.join(__dirname, '..', 'python_modules', 'venv', 'bin', 'python');
+      const script = path.join(__dirname, '..', '..', 'python_services', 'analysis_microservice.py');
+      const child = spawn(venvPython, [script], {
+        env: { ...process.env, PORT: '5000' },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        detached: false,
+      });
+      child.stdout?.on('data', (d: Buffer) => {
+        const line = d.toString().trim();
+        if (line) console.log('[MicroService]', line);
+      });
+      child.stderr?.on('data', (d: Buffer) => {
+        const line = d.toString().trim();
+        if (line && !line.includes('WARNING') && !line.includes('Serving Flask') && !line.includes('Press CTRL')) {
+          console.error('[MicroService]', line);
+        }
+      });
+      child.on('exit', (code) => console.warn(`[MicroService] exited with code ${code}`));
+      console.log('[MicroService] Analysis microservice starting on port 5000...');
+    });
   });
-  child.stderr?.on('data', (d: Buffer) => {
-    const line = d.toString().trim();
-    if (line && !line.includes('WARNING') && !line.includes('Serving Flask') && !line.includes('Press CTRL')) {
-      console.error('[MicroService]', line);
-    }
-  });
-  child.on('exit', (code) => console.warn(`[MicroService] exited with code ${code}`));
-  console.log('[MicroService] Analysis microservice starting on port 5000...');
+  probe.listen(5000, '127.0.0.1');
 }
 
 function isPortAvailable(port: number): Promise<boolean> {
