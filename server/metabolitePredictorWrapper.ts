@@ -107,6 +107,8 @@ export async function storeMetabolites(
   }));
 
   if (!db) throw new Error('Database connection failed');
+  // Guard: Drizzle requires at least one row — skip insert when no metabolites were predicted
+  if (insertData.length === 0) return;
   await db.insert(metabolitesTable).values(insertData);
 }
 

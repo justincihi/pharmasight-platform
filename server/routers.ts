@@ -381,11 +381,46 @@ export const appRouter = router({
           throw new Error('Analog not found');
         }
         
-        const { predictMetabolites, storeMetabolites } = await import('./metabolitePredictorWrapper');
-        
+        const smiles = analog[0].smiles || '';
+        if (!smiles) throw new Error('Analog has no SMILES — cannot predict metabolites');
+
         try {
-          const result = await predictMetabolites(analog[0].smiles, 10);
-          await storeMetabolites(input.analogId, result.metabolites);
+          // Primary: use analysis microservice SMARTS Phase I/II engine
+          const { callMetaboliteService } = await import('./_core/pythonServiceGateway');
+          const serviceResult = await callMetaboliteService(smiles, 'all');
+
+          // Normalise service response into MetabolitePredictionResult shape
+          const metabolites = (serviceResult?.metabolites ?? []).map((m: any) => ({
+            smiles: m.smiles ?? smiles,
+            parent_smiles: smiles,
+            transformation: m.transformation ?? m.name ?? 'Unknown',
+            phase: (m.phase === 'Phase II' ? 'Phase II' : 'Phase I') as 'Phase I' | 'Phase II',
+            enzyme: m.enzyme ?? 'Unknown',
+            probability: typeof m.probability === 'number' ? m.probability : parseFloat(String(m.probability ?? '0.5')),
+            molecular_weight: typeof m.molecular_weight === 'number' ? m.molecular_weight : parseFloat(String(m.molecular_weight ?? '300')),
+            logp: typeof m.logp === 'number' ? m.logp : parseFloat(String(m.logp ?? '2')),
+          }));
+
+          const result = {
+            parent_smiles: smiles,
+            metabolic_stability: serviceResult?.metabolic_stability ?? {
+              stability_score: 0.7,
+              classification: 'Moderate' as const,
+              num_metabolites: metabolites.length,
+              avg_probability: metabolites.length > 0
+                ? metabolites.reduce((s: number, m: any) => s + m.probability, 0) / metabolites.length
+                : 0,
+              analysis: `${metabolites.length} metabolite(s) predicted via SMARTS Phase I/II engine`,
+            },
+            metabolites,
+          };
+
+          // Only persist if we have metabolites (Drizzle requires at least one row)
+          if (result.metabolites.length > 0) {
+            const { storeMetabolites } = await import('./metabolitePredictorWrapper');
+            await storeMetabolites(input.analogId, result.metabolites);
+          }
+
           return result;
         } catch (error: any) {
           throw new Error(`Metabolite prediction failed: ${error.message}`);

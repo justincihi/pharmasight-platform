@@ -555,3 +555,12 @@
 - [x] Chatbot returns citedCompounds[] with click-through to AnalogDetail
 - [x] 15 vitest tests for extractCitedIds, buildCitedCompounds, formatAnalogContextLine
 - [x] Push to GitHub Pharmadash branch (commit 871888d5)
+
+## PHASE R2: Metabolite Prediction Bug Fixes (COMPLETE)
+- [x] Fix empty values() crash in storeMetabolites when no metabolites returned
+- [x] Fix __dirname undefined in pythonBridgeSafe.ts (ESM shim added)
+- [x] Fix script path: python_modules/ not scripts/
+- [x] Route predictMetabolites to callMetaboliteService (analysis microservice at port 5000)
+- [x] Auto-start analysis microservice from Node server on boot
+- [x] Install flask + flask-cors + admet-ai + chemprop into python_modules venv
+- [x] Verify microservice returns real SMARTS metabolites (aspirin: 3 metabolites)

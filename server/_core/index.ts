@@ -2,6 +2,9 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import { spawn } from "child_process";
+import path from "path";
+import { fileURLToPath } from "url";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
@@ -9,6 +12,32 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initializeScheduler } from "../initScheduler";
 import { registerPlatformAPI } from "../platformAPI";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/** Start the Flask analysis microservice in the background (port 5000) */
+function startAnalysisMicroservice(): void {
+  const venvPython = path.join(__dirname, '..', 'python_modules', 'venv', 'bin', 'python');
+  const script = path.join(__dirname, '..', '..', 'python_services', 'analysis_microservice.py');
+  const child = spawn(venvPython, [script], {
+    env: { ...process.env, PORT: '5000' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+    detached: false,
+  });
+  child.stdout?.on('data', (d: Buffer) => {
+    const line = d.toString().trim();
+    if (line) console.log('[MicroService]', line);
+  });
+  child.stderr?.on('data', (d: Buffer) => {
+    const line = d.toString().trim();
+    if (line && !line.includes('WARNING') && !line.includes('Serving Flask') && !line.includes('Press CTRL')) {
+      console.error('[MicroService]', line);
+    }
+  });
+  child.on('exit', (code) => console.warn(`[MicroService] exited with code ${code}`));
+  console.log('[MicroService] Analysis microservice starting on port 5000...');
+}
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -63,7 +92,8 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
-    
+    // Start Python analysis microservice (metabolites, ADMET, docking)
+    startAnalysisMicroservice();
     // Initialize autonomous research scheduler (async: loads cron from DB)
     initializeScheduler().catch(console.error);
   });

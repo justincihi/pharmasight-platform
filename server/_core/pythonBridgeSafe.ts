@@ -6,6 +6,11 @@
 
 import { spawn } from 'child_process';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM __dirname shim (this file is compiled to ESM)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const VENV_PYTHON = process.env.VENV_PYTHON || 'python3';
@@ -61,14 +66,15 @@ export async function executePythonScriptSafe(
     const scriptPath = path.join(
       __dirname,
       '..',
-      'scripts',
+      'python_modules',
       scriptName.replace('.py', '') + '.py'
     );
 
     const pythonCode = `
 import sys
 import json
-sys.path.insert(0, '${path.join(__dirname, '..', 'scripts')}')
+sys.path.insert(0, '${path.join(__dirname, '..', 'python_modules')}')
+sys.path.insert(0, '${path.join(__dirname, '..', 'python_modules', 'venv', 'lib', 'python3.11', 'site-packages')}')
 
 try:
     from ${scriptName.replace('.py', '')} import ${functionName}
