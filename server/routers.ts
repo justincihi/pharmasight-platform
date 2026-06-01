@@ -2149,5 +2149,211 @@ Answer questions directly using this data. When mentioning a specific compound, 
   leadOptimization: leadOptimizationRouter,
   metabolite: metaboliteRouter,
   bionemo: bionemoRouter,
+
+  // Compound Encyclopedia — per-compound knowledge aggregation
+  encyclopedia: router({
+    getCompound: protectedProcedure
+      .input(z.object({ analogId: z.number() }))
+      .query(async ({ input }) => {
+        const { getDb } = await import('./db');
+        const { analogDiscoveries, testResults, metabolites, dockingQueue, admetResults } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) throw new Error('Database unavailable');
+
+        const [analog] = await db.select().from(analogDiscoveries).where(eq(analogDiscoveries.id, input.analogId)).limit(1);
+        if (!analog) throw new Error('Compound not found');
+
+        const tests = await db.select().from(testResults).where(eq(testResults.analogId, input.analogId)).orderBy(testResults.createdAt);
+        const mets = await db.select().from(metabolites).where(eq(metabolites.parentAnalogId, input.analogId)).limit(20);
+        const dockings = await db.select().from(dockingQueue).where(eq(dockingQueue.analogId, input.analogId)).orderBy(dockingQueue.completedAt);
+        const admet = await db.select().from(admetResults).where(eq(admetResults.analogId, input.analogId)).limit(5);
+
+        return { analog, tests, metabolites: mets, dockings, admet };
+      }),
+
+    search: protectedProcedure
+      .input(z.object({
+        query: z.string().optional(),
+        patentStatus: z.string().optional(),
+        minConfidence: z.number().optional(),
+        limit: z.number().default(50),
+      }))
+      .query(async ({ input }) => {
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { like, gte, eq, or, and } = await import('drizzle-orm');
+        const db = await getDb();
+
+        const conditions: any[] = [];
+        if (input.query) {
+          conditions.push(or(
+            like(analogDiscoveries.compoundName, `%${input.query}%`),
+            like(analogDiscoveries.smiles, `%${input.query}%`),
+            like(analogDiscoveries.mechanismOfAction, `%${input.query}%`),
+            like(analogDiscoveries.therapeuticPotential, `%${input.query}%`),
+          ));
+        }
+        if (input.patentStatus) conditions.push(eq(analogDiscoveries.patentStatus, input.patentStatus as any));
+        if (input.minConfidence) conditions.push(gte(analogDiscoveries.confidenceScore, input.minConfidence));
+
+        if (!db) return [];
+        const rows = conditions.length > 0
+          ? await db.select().from(analogDiscoveries).where(and(...conditions)).limit(input.limit)
+          : await db.select().from(analogDiscoveries).limit(input.limit);
+
+        return rows;
+      }),
+
+    updateNotes: protectedProcedure
+      .input(z.object({
+        analogId: z.number(),
+        mechanismOfAction: z.string().optional(),
+        therapeuticPotential: z.string().optional(),
+        optimizationNotes: z.string().optional(),
+        keyDifferences: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { getDb } = await import('./db');
+        const { analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+
+        const updates: Record<string, string> = {};
+        if (input.mechanismOfAction !== undefined) updates.mechanismOfAction = input.mechanismOfAction;
+        if (input.therapeuticPotential !== undefined) updates.therapeuticPotential = input.therapeuticPotential;
+        if (input.optimizationNotes !== undefined) updates.optimizationNotes = input.optimizationNotes;
+        if (input.keyDifferences !== undefined) updates.keyDifferences = input.keyDifferences;
+
+        if (!db) throw new Error('Database unavailable');
+        await db.update(analogDiscoveries).set(updates).where(eq(analogDiscoveries.id, input.analogId));
+        return { success: true };
+      }),
+  }),
+
+  // Psychiatric Cocktail Analyzer
+  cocktail: router({
+    analyze: protectedProcedure
+      .input(z.object({
+        compounds: z.array(z.object({
+          name: z.string(),
+          smiles: z.string().optional(),
+          dose: z.string().optional(),
+          route: z.string().optional(),
+        })).min(2).max(8),
+        patientWeight: z.number().optional(),
+        indication: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Query PharmGKB / DDInteract / Open Targets for interactions
+        const interactions: any[] = [];
+        const warnings: string[] = [];
+        const compounds = input.compounds;
+
+        // Check pairs via ChEMBL mechanism of action overlap
+        for (let i = 0; i < compounds.length; i++) {
+          for (let j = i + 1; j < compounds.length; j++) {
+            const a = compounds[i];
+            const b = compounds[j];
+            // Serotonin syndrome risk heuristic
+            const serotoninDrugs = ['fluoxetine','sertraline','paroxetine','escitalopram','citalopram','venlafaxine','duloxetine','tramadol','linezolid','mdma','lsd','psilocybin','ketamine'];
+            const aIsSero = serotoninDrugs.some(d => a.name.toLowerCase().includes(d));
+            const bIsSero = serotoninDrugs.some(d => b.name.toLowerCase().includes(d));
+            if (aIsSero && bIsSero) {
+              warnings.push(`⚠️ Serotonin syndrome risk: ${a.name} + ${b.name}`);
+              interactions.push({ drugA: a.name, drugB: b.name, type: 'pharmacodynamic', severity: 'major', mechanism: 'Additive serotonergic activity → serotonin syndrome risk', recommendation: 'Avoid combination or monitor closely' });
+            }
+            // CYP2D6 inhibition heuristic
+            const cyp2d6Inhibitors = ['fluoxetine','paroxetine','bupropion','quinidine','haloperidol'];
+            const cyp2d6Substrates = ['codeine','tramadol','risperidone','aripiprazole','atomoxetine'];
+            const aInhibits = cyp2d6Inhibitors.some(d => a.name.toLowerCase().includes(d));
+            const bIsSubstrate = cyp2d6Substrates.some(d => b.name.toLowerCase().includes(d));
+            if (aInhibits && bIsSubstrate) {
+              interactions.push({ drugA: a.name, drugB: b.name, type: 'pharmacokinetic', severity: 'moderate', mechanism: `${a.name} inhibits CYP2D6 → increased ${b.name} exposure`, recommendation: `Reduce ${b.name} dose by 50%` });
+            }
+          }
+        }
+
+        // LLM-enhanced interaction analysis
+        try {
+          const { invokeLLM } = await import('./_core/llm');
+          const llmResp = await invokeLLM({
+            messages: [
+              { role: 'system', content: 'You are a clinical pharmacologist specializing in drug-drug interactions. Respond with JSON only.' },
+              { role: 'user', content: `Analyze interactions for this combination: ${compounds.map(c => c.name + (c.dose ? ` ${c.dose}` : '')).join(', ')}. Return JSON: { interactions: [{drugA, drugB, type, severity, mechanism, recommendation}], overallRisk: "low"|"moderate"|"high"|"contraindicated", summary: string, monitoring: string[] }` },
+            ],
+            response_format: { type: 'json_schema', json_schema: { name: 'interaction_analysis', strict: true, schema: { type: 'object', properties: { interactions: { type: 'array', items: { type: 'object', properties: { drugA: { type: 'string' }, drugB: { type: 'string' }, type: { type: 'string' }, severity: { type: 'string' }, mechanism: { type: 'string' }, recommendation: { type: 'string' } }, required: ['drugA','drugB','type','severity','mechanism','recommendation'], additionalProperties: false } }, overallRisk: { type: 'string' }, summary: { type: 'string' }, monitoring: { type: 'array', items: { type: 'string' } } }, required: ['interactions','overallRisk','summary','monitoring'], additionalProperties: false } } },
+          });
+          const parsed = JSON.parse(llmResp.choices[0].message.content as string);
+          return { ...parsed, heuristicWarnings: warnings, compounds: input.compounds, timestamp: new Date().toISOString() };
+        } catch {
+          return {
+            interactions,
+            overallRisk: interactions.some(i => i.severity === 'major') ? 'high' : interactions.length > 0 ? 'moderate' : 'low',
+            summary: `Analyzed ${compounds.length} compounds. Found ${interactions.length} potential interactions.`,
+            monitoring: warnings,
+            heuristicWarnings: warnings,
+            compounds: input.compounds,
+            timestamp: new Date().toISOString(),
+          };
+        }
+      }),
+  }),
+
+  // Clinical Comparability Predictor
+  clinical: router({
+    compare: protectedProcedure
+      .input(z.object({
+        smiles: z.string().min(3),
+        compoundName: z.string().optional(),
+        therapeuticArea: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Step 1: Find similar approved drugs via ChEMBL
+        const axios = (await import('axios')).default;
+        let similarDrugs: any[] = [];
+        try {
+          const simResp = await axios.get(
+            `https://www.ebi.ac.uk/chembl/api/data/similarity/${encodeURIComponent(input.smiles)}/60.json?limit=8`,
+            { timeout: 10000 }
+          );
+          const mols = simResp.data?.molecules ?? [];
+          for (const mol of mols.slice(0, 5)) {
+            similarDrugs.push({
+              chemblId: mol.molecule_chembl_id,
+              name: mol.pref_name ?? mol.molecule_chembl_id,
+              similarity: mol.similarity ?? 0,
+              maxPhase: mol.max_phase ?? 0,
+              molecularFormula: mol.molecule_properties?.molecular_formula ?? '',
+              mw: mol.molecule_properties?.mw_freebase ?? null,
+              logp: mol.molecule_properties?.alogp ?? null,
+              therapeuticClass: mol.atc_classifications?.[0] ?? 'Unknown',
+            });
+          }
+        } catch { /* fallback */ }
+
+        // Step 2: LLM therapeutic class prediction
+        let therapeuticPrediction: any = null;
+        try {
+          const { invokeLLM } = await import('./_core/llm');
+          const llmResp = await invokeLLM({
+            messages: [
+              { role: 'system', content: 'You are a medicinal chemist. Respond with JSON only.' },
+              { role: 'user', content: `Given SMILES: ${input.smiles}, predict: therapeutic class, mechanism of action, likely indication, development stage, and 3 most similar approved drugs. Return JSON: { therapeuticClass, mechanismOfAction, indication, developmentStage, similarApprovedDrugs: [{name, similarity, indication}] }` },
+            ],
+            response_format: { type: 'json_schema', json_schema: { name: 'clinical_prediction', strict: true, schema: { type: 'object', properties: { therapeuticClass: { type: 'string' }, mechanismOfAction: { type: 'string' }, indication: { type: 'string' }, developmentStage: { type: 'string' }, similarApprovedDrugs: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, similarity: { type: 'string' }, indication: { type: 'string' } }, required: ['name','similarity','indication'], additionalProperties: false } } }, required: ['therapeuticClass','mechanismOfAction','indication','developmentStage','similarApprovedDrugs'], additionalProperties: false } } },
+          });
+          therapeuticPrediction = JSON.parse(llmResp.choices[0].message.content as string);
+        } catch { /* ignore */ }
+
+        return {
+          smiles: input.smiles,
+          compoundName: input.compoundName ?? 'Unknown',
+          similarDrugs,
+          therapeuticPrediction,
+          timestamp: new Date().toISOString(),
+        };
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;

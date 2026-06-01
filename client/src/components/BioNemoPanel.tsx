@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Dna, Zap, AlertCircle, CheckCircle2, Activity, Search, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, Dna, Zap, AlertCircle, CheckCircle2, Activity, Search, ExternalLink, ChevronDown, ChevronUp, Target } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BioNemoPanelProps {
@@ -27,9 +27,10 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [bindingResult, setBindingResult] = useState<any>(null);
   const [structureResult, setStructureResult] = useState<any>(null);
-  const [activeMode, setActiveMode] = useState<'analyze' | 'binding' | 'structure'>('analyze');
+  const [activeMode, setActiveMode] = useState<'analyze' | 'binding' | 'structure' | 'targets'>('analyze');
   const [proteinTargets, setProteinTargets] = useState<any[]>([]);
   const [showTargets, setShowTargets] = useState(false);
+  const [targetPredictions, setTargetPredictions] = useState<any>(null);
 
   const analyzeMutation = trpc.bionemo.analyzeProtein.useMutation({
     onSuccess: (data) => {
@@ -64,7 +65,15 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
     onError: (e) => toast.error(`Structure prediction failed: ${e.message}`),
   });
 
-  const isLoading = analyzeMutation.isPending || bindingMutation.isPending || structureMutation.isPending || findProteinsMutation.isPending;
+  const predictTargetsMutation = trpc.bionemo.predictTargets.useMutation({
+    onSuccess: (data) => {
+      setTargetPredictions(data);
+      toast.success(`Found ${data.targets?.length ?? 0} predicted targets`);
+    },
+    onError: (e) => toast.error(`Target prediction failed: ${e.message}`),
+  });
+
+  const isLoading = analyzeMutation.isPending || bindingMutation.isPending || structureMutation.isPending || findProteinsMutation.isPending || predictTargetsMutation.isPending;
 
   const handlePreset = (key: string) => {
     setSequence(PRESET_SEQUENCES[key as keyof typeof PRESET_SEQUENCES]);
@@ -83,6 +92,12 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
         return;
       }
       bindingMutation.mutate({ proteinSequence: sequence.trim(), ligandSmiles });
+    } else if (activeMode === 'targets') {
+      if (!ligandSmiles) {
+        toast.error('No ligand SMILES available. Select a compound first.');
+        return;
+      }
+      predictTargetsMutation.mutate({ smiles: ligandSmiles });
     } else {
       structureMutation.mutate({ sequence: sequence.trim() });
     }
@@ -184,6 +199,7 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
           { id: 'analyze', label: 'Protein Analysis', icon: Activity },
           { id: 'binding', label: 'Binding Affinity', icon: Zap },
           { id: 'structure', label: 'Structure Prediction', icon: Dna },
+          { id: 'targets', label: 'Target Prediction', icon: Target },
         ].map(({ id, label, icon: Icon }) => (
           <Button
             key={id}
@@ -263,6 +279,89 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Target Prediction Results */}
+      {targetPredictions && activeMode === 'targets' && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Target className="h-4 w-4 text-orange-500" />
+                Predicted Receptor Targets ({targetPredictions.targets?.length ?? 0})
+              </CardTitle>
+              {targetPredictions.source === 'curated' && (
+                <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">Curated Library</Badge>
+              )}
+              {targetPredictions.source === 'chembl_similarity' && (
+                <Badge variant="outline" className="text-xs text-green-600 border-green-300">ChEMBL Similarity</Badge>
+              )}
+            </div>
+            <CardDescription className="text-xs">
+              Ranked by predicted binding probability · Click any target to load its UniProt sequence
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 pt-0">
+            {(targetPredictions.targets ?? []).map((t: any, i: number) => {
+              const probPct = Math.round(t.probability * 100);
+              const barColor = probPct >= 70 ? 'bg-green-500' : probPct >= 45 ? 'bg-yellow-500' : 'bg-red-400';
+              const badgeColor = probPct >= 70 ? 'text-green-600 border-green-300' : probPct >= 45 ? 'text-yellow-600 border-yellow-300' : 'text-red-500 border-red-300';
+              return (
+                <div
+                  key={i}
+                  className="flex items-start gap-3 p-2 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  onClick={() => {
+                    if (t.uniprotId) {
+                      // Fetch sequence from preset if available
+                      const presetKey = Object.keys(PRESET_SEQUENCES).find(k =>
+                        k.toLowerCase().includes(t.geneSymbol?.toLowerCase() ?? '')
+                      );
+                      if (presetKey) {
+                        setSequence(PRESET_SEQUENCES[presetKey as keyof typeof PRESET_SEQUENCES]);
+                        setActiveMode('analyze');
+                        toast.success(`Loaded ${t.geneSymbol} sequence for analysis`);
+                      } else {
+                        toast.info(`Open UniProt for ${t.geneSymbol} to get the full sequence`);
+                      }
+                    }
+                  }}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-xs font-bold">{t.geneSymbol}</span>
+                      <span className="text-xs text-muted-foreground truncate">{t.targetName}</span>
+                      <Badge variant="outline" className={`text-xs h-4 px-1 ${badgeColor}`}>
+                        {t.targetClass}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1">
+                      <div className="flex items-center gap-1.5 flex-1">
+                        <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                          <div className={`${barColor} h-1.5 rounded-full`} style={{ width: `${probPct}%` }} />
+                        </div>
+                        <span className="text-xs font-medium w-8 text-right">{probPct}%</span>
+                      </div>
+                      {t.activityValue && (
+                        <span className="text-xs text-muted-foreground">
+                          {t.activityType} {t.activityValue.toFixed(0)} {t.activityUnits}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <a
+                    href={`https://www.ebi.ac.uk/chembl/target_report_card/${t.targetId}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-muted-foreground hover:text-foreground shrink-0 mt-1"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Analysis Results */}
       {analysisResult && activeMode === 'analyze' && (

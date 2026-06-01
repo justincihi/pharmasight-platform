@@ -24,7 +24,11 @@ import { BatchDockingDashboard } from "./pages/BatchDockingDashboard";
 import ResearchHistory from "./pages/ResearchHistory";
 import AdmetHeatmap from "./pages/AdmetHeatmap";
 import MasterCompoundSheet from "./pages/MasterCompoundSheet";
-import AnalogOfAnalog from "./pages/AnalogOfAnalog";
+import AnalogOfAnalog from './pages/AnalogOfAnalog';
+import CompoundEncyclopedia from './pages/CompoundEncyclopedia';
+import CocktailAnalyzer from './pages/CocktailAnalyzer';
+import ClinicalComparability from './pages/ClinicalComparability';
+import DiscoveryRegistry from './pages/DiscoveryRegistry';
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -53,6 +57,10 @@ function Router() {
       <Route path="/admet-heatmap" component={AdmetHeatmap} />
       <Route path="/master-sheet" component={MasterCompoundSheet} />
       <Route path="/analog-of-analog" component={AnalogOfAnalog} />
+      <Route path="/encyclopedia" component={CompoundEncyclopedia} />
+      <Route path="/cocktail-analyzer" component={CocktailAnalyzer} />
+      <Route path="/clinical-comparability" component={ClinicalComparability} />
+      <Route path="/discovery-registry" component={DiscoveryRegistry} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

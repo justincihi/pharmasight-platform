@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, BarChart3, Beaker, Calendar, Database, Activity, History, FlaskConical, Thermometer, Table2, Dna } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, BarChart3, Beaker, Calendar, Database, Activity, History, FlaskConical, Thermometer, Table2, Dna, BookOpen, Stethoscope, Award } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -38,6 +38,10 @@ const menuItems = [
   { icon: Thermometer, label: "ADMET Heatmap", path: "/admet-heatmap" },
   { icon: Table2, label: "Master Sheet", path: "/master-sheet" },
   { icon: Dna, label: "Analog Generator", path: "/analog-of-analog" },
+  { icon: BookOpen, label: "Encyclopedia", path: "/encyclopedia" },
+  { icon: FlaskConical, label: "Cocktail Analyzer", path: "/cocktail-analyzer" },
+  { icon: Stethoscope, label: "Clinical Compare", path: "/clinical-comparability" },
+  { icon: Award, label: "Discovery Registry", path: "/discovery-registry" },
   { icon: Calendar, label: "Scheduler", path: "/admin/scheduler" },
 ];
 

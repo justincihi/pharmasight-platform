@@ -616,3 +616,28 @@
 - [x] Add saveToMasterList tRPC procedure to routers.ts with parent lineage tracking
 - [x] Build AnalogOfAnalog.tsx page with SAR criteria controls, ranked results table, audit trail, save-to-master-list
 - [x] Add route /analog-of-analog and navigation item to DashboardLayout
+
+## PHASE AE: ChEMBL/Open Targets Target Prediction in BioNemo
+- [x] Add predictTargets procedure to bionemoRouter using ChEMBL similarity + activity API
+- [x] Add Target Prediction mode to BioNemoPanel with results table (target, activity type, confidence, ChEMBL link)
+
+## PHASE AF: Compound Encyclopedia
+- [x] Add encyclopedia router to routers.ts (getCompound, search, updateNotes procedures)
+- [x] Build CompoundEncyclopedia.tsx — searchable knowledge base with per-compound detail view
+- [x] Shows ADMET results, docking results, metabolites, test history, editable notes
+- [x] Add route /encyclopedia and navigation item
+
+## PHASE AG: Psychiatric Cocktail Analyzer
+- [x] Add cocktail.analyze procedure to routers.ts using LLM for interaction analysis
+- [x] Build CocktailAnalyzer.tsx — polypharmacy interaction checker with presets, severity badges, monitoring recommendations
+- [x] Add route /cocktail-analyzer and navigation item
+
+## PHASE AH: Clinical Comparability Predictor
+- [x] Add clinical.compare procedure to routers.ts using ChEMBL similarity search + LLM therapeutic class prediction
+- [x] Build ClinicalComparability.tsx — compare analogs to approved drugs with Tanimoto similarity bars and ChEMBL links
+- [x] Add route /clinical-comparability and navigation item
+
+## PHASE AI: Confidence-Scored Discovery Registry
+- [x] Build DiscoveryRegistry.tsx — filterable registry with confidence tier bars, IP status badges, stats row, CSV export
+- [x] Reuses encyclopedia.search procedure — no new backend needed
+- [x] Add route /discovery-registry and navigation item
