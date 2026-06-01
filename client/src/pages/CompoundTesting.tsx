@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,12 +19,15 @@ import { BioNemoPanel } from "@/components/BioNemoPanel";
 import { MetaboliteViewer } from "@/components/MetaboliteViewer";
 import { LeadOptimizationPanel } from "@/components/LeadOptimizationPanel";
 import { ExportResultsButton } from "@/components/ExportResultsButton";
+import { AdmetComparisonPanel } from "@/components/AdmetComparisonPanel";
 
 export default function CompoundTesting() {
   const [selectedAnalog, setSelectedAnalog] = useState<number | null>(null);
   const [activeTest, setActiveTest] = useState<string | null>(null);
   const [pdbDialogOpen, setPdbDialogOpen] = useState(false);
   const [showDockingParams, setShowDockingParams] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [admetJustCompleted, setAdmetJustCompleted] = useState(false);
   const [selectedReceptor, setSelectedReceptor] = useState<SelectedReceptor | null>(null);
   const [showReceptorSelector, setShowReceptorSelector] = useState(false);
   const [uploadedPdbFile, setUploadedPdbFile] = useState<File | null>(null);
@@ -44,6 +47,7 @@ export default function CompoundTesting() {
     onSuccess: () => {
       toast.success("ADMET analysis completed successfully");
       setActiveTest(null);
+      setAdmetJustCompleted(true);
       refetchResults();
     },
     onError: (error: any) => {
@@ -67,6 +71,7 @@ export default function CompoundTesting() {
     onSuccess: () => {
       toast.success("Toxicity prediction completed successfully");
       setActiveTest(null);
+      refetchResults();
     },
     onError: (error: any) => {
       toast.error(`Toxicity prediction failed: ${error.message}`);
@@ -130,6 +135,7 @@ export default function CompoundTesting() {
     setActiveTest("toxicity");
     toxicityMutation.mutate({
       smiles: analog.smiles,
+      analogId: selectedAnalog,
     });
   };
 
@@ -246,6 +252,7 @@ export default function CompoundTesting() {
                       Predict Absorption, Distribution, Metabolism, Excretion, and
                       Toxicity properties using advanced ML models.
                     </p>
+                    <div className="flex items-center gap-2 mb-4 flex-wrap">
                     <Button
                       onClick={runADMET}
                       disabled={!selectedAnalog || activeTest === "admet"}
@@ -259,6 +266,21 @@ export default function CompoundTesting() {
                         "Run ADMET Analysis"
                       )}
                     </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowComparison((v) => !v)}
+                    >
+                      {showComparison ? "Hide" : "Compare"} Multiple Compounds
+                    </Button>
+                    </div>
+
+                    {/* ADMET Comparison Panel */}
+                    {showComparison && (
+                      <div className="mb-6 border rounded-lg p-4 bg-slate-50">
+                        <AdmetComparisonPanel />
+                      </div>
+                    )}
 
                     {/* Display ADMET Results */}
                     {testResults && testResults.filter((r: any) => r.testType === 'admet').length > 0 && (
@@ -333,6 +355,58 @@ export default function CompoundTesting() {
                                       )}
                                     </div>
                                   </div>
+
+                                  {/* Physicochemical / ADMET Properties */}
+                                  {(data.logp !== null || data.molecular_weight !== null || data.bbb !== null || data.bioavailability !== null) && (
+                                    <div>
+                                      <h4 className="font-semibold mb-2">Physicochemical Properties</h4>
+                                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        {data.molecular_weight !== null && (
+                                          <div className="p-3 border rounded-lg">
+                                            <div className="text-xs text-muted-foreground">Mol. Weight</div>
+                                            <div className="text-lg font-bold">{Number(data.molecular_weight).toFixed(1)}</div>
+                                            <div className="text-xs text-muted-foreground">g/mol</div>
+                                          </div>
+                                        )}
+                                        {data.logp !== null && (
+                                          <div className="p-3 border rounded-lg">
+                                            <div className="text-xs text-muted-foreground">LogP</div>
+                                            <div className="text-lg font-bold">{Number(data.logp).toFixed(2)}</div>
+                                            <Badge variant={Math.abs(Number(data.logp)) <= 5 ? 'default' : 'destructive'} className="text-xs mt-1">Lipinski {Math.abs(Number(data.logp)) <= 5 ? '✓' : '✗'}</Badge>
+                                          </div>
+                                        )}
+                                        {data.tpsa !== null && (
+                                          <div className="p-3 border rounded-lg">
+                                            <div className="text-xs text-muted-foreground">TPSA</div>
+                                            <div className="text-lg font-bold">{Number(data.tpsa).toFixed(1)}</div>
+                                            <div className="text-xs text-muted-foreground">Å²</div>
+                                          </div>
+                                        )}
+                                        {data.bbb !== null && (
+                                          <div className="p-3 border rounded-lg">
+                                            <div className="text-xs text-muted-foreground">BBB Permeability</div>
+                                            <Badge variant={Number(data.bbb) >= 1 ? 'default' : 'secondary'} className="mt-1">
+                                              {Number(data.bbb) >= 1 ? 'Permeable' : 'Low'}
+                                            </Badge>
+                                          </div>
+                                        )}
+                                        {data.bioavailability !== null && (
+                                          <div className="p-3 border rounded-lg">
+                                            <div className="text-xs text-muted-foreground">Oral Bioavailability</div>
+                                            <div className="text-lg font-bold">{Number(data.bioavailability).toFixed(0)}%</div>
+                                          </div>
+                                        )}
+                                        {data.lipinski_pass !== null && (
+                                          <div className="p-3 border rounded-lg">
+                                            <div className="text-xs text-muted-foreground">Lipinski Rule of 5</div>
+                                            <Badge variant={data.lipinski_pass ? 'default' : 'destructive'} className="mt-1">
+                                              {data.lipinski_pass ? 'PASS' : 'FAIL'}
+                                            </Badge>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
 
                                   {/* Synthetic Accessibility */}
                                   {sa.sa_score && (

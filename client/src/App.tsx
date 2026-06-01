@@ -22,6 +22,9 @@ import Bookmarks from "./pages/Bookmarks";
 import LeadOptimization from "./pages/LeadOptimization";
 import { BatchDockingDashboard } from "./pages/BatchDockingDashboard";
 import ResearchHistory from "./pages/ResearchHistory";
+import AdmetHeatmap from "./pages/AdmetHeatmap";
+import MasterCompoundSheet from "./pages/MasterCompoundSheet";
+import AnalogOfAnalog from "./pages/AnalogOfAnalog";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -47,6 +50,9 @@ function Router() {
       <Route path="/batch-docking" component={BatchDockingDashboard} />
       <Route path="/admin/batch-docking" component={BatchDockingDashboard} />
       <Route path="/research-history" component={ResearchHistory} />
+      <Route path="/admet-heatmap" component={AdmetHeatmap} />
+      <Route path="/master-sheet" component={MasterCompoundSheet} />
+      <Route path="/analog-of-analog" component={AnalogOfAnalog} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

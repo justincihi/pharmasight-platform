@@ -21,80 +21,303 @@ export interface SelectedReceptor {
 }
 
 const RECEPTOR_FAMILIES = [
+  // ── Glutamate ──────────────────────────────────────────────────────────────
   {
     id: 'nmda',
     name: 'NMDA Receptor',
     icon: '🧠',
-    description: 'Ionotropic glutamate receptor - Ion channel gating',
+    description: 'Ionotropic glutamate receptor — ketamine, memantine, PCP target',
     subtypes: [
-      { id: 'glun2a', name: 'GluN2A (Mature neurons)', pdbId: '8XLK', species: 'rat' },
-      { id: 'glun2b', name: 'GluN2B (Developing neurons)', pdbId: '9JNN', species: 'rat' },
+      { id: 'glun1', name: 'GluN1 (Obligate subunit)', pdbId: '5UN1', species: 'both' },
+      { id: 'glun2a', name: 'GluN2A (Mature neurons)', pdbId: '5TPB', species: 'rat' },
+      { id: 'glun2b', name: 'GluN2B (Extrasynaptic / depression)', pdbId: '5EWM', species: 'rat' },
       { id: 'glun2a-glun2b', name: 'GluN2A/GluN2B (Tri-heteromeric)', pdbId: '8XLK', species: 'rat' },
       { id: 'glun2c', name: 'GluN2C (Cerebellum)', species: 'both' },
       { id: 'glun2d', name: 'GluN2D (Thalamus)', species: 'both' },
     ],
   },
   {
+    id: 'ampa',
+    name: 'AMPA Receptor',
+    icon: '⚡',
+    description: 'Fast excitatory ion channel — ampakines, cognition',
+    subtypes: [
+      { id: 'glua1', name: 'GluA1 (Hippocampus / plasticity)', pdbId: '5L1F', species: 'both' },
+      { id: 'glua2', name: 'GluA2 (Ca²⁺ impermeability)', pdbId: '3KG2', species: 'both' },
+      { id: 'glua3', name: 'GluA3', species: 'both' },
+      { id: 'glua4', name: 'GluA4 (Cerebellum)', species: 'both' },
+    ],
+  },
+  {
+    id: 'mglu',
+    name: 'Metabotropic Glutamate (mGluR)',
+    icon: '🔗',
+    description: 'GPCR glutamate modulators — anxiety, schizophrenia',
+    subtypes: [
+      { id: 'mglu2', name: 'mGluR2 (Presynaptic / anxiety)', pdbId: '7MTQ', species: 'both' },
+      { id: 'mglu3', name: 'mGluR3 (Glia / schizophrenia)', species: 'both' },
+      { id: 'mglu5', name: 'mGluR5 (Synaptic plasticity)', pdbId: '6FFH', species: 'both' },
+      { id: 'mglu1', name: 'mGluR1 (Cerebellum)', species: 'both' },
+    ],
+  },
+  // ── GABA ───────────────────────────────────────────────────────────────────
+  {
     id: 'gaba-a',
     name: 'GABA-A Receptor',
     icon: '⚖️',
-    description: 'Ionotropic GABA receptor - Inhibitory ion channel',
+    description: 'Ionotropic GABA receptor — benzodiazepines, barbiturates, neurosteroids',
     subtypes: [
-      { id: 'alpha1', name: 'α1-containing (Sedation)', pdbId: '6D6T', species: 'both' },
-      { id: 'alpha2', name: 'α2-containing (Anxiety)', species: 'both' },
-      { id: 'alpha3', name: 'α3-containing (Stress)', species: 'both' },
-      { id: 'alpha5', name: 'α5-containing (Memory)', species: 'both' },
+      { id: 'alpha1', name: 'α1 (Sedation / hypnosis)', pdbId: '6X3Z', species: 'both' },
+      { id: 'alpha2', name: 'α2 (Anxiolytic)', species: 'both' },
+      { id: 'alpha3', name: 'α3 (Anxiolytic / anticonvulsant)', species: 'both' },
+      { id: 'alpha4', name: 'α4 (Tonic inhibition)', species: 'both' },
+      { id: 'alpha5', name: 'α5 (Memory / cognition)', species: 'both' },
+      { id: 'alpha6', name: 'α6 (Cerebellum)', species: 'both' },
+      { id: 'delta', name: 'δ (Extrasynaptic / tonic)', species: 'both' },
     ],
   },
+  {
+    id: 'gaba-b',
+    name: 'GABA-B Receptor',
+    icon: '🔒',
+    description: 'Gi-coupled GPCR — baclofen, GHB, spasticity',
+    subtypes: [
+      { id: 'gb1a', name: 'GB1a (Presynaptic)', pdbId: '6UO8', species: 'both' },
+      { id: 'gb1b', name: 'GB1b (Postsynaptic)', species: 'both' },
+      { id: 'gb2', name: 'GB2 (Obligate partner)', species: 'both' },
+    ],
+  },
+  // ── Serotonin ──────────────────────────────────────────────────────────────
   {
     id: 'serotonin',
     name: 'Serotonin Receptor',
     icon: '😊',
-    description: 'G-protein coupled receptor - Mood & perception',
+    description: 'GPCR & ion channel — mood, psychedelics, appetite',
     subtypes: [
-      { id: '5ht2a', name: '5-HT2A (Psychedelics)', pdbId: '7E2X', species: 'both' },
-      { id: '5ht2c', name: '5-HT2C (Appetite)', species: 'both' },
-      { id: '5ht1a', name: '5-HT1A (Anxiety)', species: 'both' },
-      { id: '5ht1b', name: '5-HT1B (Migraine)', species: 'both' },
-      { id: '5ht7', name: '5-HT7 (Sleep)', species: 'both' },
+      { id: '5ht2a', name: '5-HT2A (Psychedelics / antipsychotics)', pdbId: '6A93', species: 'both' },
+      { id: '5ht2b', name: '5-HT2B (Cardiac safety screen)', pdbId: '4IB4', species: 'both' },
+      { id: '5ht2c', name: '5-HT2C (Appetite / impulsivity)', pdbId: '6BQG', species: 'both' },
+      { id: '5ht1a', name: '5-HT1A (Anxiety / autoreceptor)', pdbId: '7E2X', species: 'both' },
+      { id: '5ht1b', name: '5-HT1B (Migraine / presynaptic)', pdbId: '4IAQ', species: 'both' },
+      { id: '5ht3', name: '5-HT3 (Ion channel / nausea)', pdbId: '6HIN', species: 'both' },
+      { id: '5ht6', name: '5-HT6 (Cognitive enhancement)', species: 'both' },
+      { id: '5ht7', name: '5-HT7 (Circadian / mood)', species: 'both' },
     ],
   },
+  // ── Dopamine ───────────────────────────────────────────────────────────────
   {
     id: 'dopamine',
     name: 'Dopamine Receptor',
     icon: '🎯',
-    description: 'G-protein coupled receptor - Reward & motivation',
+    description: 'Gs/Gi-coupled GPCR — reward, motor control, antipsychotics',
     subtypes: [
-      { id: 'd1', name: 'D1 (Stimulatory)', species: 'both' },
-      { id: 'd2', name: 'D2 (Antipsychotic)', pdbId: '6A93', species: 'both' },
-      { id: 'd3', name: 'D3 (Addiction)', pdbId: '3PBL', species: 'both' },
-      { id: 'd4', name: 'D4 (ADHD)', species: 'both' },
-      { id: 'd5', name: 'D5 (Cognition)', species: 'both' },
+      { id: 'd1', name: 'D1 (Gs / reward / motor)', pdbId: '7CKZ', species: 'both' },
+      { id: 'd2', name: 'D2 (Gi / antipsychotic target)', pdbId: '6CM4', species: 'both' },
+      { id: 'd3', name: 'D3 (Limbic / addiction)', pdbId: '3PBL', species: 'both' },
+      { id: 'd4', name: 'D4 (PFC / ADHD)', species: 'both' },
+      { id: 'd5', name: 'D5 (Hippocampus / Gs)', species: 'both' },
     ],
   },
+  // ── Opioid ─────────────────────────────────────────────────────────────────
   {
     id: 'opioid',
     name: 'Opioid Receptor',
     icon: '💊',
-    description: 'G-protein coupled receptor - Pain & reward',
+    description: 'Gi-coupled GPCR — analgesia, addiction, mood',
     subtypes: [
-      { id: 'mu', name: 'μ (Mu) - Analgesia', species: 'both' },
-      { id: 'delta', name: 'δ (Delta) - Mood', species: 'both' },
-      { id: 'kappa', name: 'κ (Kappa) - Stress', species: 'both' },
-      { id: 'nociceptin', name: 'Nociceptin (ORL-1)', species: 'both' },
+      { id: 'mu', name: 'μ (MOR) — Analgesia / euphoria', pdbId: '8EF5', species: 'both' },
+      { id: 'delta', name: 'δ (DOR) — Mood / neuroprotection', pdbId: '4N6H', species: 'both' },
+      { id: 'kappa', name: 'κ (KOR) — Dysphoria / dissociation', pdbId: '6B73', species: 'both' },
+      { id: 'nop', name: 'NOP/ORL-1 — Stress / pain modulation', pdbId: '4EA3', species: 'both' },
     ],
   },
+  // ── Adrenergic ─────────────────────────────────────────────────────────────
+  {
+    id: 'adrenergic',
+    name: 'Adrenergic Receptor',
+    icon: '⚡',
+    description: 'Gq/Gi/Gs-coupled GPCR — PTSD, ADHD, cardiovascular',
+    subtypes: [
+      { id: 'a1a', name: 'α1A (Vasoconstriction / PTSD)', species: 'both' },
+      { id: 'a2a', name: 'α2A (Presynaptic / ADHD / sedation)', pdbId: '6KUX', species: 'both' },
+      { id: 'a2b', name: 'α2B (Vascular)', species: 'both' },
+      { id: 'a2c', name: 'α2C (Striatum / cognition)', species: 'both' },
+      { id: 'b1', name: 'β1 (Cardiac rate)', pdbId: '2VT4', species: 'both' },
+      { id: 'b2', name: 'β2 (Bronchodilation)', pdbId: '2RH1', species: 'both' },
+    ],
+  },
+  // ── Cannabinoid ────────────────────────────────────────────────────────────
+  {
+    id: 'cannabinoid',
+    name: 'Cannabinoid Receptor',
+    icon: '🌿',
+    description: 'Gi-coupled GPCR — THC, pain, nausea, neuroinflammation',
+    subtypes: [
+      { id: 'cb1', name: 'CB1 (CNS / psychoactive)', pdbId: '5TGZ', species: 'both' },
+      { id: 'cb2', name: 'CB2 (Immune / anti-inflammatory)', pdbId: '5ZTY', species: 'both' },
+    ],
+  },
+  // ── Muscarinic ─────────────────────────────────────────────────────────────
   {
     id: 'muscarinic',
     name: 'Muscarinic Receptor',
     icon: '🎭',
-    description: 'G-protein coupled acetylcholine receptor',
+    description: 'Gq/Gi-coupled acetylcholine GPCR — cognition, Alzheimer, schizophrenia',
     subtypes: [
-      { id: 'm1', name: 'M1 (Cognition)', pdbId: '5CXV', species: 'both' },
-      { id: 'm2', name: 'M2 (Motor)', species: 'both' },
-      { id: 'm3', name: 'M3 (Secretion)', species: 'both' },
-      { id: 'm4', name: 'M4 (Schizophrenia)', species: 'both' },
-      { id: 'm5', name: 'M5 (Reward)', species: 'both' },
+      { id: 'm1', name: 'M1 (Cognition / memory)', pdbId: '5CXV', species: 'both' },
+      { id: 'm2', name: 'M2 (Cardiac / presynaptic)', pdbId: '3UON', species: 'both' },
+      { id: 'm3', name: 'M3 (Smooth muscle / glands)', pdbId: '4U15', species: 'both' },
+      { id: 'm4', name: 'M4 (Striatum / schizophrenia)', species: 'both' },
+      { id: 'm5', name: 'M5 (Reward / VTA)', species: 'both' },
+    ],
+  },
+  // ── Nicotinic ──────────────────────────────────────────────────────────────
+  {
+    id: 'nicotinic',
+    name: 'Nicotinic Receptor',
+    icon: '🔌',
+    description: 'Ligand-gated ion channel — cognition, smoking cessation',
+    subtypes: [
+      { id: 'a7', name: 'α7 (Cognitive enhancement)', pdbId: '7KOO', species: 'both' },
+      { id: 'a4b2', name: 'α4β2 (Smoking cessation)', pdbId: '5KXI', species: 'both' },
+      { id: 'a3b4', name: 'α3β4 (Autonomic)', species: 'both' },
+    ],
+  },
+  // ── Orexin ─────────────────────────────────────────────────────────────────
+  {
+    id: 'orexin',
+    name: 'Orexin Receptor',
+    icon: '😴',
+    description: 'Gq-coupled GPCR — wakefulness, appetite, addiction',
+    subtypes: [
+      { id: 'ox1r', name: 'OX1R (Addiction / arousal)', pdbId: '6TOD', species: 'both' },
+      { id: 'ox2r', name: 'OX2R (Sleep-wake / insomnia)', pdbId: '5WQC', species: 'both' },
+    ],
+  },
+  // ── Sigma ──────────────────────────────────────────────────────────────────
+  {
+    id: 'sigma',
+    name: 'Sigma Receptor',
+    icon: '🔮',
+    description: 'ER chaperone/receptor — neuroplasticity, neuropathic pain',
+    subtypes: [
+      { id: 'sigma1', name: 'σ1 (ER-mitochondria / neuroplasticity)', pdbId: '5HK1', species: 'both' },
+      { id: 'sigma2', name: 'σ2 / TMEM97 (Cancer / Alzheimer)', pdbId: '7M95', species: 'both' },
+    ],
+  },
+  // ── TAAR ───────────────────────────────────────────────────────────────────
+  {
+    id: 'taar',
+    name: 'Trace Amine-Associated Receptor',
+    icon: '🧬',
+    description: 'Gs-coupled GPCR — novel antipsychotic target, monoamine modulation',
+    subtypes: [
+      { id: 'taar1', name: 'TAAR1 (Schizophrenia / depression)', species: 'both' },
+      { id: 'taar5', name: 'TAAR5 (Social behavior)', species: 'both' },
+    ],
+  },
+  // ── Histamine ──────────────────────────────────────────────────────────────
+  {
+    id: 'histamine',
+    name: 'Histamine Receptor',
+    icon: '🤧',
+    description: 'Gq/Gs/Gi-coupled GPCR — allergy, sedation, cognition',
+    subtypes: [
+      { id: 'h1', name: 'H1 (Allergy / sedation)', pdbId: '3RZE', species: 'both' },
+      { id: 'h2', name: 'H2 (Gastric acid)', species: 'both' },
+      { id: 'h3', name: 'H3 (Presynaptic / cognition)', species: 'both' },
+      { id: 'h4', name: 'H4 (Immune / inflammation)', species: 'both' },
+    ],
+  },
+  // ── Transporters ───────────────────────────────────────────────────────────
+  {
+    id: 'transporter',
+    name: 'Monoamine Transporter',
+    icon: '🚌',
+    description: 'Sodium-dependent reuptake transporters — SSRI, SNRI, stimulant targets',
+    subtypes: [
+      { id: 'sert', name: 'SERT (Serotonin — SSRI target)', pdbId: '6DZZ', species: 'both' },
+      { id: 'dat', name: 'DAT (Dopamine — stimulant target)', pdbId: '4XP4', species: 'both' },
+      { id: 'net', name: 'NET (Norepinephrine — SNRI target)', species: 'both' },
+    ],
+  },
+  // ── Enzymes ────────────────────────────────────────────────────────────────
+  {
+    id: 'mao',
+    name: 'Monoamine Oxidase (MAO)',
+    icon: '🔬',
+    description: 'Mitochondrial enzyme — MAOI antidepressants, Parkinson',
+    subtypes: [
+      { id: 'mao-a', name: 'MAO-A (Serotonin / NE metabolism)', pdbId: '2Z5X', species: 'both' },
+      { id: 'mao-b', name: 'MAO-B (Dopamine / PEA metabolism)', pdbId: '2V5Z', species: 'both' },
+    ],
+  },
+  // ── Kinases / Neuroplasticity ───────────────────────────────────────────────
+  {
+    id: 'kinase',
+    name: 'Kinase / Neuroplasticity Target',
+    icon: '🔑',
+    description: 'mTOR, TrkB — downstream of ketamine / BDNF signaling',
+    subtypes: [
+      { id: 'mtor', name: 'mTOR (Synaptogenesis / neuroplasticity)', pdbId: '4JSV', species: 'both' },
+      { id: 'trkb', name: 'TrkB / NTRK2 (BDNF receptor)', pdbId: '4AT3', species: 'both' },
+    ],
+  },
+  // ── Cardiac Safety ─────────────────────────────────────────────────────────
+  {
+    id: 'cardiac-safety',
+    name: 'Cardiac Safety Screen',
+    icon: '❤️',
+    description: 'hERG channel — QT prolongation risk screening',
+    subtypes: [
+      { id: 'herg', name: 'hERG / Kv11.1 (QT prolongation)', pdbId: '5VA1', species: 'both' },
+    ],
+  },
+  // ── CYP450 ─────────────────────────────────────────────────────────────────
+  {
+    id: 'cyp450',
+    name: 'CYP450 Metabolic Screen',
+    icon: '⚗️',
+    description: 'Drug-metabolizing enzymes — DDI and metabolic stability screening',
+    subtypes: [
+      { id: 'cyp3a4', name: 'CYP3A4 (~50% of drugs)', pdbId: '1TQN', species: 'both' },
+      { id: 'cyp2d6', name: 'CYP2D6 (Opioids / antidepressants)', pdbId: '2F9Q', species: 'both' },
+      { id: 'cyp2c9', name: 'CYP2C9 (Warfarin / NSAIDs)', pdbId: '1OG5', species: 'both' },
+      { id: 'cyp1a2', name: 'CYP1A2 (Caffeine / clozapine)', species: 'both' },
+    ],
+  },
+  // ── Melatonin ──────────────────────────────────────────────────────────────
+  {
+    id: 'melatonin',
+    name: 'Melatonin Receptor',
+    icon: '🌙',
+    description: 'Gi-coupled GPCR — circadian rhythm, sleep, depression',
+    subtypes: [
+      { id: 'mt1', name: 'MT1 (Circadian / sleep onset)', species: 'both' },
+      { id: 'mt2', name: 'MT2 (Phase-shifting)', species: 'both' },
+    ],
+  },
+  // ── Adenosine ──────────────────────────────────────────────────────────────
+  {
+    id: 'adenosine',
+    name: 'Adenosine Receptor',
+    icon: '☕',
+    description: 'Gs/Gi-coupled GPCR — caffeine target, neuroinflammation, Parkinson',
+    subtypes: [
+      { id: 'a1', name: 'A1 (Sedation / neuroprotection)', species: 'both' },
+      { id: 'a2a', name: 'A2A (Parkinson / neuroinflammation)', pdbId: '3EML', species: 'both' },
+      { id: 'a2b', name: 'A2B (Inflammation)', species: 'both' },
+    ],
+  },
+  // ── Glycine ────────────────────────────────────────────────────────────────
+  {
+    id: 'glycine',
+    name: 'Glycine Receptor',
+    icon: '🧊',
+    description: 'Ligand-gated Cl⁻ channel — inhibitory neurotransmission, pain',
+    subtypes: [
+      { id: 'glra1', name: 'GlyRα1 (Spinal / pain)', pdbId: '3JAD', species: 'both' },
+      { id: 'glra2', name: 'GlyRα2 (Developing brain)', species: 'both' },
     ],
   },
 ];

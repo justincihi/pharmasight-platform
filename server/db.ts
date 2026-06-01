@@ -572,3 +572,126 @@ export async function getAdmetStats() {
   const avgBbb = bbbVals.length > 0 ? bbbVals.reduce((a, b) => a + b, 0) / bbbVals.length : null;
   return { total: rows.length, flaggedHerg, flaggedAmes, flaggedDili, avgBbb: avgBbb !== null ? Math.round(avgBbb * 100) / 100 : null };
 }
+
+/**
+ * Master Compound Data Sheet
+ * Joins analog_discoveries + admet_results + test_results into a unified record per compound.
+ * Fields not yet measured are returned as null.
+ */
+export async function getMasterCompoundSheet(limit = 1000) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all analogs
+  const analogs = await db
+    .select()
+    .from(analogDiscoveries)
+    .orderBy(desc(analogDiscoveries.discoveredAt))
+    .limit(limit);
+
+  if (analogs.length === 0) return [];
+
+  const analogIds = analogs.map((a: any) => a.id);
+
+  // Get latest ADMET result per analog
+  const admetRows = await db
+    .select()
+    .from(admetResults)
+    .orderBy(desc(admetResults.createdAt))
+    .limit(5000);
+
+  // Build map: analogId → latest admet row
+  const admetMap = new Map<number, any>();
+  for (const row of admetRows) {
+    if (!admetMap.has(row.analogId)) {
+      admetMap.set(row.analogId, row);
+    }
+  }
+
+  // Get latest test results per analog
+  const testRows = await db
+    .select()
+    .from(testResults)
+    .orderBy(desc(testResults.createdAt))
+    .limit(5000);
+
+  // Build map: analogId → { admet: latestAdmet, toxicity: latestToxicity }
+  const testMap = new Map<number, { admet?: any; toxicity?: any; docking?: any }>();
+  for (const row of testRows) {
+    const existing = testMap.get(row.analogId) ?? {};
+    if (row.testType === 'admet' && !existing.admet) existing.admet = row;
+    if (row.testType === 'toxicity' && !existing.toxicity) existing.toxicity = row;
+    if (row.testType === 'docking' && !existing.docking) existing.docking = row;
+    testMap.set(row.analogId, existing);
+  }
+
+  // Merge into unified records
+  return analogs.map((analog: any) => {
+    const admet = admetMap.get(analog.id);
+    const tests = testMap.get(analog.id) ?? {};
+    const admetResult = tests.admet?.result ? (typeof tests.admet.result === 'string' ? JSON.parse(tests.admet.result) : tests.admet.result) : null;
+    const toxResult = tests.toxicity?.result ? (typeof tests.toxicity.result === 'string' ? JSON.parse(tests.toxicity.result) : tests.toxicity.result) : null;
+    const dockResult = tests.docking?.result ? (typeof tests.docking.result === 'string' ? JSON.parse(tests.docking.result) : tests.docking.result) : null;
+
+    return {
+      // Identity
+      compoundId: analog.compoundId,
+      compoundName: analog.compoundName ?? null,
+      smiles: analog.smiles ?? null,
+      parentCompound: analog.parentCompound ?? null,
+      discoveryMethod: analog.discoveryMethod ?? null,
+      discoveredAt: analog.discoveredAt ?? null,
+      patentStatus: analog.patentStatus ?? null,
+      fdaStatus: analog.fdaStatus ?? null,
+      therapeuticPotential: analog.therapeuticPotential ?? null,
+
+      // Scores
+      confidenceScore: analog.confidenceScore ?? null,
+      similarityScore: analog.similarityScore ?? null,
+      safetyScore: analog.safetyScore ?? null,
+      efficacyScore: analog.efficacyScore ?? null,
+      drugLikenessScore: analog.drugLikenessScore ?? null,
+
+      // ADMET (from admet_results table — Chemprop predictions)
+      bbbPermeability: admet?.bbbPermeability ?? admetResult?.bbb ?? null,
+      oralBioavailability: admet?.oralBioavailability ?? admetResult?.bioavailability ?? null,
+      hia: admet?.hia ?? null,
+      caco2: admet?.caco2 ?? null,
+      pgp: admet?.pgp ?? null,
+      ppbr: admet?.ppbr ?? null,
+      halfLife: admet?.halfLife ?? null,
+      clearanceHepatocyte: admet?.clearanceHepatocyte ?? null,
+      herg: admet?.herg ?? admetResult?.toxicity_profile?.herg ?? null,
+      ames: admet?.ames ?? admetResult?.toxicity_profile?.ames ?? null,
+      dili: admet?.dili ?? admetResult?.toxicity_profile?.dili ?? null,
+      ld50: admet?.ld50 ?? null,
+      clintox: admet?.clintox ?? null,
+      cyp1a2: admet?.cyp1a2 ?? null,
+      cyp2c9: admet?.cyp2c9 ?? null,
+      cyp2c19: admet?.cyp2c19 ?? null,
+      cyp2d6: admet?.cyp2d6 ?? null,
+      cyp3a4: admet?.cyp3a4 ?? null,
+      solubility: admet?.solubility ?? null,
+      lipophilicity: admet?.lipophilicity ?? admetResult?.logp ?? null,
+      molecularWeight: admet?.molecularWeight ?? admetResult?.molecular_weight ?? null,
+      logp: admet?.logp ?? admetResult?.logp ?? null,
+      tpsa: admet?.tpsa ?? admetResult?.tpsa ?? null,
+      qed: admet?.qed ?? admetResult?.qed ?? null,
+
+      // Toxicity (from test_results toxicity run)
+      hepatotoxicity: toxResult?.hepatotoxicity ?? admetResult?.toxicity_profile?.hepatotoxicity ?? null,
+      mutagenicity: toxResult?.mutagenicity ?? admetResult?.toxicity_profile?.mutagenicity ?? null,
+      carcinogenicity: toxResult?.carcinogenicity ?? admetResult?.toxicity_profile?.carcinogenicity ?? null,
+
+      // Docking
+      bestDockingScore: dockResult?.bestScore ?? dockResult?.score ?? null,
+      bestReceptor: dockResult?.receptor ?? dockResult?.target ?? null,
+
+      // Audit
+      admetRunAt: admet?.createdAt ?? tests.admet?.createdAt ?? null,
+      toxicityRunAt: tests.toxicity?.createdAt ?? null,
+      dockingRunAt: tests.docking?.createdAt ?? null,
+      lastUpdatedAt: analog.updatedAt ?? analog.discoveredAt ?? null,
+    };
+  });
+}

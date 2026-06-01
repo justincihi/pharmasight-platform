@@ -101,13 +101,88 @@ export const appRouter = router({
           throw new Error('Unauthorized: Admin access required');
         }
         const { createTestResult } = await import('./db');
-        const { runComprehensiveAnalysis } = await import('./advancedAnalysis');
+        const MICRO_URL = process.env.PYTHON_SERVICE_URL || 'http://localhost:5000';
         
         try {
-          // Run comprehensive ADMET analysis using Python
-          const analysisResult = await runComprehensiveAnalysis(input.smiles);
-          
-          // Create test record with actual results
+          // Call the Flask microservice for ADMET + toxicity in parallel
+          const [admetResp, toxResp] = await Promise.all([
+            fetch(`${MICRO_URL}/api/admet/predict`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ smiles: input.smiles }),
+              signal: AbortSignal.timeout(60_000),
+            }),
+            fetch(`${MICRO_URL}/api/toxicity/predict`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ smiles: input.smiles }),
+              signal: AbortSignal.timeout(60_000),
+            }),
+          ]);
+
+          const admetData = admetResp.ok ? await admetResp.json() : {};
+          const toxData = toxResp.ok ? await toxResp.json() : {};
+
+          // Build a combined result matching the shape the UI expects
+          const analysisResult = {
+            smiles: input.smiles,
+            status: 'success',
+            // Flat ADMET-AI style properties
+            bbb: admetData.bbb_permeability ?? null,
+            caco2: null,
+            ames: toxData.ames_mutagenicity === 'positive' ? 1 : toxData.ames_mutagenicity === 'negative' ? 0 : null,
+            dili: toxData.hepatotoxicity === 'high' ? 1 : toxData.hepatotoxicity === 'low' ? 0 : null,
+            half_life: null,
+            clearance: null,
+            solubility: null,
+            bioavailability: admetData.oral_bioavailability ?? null,
+            logp: admetData.logp ?? null,
+            molecular_weight: admetData.molecular_weight ?? null,
+            tpsa: admetData.tpsa ?? null,
+            lipinski_pass: admetData.lipinski_pass ?? null,
+            // Nested toxicity profile (for ExportResultsButton + AdmetComparisonPanel)
+            toxicity_profile: {
+              smiles: input.smiles,
+              hERG: {
+                risk_score: toxData.herg_inhibition === 'high' ? 80 : toxData.herg_inhibition === 'medium' ? 50 : 20,
+                risk_level: toxData.herg_inhibition === 'high' ? 'High' : toxData.herg_inhibition === 'medium' ? 'Medium' : 'Low',
+                recommendation: `hERG inhibition: ${toxData.herg_inhibition ?? 'unknown'}`,
+              },
+              hepatotoxicity: {
+                risk_score: toxData.hepatotoxicity === 'high' ? 80 : toxData.hepatotoxicity === 'medium' ? 50 : 20,
+                risk_level: toxData.hepatotoxicity === 'high' ? 'High' : toxData.hepatotoxicity === 'medium' ? 'Medium' : 'Low',
+                recommendation: `Hepatotoxicity: ${toxData.hepatotoxicity ?? 'unknown'}`,
+              },
+              mutagenicity: {
+                risk_score: toxData.ames_mutagenicity === 'positive' ? 80 : 10,
+                risk_level: toxData.ames_mutagenicity === 'positive' ? 'High' : 'Low',
+                prediction: toxData.ames_mutagenicity === 'positive' ? 'Likely mutagenic' : 'Likely non-mutagenic',
+                recommendation: `AMES: ${toxData.ames_mutagenicity ?? 'unknown'}`,
+                structural_alerts: (toxData.structural_alerts || []).length,
+                alert_types: toxData.structural_alerts || [],
+              },
+              carcinogenicity: {
+                risk_score: 0,
+                risk_level: 'Unknown',
+                prediction: 'Insufficient data',
+                recommendation: 'Run full toxicity screen for carcinogenicity',
+                structural_alerts: 0,
+                alert_types: [],
+                aromatic_rings: admetData.aromatic_rings ?? 0,
+              },
+            },
+            synthetic_accessibility: {
+              sa_score: null,
+              difficulty: 'Unknown',
+              estimated_steps: 'N/A',
+              recommendation: 'Run SA analysis separately',
+            },
+            optimization_suggestions: [],
+            // Raw microservice data for reference
+            _admet_raw: admetData,
+            _toxicity_raw: toxData,
+          };
+
           const result = await createTestResult({
             analogId: input.analogId,
             testType: 'admet',
@@ -118,16 +193,19 @@ export const appRouter = router({
           
           return result;
         } catch (error) {
-          // Log error and create failed test record
-          console.error('[ADMET] Analysis failed:', error);
+          console.error('[ADMET] Microservice call failed, storing error result:', error);
           const result = await createTestResult({
             analogId: input.analogId,
             testType: 'admet',
             testStatus: 'failed',
-            results: JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+            results: JSON.stringify({ 
+              error: error instanceof Error ? error.message : 'ADMET analysis service unavailable',
+              smiles: input.smiles,
+              timestamp: new Date().toISOString(),
+            }),
             runBy: ctx.user.id,
           });
-          throw error;
+          throw new Error(`ADMET analysis failed: ${error instanceof Error ? error.message : 'Service unavailable'}`);
         }
       }),
 
@@ -518,6 +596,66 @@ export const appRouter = router({
         if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
         const { getAdmetStats } = await import('./db');
         return getAdmetStats();
+      }),
+
+    getMasterSheet: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+        const { getMasterCompoundSheet } = await import('./db');
+        return getMasterCompoundSheet();
+      }),
+
+    getAllAdmetHeatmap: protectedProcedure
+      .query(async ({ ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+        const { getDb } = await import('./db');
+        const { admetResults, analogDiscoveries } = await import('../drizzle/schema');
+        const { eq } = await import('drizzle-orm');
+        const db = await getDb();
+        if (!db) return [];
+
+        // Join admet_results with analog_discoveries to get compound names
+        const rows = await db
+          .select({
+            id: admetResults.id,
+            analogId: admetResults.analogId,
+            smiles: admetResults.smiles,
+            source: admetResults.source,
+            ames: admetResults.ames,
+            herg: admetResults.herg,
+            dili: admetResults.dili,
+            ld50: admetResults.ld50,
+            clintox: admetResults.clintox,
+            bbbPermeability: admetResults.bbbPermeability,
+            oralBioavailability: admetResults.oralBioavailability,
+            hia: admetResults.hia,
+            caco2: admetResults.caco2,
+            pgp: admetResults.pgp,
+            ppbr: admetResults.ppbr,
+            halfLife: admetResults.halfLife,
+            clearanceHepatocyte: admetResults.clearanceHepatocyte,
+            cyp1a2: admetResults.cyp1a2,
+            cyp2c9: admetResults.cyp2c9,
+            cyp2c19: admetResults.cyp2c19,
+            cyp2d6: admetResults.cyp2d6,
+            cyp3a4: admetResults.cyp3a4,
+            solubility: admetResults.solubility,
+            lipophilicity: admetResults.lipophilicity,
+            molecularWeight: admetResults.molecularWeight,
+            logp: admetResults.logp,
+            tpsa: admetResults.tpsa,
+            qed: admetResults.qed,
+            rawResult: admetResults.rawResult,
+            createdAt: admetResults.createdAt,
+            compoundId: analogDiscoveries.compoundId,
+            compoundName: analogDiscoveries.compoundName,
+          })
+          .from(admetResults)
+          .leftJoin(analogDiscoveries, eq(admetResults.analogId, analogDiscoveries.id))
+          .orderBy(admetResults.createdAt)
+          .limit(500);
+
+        return rows;
       }),
 
     createFromOptimization: protectedProcedure
@@ -1451,6 +1589,115 @@ Answer questions directly using this data. When mentioning a specific compound, 
         const { fullAnalogPipeline: fullAnalogPipelineFn } = await import('./_core/cheminformatics');
         return fullAnalogPipelineFn(input.inputSmiles, input.threshold, input.maxHits);
       }),
+
+    // ML-guided analog-of-analog generation with SAR scoring
+    generateSarAnalogs: protectedProcedure
+      .input(z.object({
+        smiles: z.string().min(1),
+        numAnalogs: z.number().min(1).max(50).default(20),
+        strategy: z.enum(['brics', 'scaffold', 'combined']).default('combined'),
+        sarCriteria: z.object({
+          minQed: z.number().min(0).max(1).default(0.3),
+          maxHerg: z.number().min(0).max(1).default(0.7),
+          maxAmes: z.number().min(0).max(1).default(0.6),
+          minBbb: z.number().min(0).max(1).default(0.2),
+          maxMw: z.number().min(100).max(1000).default(600),
+          maxLogp: z.number().min(-5).max(15).default(6.0),
+          lipinski: z.boolean().default(true),
+        }).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+        const ANALYSIS_SERVICE_URL = process.env.ANALYSIS_SERVICE_URL || 'http://localhost:5000';
+        const sarCriteria = input.sarCriteria;
+        const resp = await fetch(`${ANALYSIS_SERVICE_URL}/api/analogs/generate-sar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            smiles: input.smiles,
+            num_analogs: input.numAnalogs,
+            strategy: input.strategy,
+            sar_criteria: {
+              min_qed: sarCriteria?.minQed ?? 0.3,
+              max_herg: sarCriteria?.maxHerg ?? 0.7,
+              max_ames: sarCriteria?.maxAmes ?? 0.6,
+              min_bbb: sarCriteria?.minBbb ?? 0.2,
+              max_mw: sarCriteria?.maxMw ?? 600,
+              max_logp: sarCriteria?.maxLogp ?? 6.0,
+              lipinski: sarCriteria?.lipinski ?? true,
+            },
+          }),
+          signal: AbortSignal.timeout(60000),
+        });
+        if (!resp.ok) throw new Error(`Analysis service error: ${resp.status}`);
+        return resp.json();
+      }),
+
+    // Save a selected analog to the master list with parent lineage
+    saveToMasterList: protectedProcedure
+      .input(z.object({
+        smiles: z.string().min(1),
+        parentSmiles: z.string().optional(),
+        parentCompoundId: z.string().optional(),
+        compoundName: z.string().optional(),
+        discoveryMethod: z.string().default('analog-of-analog'),
+        admetData: z.record(z.string(), z.any()).optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.role !== 'admin') throw new Error('Unauthorized: Admin access required');
+        const { getDb } = await import('./db');
+        const { analogDiscoveries, admetResults } = await import('../drizzle/schema');
+        const db = await getDb();
+        if (!db) throw new Error('Database unavailable');
+
+        // Generate a compound ID
+        const ts = Date.now().toString(36).toUpperCase();
+        const hash = input.smiles.split('').reduce((a, c) => a + c.charCodeAt(0), 0).toString(16).toUpperCase().slice(0, 4);
+        const compoundId = `ANA-${ts}-${hash}`;
+
+        // Insert into analog_discoveries
+        await db.insert(analogDiscoveries).values({
+          compoundId,
+          compoundName: input.compoundName ?? null,
+          smiles: input.smiles,
+          parentCompound: input.parentSmiles ?? input.parentCompoundId ?? null,
+          discoveryMethod: input.discoveryMethod,
+          discoveredAt: new Date(),
+          confidenceScore: input.admetData?.composite_score ? Math.round(Number(input.admetData.composite_score) * 100) : null,
+          similarityScore: input.admetData?.tanimoto ? Math.round(Number(input.admetData.tanimoto) * 100) : null,
+          therapeuticPotential: input.notes ?? null,
+        } as any);
+
+        // Get the inserted row ID
+        const [inserted] = await db.select().from(analogDiscoveries)
+          .where((t: any) => t.compoundId.eq ? t.compoundId.eq(compoundId) : undefined)
+          .limit(1);
+        const analogId = (inserted as any)?.id;
+
+        // If ADMET data provided, also insert into admet_results
+        if (analogId && input.admetData) {
+          const d = input.admetData;
+          try {
+            await db.insert(admetResults).values({
+              analogId,
+              bbbPermeability: d.bbb != null ? String(d.bbb) : null,
+              herg: d.herg != null ? String(d.herg) : null,
+              ames: d.ames != null ? String(d.ames) : null,
+              dili: d.dili != null ? String(d.dili) : null,
+              qed: d.qed != null ? String(d.qed) : null,
+              logp: d.logp != null ? String(d.logp) : null,
+              tpsa: d.tpsa != null ? String(d.tpsa) : null,
+              molecularWeight: d.mw != null ? String(d.mw) : null,
+              createdAt: new Date(),
+            } as any);
+          } catch (e) {
+            // Non-fatal: analog is saved even if ADMET insert fails
+          }
+        }
+
+        return { success: true, compoundId, analogId };
+      }),
   }),
 
   // Synthesis route planning
@@ -1596,16 +1843,76 @@ Answer questions directly using this data. When mentioning a specific compound, 
       .input((val: unknown) => {
         if (typeof val !== 'object' || val === null) throw new Error('Invalid input');
         const obj = val as Record<string, unknown>;
-        return { smiles: typeof obj.smiles === 'string' ? obj.smiles : '' };
+        return {
+          smiles: typeof obj.smiles === 'string' ? obj.smiles : '',
+          analogId: typeof obj.analogId === 'number' ? obj.analogId : null,
+        };
       })
-      .mutation(async ({ input }) => {
-        const { routeToxicityPrediction } = await import('./_core/serviceRouter');
+      .mutation(async ({ input, ctx }) => {
+        const MICRO_URL = process.env.PYTHON_SERVICE_URL || 'http://localhost:5000';
         try {
-          const result = await routeToxicityPrediction(input.smiles);
-          if (!result.success) {
-            throw new Error(result.error || 'Toxicity prediction failed');
+          const toxResp = await fetch(`${MICRO_URL}/api/toxicity/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ smiles: input.smiles }),
+            signal: AbortSignal.timeout(60_000),
+          });
+          const toxData = toxResp.ok ? await toxResp.json() : {};
+
+          // Build structured toxicity result
+          const toxicityResult = {
+            smiles: input.smiles,
+            status: 'success',
+            herg_inhibition: toxData.herg_inhibition ?? 'unknown',
+            hepatotoxicity: toxData.hepatotoxicity ?? 'unknown',
+            ames_mutagenicity: toxData.ames_mutagenicity ?? 'unknown',
+            structural_alerts: toxData.structural_alerts ?? [],
+            overall_risk: toxData.overall_risk ?? 'unknown',
+            toxicity_profile: {
+              smiles: input.smiles,
+              hERG: {
+                risk_score: toxData.herg_inhibition === 'high' ? 80 : toxData.herg_inhibition === 'medium' ? 50 : 20,
+                risk_level: toxData.herg_inhibition === 'high' ? 'High' : toxData.herg_inhibition === 'medium' ? 'Medium' : 'Low',
+                recommendation: `hERG inhibition: ${toxData.herg_inhibition ?? 'unknown'}`,
+              },
+              hepatotoxicity: {
+                risk_score: toxData.hepatotoxicity === 'high' ? 80 : toxData.hepatotoxicity === 'medium' ? 50 : 20,
+                risk_level: toxData.hepatotoxicity === 'high' ? 'High' : toxData.hepatotoxicity === 'medium' ? 'Medium' : 'Low',
+                recommendation: `Hepatotoxicity: ${toxData.hepatotoxicity ?? 'unknown'}`,
+              },
+              mutagenicity: {
+                risk_score: toxData.ames_mutagenicity === 'positive' ? 80 : 10,
+                risk_level: toxData.ames_mutagenicity === 'positive' ? 'High' : 'Low',
+                prediction: toxData.ames_mutagenicity === 'positive' ? 'Likely mutagenic' : 'Likely non-mutagenic',
+                recommendation: `AMES: ${toxData.ames_mutagenicity ?? 'unknown'}`,
+                structural_alerts: (toxData.structural_alerts || []).length,
+                alert_types: toxData.structural_alerts || [],
+              },
+              carcinogenicity: {
+                risk_score: 0,
+                risk_level: 'Unknown',
+                prediction: 'Insufficient data',
+                recommendation: 'Run full toxicity screen for carcinogenicity',
+                structural_alerts: 0,
+                alert_types: [],
+              },
+            },
+            _raw: toxData,
+          };
+
+          // Persist to testResults if analogId provided
+          if (input.analogId && ctx.user) {
+            const { createTestResult } = await import('./db');
+            await createTestResult({
+              analogId: input.analogId,
+              testType: 'toxicity',
+              testStatus: 'completed',
+              results: JSON.stringify(toxicityResult),
+              runBy: ctx.user.id,
+            });
           }
-          return result.data;
+
+          return toxicityResult;
         } catch (error: any) {
           throw new Error(`Toxicity prediction failed: ${error.message || 'Unknown error'}`);
         }

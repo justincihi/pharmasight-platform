@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Dna, Zap, AlertCircle, CheckCircle2, Activity } from 'lucide-react';
+import { Loader2, Dna, Zap, AlertCircle, CheckCircle2, Activity, Search, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BioNemoPanelProps {
@@ -28,6 +28,8 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
   const [bindingResult, setBindingResult] = useState<any>(null);
   const [structureResult, setStructureResult] = useState<any>(null);
   const [activeMode, setActiveMode] = useState<'analyze' | 'binding' | 'structure'>('analyze');
+  const [proteinTargets, setProteinTargets] = useState<any[]>([]);
+  const [showTargets, setShowTargets] = useState(false);
 
   const analyzeMutation = trpc.bionemo.analyzeProtein.useMutation({
     onSuccess: (data) => {
@@ -45,6 +47,15 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
     onError: (e) => toast.error(`Binding prediction failed: ${e.message}`),
   });
 
+  const findProteinsMutation = trpc.bionemo.findRelevantProteins.useMutation({
+    onSuccess: (data) => {
+      setProteinTargets(data.proteins ?? []);
+      setShowTargets(true);
+      toast.success(`Found ${data.proteins?.length ?? 0} relevant protein targets`);
+    },
+    onError: (e) => toast.error(`Target discovery failed: ${e.message}`),
+  });
+
   const structureMutation = trpc.bionemo.predictStructure.useMutation({
     onSuccess: (data) => {
       setStructureResult(data);
@@ -53,7 +64,7 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
     onError: (e) => toast.error(`Structure prediction failed: ${e.message}`),
   });
 
-  const isLoading = analyzeMutation.isPending || bindingMutation.isPending || structureMutation.isPending;
+  const isLoading = analyzeMutation.isPending || bindingMutation.isPending || structureMutation.isPending || findProteinsMutation.isPending;
 
   const handlePreset = (key: string) => {
     setSequence(PRESET_SEQUENCES[key as keyof typeof PRESET_SEQUENCES]);
@@ -82,13 +93,90 @@ export function BioNemoPanel({ ligandSmiles }: BioNemoPanelProps) {
       {/* Header */}
       <div className="flex items-start gap-4">
         <Dna className="h-8 w-8 text-purple-500 mt-1 shrink-0" />
-        <div>
+        <div className="flex-1">
           <h3 className="font-semibold text-lg">BioNemo Protein Analysis</h3>
           <p className="text-sm text-muted-foreground">
             NVIDIA BioNemo-powered protein analysis: embeddings, structure prediction, binding site detection, and protein-ligand affinity.
           </p>
         </div>
+        {ligandSmiles && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0 text-xs"
+            disabled={findProteinsMutation.isPending}
+            onClick={() => findProteinsMutation.mutate({ smiles: ligandSmiles })}
+          >
+            {findProteinsMutation.isPending ? (
+              <><Loader2 className="h-3 w-3 mr-1 animate-spin" /> Searching...</>
+            ) : (
+              <><Search className="h-3 w-3 mr-1" /> Find Relevant Proteins</>
+            )}
+          </Button>
+        )}
       </div>
+
+      {/* Discovered Protein Targets */}
+      {proteinTargets.length > 0 && (
+        <Card className="border-purple-200 dark:border-purple-800">
+          <CardHeader className="pb-2 cursor-pointer" onClick={() => setShowTargets(v => !v)}>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Search className="h-4 w-4 text-purple-500" />
+                Relevant Protein Targets ({proteinTargets.length})
+              </CardTitle>
+              {showTargets ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </div>
+            <CardDescription className="text-xs">
+              Click any protein to load its sequence for BioNemo analysis
+            </CardDescription>
+          </CardHeader>
+          {showTargets && (
+            <CardContent className="space-y-2 pt-0">
+              {proteinTargets.map((protein, i) => (
+                <div
+                  key={i}
+                  className="flex items-start justify-between gap-2 p-2 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  onClick={() => {
+                    setSequence(protein.sequence);
+                    toast.success(`Loaded ${protein.geneName} sequence (${protein.sequence.length} aa)`);
+                  }}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-xs font-bold text-purple-600">{protein.geneName}</span>
+                      <span className="text-xs text-muted-foreground truncate">{protein.proteinName}</span>
+                      {protein.source === 'open_targets' && (
+                        <Badge variant="outline" className="text-xs text-green-600 border-green-300 h-4 px-1">Open Targets</Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-muted-foreground font-mono">{protein.uniprotId}</span>
+                      <span className="text-xs text-muted-foreground">·</span>
+                      <span className="text-xs text-muted-foreground">{protein.sequence.length} aa</span>
+                      {protein.diseaseAssociations?.length > 0 && (
+                        <span className="text-xs text-muted-foreground">· {protein.diseaseAssociations.slice(0, 2).join(', ')}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <div className="text-xs text-muted-foreground">{(protein.relevanceScore * 100).toFixed(0)}%</div>
+                    <a
+                      href={`https://www.uniprot.org/uniprot/${protein.uniprotId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          )}
+        </Card>
+      )}
 
       {/* Mode selector */}
       <div className="flex gap-2 flex-wrap">

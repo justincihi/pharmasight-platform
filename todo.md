@@ -570,3 +570,49 @@
 - [x] Integrate export button into ADMET results panel in CompoundTesting
 - [x] Integrate export button into Toxicity results panel in CompoundTesting
 - [x] Push to GitHub Pharmadash branch
+
+## PHASE W: Multi-Compound ADMET Comparison (Side-by-Side + Combined Export)
+- [x] Build AdmetComparisonPanel component with compound multi-select (2–4 compounds)
+- [x] Fetch stored ADMET results for each selected compound via getTestResults
+- [x] Render side-by-side comparison table with color-coded diff highlighting (best=green, worst=red)
+- [x] Add combined CSV export (all compounds in one sheet, columns per compound)
+- [x] Add combined PDF export (formatted HTML report, one column per compound)
+- [x] Integrate AdmetComparisonPanel into ADMET tab in CompoundTesting.tsx (toggle button)
+
+## PHASE X: Fix ADMET/Toxicity Results Display
+- [x] Route runADMET through Flask microservice (localhost:5000) instead of broken local Python venv
+- [x] Fix advancedAnalysis.toxicity to accept analogId, call Flask microservice, persist results to testResults table
+- [x] Fix toxicityMutation in CompoundTesting.tsx to pass analogId and refetchResults on success
+- [x] Add ADMET physicochemical properties display section to results card
+
+## PHASE Y: Analog Card Enhancements
+- [x] Add Copy SMILES button to AnalogCard
+- [x] Add SDF/SDF2000 export buttons to AnalogCard
+- [x] Add Quick Dock shortcut to AnalogCard (navigates to CompoundTesting pre-loaded)
+- [x] Add Screening Info dropdown to AnalogCard (update docking score, hERG, BBB, AMES, DILI)
+
+## PHASE Z: Expanded Receptor Library
+- [x] Expand RECEPTOR_FAMILIES in ReceptorSelector.tsx to 17 families and 60+ subtypes
+- [x] Add all required receptor types: serotonin, dopamine, GABA, glutamate, opioid, muscarinic, nicotinic, orexin, adrenergic, cannabinoid, sigma, TAAR, mTOR, histamine, adenosine
+
+## PHASE AA: BioNemo Protein Target Discovery
+- [x] Add findRelevantProteins procedure to bionemoRouter using Open Targets GraphQL API
+- [x] Add Find Relevant Proteins UI to BioNemoPanel with discovery button, results list, and load-to-sequence action
+
+## PHASE AB: ADMET-AI Heatmap
+- [x] Add getAllAdmetHeatmap procedure to routers.ts
+- [x] Build AdmetHeatmap.tsx page with color-coded property grid, sorting, and CSV export
+- [x] Add route /admet-heatmap and navigation item to DashboardLayout
+
+## PHASE AC: Master Compound Sheet
+- [x] Add getMasterCompoundSheet helper to db.ts (joins analogs + ADMET + test results)
+- [x] Add getMasterSheet tRPC procedure to routers.ts
+- [x] Build MasterCompoundSheet.tsx with unified data table, CSV/JSON/PDF export, audit trail
+- [x] Add route /master-sheet and navigation item to DashboardLayout
+
+## PHASE AD: ML-Guided Analog-of-Analog Generator
+- [x] Add /api/analogs/generate-sar endpoint to Flask microservice with SAR scoring
+- [x] Add generateSarAnalogs tRPC procedure to routers.ts
+- [x] Add saveToMasterList tRPC procedure to routers.ts with parent lineage tracking
+- [x] Build AnalogOfAnalog.tsx page with SAR criteria controls, ranked results table, audit trail, save-to-master-list
+- [x] Add route /analog-of-analog and navigation item to DashboardLayout
