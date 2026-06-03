@@ -105,7 +105,7 @@ export default function AnalogOfAnalog() {
   const [sortBy, setSortBy] = useState<"composite_score" | "qed" | "bbb" | "herg" | "tanimoto">("composite_score");
 
   // Load analogs from master list for parent picker
-  const { data: masterAnalogs } = (trpc.analog as any).getAnalogs.useQuery({ limit: 200 });
+  const { data: masterAnalogs } = trpc.analog.list.useQuery({ limit: 200, offset: 0 });
 
   const generateMutation = (trpc.analog as any).generateSarAnalogs.useMutation({
     onSuccess: (data: any) => {

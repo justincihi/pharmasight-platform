@@ -76,13 +76,24 @@ export async function executePythonScriptSafe(
     const pythonCode = `
 import sys
 import json
+import dataclasses
 sys.path.insert(0, '${path.join(__dirname, '..', 'python_modules')}')
 sys.path.insert(0, '${path.join(__dirname, '..', 'python_modules', 'venv', 'lib', 'python3.11', 'site-packages')}')
+
+class _SafeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if dataclasses.is_dataclass(obj) and not isinstance(obj, type):
+            return dataclasses.asdict(obj)
+        if hasattr(obj, '__dict__'):
+            return obj.__dict__
+        if hasattr(obj, 'item'):  # numpy scalar
+            return obj.item()
+        return super().default(obj)
 
 try:
     from ${scriptName.replace('.py', '')} import ${functionName}
     result = ${functionName}(*json.loads(sys.argv[1]))
-    print(json.dumps(result))
+    print(json.dumps(result, cls=_SafeEncoder))
 except Exception as e:
     print(json.dumps({'error': str(e)}), file=sys.stderr)
     sys.exit(1)
