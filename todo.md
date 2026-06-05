@@ -641,3 +641,7 @@
 - [x] Build DiscoveryRegistry.tsx — filterable registry with confidence tier bars, IP status badges, stats row, CSV export
 - [x] Reuses encyclopedia.search procedure — no new backend needed
 - [x] Add route /discovery-registry and navigation item
+
+## NotificationBell Bug Fixes (CURRENT)
+- [x] Fix markVisible input validator: validator checks Array.isArray(val) but client sends {ids:[...]} object — always results in ids=[] and notifications never get marked as read on popover open
+- [x] Fix /api/upload-sdf missing Express route: uploadSDF.ts router exists but is never registered in server/_core/index.ts — POST /api/upload-sdf returns HTML SPA fallback instead of JSON

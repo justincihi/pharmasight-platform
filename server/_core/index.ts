@@ -12,6 +12,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initializeScheduler } from "../initScheduler";
 import { registerPlatformAPI } from "../platformAPI";
+import uploadSdfRouter from "../uploadSDF";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -119,6 +120,8 @@ async function startServer() {
   registerOAuthRoutes(app);
   // Platform API for PharmaSight integration
   registerPlatformAPI(app);
+  // SDF file upload endpoint (must be before tRPC middleware)
+  app.use("/api", uploadSdfRouter);
   // tRPC API
   app.use(
     "/api/trpc",

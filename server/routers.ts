@@ -823,8 +823,18 @@ export const appRouter = router({
     // Mark a specific list of notification IDs as read (used for "mark visible on open")
     markVisible: protectedProcedure
       .input((val: unknown) => {
-        if (!Array.isArray(val)) return { ids: [] as number[] };
-        return { ids: (val as unknown[]).filter((v): v is number => typeof v === 'number') };
+        // Client sends { ids: number[] } via tRPC — handle both object form and raw array
+        if (typeof val === 'object' && val !== null && 'ids' in val) {
+          const obj = val as Record<string, unknown>;
+          const ids = Array.isArray(obj.ids)
+            ? (obj.ids as unknown[]).filter((v): v is number => typeof v === 'number')
+            : [];
+          return { ids };
+        }
+        if (Array.isArray(val)) {
+          return { ids: (val as unknown[]).filter((v): v is number => typeof v === 'number') };
+        }
+        return { ids: [] as number[] };
       })
       .mutation(async ({ input, ctx }) => {
         if (!ctx.user) throw new Error('Unauthorized');
