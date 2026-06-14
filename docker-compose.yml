@@ -202,7 +202,7 @@ services:
   research-engine:
     build: ./services/research-engine
     ports:
-      - "8006:8000"
+      - "8008:8000"
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@db:5432/${POSTGRES_DB:-pharmasight_db}
       - REDIS_URL=redis://redis:6379/0
