@@ -204,12 +204,12 @@ services:
     ports:
       - "8008:8000"
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@db:5432/${POSTGRES_DB:-pharmasight_db}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@postgres:5432/${POSTGRES_DB:-pharmasight_db}
       - REDIS_URL=redis://redis:6379/0
       - PUBMED_API_KEY=${PUBMED_API_KEY:-}
       - PUBCHEM_API_KEY=${PUBCHEM_API_KEY:-}
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
