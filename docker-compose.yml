@@ -181,6 +181,47 @@ services:
     networks:
       - pharmasight-network
 
+  web-frontend:
+    build: ./services/web-frontend
+    ports:
+      - "8090:8090"
+    environment:
+      - PORT=8090
+      - API_GATEWAY_URL=http://api-gateway:8080
+    volumes:
+      - ./services/web-frontend/static/assets:/app/static/assets
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
+  research-engine:
+    build: ./services/research-engine
+    ports:
+      - "8008:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-pharmasight_user}:${POSTGRES_PASSWORD:-pharmasight_pass_2024}@postgres:5432/${POSTGRES_DB:-pharmasight_db}
+      - REDIS_URL=redis://redis:6379/0
+      - PUBMED_API_KEY=${PUBMED_API_KEY:-}
+      - PUBCHEM_API_KEY=${PUBCHEM_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - pharmasight-network
+
   api-gateway:
     build: ./services/api-gateway
     ports:
